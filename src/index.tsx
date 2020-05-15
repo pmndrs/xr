@@ -1,2 +1,4 @@
-export * from "./XRControllers";
-export * from "./webxr";
+export * from './XR'
+export * from './webxr'
+export * from './Interactions'
+export * from './XRController'
