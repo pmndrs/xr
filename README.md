@@ -143,7 +143,7 @@ useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 
 `react-xr` comes with built-in high level interaction components.
 
-#### <Hover>
+#### `<Hover>`
 
 `Hover` component will allow you for detecting when ray shot from the controllers is pointing at the given mesh.
 
@@ -151,7 +151,7 @@ useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 <Hover onChange={(value) => console.log(value ? 'hovered' : 'blurred')}>{/* your mesh here */}</Hover>
 ```
 
-#### <Select>
+#### `<Select>`
 
 `Select` can be used when you need to select some mesh. Component will trigger `onSelect` function when controller is pointing at the given mesh and `select` event was fired.
 
