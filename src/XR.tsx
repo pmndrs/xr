@@ -116,8 +116,10 @@ export interface XREvent {
   controller: XRController
 }
 
+export type XREventType = 'select' | 'selectstart' | 'selectend' | 'squeeze' | 'squeezestart' | 'squeezeend'
+
 export const useXREvent = (
-  event: string,
+  event: XREventType,
   handler: (e: XREvent) => any,
   {
     handedness
