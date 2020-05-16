@@ -11,7 +11,7 @@ export interface XRController {
   /** Group with orientation of the preferred pointing ray */
   controller: Group
   hovering: Set<Object3D>
-  selecting: Set<Object3D>
+  hoverRayLength?: number
 }
 export const XRController = {
   make: (id: number, gl: WebGLRenderer): XRController => {
