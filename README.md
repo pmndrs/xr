@@ -12,6 +12,9 @@ React components and hooks for creating VR/AR/XR applications with [react-three-
   <a href="https://codesandbox.io/s/react-xr-paddle-demo-v4uet"><img width="288" src="https://i.imgur.com/K71D3Ts.gif" /></a>
   <a href="https://codesandbox.io/s/react-xr-simple-demo-8i9ro"><img width="288" src="https://i.imgur.com/5yh7LKz.gif" /></a>
 </p>
+<p align="middle">
+  <i>These demos are real, you can click them! They contain the full code, too.</i>
+</p>
 
 ## Installation
 
@@ -21,27 +24,31 @@ npm install react-xr
 
 ## Getting started
 
-Enable VR in the `Canvas` component, add VR button and add `XR` component at the root of your application. This will provide context for XR related state.
+Add `XRCanvas` component (or replace your existing react-three-fiber `Canvas` component)
 
 ```js
-import { XR } from 'react-xr'
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
+import { XRCanvas } from 'react-xr'
 
 function App() {
-  return (
-    <Canvas
-      vr
-      colorManagement
-      onCreated={({ gl }) => {
-        document.body.appendChild(VRButton.createButton(gl))
-      }}>
-      <XR>{/* All the stuff goes here */}</XR>
-    </Canvas>
-  )
+  return <XRCanvas>{/* All the stuff goes here */}</XRCanvas>
 }
 ```
 
 ## Adding controllers to the scene
+
+To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/motion-controllers).
+
+```js
+import { XRCanvas, DefaultXRControllers } from 'react-xr'
+
+function App() {
+  return (
+    <XRCanvas>
+      <DefaultXRControllers />
+    </XRCanvas>
+  )
+}
+```
 
 You can access controllers' state (position, orientation, etc.) by using `useXR()` hook
 
@@ -49,55 +56,28 @@ You can access controllers' state (position, orientation, etc.) by using `useXR(
 const { controllers } = useXR()
 ```
 
-To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/motion-controllers).
-
-```js
-import { XR, DefaultXRControllers } from 'react-xr'
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
-
-function App() {
-  return (
-    <Canvas
-      vr
-      colorManagement
-      onCreated={({ gl }) => {
-        document.body.appendChild(VRButton.createButton(gl))
-      }}>
-      <XR>
-        <DefaultXRControllers />
-      </XR>
-    </Canvas>
-  )
-}
-```
-
 ## API
 
-### XR
+### XRCanvas
 
-Context for all XR related state
+Extended react-three-fiber [Canvas](https://github.com/react-spring/react-three-fiber/blob/master/api.md#canvas) that includes:
+
+- Button to start VR session
+- Color management
+- VR Mode
+- react-xr context
 
 ```js
-import { XR } from 'react-xr'
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
+import { XRCanvas } from 'react-xr'
 
 function App() {
-  return (
-    <Canvas
-      vr
-      colorManagement
-      onCreated={({ gl }) => {
-        document.body.appendChild(VRButton.createButton(gl))
-      }}>
-      <XR>{/* All the stuff goes here */}</XR>
-    </Canvas>
-  )
+  return <XRCanvas>{/* All the stuff goes here */}</XRCanvas>
 }
 ```
 
 ### useXR
 
-Hook that can only beused by components insde <XR> component.
+Hook that can only beused by components insde <XRCanvas> component.
 
 ```js
 const { controllers } = useXR()
@@ -116,6 +96,8 @@ interface XRController {
 ```
 
 `grip` and `controller` are ThreeJS groups that have the position and orientation of xr controllers. `grip` has an orientation that should be used to render virtual objects such that they appear to be held in the user’s hand and `controller` has an orientation of the preferred pointing ray.
+
+<img width="200" height="200" src="https://i.imgur.com/3stLjfR.jpg" />
 
 `inputSource` is the WebXR input source [(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource). Note that it will not be available before controller is connected.
 

@@ -1,11 +1,13 @@
 import * as React from 'react'
 import { Object3D, Matrix4, Raycaster, Intersection, Color } from 'three'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory'
-import { useThree, useFrame } from 'react-three-fiber'
+import { useThree, useFrame, Canvas } from 'react-three-fiber'
 import { XRHandedness } from './webxr'
+import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { XRController } from './XRController'
+import { ContainerProps } from 'react-three-fiber/targets/shared/web/ResizeContainer'
 
-const XRContext = React.createContext<{
+export const XRContext = React.createContext<{
   controllers: XRController[]
   addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
 }>({
@@ -21,7 +23,7 @@ export type XRInteractionType = 'onHover' | 'onBlur'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
-export function XR(props: { children: React.ReactNode }) {
+export function XRContextProvider(props: { children: React.ReactNode }) {
   const { gl } = useThree()
   const [controllers, setControllers] = React.useState<XRController[]>([])
 
@@ -107,6 +109,20 @@ export function XR(props: { children: React.ReactNode }) {
   })
 
   return <XRContext.Provider value={{ controllers, addInteraction }}>{props.children}</XRContext.Provider>
+}
+
+export function XRCanvas({ children, ...rest }: ContainerProps) {
+  return (
+    <Canvas
+      vr
+      colorManagement
+      onCreated={({ gl }) => {
+        document.body.appendChild(VRButton.createButton(gl))
+      }}
+      {...rest}>
+      <XRContextProvider>{children}</XRContextProvider>
+    </Canvas>
+  )
 }
 
 export const useXR = () => React.useContext(XRContext)
