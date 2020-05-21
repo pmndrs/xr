@@ -1,13 +1,14 @@
 import * as React from 'react'
 import { Object3D, Matrix4, Raycaster, Intersection, Color } from 'three'
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory'
-import { useThree, useFrame, Canvas } from 'react-three-fiber'
-import { XRHandedness } from './webxr'
+import { Canvas, useThree, useFrame } from 'react-three-fiber'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
+import { ARButton } from 'three/examples/jsm/webxr/ARButton'
+import { XRHandedness } from './webxr'
 import { XRController } from './XRController'
 import { ContainerProps } from 'react-three-fiber/targets/shared/web/ResizeContainer'
 
-export const XRContext = React.createContext<{
+const XRContext = React.createContext<{
   controllers: XRController[]
   addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
 }>({
@@ -23,7 +24,7 @@ export type XRInteractionType = 'onHover' | 'onBlur'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
-export function XRContextProvider(props: { children: React.ReactNode }) {
+export function XR(props: { children: React.ReactNode }) {
   const { gl } = useThree()
   const [controllers, setControllers] = React.useState<XRController[]>([])
 
@@ -111,17 +112,35 @@ export function XRContextProvider(props: { children: React.ReactNode }) {
   return <XRContext.Provider value={{ controllers, addInteraction }}>{props.children}</XRContext.Provider>
 }
 
-export function XRCanvas({ children, ...rest }: ContainerProps) {
+function XRCanvas({ children, ...rest }: ContainerProps) {
   return (
-    <Canvas
-      vr
-      colorManagement
+    <Canvas vr colorManagement {...rest}>
+      <XR>{children}</XR>
+    </Canvas>
+  )
+}
+
+export function VRCanvas({ children, ...rest }: ContainerProps) {
+  return (
+    <XRCanvas
       onCreated={({ gl }) => {
         document.body.appendChild(VRButton.createButton(gl))
       }}
       {...rest}>
-      <XRContextProvider>{children}</XRContextProvider>
-    </Canvas>
+      {children}
+    </XRCanvas>
+  )
+}
+
+export function ARCanvas({ children, ...rest }: ContainerProps) {
+  return (
+    <XRCanvas
+      onCreated={({ gl }) => {
+        document.body.appendChild(ARButton.createButton(gl))
+      }}
+      {...rest}>
+      {children}
+    </XRCanvas>
   )
 }
 
@@ -184,7 +203,7 @@ export function DefaultXRControllers() {
         return
       }
 
-      if (it.hoverRayLength === undefined) {
+      if (it.hoverRayLength === undefined || it.inputSource?.handedness === 'none') {
         ray.visible = false
         return
       }

@@ -4,7 +4,7 @@
 
 WebXR + react-three-fiber
 
-React components and hooks for creating VR/AR/XR applications with [react-three-fiber](https://github.com/react-spring/react-three-fiber)
+React components and hooks for creating VR/AR applications with [react-three-fiber](https://github.com/react-spring/react-three-fiber)
 
 **Note: Extremely early in development. Contributors welcome!**
 
@@ -24,13 +24,13 @@ npm install react-xr
 
 ## Getting started
 
-Add `XRCanvas` component (or replace your existing react-three-fiber `Canvas` component)
+Add `VRCanvas` or `ARCanvas` component (or replace your existing react-three-fiber `Canvas` component)
 
 ```js
-import { XRCanvas } from 'react-xr'
+import { VRCanvas } from 'react-xr'
 
 function App() {
-  return <XRCanvas>{/* All the stuff goes here */}</XRCanvas>
+  return <VRCanvas>{/* All the stuff goes here */}</VRCanvas>
 }
 ```
 
@@ -39,13 +39,13 @@ function App() {
 To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/motion-controllers).
 
 ```js
-import { XRCanvas, DefaultXRControllers } from 'react-xr'
+import { VRCanvas, DefaultXRControllers } from 'react-xr'
 
 function App() {
   return (
-    <XRCanvas>
+    <VRCanvas>
       <DefaultXRControllers />
-    </XRCanvas>
+    </VRCanvas>
   )
 }
 ```
@@ -58,7 +58,7 @@ const { controllers } = useXR()
 
 ## API
 
-### XRCanvas
+### VRCanvas / ARCanvas
 
 Extended react-three-fiber [Canvas](https://github.com/react-spring/react-three-fiber/blob/master/api.md#canvas) that includes:
 
@@ -67,11 +67,13 @@ Extended react-three-fiber [Canvas](https://github.com/react-spring/react-three-
 - VR Mode
 - react-xr context
 
+For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
+
 ```js
-import { XRCanvas } from 'react-xr'
+import { VRCanvas } from 'react-xr'
 
 function App() {
-  return <XRCanvas>{/* All the stuff goes here */}</XRCanvas>
+  return <VRCanvas>{/* All the stuff goes here */}</VRCanvas>
 }
 ```
 
