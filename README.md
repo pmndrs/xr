@@ -11,7 +11,7 @@ React components and hooks for creating VR/AR applications with [react-three-fib
 <p align="center">
   <a href="https://codesandbox.io/s/react-xr-paddle-demo-v4uet"><img width="288" src="https://i.imgur.com/K71D3Ts.gif" /></a>
   <a href="https://codesandbox.io/s/react-xr-simple-demo-8i9ro"><img width="288" src="https://i.imgur.com/5yh7LKz.gif" /></a>
-  <a href="https://codesandbox.io/s/react-xr-simple-ar-demo-8w8hm"><img height="162" src="https://i.imgur.com/Xp3lGVE.gif" /></a>
+  <a href="https://codesandbox.io/s/react-xr-simple-ar-demo-8w8hm"><img height="162" src="https://i.imgur.com/yuNwPpn.gif" /></a>
 </p>
 <p align="middle">
   <i>These demos are real, you can click them! They contain the full code, too.</i>
