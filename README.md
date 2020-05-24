@@ -31,8 +31,10 @@ Add `VRCanvas` or `ARCanvas` component (or replace your existing react-three-fib
 import { VRCanvas } from 'react-xr'
 
 function App() {
-  return <VRCanvas>{/* All the stuff goes here */}</VRCanvas>
-}
+  return (
+    <VRCanvas>
+     {/* All your regular react-three-fiber element go here */}
+    </VRCanvas>
 ```
 
 ## Adding controllers to the scene
@@ -42,13 +44,8 @@ To get started with default controller models add `DefaultXRControllers` compone
 ```jsx
 import { VRCanvas, DefaultXRControllers } from 'react-xr'
 
-function App() {
-  return (
-    <VRCanvas>
-      <DefaultXRControllers />
-    </VRCanvas>
-  )
-}
+<VRCanvas>
+  <DefaultXRControllers />
 ```
 
 You can access controllers' state (position, orientation, etc.) by using `useXR()` hook
@@ -73,13 +70,9 @@ For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
 ```jsx
 import { VRCanvas } from 'react-xr'
 
-function App() {
-  return (
-    <VRCanvas>
-     {/* All your regular react-three-fiber element go here */}
-    </VRCanvas>
-  )
-}
+<VRCanvas>
+  {/* All your regular react-three-fiber element go here */}
+</VRCanvas>
 ```
 
 ### useXR
@@ -155,10 +148,8 @@ useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 To get the position of the VR camera, use three's WebXRManager instance. 
 
 ```jsx
-useFrame(({ gl, camera }) => {
-  const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera
-  myObj.lookAt(cam.position) 
-})
+const { camera } = useThree()
+const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera
 ```
 
 ## Parent VR HMD and Controllers to another object
@@ -172,11 +163,13 @@ const { gl, camera } = useThree()
 useEffect(() => {
   const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera
   mesh.current.add(cam)
+  return () => mesh.current.remove(cam)
 }, [gl.xr.isPresenting, gl.xr, camera, mesh])
 
 // bundle add the controllers to the same object as the camera so it all stays together.
 const { controllers } = useXR()
 useEffect(() => {
   if (controllers.length > 0) controllers.forEach(c => mesh.current.add(c.grip))
+  return () => controllers.forEach(c => mesh.current.remove(c.grip))
 }, [controllers, mesh])
 ```
