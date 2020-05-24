@@ -20,7 +20,7 @@ React components and hooks for creating VR/AR applications with [react-three-fib
 ## Installation
 
 ```
-npm install react-xr
+yarn add react-xr
 ```
 
 ## Getting started
@@ -74,13 +74,17 @@ For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
 import { VRCanvas } from 'react-xr'
 
 function App() {
-  return <VRCanvas>{/* All the stuff goes here */}</VRCanvas>
+  return (
+    <VRCanvas>
+     {/* All your regular react-three-fiber element go here */}
+    </VRCanvas>
+  )
 }
 ```
 
 ### useXR
 
-Hook that can only beused by components insde <XRCanvas> component.
+Hook that can only beused by components inside `XRCanvas` component.
 
 ```jsx
 const { controllers } = useXR()
@@ -112,7 +116,6 @@ To listen to those events use `useXREvent` hook:
 
 ```jsx
 const onSqueeze = useCallback(() => console.log('Squeezed'), [])
-
 useXREvent('squeeze', onSqueeze)
 ```
 
@@ -120,7 +123,6 @@ it supports optional third parameter with options
 
 ```jsx
 const onSqueeze = useCallback(() => console.log('Left controller squeeze'), [])
-
 useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 ```
 

@@ -122,11 +122,7 @@ function XRCanvas({ children, ...rest }: ContainerProps) {
 
 export function VRCanvas({ children, ...rest }: ContainerProps) {
   return (
-    <XRCanvas
-      onCreated={({ gl }) => {
-        document.body.appendChild(VRButton.createButton(gl))
-      }}
-      {...rest}>
+    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(VRButton.createButton(gl))} {...rest}>
       {children}
     </XRCanvas>
   )
@@ -134,11 +130,7 @@ export function VRCanvas({ children, ...rest }: ContainerProps) {
 
 export function ARCanvas({ children, ...rest }: ContainerProps) {
   return (
-    <XRCanvas
-      onCreated={({ gl }) => {
-        document.body.appendChild(ARButton.createButton(gl))
-      }}
-      {...rest}>
+    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(ARButton.createButton(gl))} {...rest}>
       {children}
     </XRCanvas>
   )
@@ -164,12 +156,7 @@ export const useXREvent = (
 ) => {
   const { controllers: allControllers } = useXR()
 
-  const handleEvent = React.useCallback(
-    (controller: XRController) => (e: any) => {
-      handler({ originalEvent: e, controller })
-    },
-    [handler]
-  )
+  const handleEvent = React.useCallback((controller: XRController) => (e: any) => handler({ originalEvent: e, controller }), [handler])
 
   React.useEffect(() => {
     const controllers = handedness ? allControllers.filter((it) => it.inputSource?.handedness === handedness) : allControllers
@@ -182,9 +169,7 @@ export const useXREvent = (
       cleanups.push(() => it.controller.removeEventListener(event, listener))
     })
 
-    return () => {
-      cleanups.forEach((fn) => fn())
-    }
+    return () => cleanups.forEach((fn) => fn())
   }, [event, handleEvent, allControllers, handedness])
 }
 
