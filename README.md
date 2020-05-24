@@ -33,7 +33,7 @@ import { VRCanvas } from 'react-xr'
 function App() {
   return (
     <VRCanvas>
-     {/* All your regular react-three-fiber element go here */}
+      {/* All your regular react-three-fiber elements go here */}
     </VRCanvas>
 ```
 
