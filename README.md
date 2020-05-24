@@ -140,3 +140,35 @@ useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 ```js
 <Select onSelect={() => console.log('selected')}>{/* your mesh here */}</Select>
 ```
+
+## Getting the VR Camera (HMD) Location
+
+To get the position of the VR camera, use three's WebXRManager instance. 
+
+```
+useFrame(({gl, camera})=>{
+const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera;
+myObj.lookAt(cam.position) 
+});
+```
+
+## Parent VR HMD and Controllers to another object
+
+If you want to attach the user to an object so it can be moved around, just parent the VR camera and controllers to an object3D.
+```
+  const mesh = useRef()
+  const { gl, camera } = useThree()
+  
+  useEffect(() => {
+    const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera
+    mesh.current.add(cam)
+  }, [gl.xr.isPresenting, gl.xr, camera, mesh])
+  
+  const { controllers } = useXR()
+ // bundle add the controllers to the same object as the camera so it all stays together.
+  useEffect(() => {
+    if (controllers.length > 0) {
+      controllers.forEach(c => mesh.current.add(c.grip))
+    }
+  }, [controllers, mesh])
+```
