@@ -71,7 +71,7 @@ For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
 import { VRCanvas } from 'react-xr'
 
 <VRCanvas>
-  {/* All your regular react-three-fiber element go here */}
+  {/* All your regular react-three-fiber elements go here */}
 </VRCanvas>
 ```
 
