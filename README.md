@@ -27,7 +27,7 @@ npm install react-xr
 
 Add `VRCanvas` or `ARCanvas` component (or replace your existing react-three-fiber `Canvas` component)
 
-```js
+```jsx
 import { VRCanvas } from 'react-xr'
 
 function App() {
@@ -39,7 +39,7 @@ function App() {
 
 To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/motion-controllers).
 
-```js
+```jsx
 import { VRCanvas, DefaultXRControllers } from 'react-xr'
 
 function App() {
@@ -53,7 +53,7 @@ function App() {
 
 You can access controllers' state (position, orientation, etc.) by using `useXR()` hook
 
-```js
+```jsx
 const { controllers } = useXR()
 ```
 
@@ -70,7 +70,7 @@ Extended react-three-fiber [Canvas](https://github.com/react-spring/react-three-
 
 For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
 
-```js
+```jsx
 import { VRCanvas } from 'react-xr'
 
 function App() {
@@ -82,13 +82,13 @@ function App() {
 
 Hook that can only beused by components insde <XRCanvas> component.
 
-```js
+```jsx
 const { controllers } = useXR()
 ```
 
 Controllers is an array of `XRController` objects
 
-```js
+```jsx
 interface XRController {
   grip: Group
   controller: Group
@@ -110,7 +110,7 @@ Every controller emits following events: select, selectstart, selectend, squeeze
 
 To listen to those events use `useXREvent` hook:
 
-```js
+```jsx
 const onSqueeze = useCallback(() => console.log('Squeezed'), [])
 
 useXREvent('squeeze', onSqueeze)
@@ -118,7 +118,7 @@ useXREvent('squeeze', onSqueeze)
 
 it supports optional third parameter with options
 
-```js
+```jsx
 const onSqueeze = useCallback(() => console.log('Left controller squeeze'), [])
 
 useXREvent('squeeze', onSqueeze, { handedness: 'left' })
@@ -132,16 +132,20 @@ useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 
 `Hover` component will allow you for detecting when ray shot from the controllers is pointing at the given mesh.
 
-```js
-<Hover onChange={(value) => console.log(value ? 'hovered' : 'blurred')}>{/* your mesh here */}</Hover>
+```jsx
+<Hover onChange={(value) => console.log(value ? 'hovered' : 'blurred')}>
+  <mesh />
+</Hover>
 ```
 
 #### `<Select>`
 
 `Select` can be used when you need to select some mesh. Component will trigger `onSelect` function when controller is pointing at the given mesh and `select` event was fired.
 
-```js
-<Select onSelect={() => console.log('selected')}>{/* your mesh here */}</Select>
+```jsx
+<Select onSelect={() => console.log('mesh has been selected')}>
+  <mesh />
+</Select>
 ```
 
 ## Getting the VR Camera (HMD) Location
