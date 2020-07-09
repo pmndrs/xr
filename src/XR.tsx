@@ -193,9 +193,12 @@ export function DefaultXRControllers() {
         return
       }
 
+      // Tiny offset to clip ray on AR devices
+      // that don't have handedness set to 'none'
+      const offset = -0.01
       ray.visible = true
-      ray.scale.y = it.hoverRayLength
-      ray.position.z = -it.hoverRayLength / 2
+      ray.scale.y = it.hoverRayLength + offset
+      ray.position.z = -it.hoverRayLength / 2 - offset
     })
   })
 
