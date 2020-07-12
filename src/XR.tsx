@@ -109,7 +109,9 @@ export function XR(props: { children: React.ReactNode }) {
     })
   })
 
-  return <XRContext.Provider value={{ controllers, addInteraction }}>{props.children}</XRContext.Provider>
+  const value = React.useMemo(() => ({ controllers, addInteraction }), [controllers, addInteraction])
+
+  return <XRContext.Provider value={value}>{props.children}</XRContext.Provider>
 }
 
 function XRCanvas({ children, ...rest }: ContainerProps) {
