@@ -88,7 +88,7 @@ export function XR(props: { children: React.ReactNode }) {
           if (handlers.onHover.has(eventObject)) {
             it.hoverRayLength = Math.min(it.hoverRayLength ?? Infinity, intersection.distance)
 
-            if (!hovering.has(eventObject) && handlers.onHover.has(eventObject)) {
+            if (it.inputSource && !hovering.has(eventObject) && handlers.onHover.has(eventObject)) {
               hovering.add(eventObject)
               handlers.onHover.get(eventObject)?.({ controller: it, intersection })
             }
