@@ -71,7 +71,7 @@ export function RayGrab({ children }: { children: ReactNode }) {
   }, [])
 
   const onStart = useCallback((e: XREvent) => {
-    if (hoveredHandedness.current.has(e.controller.inputSource?.handedness)) {
+    if (hoveredHandedness.current.has(e.controller.inputSource.handedness)) {
       grabbingController.current = e.controller.controller
       previousTransform.current = new Matrix4().getInverse(e.controller.controller.matrixWorld)
     }
@@ -97,10 +97,10 @@ export function RayGrab({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     addInteraction(groupRef.current as Object3D, 'onHover', (e: XRInteractionEvent) => {
-      hoveredHandedness.current.add(e.controller.inputSource?.handedness)
+      hoveredHandedness.current.add(e.controller.inputSource.handedness)
     })
     addInteraction(groupRef.current as Object3D, 'onBlur', (e: XRInteractionEvent) => {
-      hoveredHandedness.current.delete(e.controller.inputSource?.handedness)
+      hoveredHandedness.current.delete(e.controller.inputSource.handedness)
     })
   }, [addInteraction])
 

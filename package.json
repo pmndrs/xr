@@ -1,6 +1,6 @@
 {
   "name": "react-xr",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -48,7 +48,7 @@
     "pretty-quick": "^2.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-three-fiber": "^4.1.1",
+    "react-three-fiber": "^4.2.20",
     "rimraf": "^3.0.2",
     "rollup": "^2.7.2",
     "rollup-plugin-babel": "^4.4.0",
@@ -56,7 +56,7 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-size-snapshot": "^0.11.0",
-    "three": "^0.115.0",
+    "three": "^0.120.0",
     "typescript": "^3.8.3"
   },
   "peerDependencies": {

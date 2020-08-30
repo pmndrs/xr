@@ -12,6 +12,7 @@ React components and hooks for creating VR/AR applications with [react-three-fib
   <a href="https://codesandbox.io/s/react-xr-paddle-demo-v4uet"><img width="390" src="https://i.imgur.com/K71D3Ts.gif" /></a>
   <a href="https://codesandbox.io/s/react-xr-simple-demo-8i9ro"><img width="390" src="https://i.imgur.com/5yh7LKz.gif" /></a>
   <a href="https://codesandbox.io/s/react-xr-simple-ar-demo-8w8hm"><img height="221" src="https://i.imgur.com/yuNwPpn.gif" /></a>
+  <a href="https://codesandbox.io/s/react-xr-hands-demo-gczkp"><img height="221" src="https://i.imgur.com/CyeevrA.gif" /></a>
 </p>
 <p align="middle">
   <i>These demos are real, you can click them! They contain the full code, too.</i>
@@ -89,7 +90,7 @@ Controllers is an array of `XRController` objects
 interface XRController {
   grip: Group
   controller: Group
-  inputSource?: XRInputSource
+  inputSource: XRInputSource
   // ...
   // more in XRController.ts
 }
@@ -119,6 +120,23 @@ const onSqueeze = useCallback(() => console.log('Left controller squeeze'), [])
 useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 ```
 
+### useControllers
+
+Use this hook to get n instance of the controller
+
+```jsx
+const leftController = useController('left')
+```
+
+### `<Hands>`
+
+Add hands model for hand-tracking. Currently only works on Oculus Quest with #webxr-hands experimental flag enabled
+
+```jsx
+<VRCanvas>
+  <Hands />
+```
+
 ### Interactions
 
 `react-xr` comes with built-in high level interaction components.
@@ -145,7 +163,7 @@ useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 
 ## Getting the VR Camera (HMD) Location
 
-To get the position of the VR camera, use three's WebXRManager instance. 
+To get the position of the VR camera, use three's WebXRManager instance.
 
 ```jsx
 const { camera } = useThree()
@@ -159,7 +177,7 @@ If you want to attach the user to an object so it can be moved around, just pare
 ```jsx
 const mesh = useRef()
 const { gl, camera } = useThree()
-  
+
 useEffect(() => {
   const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera
   mesh.current.add(cam)
@@ -169,7 +187,7 @@ useEffect(() => {
 // bundle add the controllers to the same object as the camera so it all stays together.
 const { controllers } = useXR()
 useEffect(() => {
-  if (controllers.length > 0) controllers.forEach(c => mesh.current.add(c.grip))
-  return () => controllers.forEach(c => mesh.current.remove(c.grip))
+  if (controllers.length > 0) controllers.forEach((c) => mesh.current.add(c.grip))
+  return () => controllers.forEach((c) => mesh.current.remove(c.grip))
 }, [controllers, mesh])
 ```

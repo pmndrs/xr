@@ -1,19 +1,17 @@
 import * as React from 'react'
-import { Object3D, Matrix4, Raycaster, Intersection, Color } from 'three'
-import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory'
+import { Object3D, Matrix4, Raycaster, Intersection } from 'three'
 import { Canvas, useThree, useFrame } from 'react-three-fiber'
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
+import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { XRHandedness } from './webxr'
 import { XRController } from './XRController'
 import { ContainerProps } from 'react-three-fiber/targets/shared/web/ResizeContainer'
 
-const XRContext = React.createContext<{
+export interface XRContextValue {
   controllers: XRController[]
   addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
-}>({
-  controllers: []
-} as any)
+}
+const XRContext = React.createContext<XRContextValue>({} as any)
 
 export interface XRInteractionEvent {
   intersection?: Intersection
@@ -24,11 +22,37 @@ export type XRInteractionType = 'onHover' | 'onBlur'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
-export function XR(props: { children: React.ReactNode }) {
-  const { gl } = useThree()
+const useControllers = (): XRController[] => {
+  const { gl, scene } = useThree()
   const [controllers, setControllers] = React.useState<XRController[]>([])
 
-  const state = React.useRef({
+  React.useEffect(() => {
+    const ids = [0, 1]
+    ids.forEach((id) => {
+      XRController.make(
+        id,
+        gl,
+        (controller) => {
+          scene.add(controller.controller)
+          scene.add(controller.grip)
+          setControllers((it) => [...it, controller])
+        },
+        (controller) => {
+          scene.remove(controller.controller)
+          scene.remove(controller.grip)
+          setControllers((existing) => existing.filter((it) => it !== controller))
+        }
+      )
+    })
+  }, [gl, scene])
+
+  return controllers
+}
+
+export function XR(props: { children: React.ReactNode }) {
+  const controllers = useControllers()
+
+  const interactionState = React.useRef({
     interactable: new Set<Object3D>(),
     handlers: {
       onHover: new WeakMap<Object3D, XRInteractionHandler>(),
@@ -37,43 +61,31 @@ export function XR(props: { children: React.ReactNode }) {
   })
 
   const addInteraction = React.useCallback((object: Object3D, eventType: XRInteractionType, handler: any) => {
-    state.current.interactable.add(object)
-    state.current.handlers[eventType].set(object, handler)
+    interactionState.current.interactable.add(object)
+    interactionState.current.handlers[eventType].set(object, handler)
   }, [])
-
-  React.useEffect(() => {
-    const initialControllers = [0, 1].map((id) => XRController.make(id, gl))
-
-    setControllers(initialControllers)
-
-    // Once they are connected update them with obtained inputSource
-    const updateController = (index: number) => (event: any) => {
-      setControllers((existingControllers) => {
-        const copy = [...existingControllers]
-        copy[index] = { ...copy[index], inputSource: event.data }
-        return copy
-      })
-    }
-
-    initialControllers.forEach(({ controller }, i) => {
-      controller.addEventListener('connected', updateController(i))
-    })
-  }, [gl])
 
   const [raycaster] = React.useState(() => new Raycaster())
 
-  useFrame(() => {
-    const intersect = (controller: Object3D) => {
-      const objects = Array.from(state.current.interactable)
+  const intersect = React.useCallback(
+    (controller: Object3D) => {
+      const objects = Array.from(interactionState.current.interactable)
       const tempMatrix = new Matrix4()
       tempMatrix.identity().extractRotation(controller.matrixWorld)
       raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
 
       return raycaster.intersectObjects(objects, true)
-    }
+    },
+    [raycaster]
+  )
 
-    const { handlers } = state.current
+  useFrame(() => {
+    const { handlers } = interactionState.current
+
+    if (interactionState.current.interactable.size === 0) {
+      return
+    }
 
     controllers.forEach((it) => {
       const { controller, hovering } = it
@@ -88,7 +100,7 @@ export function XR(props: { children: React.ReactNode }) {
           if (handlers.onHover.has(eventObject)) {
             it.hoverRayLength = Math.min(it.hoverRayLength ?? Infinity, intersection.distance)
 
-            if (it.inputSource && !hovering.has(eventObject) && handlers.onHover.has(eventObject)) {
+            if (!hovering.has(eventObject) && handlers.onHover.has(eventObject)) {
               hovering.add(eventObject)
               handlers.onHover.get(eventObject)?.({ controller: it, intersection })
             }
@@ -140,6 +152,14 @@ export function ARCanvas({ children, ...rest }: ContainerProps) {
 
 export const useXR = () => React.useContext(XRContext)
 
+export const useController = (handedness: XRHandedness) => {
+  const { controllers } = useXR()
+
+  const controller = React.useMemo(() => controllers.find((it) => it.inputSource.handedness === handedness), [handedness, controllers])
+
+  return controller
+}
+
 export interface XREvent {
   originalEvent: any
   controller: XRController
@@ -161,7 +181,7 @@ export const useXREvent = (
   const handleEvent = React.useCallback((controller: XRController) => (e: any) => handler({ originalEvent: e, controller }), [handler])
 
   React.useEffect(() => {
-    const controllers = handedness ? allControllers.filter((it) => it.inputSource?.handedness === handedness) : allControllers
+    const controllers = handedness ? allControllers.filter((it) => it.inputSource.handedness === handedness) : allControllers
 
     const cleanups: any[] = []
 
@@ -173,75 +193,4 @@ export const useXREvent = (
 
     return () => cleanups.forEach((fn) => fn())
   }, [event, handleEvent, allControllers, handedness])
-}
-
-export function DefaultXRControllers() {
-  const { controllers } = useXR()
-
-  const modelFactory = React.useMemo(() => new XRControllerModelFactory(), [])
-
-  const [modelMap] = React.useState(new Map())
-  const [rays] = React.useState(new Map<number, Object3D>())
-
-  useFrame(() => {
-    controllers.forEach((it) => {
-      const ray = rays.get(it.controller.id)
-      if (!ray) {
-        return
-      }
-
-      if (it.hoverRayLength === undefined || it.inputSource?.handedness === 'none') {
-        ray.visible = false
-        return
-      }
-
-      // Tiny offset to clip ray on AR devices
-      // that don't have handedness set to 'none'
-      const offset = -0.01
-      ray.visible = true
-      ray.scale.y = it.hoverRayLength + offset
-      ray.position.z = -it.hoverRayLength / 2 - offset
-    })
-  })
-
-  useXREvent('selectstart', (e: XREvent) => {
-    const ray = rays.get(e.controller.controller.id)
-    if (!ray) return
-    ;(ray as any).material.color = new Color(0x192975)
-  })
-
-  useXREvent('selectend', (e: XREvent) => {
-    const ray = rays.get(e.controller.controller.id)
-    if (!ray) return
-    ;(ray as any).material.color = new Color(0xffffff)
-  })
-
-  const models = React.useMemo(
-    () =>
-      controllers.map(({ controller, grip }) => {
-        // Model factory listens for 'connect' event so we can only create models on inital render
-        const model = modelMap.get(controller) ?? modelFactory.createControllerModel(controller)
-
-        if (modelMap.get(controller) === undefined) {
-          modelMap.set(controller, model)
-        }
-
-        return (
-          <React.Fragment key={controller.id}>
-            <primitive object={controller}>
-              <mesh rotation={[Math.PI / 2, 0, 0]} ref={(ref) => rays.set(controller.id, ref as any)}>
-                <meshBasicMaterial attach="material" color="#FFF" opacity={0.8} transparent />
-                <boxBufferGeometry attach="geometry" args={[0.002, 1, 0.002]} />
-              </mesh>
-            </primitive>
-            <primitive object={grip} dispose={null} key={grip.id}>
-              <primitive object={model} />
-            </primitive>
-          </React.Fragment>
-        )
-      }),
-    [controllers, modelFactory, modelMap, rays]
-  )
-
-  return <group>{models}</group>
 }
