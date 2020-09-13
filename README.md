@@ -1,4 +1,4 @@
-# react-xr
+ <img width="400" src="https://i.imgur.com/weCBYBT.gif" alt="react-xr - build experiences for xr vr ar" />
 
 [![Version](https://img.shields.io/npm/v/react-xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-xr)
 [![Downloads](https://img.shields.io/npm/dt/react-xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-xr)
@@ -72,10 +72,7 @@ For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
 
 ```jsx
 import { VRCanvas } from 'react-xr'
-
-<VRCanvas>
-  {/* All your regular react-three-fiber elements go here */}
-</VRCanvas>
+;<VRCanvas>{/* All your regular react-three-fiber elements go here */}</VRCanvas>
 ```
 
 ### useXR
