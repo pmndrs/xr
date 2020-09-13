@@ -1,7 +1,8 @@
 # react-xr
 
-[![npm version](https://badge.fury.io/js/react-xr.svg)](https://badge.fury.io/js/react-xr) ![npm](https://img.shields.io/npm/dt/react-xr.svg)
-[![Discord Shield](https://discordapp.com/api/guilds/740090768164651008/widget.png?style=shield)](https://discord.gg/ZZjjNvJ)
+[![Version](https://img.shields.io/npm/v/react-xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-xr)
+[![Downloads](https://img.shields.io/npm/dt/react-xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-xr)
+[![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
 WebXR + react-three-fiber
 
