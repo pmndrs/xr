@@ -15,7 +15,9 @@ npm add react-xr
   <a href="https://codesandbox.io/s/react-xr-simple-demo-8i9ro"><img width="390" src="https://i.imgur.com/5yh7LKz.gif" /></a>
   <a href="https://codesandbox.io/s/react-xr-simple-ar-demo-8w8hm"><img height="221" src="https://i.imgur.com/yuNwPpn.gif" /></a>
   <a href="https://codesandbox.io/s/react-xr-hands-demo-gczkp"><img height="221" src="https://i.imgur.com/T7WKFCO.gif" /></a>
+  <a href="https://codesandbox.io/s/react-xr-hands-physics-demo-tp97r"><img height="221" src="https://i.imgur.com/hbSpV1J.gif" /></a>
 </p>
+
 <p align="middle">
   <i>These demos are real, you can click them! They contain the full code, too.</i>
 </p>
