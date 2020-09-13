@@ -4,11 +4,11 @@
 [![Downloads](https://img.shields.io/npm/dt/react-xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-xr)
 [![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
-WebXR + react-three-fiber
-
 React components and hooks for creating VR/AR applications with [react-three-fiber](https://github.com/react-spring/react-three-fiber)
 
-**Note: Extremely early in development. Contributors welcome!**
+```
+npm add react-xr
+```
 
 <p align="center">
   <a href="https://codesandbox.io/s/react-xr-paddle-demo-v4uet"><img width="390" src="https://i.imgur.com/K71D3Ts.gif" /></a>
@@ -19,12 +19,6 @@ React components and hooks for creating VR/AR applications with [react-three-fib
 <p align="middle">
   <i>These demos are real, you can click them! They contain the full code, too.</i>
 </p>
-
-## Installation
-
-```
-yarn add react-xr
-```
 
 ## Getting started
 
@@ -72,7 +66,9 @@ For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
 
 ```jsx
 import { VRCanvas } from 'react-xr'
-;<VRCanvas>{/* All your regular react-three-fiber elements go here */}</VRCanvas>
+
+<VRCanvas>
+  {/* All your regular react-three-fiber elements go here */}
 ```
 
 ### useXR
@@ -121,7 +117,7 @@ useXREvent('squeeze', onSqueeze, { handedness: 'left' })
 
 ### useControllers
 
-Use this hook to get n instance of the controller
+Use this hook to get an instance of the controller
 
 ```jsx
 const leftController = useController('left')
