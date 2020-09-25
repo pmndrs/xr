@@ -1,10 +1,10 @@
  <img width="270" src="https://i.imgur.com/kxEJWZx.gif" alt="@react-three/xr - build experiences for xr vr ar" />
 
-[![Version](https://img.shields.io/npm/v/@react-three/xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-three/xr)
-[![Downloads](https://img.shields.io/npm/dt/@react-three/xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-three/xr)
+[![Version](https://img.shields.io/npm/v/react-three/xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
+[![Downloads](https://img.shields.io/npm/dt/react-three/xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
 [![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
-React components and hooks for creating VR/AR applications with [react-three-fiber](https://github.com/react-spring/react-three-fiber)
+React components and hooks for creating VR/AR applications with [react-three-fiber](https://github.com/pmndrs/react-three-fiber)
 
 ```
 npm add @react-three/xr
@@ -41,7 +41,7 @@ function App() {
 To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/motion-controllers).
 
 ```jsx
-import { VRCanvas, DefaultXRControllers } from 'react-xr'
+import { VRCanvas, DefaultXRControllers } from '@react-three/xr'
 
 <VRCanvas>
   <DefaultXRControllers />
@@ -57,7 +57,7 @@ const { controllers } = useXR()
 
 ### VRCanvas / ARCanvas
 
-Extended react-three-fiber [Canvas](https://github.com/react-spring/react-three-fiber/blob/master/api.md#canvas) that includes:
+Extended react-three-fiber [Canvas](https://github.com/pmndrs/react-three-fiber/blob/master/api.md#canvas) that includes:
 
 - Button to start VR session
 - Color management
@@ -136,7 +136,7 @@ Add hands model for hand-tracking. Currently only works on Oculus Quest with #we
 
 ### Interactions
 
-`react-xr` comes with built-in high level interaction components.
+`@react-three/xr` comes with built-in high level interaction components.
 
 #### `<Hover>`
 
