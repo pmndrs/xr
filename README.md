@@ -1,13 +1,13 @@
- <img width="270" src="https://i.imgur.com/kxEJWZx.gif" alt="react-xr - build experiences for xr vr ar" />
+ <img width="270" src="https://i.imgur.com/kxEJWZx.gif" alt="@react-three/xr - build experiences for xr vr ar" />
 
-[![Version](https://img.shields.io/npm/v/react-xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-xr)
-[![Downloads](https://img.shields.io/npm/dt/react-xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-xr)
+[![Version](https://img.shields.io/npm/v/@react-three/xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-three/xr)
+[![Downloads](https://img.shields.io/npm/dt/@react-three/xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/react-three/xr)
 [![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
 React components and hooks for creating VR/AR applications with [react-three-fiber](https://github.com/react-spring/react-three-fiber)
 
 ```
-npm add react-xr
+npm add @react-three/xr
 ```
 
 <p align="center">
@@ -27,7 +27,7 @@ npm add react-xr
 Add `VRCanvas` or `ARCanvas` component (or replace your existing react-three-fiber `Canvas` component)
 
 ```jsx
-import { VRCanvas } from 'react-xr'
+import { VRCanvas } from '@react-three/xr'
 
 function App() {
   return (
@@ -67,7 +67,7 @@ Extended react-three-fiber [Canvas](https://github.com/react-spring/react-three-
 For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
 
 ```jsx
-import { VRCanvas } from 'react-xr'
+import { VRCanvas } from '@react-three/xr'
 
 <VRCanvas>
   {/* All your regular react-three-fiber elements go here */}
