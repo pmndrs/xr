@@ -1,13 +1,13 @@
  <img width="270" src="https://i.imgur.com/kxEJWZx.gif" alt="@react-three/xr - build experiences for xr vr ar" />
 
-[![Version](https://img.shields.io/npm/v/react-three/xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
-[![Downloads](https://img.shields.io/npm/dt/react-three/xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
+[![Version](https://img.shields.io/npm/v/@react-three/xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
+[![Downloads](https://img.shields.io/npm/dt/@react-three/xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
 [![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
 
 React components and hooks for creating VR/AR applications with [react-three-fiber](https://github.com/pmndrs/react-three-fiber)
 
 ```
-npm add @react-three/xr
+npm install @react-three/xr
 ```
 
 <p align="center">
