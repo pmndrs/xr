@@ -10,7 +10,7 @@ module.exports = (config, env) => {
     babelInclude([path.resolve('src'), path.resolve('../src')]),
     addWebpackAlias({
       'react-three-fiber': path.resolve('node_modules/react-three-fiber'),
-      'react-xr': path.resolve('../src/'),
+      '@react-three/xr': path.resolve('../src/'),
       react: path.resolve('node_modules/react'),
       'react-dom': path.resolve('node_modules/react-dom'),
       scheduler: path.resolve('node_modules/scheduler'),

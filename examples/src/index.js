@@ -1,8 +1,8 @@
 import ReactDOM from 'react-dom'
 import React, { useState, useEffect, useRef, Suspense, useMemo, useCallback } from 'react'
-import { VRCanvas, useXREvent, DefaultXRControllers, Hands, Select, Hover, useXR } from 'react-xr'
+import { VRCanvas, useXREvent, DefaultXRControllers, Hands, Select, Hover, useXR } from '@react-three/xr'
 import { useFrame, useThree } from 'react-three-fiber'
-import { OrbitControls, Sky, Text, Plane, Box } from 'drei'
+import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
 import { Color, Box3, BufferGeometry, Vector3, TextureLoader, ImageLoader } from 'three/build/three.module'
 
 function Key({ name, pos = [0, 0], onClick, width = 1, ...rest }) {
