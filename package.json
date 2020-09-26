@@ -1,11 +1,28 @@
 {
   "name": "@react-three/xr",
   "version": "1.1.0",
+  "description": "React components and hooks for creating VR/AR applications with react-three-fiber",
+  "keywords": [
+    "xr",
+    "ar",
+    "vr",
+    "react",
+    "three",
+    "react-three-fiber"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pmndrs/react-xr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pmndrs/react-xr/issues"
+  },
+  "homepage": "https://github.com/pmndrs/react-xr#readme",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": false,
-  "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist && npm run typegen",
     "build": "rollup -c",
