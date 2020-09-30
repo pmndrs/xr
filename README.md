@@ -143,7 +143,7 @@ Add hands model for hand-tracking. Currently only works on Oculus Quest with #we
 `Hover` component will allow you for detecting when ray shot from the controllers is pointing at the given mesh.
 
 ```jsx
-<Hover onChange={(value) => console.log(value ? 'hovered' : 'blurred')}>
+<Hover onChange={({isHovered}) => console.log(isHovered ? 'hovered' : 'blurred')}>
   <mesh />
 </Hover>
 ```

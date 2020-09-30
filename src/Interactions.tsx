@@ -3,8 +3,14 @@ import { useXR, useXREvent, XRInteractionEvent, XREvent } from './XR'
 import { XRHandedness } from './webxr'
 import { Object3D, Group, Matrix4 } from 'three'
 import { useFrame } from 'react-three-fiber'
+import { XRController } from 'XRController'
 
-export function Hover({ onChange, children }: any) {
+export interface HoverEvent {
+  isHovered: boolean
+  controller: XRController
+}
+
+export function Hover({ onChange, children }: { children: ReactNode; onChange: (e: HoverEvent) => void }) {
   const ref = useRef<Object3D>()
   const { addInteraction } = useXR()
   const hovering = useRef(new Set<XRHandedness | undefined>())
@@ -12,14 +18,14 @@ export function Hover({ onChange, children }: any) {
   useEffect(() => {
     addInteraction(ref.current as Object3D, 'onHover', (e: XRInteractionEvent) => {
       if (hovering.current.size === 0) {
-        onChange(true)
+        onChange({ isHovered: true, controller: e.controller })
       }
-      hovering.current.add(e.controller.inputSource?.handedness)
+      hovering.current.add(e.controller.inputSource.handedness)
     })
     addInteraction(ref.current as Object3D, 'onBlur', (e: XRInteractionEvent) => {
-      hovering.current.delete(e.controller.inputSource?.handedness)
+      hovering.current.delete(e.controller.inputSource.handedness)
       if (hovering.current.size === 0) {
-        onChange(false)
+        onChange({ isHovered: false, controller: e.controller })
       }
     })
   }, [onChange, addInteraction])
@@ -27,7 +33,11 @@ export function Hover({ onChange, children }: any) {
   return <group ref={ref}>{children}</group>
 }
 
-export function Select({ onSelect, children }: any) {
+export interface SelectEvent {
+  controller: XRController
+}
+
+export function Select({ onSelect, children }: { children: ReactNode; onSelect: (e: SelectEvent) => void }) {
   const ref = useRef<Object3D>()
   const { addInteraction } = useXR()
 
@@ -35,8 +45,8 @@ export function Select({ onSelect, children }: any) {
 
   const onEnd = useCallback(
     (e: XREvent) => {
-      if (hoveredHandedness.current.has(e.controller.inputSource?.handedness)) {
-        onSelect()
+      if (hoveredHandedness.current.has(e.controller.inputSource.handedness)) {
+        onSelect({ controller: e.controller })
       }
     },
     [onSelect]

@@ -1,11 +1,11 @@
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory'
 import { useXR, useXREvent, XREvent } from './XR'
 import React, { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry } from 'three'
+import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters } from 'three'
 import { useFrame, useThree } from 'react-three-fiber'
 
 const modelFactory = new XRControllerModelFactory()
-export function DefaultXRControllers() {
+export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshBasicMaterialParameters }) {
   const { scene } = useThree()
   const { controllers } = useXR()
   const [rays] = React.useState(new Map<number, Mesh>())
@@ -63,7 +63,7 @@ export function DefaultXRControllers() {
       // Add Ray line (used for hovering)
       const ray = new Mesh()
       ray.rotation.set(Math.PI / 2, 0, 0)
-      ray.material = new MeshBasicMaterial({ color: new Color(0xffffff), opacity: 0.8, transparent: true })
+      ray.material = new MeshBasicMaterial({ color: new Color(0xffffff), opacity: 0.8, transparent: true, ...rayMaterial })
       ray.geometry = new BoxBufferGeometry(0.002, 1, 0.002)
 
       rays.set(controller.id, ray)
@@ -72,13 +72,15 @@ export function DefaultXRControllers() {
       cleanups.push(() => {
         grip.remove(model)
         controller.remove(ray)
+        rays.delete(controller.id)
       })
     })
 
     return () => {
       cleanups.forEach((fn) => fn())
     }
-  }, [controllers, scene, rays])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controllers, scene, rays, JSON.stringify(rayMaterial)])
 
   return null
 }
