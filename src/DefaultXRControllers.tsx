@@ -1,10 +1,11 @@
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory'
 import { useXR, useXREvent, XREvent } from './XR'
 import React, { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters } from 'three'
+import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters, Group, Object3D } from 'three'
 import { useFrame, useThree } from 'react-three-fiber'
 
 const modelFactory = new XRControllerModelFactory()
+const modelCache = new WeakMap<Group, any>()
 export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshBasicMaterialParameters }) {
   const { scene } = useThree()
   const { controllers } = useXR()
@@ -56,8 +57,14 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshB
 
     controllers.forEach(({ controller, grip, inputSource }) => {
       // Attach 3D model of the controller
-      const model = modelFactory.createControllerModel(controller)
-      controller.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
+      let model: Object3D
+      if (modelCache.has(controller)) {
+        model = modelCache.get(controller)
+      } else {
+        model = modelFactory.createControllerModel(controller)
+        controller.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
+        modelCache.set(controller, model)
+      }
       grip.add(model)
 
       // Add Ray line (used for hovering)
