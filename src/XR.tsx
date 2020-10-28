@@ -30,14 +30,10 @@ export const useTimer = (callback: () => void, data: { status: boolean; date: nu
     if (status) {
       const top = date + timerTime * 1000 - Date.now() - 5000
       const bottom = timerTime * 1000
-      // console.log("top", top, "bottom", bottom);
 
       setTimePercentage(Math.abs(top < -timerTime * 1000 ? -timerTime * 1000 : top / bottom))
-      // console.log(status, timerPercentage);
 
       if (date - Date.now() <= -timerTime * 1000 && date - Date.now() >= -timerTime * 1000 - 20) {
-        // console.log("timer fire");
-        // console.log(status);
         callback()
       }
     } else {
