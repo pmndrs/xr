@@ -23,17 +23,17 @@ export type XRInteractionType = 'onHover' | 'onBlur'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
-export const useTimer = (callback: () => void, data: { status: boolean; date: number }, timerTime: number) => {
-  const { status, date } = data
+export const useTimer = (callback: () => void, data: { status: boolean; startTime: number }, timerTime: number) => {
+  const { status, startTime } = data
   const [timerPercentage, setTimePercentage] = useState(0)
   useFrame(() => {
     if (status) {
-      const top = date + timerTime * 1000 - Date.now() - 5000
+      const top = startTime + timerTime * 1000 - Date.now() - 5000
       const bottom = timerTime * 1000
 
       setTimePercentage(Math.abs(top < -timerTime * 1000 ? -timerTime * 1000 : top / bottom))
 
-      if (date - Date.now() <= -timerTime * 1000 && date - Date.now() >= -timerTime * 1000 - 20) {
+      if (startTime - Date.now() <= -timerTime * 1000 && startTime - Date.now() >= -timerTime * 1000 - 20) {
         callback()
       }
     } else {
