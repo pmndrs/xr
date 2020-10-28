@@ -23,7 +23,7 @@ export type XRInteractionType = 'onHover' | 'onBlur'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
-export const useTimer = (callback: (argument: any) => void, data: { status: boolean; date: number }, timerTime: number) => {
+export const useTimer = (callback: () => void, data: { status: boolean; date: number }, timerTime: number) => {
   const { status, date } = data
   const [timerPercentage, setTimePercentage] = useState(0)
   useFrame(() => {
