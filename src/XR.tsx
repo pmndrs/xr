@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState} from 'react'
+import { useState } from 'react'
 import { Object3D, Matrix4, Raycaster, Intersection } from 'three'
 import { Canvas, useThree, useFrame } from 'react-three-fiber'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
@@ -23,36 +23,29 @@ export type XRInteractionType = 'onHover' | 'onBlur'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
-const useTimer = (callback: (argument: any) => void, obj :{ status: boolean, date: number }, timerTime: number) => {
-  const [timerPercentage, setTimePercentage] = useState(0);
+const useTimer = (callback: (argument: any) => void, data: { status: boolean; date: number }, timerTime: number) => {
+  const { status, date } = data
+  const [timerPercentage, setTimePercentage] = useState(0)
   useFrame(() => {
     if (status) {
-      
-
-      const top = date + timerTime * 1000 - Date.now() - 5000;
-      const bottom = timerTime * 1000;
+      const top = date + timerTime * 1000 - Date.now() - 5000
+      const bottom = timerTime * 1000
       // console.log("top", top, "bottom", bottom);
 
-      setTimePercentage(
-        Math.abs(top < -timerTime * 1000 ? -timerTime * 1000 : top / bottom)
-      );
+      setTimePercentage(Math.abs(top < -timerTime * 1000 ? -timerTime * 1000 : top / bottom))
       // console.log(status, timerPercentage);
 
-      if (
-        date - Date.now() <= -timerTime * 1000 &&
-        date - Date.now() >= -timerTime * 1000 - 20
-      ) {
+      if (date - Date.now() <= -timerTime * 1000 && date - Date.now() >= -timerTime * 1000 - 20) {
         // console.log("timer fire");
         // console.log(status);
-        callback();
+        callback()
       }
     } else {
-      setTimePercentage(0);
+      setTimePercentage(0)
     }
-  });
-  //also return time status maybe callback info
-  return timerPercentage;
   })
+  //also return time status maybe callback info
+  return timerPercentage
 }
 
 const useControllers = (): XRController[] => {
