@@ -10,6 +10,7 @@ import { ContainerProps } from 'react-three-fiber/targets/shared/web/ResizeConta
 export interface XRContextValue {
   controllers: XRController[]
   addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
+  removeInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
 }
 const XRContext = React.createContext<XRContextValue>({} as any)
 
@@ -18,11 +19,19 @@ export interface XRInteractionEvent {
   controller: XRController
 }
 
-export type XRInteractionType = 'onHover' | 'onBlur'
+export type XRInteractionType =
+  | 'onHover'
+  | 'onBlur'
+  | 'onSelectStart'
+  | 'onSelectEnd'
+  | 'onSelect'
+  | 'onSqueeze'
+  | 'onSqueezeEnd'
+  | 'onSqueezeStart'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
-const useControllers = (): XRController[] => {
+export const useControllers = (): XRController[] => {
   const { gl, scene } = useThree()
   const [controllers, setControllers] = React.useState<XRController[]>([])
 
@@ -52,24 +61,51 @@ const useControllers = (): XRController[] => {
 export function XR(props: { children: React.ReactNode }) {
   const controllers = useControllers()
 
-  const interactionState = React.useRef({
+  const [interactionState] = React.useState(() => ({
     interactable: new Set<Object3D>(),
     handlers: {
-      onHover: new WeakMap<Object3D, XRInteractionHandler>(),
-      onBlur: new WeakMap<Object3D, XRInteractionHandler>()
+      onHover: new Map<Object3D, XRInteractionHandler>(),
+      onSelectStart: new Map<Object3D, XRInteractionHandler>(),
+      onSelectEnd: new Map<Object3D, XRInteractionHandler>(),
+      onSelect: new Map<Object3D, XRInteractionHandler>(),
+      onSqueeze: new Map<Object3D, XRInteractionHandler>(),
+      onSqueezeEnd: new Map<Object3D, XRInteractionHandler>(),
+      onSqueezeStart: new Map<Object3D, XRInteractionHandler>(),
+      onBlur: new Map<Object3D, XRInteractionHandler>()
     }
-  })
+  }))
 
-  const addInteraction = React.useCallback((object: Object3D, eventType: XRInteractionType, handler: any) => {
-    interactionState.current.interactable.add(object)
-    interactionState.current.handlers[eventType].set(object, handler)
-  }, [])
+  const addInteraction = React.useCallback(
+    (object: Object3D, eventType: XRInteractionType, handler: any) => {
+      interactionState.interactable.add(object)
+      interactionState.handlers[eventType].set(object, handler)
+    },
+    [interactionState]
+  )
+  const removeInteraction = React.useCallback(
+    (object: Object3D, eventType: XRInteractionType, handler: any) => {
+      interactionState.handlers[eventType].delete(object)
 
+      let stillPresent = false
+      Object.values(interactionState.handlers).forEach((map) => {
+        for (const obj of map.keys()) {
+          if (obj === object) {
+            stillPresent = true
+            return
+          }
+        }
+      })
+      if (!stillPresent) {
+        interactionState.interactable.delete(object)
+      }
+    },
+    [interactionState]
+  )
   const [raycaster] = React.useState(() => new Raycaster())
 
   const intersect = React.useCallback(
     (controller: Object3D) => {
-      const objects = Array.from(interactionState.current.interactable)
+      const objects = Array.from(interactionState.interactable)
       const tempMatrix = new Matrix4()
       tempMatrix.identity().extractRotation(controller.matrixWorld)
       raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
@@ -77,13 +113,16 @@ export function XR(props: { children: React.ReactNode }) {
 
       return raycaster.intersectObjects(objects, true)
     },
-    [raycaster]
+    [interactionState.interactable, raycaster]
   )
 
-  useFrame(() => {
-    const { handlers } = interactionState.current
+  useXREvent('select', (e) => {})
 
-    if (interactionState.current.interactable.size === 0) {
+  // Trigger hover and blur events
+  useFrame(() => {
+    const { handlers } = interactionState
+
+    if (interactionState.interactable.size === 0) {
       return
     }
 
@@ -121,7 +160,7 @@ export function XR(props: { children: React.ReactNode }) {
     })
   })
 
-  const value = React.useMemo(() => ({ controllers, addInteraction }), [controllers, addInteraction])
+  const value = React.useMemo(() => ({ controllers, addInteraction, removeInteraction }), [controllers, addInteraction, removeInteraction])
 
   return <XRContext.Provider value={value}>{props.children}</XRContext.Provider>
 }
@@ -176,9 +215,12 @@ export const useXREvent = (
     handedness?: XRHandedness
   } = {}
 ) => {
-  const { controllers: allControllers } = useXR()
+  const handlerRef = React.useRef<(e: XREvent) => any>(handler)
+  React.useEffect(() => {
+    handlerRef.current = handler
+  }, [handler])
 
-  const handleEvent = React.useCallback((controller: XRController) => (e: any) => handler({ originalEvent: e, controller }), [handler])
+  const { controllers: allControllers } = useXR()
 
   React.useEffect(() => {
     const controllers = handedness ? allControllers.filter((it) => it.inputSource.handedness === handedness) : allControllers
@@ -186,11 +228,11 @@ export const useXREvent = (
     const cleanups: any[] = []
 
     controllers.forEach((it) => {
-      const listener = handleEvent(it)
+      const listener = (e: any) => handlerRef.current({ originalEvent: e, controller: it })
       it.controller.addEventListener(event, listener)
       cleanups.push(() => it.controller.removeEventListener(event, listener))
     })
 
     return () => cleanups.forEach((fn) => fn())
-  }, [event, handleEvent, allControllers, handedness])
+  }, [event, allControllers, handedness])
 }
