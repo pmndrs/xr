@@ -10,8 +10,6 @@ export interface XRController {
   grip: Group
   /** Group with orientation of the preferred pointing ray */
   controller: Group
-  hovering: Set<Object3D>
-  hoverRayLength?: number
 }
 export const XRController = {
   make: (id: number, gl: WebGLRenderer, onConnected: (c: XRController) => any, onDisconnected: (c: XRController) => any) => {
@@ -21,8 +19,7 @@ export const XRController = {
     const xrController: XRController = {
       inputSource: undefined as any,
       grip,
-      controller,
-      hovering: new Set<Object3D>()
+      controller
     }
     grip.userData.name = 'grip'
     controller.userData.name = 'controller'
