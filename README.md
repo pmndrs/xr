@@ -176,15 +176,32 @@ const mesh = useRef()
 const { gl, camera } = useThree()
 
 useEffect(() => {
-  const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera
-  mesh.current.add(cam)
-  return () => mesh.current.remove(cam)
-}, [gl.xr.isPresenting, gl.xr, camera, mesh])
+  const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera;
+  const parent = mesh.current;
+  if (parent) {
+    parent.add(cam);
+
+    return () => { 
+      parent.remove(cam)
+    };
+  }
+}, [gl.xr, camera, mesh]);
 
 // bundle add the controllers to the same object as the camera so it all stays together.
-const { controllers } = useXR()
+const { controllers } = useXR();
 useEffect(() => {
-  if (controllers.length > 0) controllers.forEach((c) => mesh.current.add(c.grip))
-  return () => controllers.forEach((c) => mesh.current.remove(c.grip))
-}, [controllers, mesh])
+  const parent = mesh.current;
+  if (parent) {
+    if (controllers.length > 0) {
+      controllers.forEach((c) => parent.add(c.grip));
+    }
+
+    return () => controllers.forEach((c) => parent.remove(c.grip))
+  }
+}, [controllers, mesh]);
+
+return <mesh ref={mesh} position={[0, 0, 10]}>
+    <boxBufferGeometry args={[1, 1, 1]} />
+    <meshStandardMaterial />
+</mesh>;
 ```
