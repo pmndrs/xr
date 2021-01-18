@@ -10,7 +10,12 @@ export interface HoverEvent {
   controller: XRController
 }
 
-export function Hover({ onChange, children }: { children: ReactNode; onChange: (e: HoverEvent) => void }) {
+export interface HoverProps {
+  children: ReactNode;
+  onChange: (e: HoverEvent) => void
+}
+
+export function Hover({ onChange, children }: HoverProps) {
   const ref = useRef<Object3D>()
   const { addInteraction } = useXR()
   const hovering = useRef(new Set<XRHandedness | undefined>())
@@ -37,7 +42,12 @@ export interface SelectEvent {
   controller: XRController
 }
 
-export function Select({ onSelect, children }: { children: ReactNode; onSelect: (e: SelectEvent) => void }) {
+export interface SelectProps {
+  children: ReactNode
+  onSelect: (e: SelectEvent) => void
+}
+
+export function Select({ onSelect, children }: SelectProps) {
   const ref = useRef<Object3D>()
   const { addInteraction } = useXR()
 
