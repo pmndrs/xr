@@ -3,7 +3,7 @@ import { Object3D, Matrix4, Raycaster, Intersection } from 'three'
 import { Canvas, useThree, useFrame } from 'react-three-fiber'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
-import { XRHandedness } from './webxr'
+import { XRHandedness, XRReferenceSpace, XRFrame, XRHitTestSource, XRHitTestResult } from './webxr'
 import { XRController } from './XRController'
 import { ContainerProps } from 'react-three-fiber/targets/shared/web/ResizeContainer'
 
@@ -47,6 +47,46 @@ const useControllers = (): XRController[] => {
   }, [gl, scene])
 
   return controllers
+}
+
+export function useHitTest(hitTestCallback: (hit: XRHitTestResult) => void) {
+  const { gl } = useThree()
+
+  const [hitTestSource, setHitTestSource] = React.useState<XRHitTestSource | null>(null)
+  const [hitTestSourceRequested, setHitTestSourceRequested] = React.useState(false)
+  const [session, setSession] = React.useState(gl.xr.getSession())
+
+  useFrame(() => {
+    gl.xr.isPresenting ? setSession(gl.xr.getSession()) : session
+
+    if (session && hitTestSourceRequested === false) {
+      session.requestReferenceSpace('viewer').then((referenceSpace: XRReferenceSpace) => {
+        session.requestHitTestSource({ space: referenceSpace }).then((source: XRHitTestSource) => {
+          setHitTestSource(source)
+        })
+      })
+
+      session.addEventListener(
+        'end',
+        () => {
+          setHitTestSourceRequested(false)
+          setHitTestSource(null)
+        },
+        { once: true }
+      )
+
+      setHitTestSourceRequested(true)
+    }
+
+    if (session && hitTestSource) {
+      session.requestAnimationFrame((_time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
+        const hitTestResults = xrFrame.getHitTestResults(hitTestSource)
+        if (hitTestResults.length) {
+          hitTestCallback(hitTestResults[0])
+        }
+      })
+    }
+  })
 }
 
 export function XR(props: { children: React.ReactNode }) {

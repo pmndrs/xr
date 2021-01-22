@@ -125,6 +125,20 @@ Use this hook to get an instance of the controller
 const leftController = useController('left')
 ```
 
+### useHitTest
+
+Use this hook to perform a hit test for an AR environment
+
+```jsx
+useHitTest((hit) => {
+  if (hit) {
+    // Hit something yay!
+  } else {
+    // Never hit anything =(
+  }
+})
+```
+
 ### `<Hands>`
 
 Add hands model for hand-tracking. Currently only works on Oculus Quest with #webxr-hands experimental flag enabled
