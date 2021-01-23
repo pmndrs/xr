@@ -1,55 +1,37 @@
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory'
-import { useXR, useXREvent, XREvent } from './XR'
+import { useXR } from './XR'
 import React, { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters, Group, Object3D } from 'three'
+import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
 import { useFrame, useThree } from 'react-three-fiber'
 
 const modelFactory = new XRControllerModelFactory()
 const modelCache = new WeakMap<Group, any>()
 export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshBasicMaterialParameters }) {
   const { scene } = useThree()
-  const { controllers } = useXR()
+  const { controllers, hoverState } = useXR()
   const [rays] = React.useState(new Map<number, Mesh>())
 
   // Show ray line when hovering objects
   useFrame(() => {
     controllers.forEach((it) => {
       const ray = rays.get(it.controller.id)
+      if (!ray) return
 
-      if (!ray) {
-        return
-      }
-
-      if (it.hoverRayLength === undefined || it.inputSource.handedness === 'none') {
+      const intersection: Intersection = hoverState[it.inputSource.handedness].values().next().value
+      if (!intersection || it.inputSource.handedness === 'none') {
         ray.visible = false
         return
       }
+
+      const rayLength = intersection.distance
 
       // Tiny offset to clip ray on AR devices
       // that don't have handedness set to 'none'
       const offset = -0.01
       ray.visible = true
-      ray.scale.y = it.hoverRayLength + offset
-      ray.position.z = -it.hoverRayLength / 2 - offset
+      ray.scale.y = rayLength + offset
+      ray.position.z = -rayLength / 2 - offset
     })
-  })
-
-  useXREvent('selectstart', (e: XREvent) => {
-    const ray = rays.get(e.controller.controller.id)
-    if (!ray) {
-      return
-    }
-    const material = ray.material as MeshBasicMaterial
-    material.color = new Color(0x192975)
-  })
-
-  useXREvent('selectend', (e: XREvent) => {
-    const ray = rays.get(e.controller.controller.id)
-    if (!ray) {
-      return
-    }
-    const material = ray.material as MeshBasicMaterial
-    material.color = new Color(0xffffff)
   })
 
   useEffect(() => {

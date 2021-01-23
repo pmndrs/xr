@@ -1,4 +1,4 @@
- <img width="270" src="https://i.imgur.com/kxEJWZx.gif" alt="@react-three/xr - build experiences for xr vr ar" />
+<h1>@react-three/xr</h1>
 
 [![Version](https://img.shields.io/npm/v/@react-three/xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
 [![Downloads](https://img.shields.io/npm/dt/@react-three/xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
@@ -53,9 +53,53 @@ You can access controllers' state (position, orientation, etc.) by using `useXR(
 const { controllers } = useXR()
 ```
 
-## API
+## Interactions
 
-### VRCanvas / ARCanvas
+To interact with objects using controllers you can use `<Interactive>` component or `useInteraction` hook. They allow adding handlers to your objects. All interactions are use rays that are shot from the controllers.
+
+### `<Interactive>`
+
+Use this component to wrap your objects and pass handlers as props. Supports select, hover, blur and squeeze events.
+
+```jsx
+const [isHovered, setIsHovered] = useState(false)
+
+return (
+  <Interactive onSelect={() => console.log('clicked!')} onHover={() => setIsHovered(true)} onBlur={() => setIsHovered(false)}>
+    <Box />
+  </Interactive>
+)
+```
+
+### `useInteraction`
+
+Attach handler to an existing object in a scene
+
+```jsx
+const ref = useResource()
+
+useInteraction(ref, 'onSelect', () => console.log('selected!'))
+
+return <Box ref={ref} />
+```
+
+## Events
+
+To handle controller events that are not bound to any object in the scene you can use `useXREvent()` hook
+
+Every controller emits following events: select, selectstart, selectend, squeeze, squeezestart, squeezeend.
+
+```jsx
+useXREvent('squeeze', (e) => console.log('squeeze event has been triggered'))
+```
+
+it supports optional third parameter with options
+
+```jsx
+useXREvent('squeeze', () => console.log('Left controller squeeze'), { handedness: 'left' })
+```
+
+## VRCanvas, ARCanvas componentss
 
 Extended react-three-fiber [Canvas](https://github.com/pmndrs/react-three-fiber/blob/master/api.md#canvas) that includes:
 
@@ -73,12 +117,12 @@ import { VRCanvas } from '@react-three/xr'
   {/* All your regular react-three-fiber elements go here */}
 ```
 
-### useXR
+## `useXR`
 
-Hook that can only beused by components inside `XRCanvas` component.
+Hook that can only be used by components inside `XRCanvas` component.
 
 ```jsx
-const { controllers } = useXR()
+const { controllers, player, isPresenting } = useXR()
 ```
 
 Controllers is an array of `XRController` objects
@@ -99,25 +143,7 @@ interface XRController {
 
 `inputSource` is the WebXR input source [(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource). Note that it will not be available before controller is connected.
 
-### useXREvent
-
-Every controller emits following events: select, selectstart, selectend, squeeze, squeezestart, squeezeend.
-
-To listen to those events use `useXREvent` hook:
-
-```jsx
-const onSqueeze = useCallback(() => console.log('Squeezed'), [])
-useXREvent('squeeze', onSqueeze)
-```
-
-it supports optional third parameter with options
-
-```jsx
-const onSqueeze = useCallback(() => console.log('Left controller squeeze'), [])
-useXREvent('squeeze', onSqueeze, { handedness: 'left' })
-```
-
-### useControllers
+## `useController`
 
 Use this hook to get an instance of the controller
 
@@ -125,7 +151,7 @@ Use this hook to get an instance of the controller
 const leftController = useController('left')
 ```
 
-### `<Hands>`
+## `<Hands>`
 
 Add hands model for hand-tracking. Currently only works on Oculus Quest with #webxr-hands experimental flag enabled
 
@@ -134,74 +160,14 @@ Add hands model for hand-tracking. Currently only works on Oculus Quest with #we
   <Hands />
 ```
 
-### Interactions
+## Player
 
-`@react-three/xr` comes with built-in high level interaction components.
-
-#### `<Hover>`
-
-`Hover` component will allow you for detecting when ray shot from the controllers is pointing at the given mesh.
+`player` group contains camera and controllers that you can use to move player around
 
 ```jsx
-<Hover onChange={({isHovered}) => console.log(isHovered ? 'hovered' : 'blurred')}>
-  <mesh />
-</Hover>
-```
-
-#### `<Select>`
-
-`Select` can be used when you need to select some mesh. Component will trigger `onSelect` function when controller is pointing at the given mesh and `select` event was fired.
-
-```jsx
-<Select onSelect={() => console.log('mesh has been selected')}>
-  <mesh />
-</Select>
-```
-
-## Getting the VR Camera (HMD) Location
-
-To get the position of the VR camera, use three's WebXRManager instance.
-
-```jsx
-const { camera } = useThree()
-const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera
-```
-
-## Parent VR HMD and Controllers to another object
-
-If you want to attach the user to an object so it can be moved around, just parent the VR camera and controllers to an object3D.
-
-```jsx
-const mesh = useRef()
-const { gl, camera } = useThree()
+const { player } = useThree()
 
 useEffect(() => {
-  const cam = gl.xr.isPresenting ? gl.xr.getCamera(camera) : camera;
-  const parent = mesh.current;
-  if (parent) {
-    parent.add(cam);
-
-    return () => { 
-      parent.remove(cam)
-    };
-  }
-}, [gl.xr, camera, mesh]);
-
-// bundle add the controllers to the same object as the camera so it all stays together.
-const { controllers } = useXR();
-useEffect(() => {
-  const parent = mesh.current;
-  if (parent) {
-    if (controllers.length > 0) {
-      controllers.forEach((c) => parent.add(c.grip));
-    }
-
-    return () => controllers.forEach((c) => parent.remove(c.grip))
-  }
-}, [controllers, mesh]);
-
-return <mesh ref={mesh} position={[0, 0, 10]}>
-    <boxBufferGeometry args={[1, 1, 1]} />
-    <meshStandardMaterial />
-</mesh>;
+  player.position.x += 5
+}, [])
 ```
