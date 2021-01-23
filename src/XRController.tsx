@@ -1,4 +1,4 @@
-import { WebGLRenderer, Group, Object3D } from 'three'
+import { WebGLRenderer, Group } from 'three'
 import { XRInputSource } from './webxr'
 
 export interface XRController {
