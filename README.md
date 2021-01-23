@@ -165,7 +165,7 @@ Add hands model for hand-tracking. Currently only works on Oculus Quest with #we
 `player` group contains camera and controllers that you can use to move player around
 
 ```jsx
-const { player } = useThree()
+const { player } = useXR()
 
 useEffect(() => {
   player.position.x += 5
