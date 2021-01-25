@@ -153,7 +153,7 @@ const leftController = useController('left')
 
 ## `<Hands>`
 
-Add hands model for hand-tracking. Currently only works on Oculus Quest with #webxr-hands experimental flag enabled
+Add hands model for hand-tracking. Works out of the box on Oculus Browser v13, and can be enabled on versions as low as v10.2 with #webxr-hands experimental flag enabled.
 
 ```jsx
 <VRCanvas>
