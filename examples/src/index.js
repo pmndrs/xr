@@ -10,8 +10,11 @@ import {
   useXR,
   Interactive,
   RayGrab,
+  useHitTest,
+  ARCanvas,
 } from '@react-three/xr'
-import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
+// import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
+import { Box } from '@react-three/drei/shapes'
 import { useFrame, useResource } from 'react-three-fiber'
 import { Group } from 'three'
 
@@ -26,9 +29,9 @@ function Button(props) {
       onBlur={() => setHover(false)}>
       <Box scale={hover ? [1.5, 1.5, 1.5] : [1, 1, 1]} args={[0.4, 0.1, 0.1]} {...props}>
         <meshStandardMaterial attach="material" color={color} />
-        <Text position={[0, 0, 0.06]} fontSize={0.05} color="#000" anchorX="center" anchorY="middle">
+        {/* <Text position={[0, 0, 0.06]} fontSize={0.05} color="#000" anchorX="center" anchorY="middle">
           Hello react-xr!
-        </Text>
+        </Text> */}
       </Box>
     </Interactive>
   )
@@ -44,15 +47,26 @@ function PlayerExample() {
   return null
 }
 
+function HitTestExample() {
+  const ref = useResource()
+
+  useHitTest((hit) => {
+    hit.decompose(ref.current.position, ref.current.rotation, ref.current.scale)
+  })
+
+  return <Box ref={ref} args={[0.1, 0.1, 0.1]} />
+}
+
 function App() {
   return (
-    <VRCanvas>
+    <ARCanvas sessionInit={{ requiredFeatures: ['hit-test'] }}>
       <ambientLight intensity={0.5} />
       <pointLight position={[5, 5, 5]} />
 
-      <DefaultXRControllers />
       <Button position={[0, 0.8, -1]} />
-    </VRCanvas>
+      {/* <DefaultXRControllers /> */}
+      <HitTestExample />
+    </ARCanvas>
   )
 }
 
