@@ -155,13 +155,17 @@ const leftController = useController('left')
 
 Use this hook to perform a hit test for an AR environment
 
+To enable hit testing in your AR app add `sessionInit` prop to `ARCanvas` like this
+
 ```jsx
-useHitTest((hit) => {
-  if (hit) {
-    // Hit something yay!
-  } else {
-    // Never hit anything =(
-  }
+<ARCanvas sessionInit={{ requiredFeatures: ['hit-test'] }}>
+```
+
+And then in your component handle hit with `useHitTest` hook
+
+```jsx
+useHitTest((hitMatrix, hit) => {
+  // use hitMatrix to position any object on the real life surface
 })
 ```
 

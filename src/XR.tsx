@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { Canvas, useThree } from 'react-three-fiber'
+import { Canvas, useFrame, useThree } from 'react-three-fiber'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { XRHandedness, XRReferenceSpace, XRFrame, XRHitTestSource, XRHitTestResult } from './webxr'
 import { XRController } from './XRController'
 import { ContainerProps } from 'react-three-fiber/targets/shared/web/ResizeContainer'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import { Group } from 'three'
+import { Group, Matrix4 } from 'three'
 
 export interface XRContextValue {
   controllers: XRController[]
@@ -42,40 +42,44 @@ const useControllers = (group: Group): XRController[] => {
   return controllers
 }
 
-export function useHitTest(hitTestCallback: (hit: XRHitTestResult) => void) {
+export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestResult) => void) {
   const { gl } = useThree()
 
-  const [hitTestSource, setHitTestSource] = React.useState<XRHitTestSource | null>(null)
-  const [hitTestSourceRequested, setHitTestSourceRequested] = React.useState(false)
-  const [session, setSession] = React.useState(gl.xr.getSession())
+  const hitTestSource = React.useRef<XRHitTestSource | undefined>()
+  const hitTestSourceRequested = React.useRef(false)
+  const sessionRef = React.useRef(gl.xr.getSession())
+  const [hitMatrix] = React.useState(() => new Matrix4())
 
   useFrame(() => {
-    gl.xr.isPresenting ? setSession(gl.xr.getSession()) : session
+    if (!gl.xr.isPresenting) return
 
-    if (session && hitTestSourceRequested === false) {
+    const session = gl.xr.getSession()
+    if (!hitTestSourceRequested.current) {
       session.requestReferenceSpace('viewer').then((referenceSpace: XRReferenceSpace) => {
         session.requestHitTestSource({ space: referenceSpace }).then((source: XRHitTestSource) => {
-          setHitTestSource(source)
+          hitTestSource.current = source
         })
       })
-
       session.addEventListener(
         'end',
         () => {
-          setHitTestSourceRequested(false)
-          setHitTestSource(null)
+          hitTestSourceRequested.current = false
+          hitTestSource.current = undefined
         },
         { once: true }
       )
-
-      setHitTestSourceRequested(true)
+      hitTestSourceRequested.current = true
     }
 
-    if (session && hitTestSource) {
-      session.requestAnimationFrame((_time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
-        const hitTestResults = xrFrame.getHitTestResults(hitTestSource)
+    if (hitTestSource.current && gl.xr.isPresenting) {
+      const referenceSpace = gl.xr.getReferenceSpace()
+      // This raf is unnecesary, we should get XRFrame from r3f but it's not implemented yet
+      sessionRef.current.requestAnimationFrame((_time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
+        const hitTestResults = xrFrame.getHitTestResults(hitTestSource.current as XRHitTestSource)
         if (hitTestResults.length) {
-          hitTestCallback(hitTestResults[0])
+          const hit = hitTestResults[0]
+          hitMatrix.fromArray(hit.getPose(referenceSpace).transform.matrix)
+          hitTestCallback(hitMatrix, hit)
         }
       })
     }
@@ -131,9 +135,9 @@ export function VRCanvas({ children, ...rest }: ContainerProps) {
   )
 }
 
-export function ARCanvas({ children, ...rest }: ContainerProps) {
+export function ARCanvas({ children, sessionInit, ...rest }: ContainerProps & { sessionInit: any }) {
   return (
-    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(ARButton.createButton(gl))} {...rest}>
+    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(ARButton.createButton(gl, sessionInit))} {...rest}>
       {children}
     </XRCanvas>
   )
