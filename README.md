@@ -38,7 +38,7 @@ function App() {
 
 ## Adding controllers to the scene
 
-To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/master/packages/motion-controllers).
+To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/main/packages/motion-controllers).
 
 ```jsx
 import { VRCanvas, DefaultXRControllers } from '@react-three/xr'
