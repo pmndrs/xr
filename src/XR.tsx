@@ -47,7 +47,6 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
 
   const hitTestSource = React.useRef<XRHitTestSource | undefined>()
   const hitTestSourceRequested = React.useRef(false)
-  const sessionRef = React.useRef(gl.xr.getSession())
   const [hitMatrix] = React.useState(() => new Matrix4())
 
   useFrame(() => {
@@ -74,7 +73,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
     if (hitTestSource.current && gl.xr.isPresenting) {
       const referenceSpace = gl.xr.getReferenceSpace()
       // This raf is unnecesary, we should get XRFrame from r3f but it's not implemented yet
-      sessionRef.current.requestAnimationFrame((_time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
+      session.requestAnimationFrame((_time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
         const hitTestResults = xrFrame.getHitTestResults(hitTestSource.current as XRHitTestSource)
         if (hitTestResults.length) {
           const hit = hitTestResults[0]

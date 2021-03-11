@@ -60,7 +60,7 @@
     "react-three-gui": "^0.1.5",
     "react-use-gesture": "^7.0.9",
     "styled-components": "^5.0.1",
-    "three": "^0.125.1",
+    "three": "^0.126.1",
     "threejs-meshline": "^2.0.10",
     "zustand": "^2.2.3"
   },
