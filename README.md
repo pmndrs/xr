@@ -153,6 +153,8 @@ const leftController = useController('left')
 
 ## useHitTest
 
+[codesandbox](https://codesandbox.io/s/react-xr-usehittest-demo-5iff9?file=/src/App.tsx)
+
 Use this hook to perform a hit test for an AR environment
 
 To enable hit testing in your AR app add `sessionInit` prop to `ARCanvas` like this
