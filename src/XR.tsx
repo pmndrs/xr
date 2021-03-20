@@ -151,6 +151,33 @@ export const useXR = () => {
   return contextValue
 }
 
+export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFrame) => void) => {
+  const { gl } = useThree()
+  const requestRef = React.useRef()
+  const previousTimeRef = React.useRef()
+
+  const loop = React.useCallback((time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
+    if (previousTimeRef.current !== undefined) {
+      callback(time, xrFrame)
+    }
+
+    previousTimeRef.current = time
+    requestRef.current = gl.xr.getSession().requestAnimationFrame(loop)
+  }, [gl.xr, callback])
+
+  React.useEffect(() => {
+    if (!gl.xr?.isPresenting && !requestRef.current) {
+      return
+    }
+
+    requestRef.current = gl.xr.getSession().requestAnimationFrame(loop)
+
+    return () => {
+      gl.xr.getSession().cancelAnimationFrame(loop)
+    }
+  }, [gl, gl.xr.isPresenting, loop])
+}
+
 export const useController = (handedness: XRHandedness) => {
   const { controllers } = useXR()
   const controller = React.useMemo(() => controllers.find((it) => it.inputSource.handedness === handedness), [handedness, controllers])
