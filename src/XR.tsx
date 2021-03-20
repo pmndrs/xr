@@ -175,7 +175,7 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
     return () => {
       gl.xr.getSession().cancelAnimationFrame(loop)
     }
-  }, [gl, gl.xr.isPresenting, loop])
+  }, [gl.xr.isPresenting, loop])
 }
 
 export const useController = (handedness: XRHandedness) => {
