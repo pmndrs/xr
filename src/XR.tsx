@@ -166,14 +166,14 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
   }, [gl.xr, callback])
 
   React.useEffect(() => {
-    if (!gl.xr?.isPresenting && !requestRef.current) {
+    if (!gl.xr?.isPresenting) {
       return
     }
 
     requestRef.current = gl.xr.getSession().requestAnimationFrame(loop)
 
     return () => {
-      gl.xr.getSession().cancelAnimationFrame(loop)
+      gl.xr.getSession().cancelAnimationFrame(requestRef.current )
     }
   }, [gl.xr.isPresenting, loop])
 }
