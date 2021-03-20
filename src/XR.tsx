@@ -173,7 +173,7 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
     requestRef.current = gl.xr.getSession().requestAnimationFrame(loop)
 
     return () => {
-      gl.xr.getSession().cancelAnimationFrame(requestRef.current )
+      gl.xr.getSession().cancelAnimationFrame(requestRef.current)
     }
   }, [gl.xr.isPresenting, loop])
 }
