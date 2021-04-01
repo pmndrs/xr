@@ -46,6 +46,7 @@
     "@babel/preset-env": "7.9.5",
     "@babel/preset-react": "7.9.4",
     "@babel/preset-typescript": "^7.9.0",
+    "@react-three/fiber": "^6.0.1",
     "@types/jest": "^25.2.1",
     "@types/lodash-es": "^4.17.3",
     "@types/react": "^16.9.34",
@@ -65,7 +66,6 @@
     "pretty-quick": "^2.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-three-fiber": "^5.0.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.7.2",
     "rollup-plugin-babel": "^4.4.0",
@@ -73,13 +73,13 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-size-snapshot": "^0.11.0",
-    "three": "^0.125.0",
+    "three": "^0.126.0",
     "typescript": "^3.8.3"
   },
   "peerDependencies": {
+    "@react-three/fiber": ">=6.0.1",
     "react": ">=16.13",
-    "react-dom": ">=16.13",
-    "react-three-fiber": ">=5.0"
+    "react-dom": ">=16.13"
   },
   "dependencies": {
     "react-merge-refs": "^1.1.0"
