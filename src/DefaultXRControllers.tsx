@@ -2,7 +2,7 @@ import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerM
 import { useXR } from './XR'
 import React, { useEffect } from 'react'
 import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
-import { useFrame, useThree } from 'react-three-fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 
 const modelFactory = new XRControllerModelFactory()
 const modelCache = new WeakMap<Group, any>()

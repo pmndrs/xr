@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
 import { useXR } from './XR'
-import { XRHandedness } from './webxr'
-import { Object3D, Group, Matrix4, Raycaster, Intersection } from 'three'
-import { useFrame } from 'react-three-fiber'
+import { Object3D, Group, Matrix4, Raycaster, Intersection, XRHandedness } from 'three'
+import { useFrame } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { ObjectsState } from './ObjectsState'
 import mergeRefs from 'react-merge-refs'
@@ -204,7 +203,7 @@ export function RayGrab({ children }: { children: ReactNode }) {
     group.applyMatrix4(controller.matrixWorld)
     group.updateWorldMatrix(false, true)
 
-    previousTransform.current.getInverse(controller.matrixWorld)
+    previousTransform.current = controller.matrixWorld.clone().invert()
   })
 
   return (
@@ -212,7 +211,7 @@ export function RayGrab({ children }: { children: ReactNode }) {
       ref={groupRef}
       onSelectStart={(e) => {
         grabbingController.current = e.controller.controller
-        previousTransform.current = new Matrix4().getInverse(e.controller.controller.matrixWorld)
+        previousTransform.current = e.controller.controller.matrixWorld.clone().invert()
       }}>
       {children}
     </Interactive>
