@@ -1,12 +1,11 @@
 import * as React from 'react'
-import { Canvas, useFrame, useThree } from 'react-three-fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
-import { XRHandedness, XRReferenceSpace, XRFrame, XRHitTestSource, XRHitTestResult } from './webxr'
 import { XRController } from './XRController'
-import { ContainerProps } from 'react-three-fiber/targets/shared/web/ResizeContainer'
+import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import { Group, Matrix4 } from 'three'
+import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRReferenceSpace } from 'three'
 
 export interface XRContextValue {
   controllers: XRController[]
@@ -53,6 +52,8 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
     if (!gl.xr.isPresenting) return
 
     const session = gl.xr.getSession()
+    if (!session) return
+
     if (!hitTestSourceRequested.current) {
       session.requestReferenceSpace('viewer').then((referenceSpace: XRReferenceSpace) => {
         session.requestHitTestSource({ space: referenceSpace }).then((source: XRHitTestSource) => {
@@ -72,15 +73,22 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
 
     if (hitTestSource.current && gl.xr.isPresenting) {
       const referenceSpace = gl.xr.getReferenceSpace()
-      // This raf is unnecesary, we should get XRFrame from r3f but it's not implemented yet
-      session.requestAnimationFrame((_time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
-        const hitTestResults = xrFrame.getHitTestResults(hitTestSource.current as XRHitTestSource)
-        if (hitTestResults.length) {
-          const hit = hitTestResults[0]
-          hitMatrix.fromArray(hit.getPose(referenceSpace).transform.matrix)
-          hitTestCallback(hitMatrix, hit)
-        }
-      })
+
+      if (referenceSpace) {
+        // This raf is unnecesary, we should get XRFrame from r3f but it's not implemented yet
+        session.requestAnimationFrame((time: DOMHighResTimeStamp, frame: XRFrame) => {
+          const hitTestResults = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
+          if (hitTestResults.length) {
+            const hit = hitTestResults[0]
+            const pose = hit.getPose(referenceSpace);
+
+            if (pose) {
+              hitMatrix.fromArray(pose.transform.matrix)
+              hitTestCallback(hitMatrix, hit)
+            }
+          }
+        })
+      }
     }
   })
 }
@@ -153,8 +161,8 @@ export const useXR = () => {
 
 export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFrame) => void) => {
   const { gl } = useThree()
-  const requestRef = React.useRef()
-  const previousTimeRef = React.useRef()
+  const requestRef = React.useRef<number>()
+  const previousTimeRef = React.useRef<number>()
 
   const loop = React.useCallback((time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
     if (previousTimeRef.current !== undefined) {
@@ -162,7 +170,7 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
     }
 
     previousTimeRef.current = time
-    requestRef.current = gl.xr.getSession().requestAnimationFrame(loop)
+    requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
   }, [gl.xr, callback])
 
   React.useEffect(() => {
@@ -170,10 +178,12 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
       return
     }
 
-    requestRef.current = gl.xr.getSession().requestAnimationFrame(loop)
+    requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
 
     return () => {
-      gl.xr.getSession().cancelAnimationFrame(requestRef.current)
+      if (requestRef.current) {
+        gl.xr.getSession()!.cancelAnimationFrame(requestRef.current)
+      }
     }
   }, [gl.xr.isPresenting, loop])
 }
