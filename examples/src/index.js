@@ -14,7 +14,7 @@ import {
   ARCanvas,
 } from '@react-three/xr'
 // import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
-import { Box } from '@react-three/drei/shapes'
+import { Box } from '@react-three/drei/core/shapes'
 import { useFrame, useResource } from 'react-three-fiber'
 import { Group } from 'three'
 
