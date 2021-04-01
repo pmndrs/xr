@@ -14,8 +14,8 @@ import {
   ARCanvas,
 } from '@react-three/xr'
 // import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
-import { Box } from '@react-three/drei/core/shapes'
-import { useFrame, useResource } from 'react-three-fiber'
+import { Box } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
 import { Group } from 'three'
 
 function Button(props) {
@@ -48,13 +48,13 @@ function PlayerExample() {
 }
 
 function HitTestExample() {
-  const ref = useResource()
+  const [ref, set] = useState()
 
   useHitTest((hit) => {
     hit.decompose(ref.current.position, ref.current.rotation, ref.current.scale)
   })
 
-  return <Box ref={ref} args={[0.1, 0.1, 0.1]} />
+  return <Box ref={set} args={[0.1, 0.1, 0.1]} />
 }
 
 function App() {
