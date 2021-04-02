@@ -1131,10 +1131,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
-"@react-three/fiber@^6.0.1":
-  version "6.0.1"
-  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-6.0.1.tgz#829504b0ed0b0f233fd0b9732dba94153c1c7d76"
-  integrity sha512-e4oETQ+FTyQWtqBn3g6l+NMfoHHaxYlr106EdC0XEZ+nMPt74ohPZalGBaQ9jGyKqHOkrNcYdWI/iUhnOG3sNA==
+"@react-three/fiber@^6.0.3":
+  version "6.0.5"
+  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-6.0.5.tgz#9f48977f1e4fc23d5a31e7c21615a3f00a1858cc"
+  integrity sha512-A7yiKB52ksMoiAgzoEZTICUHsuagiUzbVWnhrASG3tp54rXivV63Dc9iJ+mskI9OIZlMhHFf6IM1Em4E808HVw==
   dependencies:
     "@babel/runtime" "^7.13.10"
     react-merge-refs "^1.1.0"
