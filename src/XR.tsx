@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ARButton } from 'three/examples/jsm/webxr/ARButton'
-import { VRButton } from 'three/examples/jsm/webxr/VRButton'
+import { ARButton } from 'three-stdlib/webxr/ARButton'
+import { VRButton } from 'three-stdlib/webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
@@ -80,7 +80,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
           const hitTestResults = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
           if (hitTestResults.length) {
             const hit = hitTestResults[0]
-            const pose = hit.getPose(referenceSpace);
+            const pose = hit.getPose(referenceSpace)
 
             if (pose) {
               hitMatrix.fromArray(pose.transform.matrix)
@@ -164,14 +164,17 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
   const requestRef = React.useRef<number>()
   const previousTimeRef = React.useRef<number>()
 
-  const loop = React.useCallback((time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
-    if (previousTimeRef.current !== undefined) {
-      callback(time, xrFrame)
-    }
+  const loop = React.useCallback(
+    (time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
+      if (previousTimeRef.current !== undefined) {
+        callback(time, xrFrame)
+      }
 
-    previousTimeRef.current = time
-    requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
-  }, [gl.xr, callback])
+      previousTimeRef.current = time
+      requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
+    },
+    [gl.xr, callback]
+  )
 
   React.useEffect(() => {
     if (!gl.xr?.isPresenting) {
