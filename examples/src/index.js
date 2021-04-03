@@ -48,13 +48,13 @@ function PlayerExample() {
 }
 
 function HitTestExample() {
-  const [ref, set] = useState()
+  const ref = useRef()
 
   useHitTest((hit) => {
     hit.decompose(ref.current.position, ref.current.rotation, ref.current.scale)
   })
 
-  return <Box ref={set} args={[0.1, 0.1, 0.1]} />
+  return <Box ref={ref} args={[0.1, 0.1, 0.1]} />
 }
 
 function App() {
