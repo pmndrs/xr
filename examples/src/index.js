@@ -14,8 +14,8 @@ import {
   ARCanvas,
 } from '@react-three/xr'
 // import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
-import { Box } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { Box, Sky, Text } from '@react-three/drei'
+import { useFrame, useThree } from '@react-three/fiber'
 import { Group } from 'three'
 
 function Button(props) {
@@ -59,14 +59,14 @@ function HitTestExample() {
 
 function App() {
   return (
-    <ARCanvas sessionInit={{ requiredFeatures: ['hit-test'] }}>
+    <VRCanvas>
       <ambientLight intensity={0.5} />
       <pointLight position={[5, 5, 5]} />
 
       <Button position={[0, 0.8, -1]} />
-      {/* <DefaultXRControllers /> */}
-      <HitTestExample />
-    </ARCanvas>
+      <DefaultXRControllers />
+      {/* <HitTestExample /> */}
+    </VRCanvas>
   )
 }
 

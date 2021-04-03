@@ -83,6 +83,7 @@
     "react-dom": ">=16.13"
   },
   "dependencies": {
-    "react-merge-refs": "^1.1.0"
+    "react-merge-refs": "^1.1.0",
+    "three-stdlib": "^1.2.1"
   }
 }
