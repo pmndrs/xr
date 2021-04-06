@@ -1,21 +1,22 @@
 import ReactDOM from 'react-dom'
 import React, { useState, useEffect, useRef, Suspense, useMemo, useCallback } from 'react'
 import {
-  VRCanvas,
   useXREvent,
   DefaultXRControllers,
   Hands,
   Select,
   Hover,
   useXR,
+  XR,
   Interactive,
+  InteractionManager,
   RayGrab,
   useHitTest,
-  ARCanvas,
+  enableXR,
 } from '@react-three/xr'
 // import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
 import { Box, Sky, Text } from '@react-three/drei'
-import { useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Group } from 'three'
 
 function Button(props) {
@@ -59,14 +60,17 @@ function HitTestExample() {
 
 function App() {
   return (
-    <VRCanvas>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[5, 5, 5]} />
-
-      <Button position={[0, 0.8, -1]} />
-      <DefaultXRControllers />
-      {/* <HitTestExample /> */}
-    </VRCanvas>
+    <Canvas frameloop="never" onCreated={({ gl }) => enableXR(gl)}>
+      <XR arButton={true} sessionInit={{ requiredFeatures: ['hit-test'] }}>
+        <InteractionManager>
+          <ambientLight intensity={0.5} />
+          <pointLight position={[5, 5, 5]} />
+          {/* <Button position={[0, 0.8, -1]} /> */}
+          <DefaultXRControllers />
+          {/* <HitTestExample /> */}
+        </InteractionManager>
+      </XR>
+    </Canvas>
   )
 }
 

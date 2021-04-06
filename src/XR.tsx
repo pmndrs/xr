@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ARButton } from 'three-stdlib/webxr/ARButton'
-import { VRButton } from 'three-stdlib/webxr/VRButton'
+import { advance, Canvas, useFrame, useThree } from '@react-three/fiber'
+import { ARButton } from 'three/examples/jsm/webxr/ARButton'
+import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRReferenceSpace } from 'three'
+import { Group, Matrix4, WebGLRenderer, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRReferenceSpace } from 'three'
 
 export interface XRContextValue {
   controllers: XRController[]
@@ -80,7 +80,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
           const hitTestResults = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
           if (hitTestResults.length) {
             const hit = hitTestResults[0]
-            const pose = hit.getPose(referenceSpace)
+            const pose = hit.getPose(referenceSpace);
 
             if (pose) {
               hitMatrix.fromArray(pose.transform.matrix)
@@ -93,7 +93,19 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
-export function XR(props: { children: React.ReactNode }) {
+export function enableXR(gl: WebGLRenderer) {
+  gl.xr.enabled = true
+  gl.setAnimationLoop((timestamp) => advance(timestamp, true))
+}
+
+interface XRProps {
+  children: React.ReactNode;
+  vrButton?: boolean;
+  arButton?: boolean;
+  sessionInit?: any;
+}
+
+export function XR({ children, vrButton, arButton, sessionInit }: XRProps) {
   const { gl, camera } = useThree()
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [player] = React.useState(() => new Group())
@@ -112,6 +124,18 @@ export function XR(props: { children: React.ReactNode }) {
     }
   }, [gl])
 
+  React.useEffect(() => {
+    if (vrButton) {
+      const child = document.body.appendChild(VRButton.createButton(gl))
+      return () => { document.body.removeChild(child); }
+    }
+
+    if (arButton) {
+      const child = document.body.appendChild(ARButton.createButton(gl, sessionInit))
+      return () => { document.body.removeChild(child); }
+    }
+  }, [gl, vrButton, arButton, sessionInit])
+
   const value = React.useMemo(() => ({ controllers, isPresenting, player }), [controllers, isPresenting, player])
 
   return (
@@ -119,34 +143,8 @@ export function XR(props: { children: React.ReactNode }) {
       <primitive object={player} dispose={null}>
         <primitive object={camera} dispose={null} />
       </primitive>
-      {props.children}
+      {children}
     </XRContext.Provider>
-  )
-}
-
-function XRCanvas({ children, ...rest }: ContainerProps) {
-  return (
-    <Canvas vr {...rest}>
-      <XR>
-        <InteractionManager>{children}</InteractionManager>
-      </XR>
-    </Canvas>
-  )
-}
-
-export function VRCanvas({ children, ...rest }: ContainerProps) {
-  return (
-    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(VRButton.createButton(gl))} {...rest}>
-      {children}
-    </XRCanvas>
-  )
-}
-
-export function ARCanvas({ children, sessionInit, ...rest }: ContainerProps & { sessionInit?: any }) {
-  return (
-    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(ARButton.createButton(gl, sessionInit))} {...rest}>
-      {children}
-    </XRCanvas>
   )
 }
 
@@ -164,17 +162,14 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
   const requestRef = React.useRef<number>()
   const previousTimeRef = React.useRef<number>()
 
-  const loop = React.useCallback(
-    (time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
-      if (previousTimeRef.current !== undefined) {
-        callback(time, xrFrame)
-      }
+  const loop = React.useCallback((time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
+    if (previousTimeRef.current !== undefined) {
+      callback(time, xrFrame)
+    }
 
-      previousTimeRef.current = time
-      requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
-    },
-    [gl.xr, callback]
-  )
+    previousTimeRef.current = time
+    requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
+  }, [gl.xr, callback])
 
   React.useEffect(() => {
     if (!gl.xr?.isPresenting) {

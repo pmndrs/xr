@@ -1,7 +1,7 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
-import { XRHandModelFactory } from 'three-stdlib/webxr/XRHandModelFactory'
-import { XRHandOculusMeshModelOptions } from 'three-stdlib/webxr/XRHandOculusMeshModel'
+import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory'
+import { XRHandOculusMeshModelOptions } from 'three/examples/jsm/webxr/XRHandOculusMeshModel'
 
 interface HandsProps {
   profile?: 'spheres' | 'boxes' | 'oculus' | 'oculus_lowpoly'
@@ -13,7 +13,7 @@ export function Hands({ profile = 'oculus' }: HandsProps) {
   useEffect(() => {
     const handFactory = new XRHandModelFactory().setPath('https://threejs.org/examples/models/fbx/')
 
-    const options = profile === 'oculus_lowpoly' ? ({ model: 'lowpoly' } as XRHandOculusMeshModelOptions) : undefined
+    const options = profile === 'oculus_lowpoly' ? { model: 'lowpoly' } as XRHandOculusMeshModelOptions : undefined
     const threeProfile = profile === 'oculus_lowpoly' ? 'oculus' : profile
 
     // @ts-ignore
