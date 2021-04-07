@@ -92,7 +92,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
-export function enableXR(gl: WebGLRenderer) {
+export function startXRloop(gl: WebGLRenderer) {
   gl.xr.enabled = true
   gl.setAnimationLoop((timestamp) => advance(timestamp, true))
 }

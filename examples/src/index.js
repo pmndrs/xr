@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom'
 import React, { useState, useRef } from 'react'
-import { DefaultXRControllers, useXR, XR, Interactive, useHitTest, enableXR } from '@react-three/xr'
+import { DefaultXRControllers, useXR, XR, Interactive, useHitTest, startXRloop } from '@react-three/xr'
 import { Box } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
 
@@ -45,7 +45,7 @@ function HitTestExample() {
 
 function ARExample() {
   return (
-    <Canvas frameloop="never" onCreated={({ gl }) => enableXR(gl)}>
+    <Canvas frameloop="never" onCreated={({ gl }) => startXRloop(gl)}>
       <XR buttonAR={true} sessionInit={{ requiredFeatures: ['hit-test'] }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[5, 5, 5]} />
@@ -57,7 +57,7 @@ function ARExample() {
 
 function VRExample() {
   return (
-    <Canvas frameloop="never" onCreated={({ gl }) => enableXR(gl)}>
+    <Canvas frameloop="never" onCreated={({ gl }) => startXRloop(gl)}>
       <XR buttonVR={true}>
         <ambientLight intensity={0.5} />
         <pointLight position={[5, 5, 5]} />
