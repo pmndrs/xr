@@ -1,23 +1,8 @@
 import ReactDOM from 'react-dom'
-import React, { useState, useEffect, useRef, Suspense, useMemo, useCallback } from 'react'
-import {
-  useXREvent,
-  DefaultXRControllers,
-  Hands,
-  Select,
-  Hover,
-  useXR,
-  XR,
-  Interactive,
-  InteractionManager,
-  RayGrab,
-  useHitTest,
-  enableXR,
-} from '@react-three/xr'
-// import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
-import { Box, Sky, Text } from '@react-three/drei'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Group } from 'three'
+import React, { useState, useRef } from 'react'
+import { DefaultXRControllers, useXR, XR, Interactive, useHitTest, enableXR } from '@react-three/xr'
+import { Box } from '@react-three/drei'
+import { Canvas, useFrame } from '@react-three/fiber'
 
 function Button(props) {
   const [hover, setHover] = useState(false)
@@ -58,20 +43,33 @@ function HitTestExample() {
   return <Box ref={ref} args={[0.1, 0.1, 0.1]} />
 }
 
-function App() {
+function ARExample() {
   return (
     <Canvas frameloop="never" onCreated={({ gl }) => enableXR(gl)}>
-      <XR arButton={true} sessionInit={{ requiredFeatures: ['hit-test'] }}>
-        <InteractionManager>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[5, 5, 5]} />
-          {/* <Button position={[0, 0.8, -1]} /> */}
-          <DefaultXRControllers />
-          {/* <HitTestExample /> */}
-        </InteractionManager>
+      <XR buttonAR={true} sessionInit={{ requiredFeatures: ['hit-test'] }}>
+        <ambientLight intensity={0.5} />
+        <pointLight position={[5, 5, 5]} />
+        <HitTestExample />
       </XR>
     </Canvas>
   )
+}
+
+function VRExample() {
+  return (
+    <Canvas frameloop="never" onCreated={({ gl }) => enableXR(gl)}>
+      <XR buttonVR={true}>
+        <ambientLight intensity={0.5} />
+        <pointLight position={[5, 5, 5]} />
+        <Button position={[0, 0.8, -1]} />
+        <DefaultXRControllers />
+      </XR>
+    </Canvas>
+  )
+}
+
+function App() {
+  return <ARExample />
 }
 
 ReactDOM.render(<App />, document.querySelector('#root'))

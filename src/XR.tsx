@@ -1,9 +1,8 @@
 import * as React from 'react'
-import { advance, Canvas, useFrame, useThree } from '@react-three/fiber'
+import { advance, useFrame, useThree } from '@react-three/fiber'
 import { ARButton } from 'three/examples/jsm/webxr/ARButton'
 import { VRButton } from 'three/examples/jsm/webxr/VRButton'
 import { XRController } from './XRController'
-import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
 import { Group, Matrix4, WebGLRenderer, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRReferenceSpace } from 'three'
 
@@ -100,12 +99,12 @@ export function enableXR(gl: WebGLRenderer) {
 
 interface XRProps {
   children: React.ReactNode;
-  vrButton?: boolean;
-  arButton?: boolean;
+  buttonVR?: boolean;
+  buttonAR?: boolean;
   sessionInit?: any;
 }
 
-export function XR({ children, vrButton, arButton, sessionInit }: XRProps) {
+export function XR({ children, buttonVR, buttonAR, sessionInit }: XRProps) {
   const { gl, camera } = useThree()
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [player] = React.useState(() => new Group())
@@ -125,16 +124,18 @@ export function XR({ children, vrButton, arButton, sessionInit }: XRProps) {
   }, [gl])
 
   React.useEffect(() => {
-    if (vrButton) {
+    if (buttonVR) {
       const child = document.body.appendChild(VRButton.createButton(gl))
       return () => { document.body.removeChild(child); }
     }
+  }, [gl, buttonVR]);
 
-    if (arButton) {
+  React.useEffect(() => {
+    if (buttonAR) {
       const child = document.body.appendChild(ARButton.createButton(gl, sessionInit))
       return () => { document.body.removeChild(child); }
     }
-  }, [gl, vrButton, arButton, sessionInit])
+  }, [gl, buttonAR, sessionInit])
 
   const value = React.useMemo(() => ({ controllers, isPresenting, player }), [controllers, isPresenting, player])
 
@@ -143,7 +144,9 @@ export function XR({ children, vrButton, arButton, sessionInit }: XRProps) {
       <primitive object={player} dispose={null}>
         <primitive object={camera} dispose={null} />
       </primitive>
-      {children}
+      <InteractionManager>
+        {children}
+      </InteractionManager>
     </XRContext.Provider>
   )
 }
