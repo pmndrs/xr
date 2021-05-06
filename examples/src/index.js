@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef, Suspense, useMemo, useCallback } fr
 import {
   VRCanvas,
   useXREvent,
-  DefaultXRControllers,
   Hands,
   Select,
   Hover,
@@ -63,8 +62,9 @@ function App() {
       <ambientLight intensity={0.5} />
       <pointLight position={[5, 5, 5]} />
 
+      <Hands />
       <Button position={[0, 0.8, -1]} />
-      <DefaultXRControllers />
+      {/* <DefaultXRControllers /> */}
       {/* <HitTestExample /> */}
     </VRCanvas>
   )
