@@ -83,6 +83,7 @@
     "react-dom": ">=17.0"
   },
   "dependencies": {
+    "@webxr-input-profiles/motion-controllers": "^1.0.0",
     "react-merge-refs": "^1.1.0"
   }
 }
