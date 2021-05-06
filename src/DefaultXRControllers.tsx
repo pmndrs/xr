@@ -2,7 +2,7 @@ import { useXR } from './XR'
 import React, { useEffect } from 'react'
 import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { XRControllerModelFactory } from 'three-stdlib/webxr/XRControllerModelFactory'
+import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
 
 const modelFactory = new XRControllerModelFactory()
 const modelCache = new WeakMap<Group, any>()
@@ -43,7 +43,7 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshB
       if (modelCache.has(controller)) {
         model = modelCache.get(controller)
       } else {
-        model = modelFactory.createControllerModel(controller)
+        model = modelFactory.createControllerModel(controller) as any
         controller.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
         modelCache.set(controller, model)
       }

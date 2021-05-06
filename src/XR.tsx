@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import * as React from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ARButton } from 'three-stdlib/webxr/ARButton'
-import { VRButton } from 'three-stdlib/webxr/VRButton'
+import { ARButton } from './webxr/ARButton'
+import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
@@ -188,7 +190,7 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
         gl.xr.getSession()!.cancelAnimationFrame(requestRef.current)
       }
     }
-  }, [gl.xr.isPresenting, loop])
+  }, [gl.xr.isPresenting, loop, gl.xr])
 }
 
 export const useController = (handedness: XRHandedness) => {

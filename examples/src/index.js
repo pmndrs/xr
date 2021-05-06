@@ -11,6 +11,7 @@ import {
   RayGrab,
   useHitTest,
   ARCanvas,
+  DefaultXRControllers,
 } from '@react-three/xr'
 // import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
 import { Box, Sky, Text } from '@react-three/drei'
@@ -64,7 +65,7 @@ function App() {
 
       <Hands />
       <Button position={[0, 0.8, -1]} />
-      {/* <DefaultXRControllers /> */}
+      <DefaultXRControllers />
       {/* <HitTestExample /> */}
     </VRCanvas>
   )
