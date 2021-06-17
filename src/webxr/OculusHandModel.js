@@ -5,7 +5,7 @@ const TOUCH_RADIUS = 0.01
 const POINTING_JOINT = 'index-finger-tip'
 
 class OculusHandModel extends Object3D {
-  constructor(controller) {
+  constructor(controller,customModels) {
     super()
 
     this.controller = controller
@@ -20,7 +20,7 @@ class OculusHandModel extends Object3D {
       if (xrInputSource.hand && !this.motionController) {
         this.xrInputSource = xrInputSource
 
-        this.motionController = new XRHandMeshModel(this, controller, this.path, xrInputSource.handedness)
+        this.motionController = new XRHandMeshModel(this, controller, this.path, xrInputSource.handedness, xrInputSource.handedness === "left" ? customModels[0] : customModels[1])
       }
     })
 
