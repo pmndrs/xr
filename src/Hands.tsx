@@ -1,21 +1,23 @@
 import { useThree } from '@react-three/fiber'
-import { OculusHandModel } from './webxr/OculusHandModel.js'
 import { useEffect } from 'react'
+
+import { OculusHandModel } from './webxr/OculusHandModel.js'
+import { useXR } from './XR'
 
 export function Hands() {
   const { scene, gl } = useThree()
+  const { controllers } = useXR()
 
   useEffect(() => {
-    // @ts-ignore
-    const hand1 = gl.xr.getHand(0)
-    hand1.add(new OculusHandModel(hand1))
-    scene.add(hand1)
+    controllers.forEach(({ hand, inputSource }) => {
+      if (hand.children.length === 0) {
+        hand.add(new OculusHandModel(hand))
 
-    // @ts-ignore
-    const hand2 = gl.xr.getHand(1)
-    hand1.add(new OculusHandModel(hand2))
-    scene.add(hand2)
-  }, [scene, gl])
+        // throwing fake event for the Oculus Hand Model so it starts loading
+        hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
+      }
+    })
+  }, [scene, gl, controllers])
 
   return null
 }
