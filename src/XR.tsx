@@ -7,12 +7,13 @@ import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRReferenceSpace } from 'three'
+import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRInputSourceChangeEvent, XRReferenceSpace } from 'three'
 
 export interface XRContextValue {
   controllers: XRController[]
   isPresenting: boolean
   player: Group
+  isHandTracking: boolean
 }
 const XRContext = React.createContext<XRContextValue>({} as any)
 
@@ -29,11 +30,13 @@ const useControllers = (group: Group): XRController[] => {
         (controller) => {
           group.add(controller.controller)
           group.add(controller.grip)
+          group.add(controller.hand)
           setControllers((it) => [...it, controller])
         },
         (controller) => {
           group.remove(controller.controller)
           group.remove(controller.grip)
+          group.remove(controller.hand)
           setControllers((existing) => existing.filter((it) => it !== controller))
         }
       )
@@ -98,6 +101,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
 export function XR(props: { children: React.ReactNode }) {
   const { gl, camera } = useThree()
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
+  const [isHandTracking, setHandTracking] = React.useState(false)
   const [player] = React.useState(() => new Group())
   const controllers = useControllers(player)
 
@@ -114,7 +118,26 @@ export function XR(props: { children: React.ReactNode }) {
     }
   }, [gl])
 
-  const value = React.useMemo(() => ({ controllers, isPresenting, player }), [controllers, isPresenting, player])
+  React.useEffect(() => {
+    const session = gl.xr.getSession()
+
+    const handleInputSourcesChange = (event: Event | XRInputSourceChangeEvent) =>
+      setHandTracking(Object.values((event as XRInputSourceChangeEvent).session.inputSources).some((source) => source.hand))
+
+    session?.addEventListener('inputsourceschange', handleInputSourcesChange)
+
+    return () => {
+      session?.addEventListener('inputsourceschange', handleInputSourcesChange)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPresenting])
+
+  const value = React.useMemo(() => ({ controllers, isPresenting, isHandTracking, player }), [
+    controllers,
+    isPresenting,
+    isHandTracking,
+    player
+  ])
 
   return (
     <XRContext.Provider value={value}>
