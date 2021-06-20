@@ -26,7 +26,7 @@ export const XRController = {
     }
     grip.userData.name = 'grip'
     controller.userData.name = 'controller'
-    controller.userData.name = 'hand'
+    hand.userData.name = 'hand'
 
     controller.addEventListener('connected', (event) => {
       if (event.fake) {
