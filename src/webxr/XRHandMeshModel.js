@@ -13,7 +13,7 @@ class XRHandMeshModel {
     
     if(!customModel)
     loader.setPath(path || DEFAULT_HAND_PROFILE_PATH)
-    loader.load(customModel ? customModel : `${handedness}.glb`, (gltf) => {
+    loader.load(customModel ?? `${handedness}.glb`, (gltf) => {
       const object = gltf.scene.children[0]
       this.handModel.add(object)
 
