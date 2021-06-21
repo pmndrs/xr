@@ -127,7 +127,7 @@ export function XR(props: { children: React.ReactNode }) {
     session?.addEventListener('inputsourceschange', handleInputSourcesChange)
 
     return () => {
-      session?.addEventListener('inputsourceschange', handleInputSourcesChange)
+      session?.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPresenting])
