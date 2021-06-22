@@ -63,7 +63,10 @@ function App() {
       <ambientLight intensity={0.5} />
       <pointLight position={[5, 5, 5]} />
 
-      <Hands />
+      <Hands
+      // modelLeft={"https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/left-hand-black-webxr-tracking-ready/model.gltf"}
+      // modelRight={"https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/right-hand-black-webxr-tracking-ready/model.gltf"}
+      />
       <Button position={[0, 0.8, -1]} />
       <DefaultXRControllers />
       {/* <HitTestExample /> */}

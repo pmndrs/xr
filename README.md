@@ -190,6 +190,18 @@ Add hands model for hand-tracking. Works out of the box on Oculus Browser v13, a
   <Hands />
 ```
 
+### Custom hands model 
+
+While a default model is provided, you might want to use a different model that fit your design.
+It can work with any glTF model as long as they're ready for WebXR handtracking. If you don't specify a model for one hand it'll use the default one.
+
+```jsx
+<Hands
+  modelLeft={"/model_left.gltf"}
+  modelRight={"/model_right.glb"}
+/>
+```
+
 ## Player
 
 `player` group contains camera and controllers that you can use to move player around
