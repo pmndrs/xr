@@ -124,7 +124,7 @@ export function XR(props: { children: React.ReactNode }) {
   )
 }
 
-function XRCanvas({ children, ...rest }: ContainerProps) {
+export function XRCanvas({ children, ...rest }: ContainerProps) {
   return (
     <Canvas vr {...rest}>
       <XR>
