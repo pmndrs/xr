@@ -1,10 +1,5 @@
 class VRButton {
-  static createButton(
-    renderer,
-    sessionInit = {
-      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking']
-    }
-  ) {
+  static createButton(renderer, sessionInit = {}) {
     const button = document.createElement('button')
 
     function showEnterVR(/*device*/) {
@@ -54,7 +49,11 @@ class VRButton {
           // ('local' is always available for immersive sessions and doesn't need to
           // be requested separately.)
 
-          navigator.xr.requestSession('immersive-vr', sessionInit).then(onSessionStarted)
+          const optionalFeatures = [sessionInit.optionalFeatures, 'local-floor', 'bounded-floor', 'hand-tracking'].flat().filter(Boolean)
+
+          sessionInit.optionalFeatures = navigator.xr
+            .requestSession('immersive-vr', { ...sessionInit, optionalFeatures })
+            .then(onSessionStarted)
         } else {
           currentSession.end()
         }
