@@ -150,9 +150,7 @@ export function XR(props: { children: React.ReactNode }) {
   )
 }
 
-export type XRCanvasProps = ContainerProps & { sessionInit?: XRSessionInit }
-
-function XRCanvas({ children, ...rest }: XRCanvasProps) {
+function XRCanvas({ children, ...rest }: ContainerProps) {
   return (
     <Canvas vr {...rest}>
       <XR>
@@ -161,6 +159,8 @@ function XRCanvas({ children, ...rest }: XRCanvasProps) {
     </Canvas>
   )
 }
+
+export type XRCanvasProps = ContainerProps & { sessionInit?: XRSessionInit }
 
 export function VRCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
   return (
