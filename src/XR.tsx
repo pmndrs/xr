@@ -98,7 +98,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
-export function XR(props: { foveation: number; children: React.ReactNode }) {
+export function XR({ foveation = 0, children }: { foveation?: number; children: React.ReactNode }) {
   const { gl, camera } = useThree()
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [isHandTracking, setHandTracking] = React.useState(false)
@@ -108,7 +108,7 @@ export function XR(props: { foveation: number; children: React.ReactNode }) {
   React.useEffect(() => {
     const xr = gl.xr as any
 
-    xr.setFoveation(props.foveation)
+    xr.setFoveation(foveation)
 
     const handleSessionChange = () => setIsPresenting(xr.isPresenting)
 
@@ -147,15 +147,15 @@ export function XR(props: { foveation: number; children: React.ReactNode }) {
       <primitive object={player} dispose={null}>
         <primitive object={camera} dispose={null} />
       </primitive>
-      {props.children}
+      {children}
     </XRContext.Provider>
   )
 }
 
-function XRCanvas({ children, ...rest }: ContainerProps) {
+function XRCanvas({ foveation, children, ...rest }: ContainerProps & { foveation?: number }) {
   return (
     <Canvas vr {...rest}>
-      <XR>
+      <XR foveation={foveation}>
         <InteractionManager>{children}</InteractionManager>
       </XR>
     </Canvas>
