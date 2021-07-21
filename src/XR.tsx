@@ -98,7 +98,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
-export function XR(props: { children: React.ReactNode }) {
+export function XR(props: { foveation: number; children: React.ReactNode }) {
   const { gl, camera } = useThree()
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [isHandTracking, setHandTracking] = React.useState(false)
@@ -107,6 +107,9 @@ export function XR(props: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const xr = gl.xr as any
+
+    xr.setFoveation(props.foveation)
+
     const handleSessionChange = () => setIsPresenting(xr.isPresenting)
 
     xr.addEventListener('sessionstart', handleSessionChange)
