@@ -126,6 +126,8 @@ export function XR(props: { children: React.ReactNode }) {
 
     session?.addEventListener('inputsourceschange', handleInputSourcesChange)
 
+    setHandTracking(Object.values(session?.inputSources ?? []).some((source) => source.hand))
+
     return () => {
       session?.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
