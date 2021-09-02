@@ -13,7 +13,8 @@ export function Hands(props: {
 
   useEffect(() => {
     controllers.forEach(({ hand, inputSource }) => {
-      if (hand.children.length === 0) {
+      const handModel = hand.children.find(child => child instanceof HandModel)
+      if (handModel === undefined) {
         hand.add(new HandModel(hand,[props.modelLeft,props.modelRight]))
 
         // throwing fake event for the Oculus Hand Model so it starts loading
