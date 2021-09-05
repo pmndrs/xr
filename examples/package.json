@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "set HTTPS=true && react-app-rewired start",
+    "start": "cross-env HTTPS=true react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
@@ -66,6 +66,7 @@
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.9.0",
+    "cross-env": "^7.0.3",
     "customize-cra": "^0.9.1",
     "customize-cra-react-refresh": "^1.0.1",
     "husky": "^4.2.3",
