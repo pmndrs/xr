@@ -188,7 +188,15 @@ const createXRButton = (mode: 'AR' | 'VR', gl: any, sessionInit?: any) => {
   }
 }
 
-export type XRCanvasProps = ContainerProps & { sessionInit?: XRSessionInit }
+export type XRCanvasProps = ContainerProps & {
+  sessionInit?: XRSessionInit
+  /**
+   * Enables foveated rendering,
+   * 0 = no foveation = full resolution,
+   * 1 = maximum foveation = the edges render at lower resolution
+   */
+  foveation?: number
+}
 
 export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvasProps) {
   return (
