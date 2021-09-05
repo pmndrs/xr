@@ -6,6 +6,7 @@ import { ARButton } from './webxr/ARButton'
 import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
+import { XRSessionInit } from 'three'
 import { InteractionManager, InteractionsContext } from './Interactions'
 import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRInputSourceChangeEvent, XRReferenceSpace } from 'three'
 
@@ -98,7 +99,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
-export function XR(props: { children: React.ReactNode }) {
+export function XR({ foveation = 0, children }: { foveation?: number; children: React.ReactNode }) {
   const { gl, camera } = useThree()
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [isHandTracking, setHandTracking] = React.useState(false)
@@ -107,6 +108,9 @@ export function XR(props: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const xr = gl.xr as any
+
+    xr.setFoveation(foveation)
+
     const handleSessionChange = () => setIsPresenting(xr.isPresenting)
 
     xr.addEventListener('sessionstart', handleSessionChange)
@@ -146,41 +150,54 @@ export function XR(props: { children: React.ReactNode }) {
       <primitive object={player} dispose={null}>
         <primitive object={camera} dispose={null} />
       </primitive>
-      {props.children}
+      {children}
     </XRContext.Provider>
   )
 }
 
-function XRCanvas({ children, ...rest }: ContainerProps) {
+function XRCanvas({ foveation, children, ...rest }: ContainerProps & { foveation?: number }) {
   return (
     <Canvas vr {...rest}>
-      <XR>
+      <XR foveation={foveation}>
         <InteractionManager>{children}</InteractionManager>
       </XR>
     </Canvas>
   )
 }
 
-
-function createButton(gl:any, isAR:boolean, sessionInit?:any){
-  const button = (isAR) ? ARButton : VRButton;
-  const selector = (isAR) ? '#ARButton' : '#VRButton';
-  if(document.querySelector(selector) === null){
-    document.body.appendChild(button.createButton(gl, sessionInit);
+const createXRButton = (mode: 'AR' | 'VR', gl: any, sessionInit?: any) => {
+  const button = mode === 'AR' ? ARButton : VRButton
+  const selector = mode === 'AR' ? '#ARButton' : '#VRButton'
+  if (document.querySelector(selector) === null) {
+    document.body.appendChild(button.createButton(gl, sessionInit))
   }
 }
 
-export function VRCanvas({ children, ...rest }: ContainerProps) {
+export type XRCanvasProps = ContainerProps & { sessionInit?: XRSessionInit }
+
+export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvasProps) {
   return (
-    <XRCanvas onCreated={({ gl }) => void createButton(gl, false)} {...rest}>
+    <XRCanvas
+      onCreated={(state) => {
+        onCreated?.(state)
+
+        createXRButton('VR', state.gl, sessionInit)
+      }}
+      {...rest}>
       {children}
     </XRCanvas>
   )
 }
 
-export function ARCanvas({ children, sessionInit, ...rest }: ContainerProps & { sessionInit?: any }) {
+export function ARCanvas({ onCreated, children, sessionInit, ...rest }: XRCanvasProps) {
   return (
-    <XRCanvas onCreated={({ gl }) => void createButton(gl, true, sessionInit)} {...rest}>
+    <XRCanvas
+      onCreated={(state) => {
+        onCreated?.(state)
+
+        createXRButton('AR', state.gl, sessionInit)
+      }}
+      {...rest}>
       {children}
     </XRCanvas>
   )
