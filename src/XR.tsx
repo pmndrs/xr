@@ -161,17 +161,29 @@ function XRCanvas({ children, ...rest }: ContainerProps) {
   )
 }
 
-export function VRCanvas({ children, ...rest }: ContainerProps) {
+export function VRCanvas({ onCreated, children, ...rest }: ContainerProps) {
   return (
-    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(VRButton.createButton(gl))} {...rest}>
+    <XRCanvas
+      onCreated={(state) => {
+        onCreated?.(state)
+
+        document.body.appendChild(VRButton.createButton(state.gl))
+      }}
+      {...rest}>
       {children}
     </XRCanvas>
   )
 }
 
-export function ARCanvas({ children, sessionInit, ...rest }: ContainerProps & { sessionInit?: any }) {
+export function ARCanvas({ onCreated, children, sessionInit, ...rest }: ContainerProps & { sessionInit?: any }) {
   return (
-    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(ARButton.createButton(gl, sessionInit))} {...rest}>
+    <XRCanvas
+      onCreated={(state) => {
+        onCreated?.(state)
+
+        document.body.appendChild(ARButton.createButton(state.gl, sessionInit))
+      }}
+      {...rest}>
       {children}
     </XRCanvas>
   )
