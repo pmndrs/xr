@@ -6,6 +6,7 @@ import { ARButton } from './webxr/ARButton'
 import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
+import { XRSessionInit } from 'three'
 import { InteractionManager, InteractionsContext } from './Interactions'
 import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRInputSourceChangeEvent, XRReferenceSpace } from 'three'
 
@@ -161,13 +162,15 @@ function XRCanvas({ children, ...rest }: ContainerProps) {
   )
 }
 
-export function VRCanvas({ onCreated, children, ...rest }: ContainerProps) {
+export type XRCanvasProps = ContainerProps & { sessionInit?: XRSessionInit }
+
+export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvasProps) {
   return (
     <XRCanvas
       onCreated={(state) => {
         onCreated?.(state)
 
-        document.body.appendChild(VRButton.createButton(state.gl))
+        document.body.appendChild(VRButton.createButton(state.gl, sessionInit))
       }}
       {...rest}>
       {children}
@@ -175,7 +178,7 @@ export function VRCanvas({ onCreated, children, ...rest }: ContainerProps) {
   )
 }
 
-export function ARCanvas({ onCreated, children, sessionInit, ...rest }: ContainerProps & { sessionInit?: any }) {
+export function ARCanvas({ onCreated, children, sessionInit, ...rest }: XRCanvasProps) {
   return (
     <XRCanvas
       onCreated={(state) => {
