@@ -6,9 +6,18 @@ import { ARButton } from './webxr/ARButton'
 import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
-import { XRSessionInit } from 'three'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRInputSourceChangeEvent, XRReferenceSpace } from 'three'
+import {
+  XRSessionInit,
+  Group,
+  Matrix4,
+  XRFrame,
+  XRHandedness,
+  XRHitTestResult,
+  XRHitTestSource,
+  XRInputSourceChangeEvent,
+  XRReferenceSpace
+} from 'three'
 
 export interface XRContextValue {
   controllers: XRController[]
@@ -109,10 +118,6 @@ export function XR({ foveation = 0, children }: { foveation?: number; children: 
   React.useEffect(() => {
     const xr = gl.xr as any
 
-    if (xr.setFoveation) {
-      xr.setFoveation(foveation)
-    }
-
     const handleSessionChange = () => setIsPresenting(xr.isPresenting)
 
     xr.addEventListener('sessionstart', handleSessionChange)
@@ -123,6 +128,14 @@ export function XR({ foveation = 0, children }: { foveation?: number; children: 
       xr.removeEventListener('sessionend', handleSessionChange)
     }
   }, [gl])
+
+  React.useEffect(() => {
+    const xr = gl.xr as any
+
+    if (xr.setFoveation) {
+      xr.setFoveation(foveation)
+    }
+  }, [gl, foveation])
 
   React.useEffect(() => {
     const session = gl.xr.getSession()
