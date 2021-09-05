@@ -127,6 +127,8 @@ export function XR(props: { children: React.ReactNode }) {
 
     session?.addEventListener('inputsourceschange', handleInputSourcesChange)
 
+    setHandTracking(Object.values(session?.inputSources ?? []).some((source) => source.hand))
+
     return () => {
       session?.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
@@ -162,17 +164,29 @@ function XRCanvas({ children, ...rest }: ContainerProps) {
 
 export type XRCanvasProps = ContainerProps & { sessionInit?: XRSessionInit }
 
-export function VRCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
+export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvasProps) {
   return (
-    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(VRButton.createButton(gl, sessionInit))} {...rest}>
+    <XRCanvas
+      onCreated={(state) => {
+        onCreated?.(state)
+
+        document.body.appendChild(VRButton.createButton(state.gl, sessionInit))
+      }}
+      {...rest}>
       {children}
     </XRCanvas>
   )
 }
 
-export function ARCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
+export function ARCanvas({ onCreated, children, sessionInit, ...rest }: XRCanvasProps) {
   return (
-    <XRCanvas onCreated={({ gl }) => void document.body.appendChild(ARButton.createButton(gl, sessionInit))} {...rest}>
+    <XRCanvas
+      onCreated={(state) => {
+        onCreated?.(state)
+
+        document.body.appendChild(ARButton.createButton(state.gl, sessionInit))
+      }}
+      {...rest}>
       {children}
     </XRCanvas>
   )

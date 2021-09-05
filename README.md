@@ -71,6 +71,16 @@ return (
 )
 ```
 
+### `<RayGrab>
+
+A specialized `<Interactive>` that can be selected with a controller and dragged in a scene.
+
+```jsx
+<RayGrab>
+  <Box />
+</RayGrab>
+```
+
 ### `useInteraction`
 
 Attach handler to an existing object in a scene
@@ -85,7 +95,7 @@ return <Box ref={ref} />
 
 ## Events
 
-To handle controller events that are not bound to any object in the scene you can use `useXREvent()` hook
+To handle controller events that are not bound to any object in the scene you can use `useXREvent()` hook.
 
 Every controller emits following events: select, selectstart, selectend, squeeze, squeezestart, squeezeend.
 
@@ -144,13 +154,14 @@ interface XRController {
 `inputSource` is the WebXR input source [(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource). Note that it will not be available before controller is connected.
 
 ## `useXRFrame`
+
 Accepts a callback which will be invoked in the animation loop of an active XR session.
-[(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRSession/requestAnimationFrame) 
+[(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRSession/requestAnimationFrame)
 
 ```jsx
-  useXRFrame((time, xrFrame) => {
-    // do something on each frame of an active XR session
-  })  
+useXRFrame((time, xrFrame) => {
+  // do something on each frame of an active XR session
+})
 ```
 
 ## `useController`
@@ -190,16 +201,13 @@ Add hands model for hand-tracking. Works out of the box on Oculus Browser v13, a
   <Hands />
 ```
 
-### Custom hands model 
+### Custom hands model
 
 While a default model is provided, you might want to use a different model that fit your design.
 It can work with any glTF model as long as they're ready for WebXR handtracking. If you don't specify a model for one hand it'll use the default one.
 
 ```jsx
-<Hands
-  modelLeft={"/model_left.gltf"}
-  modelRight={"/model_right.glb"}
-/>
+<Hands modelLeft={'/model_left.gltf'} modelRight={'/model_right.glb'} />
 ```
 
 ## Player
