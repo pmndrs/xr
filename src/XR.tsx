@@ -165,6 +165,14 @@ function XRCanvas({ foveation, children, ...rest }: ContainerProps & { foveation
   )
 }
 
+const createXRButton = (mode: 'AR' | 'VR', gl: any, sessionInit?: any) => {
+  const button = mode === 'AR' ? ARButton : VRButton
+  const selector = mode === 'AR' ? '#ARButton' : '#VRButton'
+  if (document.querySelector(selector) === null) {
+    document.body.appendChild(button.createButton(gl, sessionInit))
+  }
+}
+
 export type XRCanvasProps = ContainerProps & { sessionInit?: XRSessionInit }
 
 export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvasProps) {
@@ -173,7 +181,7 @@ export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvas
       onCreated={(state) => {
         onCreated?.(state)
 
-        document.body.appendChild(VRButton.createButton(state.gl, sessionInit))
+        createXRButton('VR', state.gl, sessionInit)
       }}
       {...rest}>
       {children}
@@ -187,7 +195,7 @@ export function ARCanvas({ onCreated, children, sessionInit, ...rest }: XRCanvas
       onCreated={(state) => {
         onCreated?.(state)
 
-        document.body.appendChild(ARButton.createButton(state.gl, sessionInit))
+        createXRButton('AR', state.gl, sessionInit)
       }}
       {...rest}>
       {children}
