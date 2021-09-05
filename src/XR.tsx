@@ -109,7 +109,9 @@ export function XR({ foveation = 0, children }: { foveation?: number; children: 
   React.useEffect(() => {
     const xr = gl.xr as any
 
-    xr.setFoveation(foveation)
+    if (xr.setFoveation) {
+      xr.setFoveation(foveation)
+    }
 
     const handleSessionChange = () => setIsPresenting(xr.isPresenting)
 
