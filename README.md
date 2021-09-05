@@ -71,9 +71,9 @@ return (
 )
 ```
 
-### `<RayGrab>
+### `<RayGrab>`
 
-A specialized `<Interactive>` that can be selected with a controller and dragged in a scene.
+Wrap any object with a `RayGrab` component to make it grabbable 
 
 ```jsx
 <RayGrab>
