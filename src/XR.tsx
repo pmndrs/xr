@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import * as React from 'react'
-import { Canvas, RenderProps, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRInputSourceChangeEvent, XRReferenceSpace } from 'three'
-import { PropsWithChildren, useEffect, useRef } from 'react'
+import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
+import { useEffect, useRef } from 'react'
 import { useRegisterWebXRManager } from './XRSessionManager'
+import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRInputSourceChangeEvent, XRReferenceSpace } from 'three'
 
 export interface XRContextValue {
   controllers: XRController[]
@@ -97,7 +98,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
-export function XR(props: { children: React.ReactNode }) {
+export function XR({ foveation = 0, children }: { foveation?: number; children: React.ReactNode }) {
   const { gl, camera } = useThree()
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [isHandTracking, setHandTracking] = React.useState(false)
@@ -106,6 +107,7 @@ export function XR(props: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const xr = gl.xr as any
+
     const handleSessionChange = () => setIsPresenting(xr.isPresenting)
 
     xr.addEventListener('sessionstart', handleSessionChange)
@@ -116,6 +118,14 @@ export function XR(props: { children: React.ReactNode }) {
       xr.removeEventListener('sessionend', handleSessionChange)
     }
   }, [gl])
+
+  React.useEffect(() => {
+    const xr = gl.xr as any
+
+    if (xr.setFoveation) {
+      xr.setFoveation(foveation)
+    }
+  }, [gl, foveation])
 
   React.useEffect(() => {
     const session = gl.xr.getSession()
@@ -133,24 +143,22 @@ export function XR(props: { children: React.ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPresenting])
 
-  const value = React.useMemo(() => ({ controllers, isPresenting, isHandTracking, player }), [
-    controllers,
-    isPresenting,
-    isHandTracking,
-    player
-  ])
+  const value = React.useMemo(
+    () => ({ controllers, isPresenting, isHandTracking, player }),
+    [controllers, isPresenting, isHandTracking, player]
+  )
 
   return (
     <XRContext.Provider value={value}>
       <primitive object={player} dispose={null}>
         <primitive object={camera} dispose={null} />
       </primitive>
-      {props.children}
+      {children}
     </XRContext.Provider>
   )
 }
 
-export function XRCanvas({ children, onCreated, ...rest }: PropsWithChildren<RenderProps<HTMLCanvasElement>>) {
+export function XRCanvas({ foveation, children, onCreated, ...rest }: ContainerProps & { foveation?: number }) {
   const registerWebXRManager = useRegisterWebXRManager()
 
   const destroyFunction = useRef<() => void>()
@@ -159,19 +167,19 @@ export function XRCanvas({ children, onCreated, ...rest }: PropsWithChildren<Ren
   useEffect(() => destroyFunction.current, [])
 
   return (
-      <Canvas
-          onCreated={(state) => {
-              if (onCreated != null) {
-                  onCreated(state)
-              }
-              destroyFunction.current = registerWebXRManager(state.gl.xr)
-          }}
-          vr
-          {...rest}>
-          <XR>
-              <InteractionManager>{children}</InteractionManager>
-          </XR>
-      </Canvas>
+    <Canvas
+      onCreated={(state) => {
+        if (onCreated != null) {
+          onCreated(state)
+        }
+        destroyFunction.current = registerWebXRManager(state.gl.xr)
+      }}
+      vr
+      {...rest}>
+      <XR foveation={foveation}>
+        <InteractionManager>{children}</InteractionManager>
+      </XR>
+    </Canvas>
   )
 }
 
