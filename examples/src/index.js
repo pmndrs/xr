@@ -12,8 +12,10 @@ import {
   useHitTest,
   DefaultXRControllers,
   XRSessionManager,
-  XRButton,
+  EnterXRButton,
+  ExitXRButton,
   useAvailableXRSessionModes,
+  useXRSessionInfo,
 } from '@react-three/xr'
 // import { OrbitControls, Sky, Text, Plane, Box } from '@react-three/drei'
 import { Box, Sky, Text } from '@react-three/drei'
@@ -74,15 +76,16 @@ function App() {
         <DefaultXRControllers />
         {/* <HitTestExample /> */}
       </XRCanvas>
-      <EnterButton />
+      <XRButton />
     </XRSessionManager>
   )
 }
 
 const interestedSessions = ['immersive-ar', 'immersive-vr']
 
-function EnterButton() {
+function XRButton() {
   const availableXRSessionModes = useAvailableXRSessionModes(interestedSessions)
+  const sessionInfo = useXRSessionInfo()
 
   const sessionMode = useMemo(
     () => (availableXRSessionModes != null ? availableXRSessionModes[0] : undefined),
@@ -93,27 +96,38 @@ function EnterButton() {
     return null
   }
 
-  return (
-    <XRButton
-      style={{
-        cursor: 'pointer',
-        background: '#fff',
-        color: '#000',
-        padding: '1rem 1.5rem',
-        borderRadius: '1rem',
-        position: 'absolute',
-        left: '50%',
-        transform: 'translate(-50%, 0)',
-        bottom: '10vh',
-        zIndex: 1,
-      }}
-      sessionMode={sessionMode}
-      sessionInit={{
-        optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'],
-      }}>
-      ENTER {sessionMode.toUpperCase()}
-    </XRButton>
-  )
+  if (sessionInfo == null) {
+    return (
+      <EnterXRButton {...props} sessionMode={sessionMode}>
+        ENTER {sessionMode.toUpperCase()}
+      </EnterXRButton>
+    )
+  } else {
+    return (
+      <ExitXRButton {...props} sessionMode={sessionMode}>
+        EXIT {sessionMode.toUpperCase()}
+      </ExitXRButton>
+    )
+  }
+}
+
+const props = {
+  style: {
+    cursor: 'pointer',
+    background: '#fff',
+    color: '#000',
+    padding: '1rem 1.5rem',
+    borderRadius: '1rem',
+    position: 'absolute',
+    left: '50%',
+    transform: 'translate(-50%, 0)',
+    bottom: '10vh',
+    zIndex: 1,
+  },
+  sessionInit: {
+    domOverlay: { root: document.body },
+    optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking'],
+  },
 }
 
 ReactDOM.render(<App />, document.querySelector('#root'))
