@@ -9,6 +9,7 @@ import { useXREvent, XREvent } from './XREvents'
 
 export interface XRInteractionEvent {
   intersection?: Intersection
+  intersections: Intersection[]
   controller: XRController
 }
 
@@ -21,6 +22,7 @@ export type XRInteractionType =
   | 'onSqueeze'
   | 'onSqueezeEnd'
   | 'onSqueezeStart'
+  | 'onSelectMissed'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
@@ -86,7 +88,9 @@ export function InteractionManager({ children }: { children: any }) {
 
         while (eventObject) {
           if (ObjectsState.has(interactions, eventObject, 'onHover') && !hovering.has(eventObject)) {
-            ObjectsState.get(interactions, eventObject, 'onHover')?.forEach((handler) => handler({ controller: it, intersection }))
+            ObjectsState.get(interactions, eventObject, 'onHover')?.forEach((handler) =>
+              handler({ controller: it, intersection, intersections })
+            )
           }
 
           hovering.set(eventObject, intersection)
@@ -99,7 +103,7 @@ export function InteractionManager({ children }: { children: any }) {
       // but missed in this one
       for (const eventObject of hovering.keys()) {
         if (!hits.has(eventObject.id)) {
-          ObjectsState.get(interactions, eventObject, 'onBlur')?.forEach((handler) => handler({ controller: it }))
+          ObjectsState.get(interactions, eventObject, 'onBlur')?.forEach((handler) => handler({ controller: it, intersections }))
           hovering.delete(eventObject)
         }
       }
@@ -108,8 +112,20 @@ export function InteractionManager({ children }: { children: any }) {
 
   const triggerEvent = (interaction: XRInteractionType) => (e: XREvent) => {
     const hovering = hoverState[e.controller.inputSource.handedness]
+
+    if (interaction === 'onSelect') {
+      for (const [eventObject, entry] of interactions.entries()) {
+        const handlers = entry['onSelectMissed']
+        if (!hovering.has(eventObject) && handlers) {
+          handlers.forEach((handler) => handler({ controller: e.controller, intersections: Array.from(hovering.values()) }))
+        }
+      }
+    }
+
     for (const hovered of hovering.keys()) {
-      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) => handler({ controller: e.controller }))
+      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) =>
+        handler({ controller: e.controller, intersections: Array.from(hovering.values()) })
+      )
     }
   }
 
@@ -161,6 +177,7 @@ export const Interactive = forwardRef(
       onSqueezeStart?: XRInteractionHandler
       onSqueezeEnd?: XRInteractionHandler
       onSqueeze?: XRInteractionHandler
+      onSelectMissed?: XRInteractionHandler
     },
     passedRef
   ) => {
@@ -174,6 +191,7 @@ export const Interactive = forwardRef(
     useInteraction(ref, 'onSqueezeStart', props.onSqueezeStart)
     useInteraction(ref, 'onSqueezeEnd', props.onSqueezeEnd)
     useInteraction(ref, 'onSqueeze', props.onSqueeze)
+    useInteraction(ref, 'onSelectMissed', props.onSelectMissed)
 
     return <group ref={mergeRefs([passedRef, ref])}>{props.children}</group>
   }
