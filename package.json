@@ -22,11 +22,15 @@
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/*",
+    "src/*"
+  ],
   "sideEffects": false,
   "scripts": {
     "prebuild": "rimraf dist && npm run typegen",
     "build": "rollup -c",
-    "prepare": "npm run build",
+    "prepare": "yarn prebuild && yarn build",
     "eslint": "eslint src/**/*.{js,ts,jsx,tsx}",
     "test": "echo no tests yet",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false --strict --jsx react",
