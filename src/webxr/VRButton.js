@@ -51,9 +51,7 @@ class VRButton {
 
           const optionalFeatures = [sessionInit.optionalFeatures, 'local-floor', 'bounded-floor', 'hand-tracking'].flat().filter(Boolean)
 
-          sessionInit.optionalFeatures = navigator.xr
-            .requestSession('immersive-vr', { ...sessionInit, optionalFeatures })
-            .then(onSessionStarted)
+          navigator.xr.requestSession('immersive-vr', { ...sessionInit, optionalFeatures }).then(onSessionStarted)
         } else {
           currentSession.end()
         }
