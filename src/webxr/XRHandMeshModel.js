@@ -1,4 +1,4 @@
-import { GLTFLoader } from 'three-stdlib'
+import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
 
 const DEFAULT_HAND_PROFILE_PATH = 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles/generic-hand/'
 
