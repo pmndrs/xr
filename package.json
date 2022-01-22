@@ -89,6 +89,6 @@
   "dependencies": {
     "@webxr-input-profiles/motion-controllers": "^1.0.0",
     "react-merge-refs": "^1.1.0",
-    "three-stdlib": "^2.6.4"
+    "three-stdlib": "^2.7.2"
   }
 }

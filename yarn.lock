@@ -895,7 +895,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.14.6":
+"@babel/runtime@^7.16.7":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.16.7.tgz#03ff99f64106588c9c403c6ecb8c3bafbbdff1fa"
   integrity sha512-9E9FJowqAsytyOY6LG+1KuueckRL+aQW+mKvXRXnuFGyRAyepJPmEo9vgMfXUA6O9u3IeEdv9MAkppFcaQwogQ==
@@ -6718,12 +6718,12 @@ text-table@^0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-three-stdlib@^2.6.4:
-  version "2.6.4"
-  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.6.4.tgz#9c6b125da875c4c0c995fe0fc7b956ba33407ba7"
-  integrity sha512-vc+/op2LYGnSN4y2QhxyyFm6WvdLQ/M0vpPxT0anB40lpA3t5+B9R9so/X53BOP8SiENG5YKVNQGXhqwTJJHGw==
+three-stdlib@^2.7.2:
+  version "2.7.2"
+  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.7.2.tgz#801a530e93f82dfdd8e2b0856cd4ef5fd73e9247"
+  integrity sha512-6jtdJVZOcA+6xE+/YnuOZ8eCuhQhDi4eZ6XKFGYiUDEVTrAFTehScqhWxdchaPGNEEAqSCuXGwSd14m397xr7w==
   dependencies:
-    "@babel/runtime" "^7.14.6"
+    "@babel/runtime" "^7.16.7"
     "@webgpu/glslang" "^0.0.15"
     "@webxr-input-profiles/motion-controllers" "^1.0.0"
     chevrotain "^9.0.2"
