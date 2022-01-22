@@ -84,7 +84,8 @@
   "peerDependencies": {
     "@react-three/fiber": ">=6.0.3",
     "react": ">=17.0",
-    "react-dom": ">=17.0"
+    "react-dom": ">=17.0",
+    "three": ">=0.134"
   },
   "dependencies": {
     "@webxr-input-profiles/motion-controllers": "^1.0.0",
