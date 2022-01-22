@@ -55,7 +55,7 @@
     "@types/lodash-es": "^4.17.3",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.3",
-    "@types/three": "^0.126.2",
+    "@types/three": "^0.134.0",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
     "babel-eslint": "^10.1.0",
@@ -78,7 +78,7 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-size-snapshot": "^0.12.0",
-    "three": "^0.131.1",
+    "three": "^0.134.0",
     "typescript": "^4.2.3"
   },
   "peerDependencies": {
