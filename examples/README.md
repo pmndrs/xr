@@ -1,12 +1,22 @@
 # Explore Examples
 
-You can explore additional examples locally:
+You can explore additional examples locally. Make sure you have nodejs and yarn installed.
 
-```shell
-git clone https://github.com/react-spring/react-xr
+Clone repository with:
+
+```bash
+git clone https://github.com/pmndrs/react-xr
 cd react-xr
+```
+
+Install dependencies with:
+
+```bash
 yarn
-cd examples
-yarn
-yarn start
+```
+
+Once it's done start up a local server with:
+
+```bash
+yarn dev
 ```
