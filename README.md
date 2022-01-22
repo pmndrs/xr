@@ -2,9 +2,9 @@
 
 [![Version](https://img.shields.io/npm/v/@react-three/xr?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
 [![Downloads](https://img.shields.io/npm/dt/@react-three/xr.svg?style=flat&colorA=000000&colorB=000000)](https://www.npmjs.com/package/@react-three/xr)
-[![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/ZZjjNvJ)
+[![Discord Shield](https://img.shields.io/discord/740090768164651008?style=flat&colorA=000000&colorB=000000&label=discord&logo=discord&logoColor=ffffff)](https://discord.gg/poimandres)
 
-React components and hooks for creating VR/AR applications with [react-three-fiber](https://github.com/pmndrs/react-three-fiber)
+React components and hooks for creating VR/AR applications with [@react-three/fiber](https://github.com/pmndrs/react-three-fiber)
 
 ```
 npm install @react-three/xr
@@ -73,7 +73,7 @@ return (
 
 ### `<RayGrab>`
 
-Wrap any object with a `RayGrab` component to make it grabbable 
+Wrap any object with a `RayGrab` component to make it grabbable
 
 ```jsx
 <RayGrab>
@@ -111,7 +111,7 @@ useXREvent('squeeze', () => console.log('Left controller squeeze'), { handedness
 
 ## VRCanvas, ARCanvas componentss
 
-Extended react-three-fiber [Canvas](https://github.com/pmndrs/react-three-fiber/blob/master/api.md#canvas) that includes:
+Extended react-three-fiber [Canvas](https://docs.pmnd.rs/react-three-fiber/api/canvas) that includes:
 
 - Button to start VR session
 - Color management

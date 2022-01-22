@@ -2,6 +2,7 @@ import path from 'path'
 import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
 import json from 'rollup-plugin-json'
+import { sizeSnapshot } from 'rollup-plugin-size-snapshot'
 
 const root = process.platform === 'win32' ? path.resolve('/') : '/'
 const external = (id) => !id.startsWith('.') && !id.startsWith(root)
@@ -24,12 +25,12 @@ export default [
     input: `./src/index.tsx`,
     output: { file: `dist/index.js`, format: 'esm' },
     external,
-    plugins: [json(), babel(getBabelOptions({ useESModules: true }, '>1%, not dead, not ie 11, not op_mini all')), resolve({ extensions })]
+    plugins: [json(), babel(getBabelOptions({ useESModules: true }, 'supports webxr')), sizeSnapshot(), resolve({ extensions })]
   },
   {
     input: `./src/index.tsx`,
     output: { file: `dist/index.cjs.js`, format: 'cjs' },
     external,
-    plugins: [json(), babel(getBabelOptions({ useESModules: false })), resolve({ extensions })]
+    plugins: [json(), babel(getBabelOptions({ useESModules: false }, 'supports webxr')), sizeSnapshot(), resolve({ extensions })]
   }
 ]

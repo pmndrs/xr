@@ -24,11 +24,17 @@ export type XRInteractionType =
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
+const warnAboutVRARCanvas = () => console.warn('You must provide a ARCanvas or VRCanvas as a wrapper to use interactions')
+
 export const InteractionsContext = React.createContext<{
   hoverState: Record<XRHandedness, Map<Object3D, Intersection>>
   addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
   removeInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
-}>({} as any)
+}>({
+  hoverState: {} as any,
+  addInteraction: warnAboutVRARCanvas,
+  removeInteraction: warnAboutVRARCanvas
+})
 export function InteractionManager({ children }: { children: any }) {
   const { controllers } = useXR()
 
@@ -109,7 +115,9 @@ export function InteractionManager({ children }: { children: any }) {
   const triggerEvent = (interaction: XRInteractionType) => (e: XREvent) => {
     const hovering = hoverState[e.controller.inputSource.handedness]
     for (const hovered of hovering.keys()) {
-      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) => handler({ controller: e.controller }))
+      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) =>
+        handler({ controller: e.controller, intersection: hovering.get(hovered) })
+      )
     }
   }
 
