@@ -6,7 +6,7 @@ import { XRController } from './XRController'
 import { InteractionManager, InteractionsContext } from './Interactions'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { useEffect, useRef } from 'react'
-import { useRegisterWebXRManager } from './XRSessionManager'
+import { useRegisterWebXRManager } from './hooks'
 import { Group, Matrix4, XRFrame, XRHandedness, XRHitTestResult, XRHitTestSource, XRInputSourceChangeEvent, XRReferenceSpace } from 'three'
 
 export interface XRContextValue {

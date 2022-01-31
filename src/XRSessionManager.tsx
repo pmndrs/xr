@@ -1,94 +1,47 @@
-import React from "react"
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
-import { WebXRManager, XRSession } from "three"
-import { XRSessionMode, Navigator } from "webxr"
+import React from 'react'
+import { createContext, PropsWithChildren, useEffect, useMemo } from 'react'
+import { createStore, XRState } from './store'
+import { UseStore, StateSelector, EqualityChecker } from 'zustand'
+import { XRSession } from 'three'
 
-declare let navigator: Navigator
+const XRStateContext = createContext<UseStore<XRState>>(null as any)
 
-export type XRSessionManagerFunctions = {
-    registerWebXRManager: (xr: WebXRManager) => () => void
-    requestXRSession: (sessionMode: XRSessionMode, sessionInit?: any) => Promise<void>
-    exitXRSession: () => Promise<void>
+export function useStore() {
+  const store = React.useContext(XRStateContext)
+  if (!store) throw `R3FXR hooks can only be used within the XRSessionManager component!`
+  return store
 }
 
-export const XRSessionFunctionsContext = createContext<XRSessionManagerFunctions>(null as any)
-
-function useXRSessionFunctions() {
-    const xrSessionFunctions = useContext(XRSessionFunctionsContext)
-    if (xrSessionFunctions == null) {
-        throw "can only be used inside a XRSessionManager"
-    }
-    return xrSessionFunctions
+export function useXR<T = XRState>(
+  selector: StateSelector<XRState, T> = (state) => state as unknown as T,
+  equalityFn?: EqualityChecker<T>
+) {
+  return useStore()(selector, equalityFn)
 }
 
-export function useRegisterWebXRManager() {
-    return useXRSessionFunctions().registerWebXRManager
-}
-
-export function useRequestXRSession() {
-    return useXRSessionFunctions().requestXRSession
-}
-
-export function useExitXRSession() {
-    return useXRSessionFunctions().exitXRSession
-}
-
-export const XRSessionInfoContext = createContext<XRSessionInfo | undefined>(null as any)
-
-export type XRSessionInfo = { session: XRSession; sessionMode: XRSessionMode; sessionInit?: any }
-
-export type ImmersiveXRSessionMode = "immersive-vr" | "immersive-ar"
-
-export function useXRSessionInfo() {
-    return useContext(XRSessionInfoContext)
-}
+export type ImmersiveXRSessionMode = 'immersive-vr' | 'immersive-ar'
 
 export function XRSessionManager({ children }: PropsWithChildren<any>) {
-    const xrManagerRef = useRef<WebXRManager | undefined>(undefined)
+  const store = useMemo(() => createStore(), [])
 
-    const [xrSessionInfo, setXRSessionInfo] = useState<XRSessionInfo | undefined>(undefined)
-
-    const setSession = useCallback((session: XRSession | undefined) => {
-        if (xrManagerRef.current && session) {
-            xrManagerRef.current.setSession(session)
+  useEffect(() => {
+    const listener = () => {}
+    const unsubscribe = store.subscribe<XRSession | undefined>(
+      (session, previousSession) => {
+        if (previousSession != null) {
+          previousSession.removeEventListener('end', listener)
         }
-    }, [])
-
-    const xrSessionFunctions: XRSessionManagerFunctions = useMemo(
-        () => ({
-            exitXRSession: () => xrSessionInfo?.session.end() ?? Promise.reject("no xr session present"),
-            registerWebXRManager: (manager) => {
-                if (xrManagerRef.current != null) {
-                    throw "cant have multiple WebXRManager in one XRSession"
-                }
-                xrManagerRef.current = manager
-                setSession(xrSessionInfo?.session)
-                return () => {
-                    xrManagerRef.current = undefined
-                }
-            },
-            requestXRSession: async (sessionMode, sessionInit) => {
-                const session = (await navigator.xr.requestSession(sessionMode, sessionInit)) as any
-                setSession(session)
-                setXRSessionInfo({ session, sessionMode, sessionInit })
-            },
-        }),
-        [setSession, xrSessionInfo]
-    )
-
-    const onExitXR = useCallback(() => setXRSessionInfo(undefined), [setXRSessionInfo])
-
-    useEffect(() => {
-        if (xrSessionInfo == null) {
-            return
+        if (session != null) {
+          session.addEventListener('end', listener)
         }
-        xrSessionInfo.session.addEventListener("end", onExitXR)
-        return () => xrSessionInfo.session.removeEventListener("end", onExitXR)
-    }, [xrSessionInfo, onExitXR])
-
-    return (
-        <XRSessionFunctionsContext.Provider value={xrSessionFunctions}>
-            <XRSessionInfoContext.Provider value={xrSessionInfo}>{children}</XRSessionInfoContext.Provider>
-        </XRSessionFunctionsContext.Provider>
+      },
+      ({ session }) => session
     )
+    return () => {
+      unsubscribe()
+      store.getState().session?.removeEventListener('end', listener)
+    }
+  }, []) //store will not change so we don't need to add it as a dependency
+
+  return <XRStateContext.Provider value={store}>{children}</XRStateContext.Provider>
 }
