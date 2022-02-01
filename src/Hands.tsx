@@ -1,27 +1,36 @@
-import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
+import { useStore, XRController } from '.'
 
 import { HandModel } from './webxr/HandModel.js'
-import { useXR } from './XR'
 
-export function Hands(props: {
-    modelLeft?:string
-    modelRight?:string
-  }) {
-  const { scene, gl } = useThree()
-  const { controllers } = useXR()
+export function Hands({ modelLeft, modelRight }: { modelLeft?: string; modelRight?: string }) {
+  const store = useStore()
 
   useEffect(() => {
-    controllers.forEach(({ hand, inputSource }) => {
-      const handModel = hand.children.find(child => child instanceof HandModel)
-      if (handModel === undefined) {
-        hand.add(new HandModel(hand,[props.modelLeft,props.modelRight]))
+    const changeControllers = (controllers: Array<XRController>, previousControllers: Array<XRController>) => {
+      previousControllers.forEach(({ hand }) => {
+        const handModel = hand.children.find((child) => child instanceof HandModel)
+        if (handModel != null) {
+          hand.remove(handModel)
+        }
+      })
+      controllers.forEach(({ hand, inputSource }) => {
+        const handModel = hand.children.find((child) => child instanceof HandModel)
+        if (handModel === undefined) {
+          hand.add(new HandModel(hand, [modelLeft, modelRight]))
 
-        // throwing fake event for the Oculus Hand Model so it starts loading
-        hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
-      }
-    })
-  }, [scene, gl, controllers])
+          // throwing fake event for the Oculus Hand Model so it starts loading
+          hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
+        }
+      })
+    }
+    const unsubscribe = store.subscribe<Array<XRController>>(changeControllers, ({ controllers }) => controllers)
+
+    return () => {
+      unsubscribe()
+      changeControllers([], store.getState().controllers)
+    }
+  }, [store, modelLeft, modelRight])
 
   return null
 }

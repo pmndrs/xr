@@ -3,7 +3,7 @@ import { useState, useRef, useMemo } from 'react'
 import {
   XRCanvas,
   Hands,
-  useXR,
+  usePlayer,
   Interactive,
   useHitTest,
   DefaultXRControllers,
@@ -11,7 +11,7 @@ import {
   EnterXRButton,
   ExitXRButton,
   useAvailableXRSessionModes,
-  useXRSessionInfo,
+  useXRSessionMode,
 } from '@react-three/xr'
 import { Box, Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
@@ -33,7 +33,7 @@ function Button(props) {
 }
 
 function PlayerExample() {
-  const { player } = useXR()
+  const player = usePlayer()
 
   useFrame(() => {
     player.rotation.x = player.rotation.y += 0.01
@@ -76,27 +76,27 @@ const interestedSessions = ['immersive-ar', 'immersive-vr']
 
 function XRButton() {
   const availableXRSessionModes = useAvailableXRSessionModes(interestedSessions)
-  const sessionInfo = useXRSessionInfo()
+  const currentSessionMode = useXRSessionMode()
 
-  const sessionMode = useMemo(
+  const possibleSessionMode = useMemo(
     () => (availableXRSessionModes != null ? availableXRSessionModes[0] : undefined),
     [availableXRSessionModes]
   )
 
-  if (sessionMode == null) {
+  if (possibleSessionMode == null) {
     return null
   }
 
-  if (sessionInfo == null) {
+  if (currentSessionMode == null) {
     return (
-      <EnterXRButton {...props} sessionMode={sessionMode}>
-        ENTER {sessionMode.toUpperCase()}
+      <EnterXRButton {...props} sessionMode={possibleSessionMode}>
+        ENTER {possibleSessionMode.toUpperCase()}
       </EnterXRButton>
     )
   } else {
     return (
-      <ExitXRButton {...props} sessionMode={sessionMode}>
-        EXIT {sessionMode.toUpperCase()}
+      <ExitXRButton style={props.style}>
+        EXIT {currentSessionMode.toUpperCase()}
       </ExitXRButton>
     )
   }

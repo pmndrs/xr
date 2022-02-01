@@ -1,6 +1,5 @@
 import React from 'react'
-import { XRController } from './XRController'
-import { useXR } from './XR'
+import { XRController, useControllers } from '.'
 import { XRHandedness } from 'three'
 
 export interface XREvent {
@@ -15,7 +14,7 @@ export const useXREvent = (event: XREventType, handler: (e: XREvent) => any, { h
   React.useEffect(() => {
     handlerRef.current = handler
   }, [handler])
-  const { controllers: allControllers } = useXR()
+  const allControllers = useControllers()
 
   React.useEffect(() => {
     const controllers = handedness ? allControllers.filter((it) => it.inputSource.handedness === handedness) : allControllers

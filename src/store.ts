@@ -1,21 +1,39 @@
-import { WebXRManager, XRSessionMode, XRSession } from 'three'
+import { WebXRManager, XRSessionMode, XRSession, Group, Camera, XRInputSource } from 'three'
 import create, { UseStore } from 'zustand'
 import { combine } from 'zustand/middleware'
 import { Navigator } from 'webxr'
 
 declare let navigator: Navigator
 
+export interface XRController {
+  inputSource: XRInputSource
+  /**
+   * Group with orientation that should be used to render virtual
+   * objects such that they appear to be held in the user’s hand
+   */
+  grip: Group
+  /** Group with orientation of the preferred pointing ray */
+  controller: Group
+  /** Group with hand */
+  hand: Group
+}
+
 type XRStateValues = {
   session: XRSession | undefined
   sessionMode: XRSessionMode | undefined
   webXRManager: WebXRManager | undefined
-  sessionInit?: any
+  sessionInit: any | undefined
+  controllers: XRController[]
+  player: Group
+  camera: Camera | undefined
 }
 
 type XRStateFunctions = {
   registerWebXRManager: (xr: WebXRManager) => () => void
   requestXRSession: (sessionMode: XRSessionMode, sessionInit?: any) => Promise<void>
   exitXRSession: () => Promise<void>
+  addXRController: (controller: XRController) => void
+  removeXRController: (controller: XRController) => void
 }
 
 export type XRState = XRStateValues & XRStateFunctions
@@ -30,9 +48,15 @@ export function createStore(): UseStore<XRState> {
       {
         session: undefined,
         sessionMode: undefined,
-        webXRManager: undefined
+        sessionInit: undefined,
+        webXRManager: undefined,
+        controllers: [],
+        player: new Group(),
+        camera: undefined
       },
       (set, get) => ({
+        addXRController: (controller) => set({ controllers: [...get().controllers, controller] }),
+        removeXRController: (controller) => set({ controllers: get().controllers.filter((c) => c != controller) }),
         registerWebXRManager: (manager) => {
           const currentWebXRManager = get().webXRManager
           if (currentWebXRManager != null) {
@@ -48,7 +72,8 @@ export function createStore(): UseStore<XRState> {
           return () =>
             //unregisterWebXRManager
             set({
-              webXRManager: undefined
+              webXRManager: undefined,
+              controllers: []
             })
         },
         requestXRSession: async (sessionMode, sessionInit) => {

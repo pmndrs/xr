@@ -1,14 +1,15 @@
-import { useXR } from './XR'
 import React, { useEffect } from 'react'
 import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
+import { useControllers, useInteractions } from '.'
 
 const modelFactory = new XRControllerModelFactory()
 const modelCache = new WeakMap<Group, any>()
 export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshBasicMaterialParameters }) {
   const { scene } = useThree()
-  const { controllers, hoverState } = useXR()
+  const controllers = useControllers() //TODO: here we can use subscribe instead of a hook
+  const { hoverState } = useInteractions()
   const [rays] = React.useState(new Map<number, Mesh>())
 
   // Show ray line when hovering objects

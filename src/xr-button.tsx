@@ -1,4 +1,4 @@
-import { useExitXRSession, useRequestXRSession } from './hooks'
+import { useExitXRSession, useRequestXRSession } from '.'
 import React, { forwardRef, ButtonHTMLAttributes } from 'react'
 import { XRSessionMode } from 'webxr'
 
@@ -10,10 +10,7 @@ export const EnterXRButton = forwardRef<
   return <button ref={ref} {...props} onClick={() => enterSession(sessionMode, sessionInit).catch(console.error)} />
 })
 
-export const ExitXRButton = forwardRef<
-  HTMLButtonElement,
-  ButtonHTMLAttributes<HTMLButtonElement> & { sessionMode: XRSessionMode; sessionInit?: any }
->((props, ref) => {
+export const ExitXRButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & {}>((props, ref) => {
   const exitSession = useExitXRSession()
   return <button ref={ref} {...props} onClick={() => exitSession().catch(console.error)} />
 })

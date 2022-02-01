@@ -1,11 +1,9 @@
 import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
-import { useXR } from './XR'
 import { Object3D, Group, Matrix4, Raycaster, Intersection, XRHandedness } from 'three'
 import { useFrame } from '@react-three/fiber'
-import { XRController } from './XRController'
+import { XRController, useControllers, useXREvent, XREvent } from '.'
 import { ObjectsState } from './ObjectsState'
 import mergeRefs from 'react-merge-refs'
-import { useXREvent, XREvent } from './XREvents'
 
 export interface XRInteractionEvent {
   intersection?: Intersection
@@ -35,8 +33,13 @@ export const InteractionsContext = React.createContext<{
   addInteraction: warnAboutVRARCanvas,
   removeInteraction: warnAboutVRARCanvas
 })
+
+export function useInteractions() {
+  return useContext(InteractionsContext)
+}
+
 export function InteractionManager({ children }: { children: any }) {
-  const { controllers } = useXR()
+  const controllers = useControllers()
 
   const [hoverState] = React.useState<Record<XRHandedness, Map<Object3D, Intersection>>>(() => ({
     left: new Map(),
