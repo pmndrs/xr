@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
 import { useXR } from './XR'
-import { Object3D, Group, Matrix4, Raycaster, Intersection, XRHandedness } from 'three'
+import { Object3D, Group, Matrix4, Intersection, XRHandedness } from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { ObjectsState } from './ObjectsState'
@@ -102,9 +102,7 @@ export function InteractionManager({ children }: { children: any }) {
 
         while (eventObject) {
           if (ObjectsState.has(interactions, eventObject, 'onHover') && !hovering.has(eventObject)) {
-            ObjectsState.get(interactions, eventObject, 'onHover')?.forEach((handler) => {
-              handler({ controller: it, intersection })
-            })
+            ObjectsState.get(interactions, eventObject, 'onHover')?.forEach((handler) => handler({ controller: it, intersection }))
           }
 
           hovering.set(eventObject, intersection)
@@ -127,9 +125,9 @@ export function InteractionManager({ children }: { children: any }) {
   const triggerEvent = (interaction: XRInteractionType) => (e: XREvent) => {
     const hovering = hoverState[e.controller.inputSource.handedness]
     for (const hovered of hovering.keys()) {
-      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) => {
+      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) =>
         handler({ controller: e.controller, intersection: hovering.get(hovered) })
-      })
+      )
     }
   }
 
