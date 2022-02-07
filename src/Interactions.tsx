@@ -87,19 +87,22 @@ export function InteractionManager({ children }: { children: any }) {
       const hits = new Set()
       const intersections = intersect(controller)
 
-      intersections.forEach((intersection) => {
+      const intersection = intersections.find((i) => i?.object)
+      if (intersection) {
         let eventObject: Object3D | null = intersection.object
 
         while (eventObject) {
           if (ObjectsState.has(interactions, eventObject, 'onHover') && !hovering.has(eventObject)) {
-            ObjectsState.get(interactions, eventObject, 'onHover')?.forEach((handler) => handler({ controller: it, intersection }))
+            ObjectsState.get(interactions, eventObject, 'onHover')?.forEach((handler) => {
+              handler({ controller: it, intersection })
+            })
           }
 
           hovering.set(eventObject, intersection)
           hits.add(eventObject.id)
           eventObject = eventObject.parent
         }
-      })
+      }
 
       // Trigger blur on all the object that were hovered in the previous frame
       // but missed in this one
@@ -115,9 +118,9 @@ export function InteractionManager({ children }: { children: any }) {
   const triggerEvent = (interaction: XRInteractionType) => (e: XREvent) => {
     const hovering = hoverState[e.controller.inputSource.handedness]
     for (const hovered of hovering.keys()) {
-      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) =>
+      ObjectsState.get(interactions, hovered, interaction)?.forEach((handler) => {
         handler({ controller: e.controller, intersection: hovering.get(hovered) })
-      )
+      })
     }
   }
 
