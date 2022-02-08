@@ -4,10 +4,11 @@
     "es6": true,
     "node": true
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "extends": ["eslint:recommended", "plugin:import/errors", "plugin:import/warnings", "prettier"],
   "plugins": ["react-hooks", "react"],
   "parserOptions": {
+    "requireConfigFile": false,
     "ecmaFeatures": {
       "jsx": true
     },
@@ -39,7 +40,7 @@
         "project": "./tsconfig.json",
         "sourceType": "module"
       },
-      "extends": ["plugin:@typescript-eslint/recommended", "plugin:@typescript-eslint/eslint-recommended", "prettier/@typescript-eslint"],
+      "extends": ["plugin:@typescript-eslint/recommended", "plugin:@typescript-eslint/eslint-recommended", "prettier"],
       "rules": {
         "prefer-const": "off",
         "import/no-unresolved": "off",
