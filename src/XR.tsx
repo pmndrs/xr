@@ -235,6 +235,13 @@ export const useXR = () => {
   return contextValue
 }
 
+/**
+ * @deprecated R3F v8's built-in `useFrame` extends the `XRSession.requestAnimationFrame` signature:
+ *
+ * `useFrame((state, delta, xrFrame) => void)`
+ *
+ * @see https://mdn.io/XRFrame
+ */
 export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFrame) => void) => {
   const { gl } = useThree()
   const requestRef = React.useRef<number>()
