@@ -23,7 +23,7 @@ export function Hands(props: { modelLeft?: string; modelRight?: string }) {
     })
 
     return () => {
-      controllers.forEach(({ hand, inputSource }) => {
+      controllers.forEach(({ hand }) => {
         const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
         if (handModel) {
           hand.remove(handModel)

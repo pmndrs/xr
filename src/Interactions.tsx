@@ -230,7 +230,8 @@ export function RayGrab({ children }: { children: ReactNode }) {
       onSelectStart={(e) => {
         grabbingController.current = e.controller.controller
         previousTransform.current = e.controller.controller.matrixWorld.clone().invert()
-      }}>
+      }}
+    >
       {children}
     </Interactive>
   )
