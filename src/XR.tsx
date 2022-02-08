@@ -253,18 +253,29 @@ export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFram
   )
 
   React.useEffect(() => {
-    if (!gl.xr?.isPresenting) {
-      return
-    }
+    const handleSessionChange = () => {
+      if (!gl.xr?.isPresenting) return
 
-    requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
+      if (requestRef.current) {
+        gl.xr.getSession()!.cancelAnimationFrame(requestRef.current)
+      }
+
+      requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
+    }
+    handleSessionChange()
+
+    gl.xr.addEventListener('sessionstart', handleSessionChange)
+    gl.xr.addEventListener('sessionend', handleSessionChange)
 
     return () => {
+      gl.xr.removeEventListener('sessionstart', handleSessionChange)
+      gl.xr.removeEventListener('sessionend', handleSessionChange)
+
       if (requestRef.current) {
         gl.xr.getSession()!.cancelAnimationFrame(requestRef.current)
       }
     }
-  }, [gl.xr.isPresenting, loop, gl.xr])
+  }, [loop, gl.xr])
 }
 
 export const useController = (handedness: XRHandedness) => {
