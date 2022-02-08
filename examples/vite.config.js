@@ -8,6 +8,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@react-three/fiber': path.resolve('../node_modules/@react-three/fiber'),
+      three: path.resolve('../node_modules/three'),
+      react: path.resolve('../node_modules/react'),
+      'react-dom': path.resolve('../node_modules/react-dom'),
       '@react-three/xr': path.resolve('../src')
     }
   },
