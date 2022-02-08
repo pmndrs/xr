@@ -1,5 +1,4 @@
-import React, { FC } from 'react'
-import { createContext, PropsWithChildren, useEffect, useMemo } from 'react'
+import React, { FC, createContext, PropsWithChildren, useEffect, useMemo } from 'react'
 import { XRController, createStore, XRState } from '.'
 import { UseStore, StateSelector, EqualityChecker } from 'zustand'
 import { Group, WebXRManager, XRSession } from 'three'
@@ -18,7 +17,7 @@ export function useStore() {
 }
 
 export function useXR<T = XRState>(
-  selector: StateSelector<XRState, T> = (state) => state as unknown as T,
+  selector: StateSelector<XRState, T> = (state) => (state as unknown) as T,
   equalityFn?: EqualityChecker<T>
 ) {
   return useStore()(selector, equalityFn)
@@ -113,7 +112,10 @@ export function XRSessionManager({ children }: PropsWithChildren<any>) {
       changeSession(undefined, state.session)
       changeWebXRManager({ webXRManager: undefined, player: state.player })
     }
-  }, []) //store will not change so we don't need to add it as a dependency
+
+    // store will not change so we don't need to add it as a dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return <XRStateContext.Provider value={store}>{children}</XRStateContext.Provider>
 }

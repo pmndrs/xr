@@ -1,7 +1,6 @@
-import { WebXRManager, XRSessionMode, XRSession, Group, Camera, XRInputSource } from 'three'
+import { WebXRManager, XRSessionMode, XRSession, Group, Camera, XRInputSource, Navigator } from 'three'
 import create, { UseStore } from 'zustand'
 import { combine } from 'zustand/middleware'
-import { Navigator } from 'webxr'
 
 declare let navigator: Navigator
 
@@ -77,7 +76,7 @@ export function createStore(): UseStore<XRState> {
             })
         },
         requestXRSession: async (sessionMode, sessionInit) => {
-          const session = (await navigator.xr.requestSession(sessionMode, sessionInit)) as any
+          const session = (await navigator.xr!.requestSession(sessionMode, sessionInit)) as any
           get().webXRManager?.setSession(session)
           set({
             session,

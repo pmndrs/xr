@@ -1,6 +1,6 @@
 import { useExitXRSession, useRequestXRSession } from '.'
 import React, { forwardRef, ButtonHTMLAttributes } from 'react'
-import { XRSessionMode } from 'webxr'
+import { XRSessionMode } from 'three'
 
 export const EnterXRButton = forwardRef<
   HTMLButtonElement,

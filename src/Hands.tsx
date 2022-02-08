@@ -9,7 +9,7 @@ export function Hands({ modelLeft, modelRight }: { modelLeft?: string; modelRigh
   useEffect(() => {
     const changeControllers = (controllers: Array<XRController>, previousControllers: Array<XRController>) => {
       previousControllers.forEach(({ hand }) => {
-        const handModel = hand.children.find((child) => child instanceof HandModel)
+        const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
         if (handModel) {
           hand.remove(handModel)
           handModel.dispose()

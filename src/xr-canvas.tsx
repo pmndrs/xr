@@ -40,7 +40,8 @@ export function XRCanvas({ foveation, children, onCreated, ...rest }: ContainerP
         destroyFunction.current = registerWebXRManager(state.gl.xr)
       }}
       vr
-      {...rest}>
+      {...rest}
+    >
       <XRStateContextBridge>
         <primitive object={player} dispose={null}>
           <CurrentCamera />
@@ -52,7 +53,7 @@ export function XRCanvas({ foveation, children, onCreated, ...rest }: ContainerP
 }
 
 function CurrentCamera() {
-  const camera = useThree(({ camera }) => camera)
+  const camera = useThree((state) => state.camera)
   return <primitive object={camera} dispose={null} />
 }
 

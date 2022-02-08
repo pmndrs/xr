@@ -6,17 +6,9 @@ import { useXR } from '.'
 
 //TODO: hook to check if we are using hands
 
-export const useXRSessionMode: () => XRState['sessionMode'] =  useXR.bind(
-    null,
-    ({ sessionMode }) => sessionMode,
-    undefined
-  ) as any
+export const useXRSessionMode: () => XRState['sessionMode'] = useXR.bind(null, ({ sessionMode }) => sessionMode, undefined) as any
 
-export const usePlayer: () => XRState['player'] =  useXR.bind(
-    null,
-    ({ player }) => player,
-    undefined
-  ) as any
+export const usePlayer: () => XRState['player'] = useXR.bind(null, ({ player }) => player, undefined) as any
 
 export const useRequestXRSession: () => XRState['requestXRSession'] = useXR.bind(
   null,
@@ -29,8 +21,6 @@ export const useRegisterWebXRManager: () => XRState['registerWebXRManager'] = us
   ({ registerWebXRManager }) => registerWebXRManager,
   undefined
 ) as any
-
-
 
 export function useController(handedness: XRHandedness) {
   return useXR(({ controllers }) => controllers.find((it) => it.inputSource.handedness === handedness))
