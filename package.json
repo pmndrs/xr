@@ -36,7 +36,8 @@
     "prebuild": "rimraf dist && npm run typegen",
     "build": "rollup -c",
     "prepare": "yarn prebuild && yarn build",
-    "eslint": "eslint src/**/*.{js,ts,jsx,tsx}",
+    "lint": "eslint src/**/*.{js,ts,jsx,tsx} && prettier src/**/*.{js,ts,jsx,tsx} --check",
+    "lint-fix": "prettier src/**/*.{js,ts,jsx,tsx} --write && eslint src/**/*.{js,ts,jsx,tsx} --fix",
     "test": "echo no tests yet",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false --strict --jsx react",
     "typegen": "tsc --emitDeclarationOnly"

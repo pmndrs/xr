@@ -153,12 +153,10 @@ export function XR({ foveation = 0, children }: { foveation?: number; children: 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPresenting])
 
-  const value = React.useMemo(() => ({ controllers, isPresenting, isHandTracking, player }), [
-    controllers,
-    isPresenting,
-    isHandTracking,
-    player
-  ])
+  const value = React.useMemo(
+    () => ({ controllers, isPresenting, isHandTracking, player }),
+    [controllers, isPresenting, isHandTracking, player]
+  )
 
   return (
     <XRContext.Provider value={value}>
@@ -206,7 +204,8 @@ export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvas
 
         createXRButton('VR', state.gl, sessionInit)
       }}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </XRCanvas>
   )
@@ -220,7 +219,8 @@ export function ARCanvas({ onCreated, children, sessionInit, ...rest }: XRCanvas
 
         createXRButton('AR', state.gl, sessionInit)
       }}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </XRCanvas>
   )
