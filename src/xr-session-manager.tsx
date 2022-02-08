@@ -1,11 +1,11 @@
-import React, { FC, createContext, PropsWithChildren, useEffect, useMemo } from 'react'
+import React, { FC, createContext, useEffect, useMemo } from 'react'
 import { XRController, createStore, XRState } from '.'
 import { UseStore, StateSelector, EqualityChecker } from 'zustand'
 import { Group, WebXRManager, XRSession } from 'three'
 
 const XRStateContext = createContext<UseStore<XRState>>(null as any)
 
-export function useXRStateContextBridge(): FC<PropsWithChildren<{}>> {
+export function useXRStateContextBridge(): FC {
   const store = useStore()
   return ({ children }) => <XRStateContext.Provider value={store}>{children}</XRStateContext.Provider>
 }
@@ -17,7 +17,7 @@ export function useStore() {
 }
 
 export function useXR<T = XRState>(
-  selector: StateSelector<XRState, T> = (state) => (state as unknown) as T,
+  selector: StateSelector<XRState, T> = (state) => state as unknown as T,
   equalityFn?: EqualityChecker<T>
 ) {
   return useStore()(selector, equalityFn)
@@ -25,7 +25,7 @@ export function useXR<T = XRState>(
 
 export type ImmersiveXRSessionMode = 'immersive-vr' | 'immersive-ar'
 
-export function XRSessionManager({ children }: PropsWithChildren<any>) {
+export function XRSessionManager({ children }: { children: React.ReactNode }) {
   const store = useMemo(() => createStore(), [])
 
   useEffect(() => {
@@ -51,10 +51,10 @@ export function XRSessionManager({ children }: PropsWithChildren<any>) {
       removeXRController(controller)
     }
 
-    let clearControllers: Array<Function> = []
+    let clearControllers: Array<() => any> = []
 
     const changeWebXRManager = ({ player, webXRManager }: { player: Group; webXRManager: WebXRManager | undefined }) => {
-      clearControllers.forEach((clear) => clear)
+      clearControllers.forEach((clear) => clear())
       if (webXRManager == null) {
         clearControllers = []
         return

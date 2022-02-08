@@ -10,7 +10,7 @@ export const EnterXRButton = forwardRef<
   return <button ref={ref} {...props} onClick={() => enterSession(sessionMode, sessionInit).catch(console.error)} />
 })
 
-export const ExitXRButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & {}>((props, ref) => {
+export const ExitXRButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>((props, ref) => {
   const exitSession = useExitXRSession()
   return <button ref={ref} {...props} onClick={() => exitSession().catch(console.error)} />
 })
