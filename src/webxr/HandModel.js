@@ -77,7 +77,7 @@ class HandModel extends Object3D {
 
   dispose() {
     this.clear()
-    this.motionController.dispose()
+    if (this.motionController) this.motionController.dispose?.()
     this.motionController = null
   }
 }
