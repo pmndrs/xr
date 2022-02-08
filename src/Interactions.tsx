@@ -156,8 +156,7 @@ export const useInteraction = (ref: any, type: XRInteractionType, handler?: XRIn
     if (!isPresent) return
 
     const handlerFn = (e: XRInteractionEvent) => {
-      // @ts-ignore
-      handlerRef.current(e)
+      handlerRef.current?.(e)
     }
 
     addInteraction(ref.current, type, handlerFn)
