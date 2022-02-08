@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
-import { Object3D, Group, Matrix4, Raycaster, Intersection, XRHandedness } from 'three'
-import { useFrame } from '@react-three/fiber'
+import { Object3D, Group, Matrix4, Intersection, XRHandedness } from 'three'
+import { useThree, useFrame } from '@react-three/fiber'
 import { XRController, useControllers, useXREvent, XREvent } from '.'
 import { ObjectsState } from './ObjectsState'
 import mergeRefs from 'react-merge-refs'
@@ -39,6 +39,7 @@ export function useInteractions() {
 }
 
 export function InteractionManager({ children }: { children: any }) {
+  const state = useThree()
   const controllers = useControllers()
 
   const [hoverState] = React.useState<Record<XRHandedness, Map<Object3D, Intersection>>>(() => ({
@@ -62,19 +63,18 @@ export function InteractionManager({ children }: { children: any }) {
     },
     [interactions]
   )
-  const [raycaster] = React.useState(() => new Raycaster())
 
   const intersect = React.useCallback(
     (controller: Object3D) => {
       const objects = Array.from(interactions.keys())
       const tempMatrix = new Matrix4()
       tempMatrix.identity().extractRotation(controller.matrixWorld)
-      raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
-      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
+      state.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
+      state.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
 
-      return raycaster.intersectObjects(objects, true)
+      return state.raycaster.intersectObjects(objects, true)
     },
-    [interactions, raycaster]
+    [interactions, state.raycaster]
   )
 
   // Trigger hover and blur events
@@ -88,7 +88,17 @@ export function InteractionManager({ children }: { children: any }) {
       const handedness = it.inputSource.handedness
       const hovering = hoverState[handedness]
       const hits = new Set()
-      const intersections = intersect(controller)
+      let intersections = intersect(controller)
+
+      if (state.raycaster.filter) {
+        // https://github.com/mrdoob/three.js/issues/16031
+        // Allow custom userland intersect sort order
+        intersections = state.raycaster.filter(intersections, state)
+      } else {
+        // Otherwise, filter to first hit
+        const hit = intersections.find((i) => i?.object)
+        if (hit) intersections = [hit]
+      }
 
       intersections.forEach((intersection) => {
         let eventObject: Object3D | null = intersection.object
@@ -223,7 +233,8 @@ export function RayGrab({ children }: { children: ReactNode }) {
       onSelectStart={(e) => {
         grabbingController.current = e.controller.controller
         previousTransform.current = e.controller.controller.matrixWorld.clone().invert()
-      }}>
+      }}
+    >
       {children}
     </Interactive>
   )

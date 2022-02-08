@@ -10,18 +10,16 @@ export function Hands({ modelLeft, modelRight }: { modelLeft?: string; modelRigh
     const changeControllers = (controllers: Array<XRController>, previousControllers: Array<XRController>) => {
       previousControllers.forEach(({ hand }) => {
         const handModel = hand.children.find((child) => child instanceof HandModel)
-        if (handModel != null) {
+        if (handModel) {
           hand.remove(handModel)
+          handModel.dispose()
         }
       })
       controllers.forEach(({ hand, inputSource }) => {
-        const handModel = hand.children.find((child) => child instanceof HandModel)
-        if (handModel === undefined) {
-          hand.add(new HandModel(hand, [modelLeft, modelRight]))
+        hand.add(new HandModel(hand, [modelLeft, modelRight]))
 
-          // throwing fake event for the Oculus Hand Model so it starts loading
-          hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
-        }
+        // throwing fake event for the Oculus Hand Model so it starts loading
+        hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
       })
     }
     const unsubscribe = store.subscribe<Array<XRController>>(changeControllers, ({ controllers }) => controllers)

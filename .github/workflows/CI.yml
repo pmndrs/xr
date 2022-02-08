@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Check build health
+        run: yarn build
+
+      # - name: Run tests
+      #   run: yarn test --silent
+
+      - name: Check for regressions
+        run: yarn lint

@@ -1,6 +1,6 @@
 {
   "name": "@react-three/xr",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "React components and hooks for creating VR/AR applications with react-three-fiber",
   "keywords": [
     "xr",
@@ -19,6 +19,11 @@
     "url": "https://github.com/pmndrs/react-xr/issues"
   },
   "homepage": "https://github.com/pmndrs/react-xr#readme",
+  "author": "Oleksandr Dubenko (https://github.com/sniok)",
+  "maintainers": [
+    "Michael Bashurov (https://github.com/saitonakamura)",
+    "Cody Bennett (https://github.com/codyjasonbennett)"
+  ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +36,8 @@
     "prebuild": "rimraf dist && npm run typegen",
     "build": "rollup -c",
     "prepare": "yarn prebuild && yarn build",
-    "eslint": "eslint src/**/*.{js,ts,jsx,tsx}",
+    "lint": "eslint src/**/*.{js,ts,jsx,tsx} && prettier src/**/*.{js,ts,jsx,tsx} --check",
+    "lint-fix": "prettier src/**/*.{js,ts,jsx,tsx} --write && eslint src/**/*.{js,ts,jsx,tsx} --fix",
     "test": "echo no tests yet",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false --strict --jsx react",
     "typegen": "tsc --emitDeclarationOnly"
@@ -42,20 +48,20 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "7.9.0",
-    "@babel/plugin-transform-modules-commonjs": "7.9.0",
-    "@babel/plugin-transform-parameters": "7.9.5",
-    "@babel/plugin-transform-runtime": "7.9.0",
-    "@babel/plugin-transform-template-literals": "7.8.3",
-    "@babel/preset-env": "7.9.5",
-    "@babel/preset-react": "7.9.4",
-    "@babel/preset-typescript": "^7.9.0",
-    "@react-three/fiber": "^6.0.3",
+    "@babel/core": "7.17.0",
+    "@babel/plugin-transform-modules-commonjs": "7.16.8",
+    "@babel/plugin-transform-parameters": "7.16.7",
+    "@babel/plugin-transform-runtime": "7.17.0",
+    "@babel/plugin-transform-template-literals": "7.16.7",
+    "@babel/preset-env": "7.16.11",
+    "@babel/preset-react": "7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@react-three/fiber": "^7.0.26",
     "@types/jest": "^25.2.1",
-    "@types/lodash-es": "^4.17.3",
-    "@types/react": "^17.0.5",
-    "@types/react-dom": "^17.0.3",
-    "@types/three": "^0.134.0",
+    "@types/lodash-es": "^4.17.6",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
+    "@types/three": "^0.137.0",
     "@types/webxr": "^0.2.3",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
@@ -63,34 +69,33 @@
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^3.0.0",
     "husky": "^4.2.5",
     "jest": "^25.4.0",
-    "prettier": "^2.0.5",
-    "pretty-quick": "^2.0.1",
+    "prettier": "^2.5.1",
+    "pretty-quick": "^3.1.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",
-    "rollup": "^2.26.4",
+    "rollup": "^2.67.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-size-snapshot": "^0.12.0",
-    "three": "^0.134.0",
-    "typescript": "^4.2.3"
+    "three": "^0.137.5",
+    "typescript": "^4.5.5"
   },
   "peerDependencies": {
     "@react-three/fiber": ">=6.0.3",
     "react": ">=17.0",
     "react-dom": ">=17.0",
-    "three": ">=0.134"
+    "three": ">=0.137"
   },
   "dependencies": {
-    "@webxr-input-profiles/motion-controllers": "^1.0.0",
     "react-merge-refs": "^1.1.0",
-    "three-stdlib": "^2.7.2"
+    "three-stdlib": "^2.8.6"
   }
 }
