@@ -1,7 +1,7 @@
 import { render } from 'react-dom'
 import { useState, useRef } from 'react'
 import { VRCanvas, Hands, useXR, Interactive, useHitTest, DefaultXRControllers } from '@react-three/xr'
-import { Box } from '@react-three/drei'
+import { Box, Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 
 function Button(props) {
@@ -12,9 +12,11 @@ function Button(props) {
     <Interactive onSelect={() => setColor((Math.random() * 0xffffff) | 0)} onHover={() => setHover(true)} onBlur={() => setHover(false)}>
       <Box scale={hover ? [1.5, 1.5, 1.5] : [1, 1, 1]} args={[0.4, 0.1, 0.1]} {...props}>
         <meshStandardMaterial attach="material" color={color} />
-        {/* <Text position={[0, 0, 0.06]} fontSize={0.05} color="#000" anchorX="center" anchorY="middle">
-          Hello react-xr!
-        </Text> */}
+        {false && (
+          <Text position={[0, 0, 0.06]} fontSize={0.05} color="#000" anchorX="center" anchorY="middle">
+            Hello react-xr!
+          </Text>
+        )}
       </Box>
     </Interactive>
   )
@@ -45,14 +47,14 @@ function App() {
     <VRCanvas>
       <ambientLight intensity={0.5} />
       <pointLight position={[5, 5, 5]} />
-
       <Hands
-      // modelLeft={"https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/left-hand-black-webxr-tracking-ready/model.gltf"}
-      // modelRight={"https://vazxmixjsiawhamofees.supabase.co/storage/v1/object/public/models/right-hand-black-webxr-tracking-ready/model.gltf"}
+      // modelLeft="/hand-left.gltf"
+      // modelRight="/hand-right.gltf"
       />
       <Button position={[0, 0.8, -1]} />
       <DefaultXRControllers />
-      {/* <HitTestExample /> */}
+      {false && <PlayerExample />}
+      {false && <HitTestExample />}
     </VRCanvas>
   )
 }
