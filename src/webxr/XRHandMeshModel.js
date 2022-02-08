@@ -87,6 +87,24 @@ class XRHandMeshModel {
       }
     }
   }
+
+  dispose() {
+    this.handModel.traverse((node) => {
+      if (!node) return
+
+      if (node.type !== 'Scene') {
+        node.dispose?.()
+
+        // Dispose of its properties as well
+        for (const property in node) {
+          if (property.dispose) property.dispose?.()
+          delete node[property]
+        }
+      }
+    })
+
+    this.bones = []
+  }
 }
 
 export { XRHandMeshModel }

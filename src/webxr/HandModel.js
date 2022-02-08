@@ -5,7 +5,7 @@ const TOUCH_RADIUS = 0.01
 const POINTING_JOINT = 'index-finger-tip'
 
 class HandModel extends Object3D {
-  constructor(controller,customModels) {
+  constructor(controller, customModels) {
     super()
 
     this.controller = controller
@@ -20,13 +20,18 @@ class HandModel extends Object3D {
       if (xrInputSource.hand && !this.motionController) {
         this.xrInputSource = xrInputSource
 
-        this.motionController = new XRHandMeshModel(this, controller, this.path, xrInputSource.handedness, xrInputSource.handedness === "left" ? customModels[0] : customModels[1])
+        this.motionController = new XRHandMeshModel(
+          this,
+          controller,
+          this.path,
+          xrInputSource.handedness,
+          xrInputSource.handedness === 'left' ? customModels[0] : customModels[1]
+        )
       }
     })
 
     controller.addEventListener('disconnected', () => {
-      this.clear()
-      this.motionController = null
+      this.dispose()
     })
   }
 
@@ -68,6 +73,12 @@ class HandModel extends Object3D {
     if (button.isPressed()) {
       button.whilePressed()
     }
+  }
+
+  dispose() {
+    this.clear()
+    this.motionController.dispose()
+    this.motionController = null
   }
 }
 
