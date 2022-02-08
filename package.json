@@ -1,6 +1,6 @@
 {
   "name": "@react-three/xr",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "React components and hooks for creating VR/AR applications with react-three-fiber",
   "keywords": [
     "xr",
@@ -19,6 +19,11 @@
     "url": "https://github.com/pmndrs/react-xr/issues"
   },
   "homepage": "https://github.com/pmndrs/react-xr#readme",
+  "author": "Oleksandr Dubenko (https://github.com/sniok)",
+  "maintainers": [
+    "Michael Bashurov  (https://github.com/saitonakamura)",
+    "Cody Bennett (https://github.com/codyjasonbennett)"
+  ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
