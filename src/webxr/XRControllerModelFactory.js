@@ -1,6 +1,6 @@
 import { Mesh, MeshBasicMaterial, Object3D, SphereGeometry } from 'three'
 import { MotionControllerConstants, fetchProfile, MotionController } from './XRMotionControllers'
-import { GLTFLoader } from 'three-stdlib/loaders/GLTFLoader'
+import { GLTFLoader } from 'three-stdlib'
 
 const DEFAULT_PROFILES_PATH = 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles'
 const DEFAULT_PROFILE = 'generic-trigger'
