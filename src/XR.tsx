@@ -16,7 +16,8 @@ import {
   XRHitTestResult,
   XRHitTestSource,
   XRInputSourceChangeEvent,
-  XRReferenceSpace
+  XRReferenceSpace,
+  WebGLRenderer
 } from 'three'
 
 export interface XRContextValue {
@@ -168,25 +169,7 @@ export function XR({ foveation = 0, children }: { foveation?: number; children: 
   )
 }
 
-function XRCanvas({ foveation, children, ...rest }: ContainerProps & { foveation?: number }) {
-  return (
-    <Canvas vr {...rest}>
-      <XR foveation={foveation}>
-        <InteractionManager>{children}</InteractionManager>
-      </XR>
-    </Canvas>
-  )
-}
-
-const createXRButton = (mode: 'AR' | 'VR', gl: any, sessionInit?: any) => {
-  const button = mode === 'AR' ? ARButton : VRButton
-  const selector = mode === 'AR' ? '#ARButton' : '#VRButton'
-  if (document.querySelector(selector) === null) {
-    document.body.appendChild(button.createButton(gl, sessionInit))
-  }
-}
-
-export type XRCanvasProps = ContainerProps & {
+export interface XRCanvasProps extends ContainerProps {
   sessionInit?: XRSessionInit
   /**
    * Enables foveated rendering,
@@ -196,31 +179,57 @@ export type XRCanvasProps = ContainerProps & {
   foveation?: number
 }
 
-export function VRCanvas({ children, sessionInit, onCreated, ...rest }: XRCanvasProps) {
+function XRCanvas({ foveation, children, ...rest }: Omit<XRCanvasProps, 'sessionInit'>) {
   return (
-    <XRCanvas
-      onCreated={(state) => {
-        onCreated?.(state)
+    <Canvas vr {...rest}>
+      <XR foveation={foveation}>
+        <InteractionManager>{children}</InteractionManager>
+      </XR>
+    </Canvas>
+  )
+}
 
-        createXRButton('VR', state.gl, sessionInit)
-      }}
-      {...rest}
-    >
+export function useXRButton(
+  mode: 'AR' | 'VR',
+  gl: WebGLRenderer,
+  sessionInit?: XRSessionInit,
+  container?: React.MutableRefObject<HTMLElement>
+) {
+  const button = React.useMemo<HTMLButtonElement | HTMLAnchorElement>(() => {
+    const target = mode === 'AR' ? ARButton : VRButton
+    return target.createButton(gl, sessionInit)
+  }, [mode, gl, sessionInit])
+
+  React.useLayoutEffect(() => {
+    const parent = container?.current ?? document.body
+    parent.appendChild(button)
+    return () => void parent.removeChild(button)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [button])
+
+  return button
+}
+
+export function XRButton({ mode, sessionInit }: { mode: 'AR' | 'VR'; sessionInit?: XRSessionInit }) {
+  const gl = useThree((state) => state.gl)
+  useXRButton(mode, gl, sessionInit)
+
+  return null
+}
+
+export function VRCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
+  return (
+    <XRCanvas {...rest}>
+      <XRButton mode="VR" sessionInit={sessionInit} />
       {children}
     </XRCanvas>
   )
 }
 
-export function ARCanvas({ onCreated, children, sessionInit, ...rest }: XRCanvasProps) {
+export function ARCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
   return (
-    <XRCanvas
-      onCreated={(state) => {
-        onCreated?.(state)
-
-        createXRButton('AR', state.gl, sessionInit)
-      }}
-      {...rest}
-    >
+    <XRCanvas {...rest}>
+      <XRButton mode="AR" sessionInit={sessionInit} />
       {children}
     </XRCanvas>
   )
