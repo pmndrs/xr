@@ -204,6 +204,7 @@ export function useXRButton(
     const parent = container?.current ?? document.body
     parent.appendChild(button)
     return () => void parent.removeChild(button)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [button])
 
   return button
