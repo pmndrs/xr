@@ -7,11 +7,8 @@ import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import {
+import type {
   XRSessionInit,
-  Group,
-  Matrix4,
-  XRFrame,
   XRHandedness,
   XRHitTestResult,
   XRHitTestSource,
@@ -19,6 +16,7 @@ import {
   XRReferenceSpace,
   WebGLRenderer
 } from 'three'
+import { Matrix4, Group } from 'three'
 
 export interface XRContextValue {
   controllers: XRController[]
@@ -64,7 +62,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   const hitTestSourceRequested = React.useRef(false)
   const [hitMatrix] = React.useState(() => new Matrix4())
 
-  useFrame(() => {
+  useFrame((_, __, frame) => {
     if (!gl.xr.isPresenting) return
 
     const session = gl.xr.getSession()
@@ -87,23 +85,20 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
       hitTestSourceRequested.current = true
     }
 
-    if (hitTestSource.current && gl.xr.isPresenting) {
+    if (hitTestSource.current && gl.xr.isPresenting && frame) {
       const referenceSpace = gl.xr.getReferenceSpace()
 
       if (referenceSpace) {
-        // This raf is unnecesary, we should get XRFrame from r3f but it's not implemented yet
-        session.requestAnimationFrame((time: DOMHighResTimeStamp, frame: XRFrame) => {
-          const hitTestResults = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
-          if (hitTestResults.length) {
-            const hit = hitTestResults[0]
-            const pose = hit.getPose(referenceSpace)
+        const hitTestResults = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
+        if (hitTestResults.length) {
+          const hit = hitTestResults[0]
+          const pose = hit.getPose(referenceSpace)
 
-            if (pose) {
-              hitMatrix.fromArray(pose.transform.matrix)
-              hitTestCallback(hitMatrix, hit)
-            }
+          if (pose) {
+            hitMatrix.fromArray(pose.transform.matrix)
+            hitTestCallback(hitMatrix, hit)
           }
-        })
+        }
       }
     }
   })
@@ -181,7 +176,7 @@ export interface XRCanvasProps extends ContainerProps {
 
 function XRCanvas({ foveation, children, ...rest }: Omit<XRCanvasProps, 'sessionInit'>) {
   return (
-    <Canvas vr {...rest}>
+    <Canvas {...rest}>
       <XR foveation={foveation}>
         <InteractionManager>{children}</InteractionManager>
       </XR>
@@ -242,56 +237,6 @@ export const useXR = () => {
   const contextValue = React.useMemo(() => ({ ...xrValue, ...interactionsValue }), [xrValue, interactionsValue])
 
   return contextValue
-}
-
-/**
- * @deprecated R3F v8's built-in `useFrame` extends the `XRSession.requestAnimationFrame` signature:
- *
- * `useFrame((state, delta, xrFrame) => void)`
- *
- * @see https://mdn.io/XRFrame
- */
-export const useXRFrame = (callback: (time: DOMHighResTimeStamp, xrFrame: XRFrame) => void) => {
-  const { gl } = useThree()
-  const requestRef = React.useRef<number>()
-  const previousTimeRef = React.useRef<number>()
-
-  const loop = React.useCallback(
-    (time: DOMHighResTimeStamp, xrFrame: XRFrame) => {
-      if (previousTimeRef.current !== undefined) {
-        callback(time, xrFrame)
-      }
-
-      previousTimeRef.current = time
-      requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
-    },
-    [gl.xr, callback]
-  )
-
-  React.useEffect(() => {
-    const handleSessionChange = () => {
-      if (!gl.xr?.isPresenting) return
-
-      if (requestRef.current) {
-        gl.xr.getSession()!.cancelAnimationFrame(requestRef.current)
-      }
-
-      requestRef.current = gl.xr.getSession()!.requestAnimationFrame(loop)
-    }
-    handleSessionChange()
-
-    gl.xr.addEventListener('sessionstart', handleSessionChange)
-    gl.xr.addEventListener('sessionend', handleSessionChange)
-
-    return () => {
-      gl.xr.removeEventListener('sessionstart', handleSessionChange)
-      gl.xr.removeEventListener('sessionend', handleSessionChange)
-
-      if (requestRef.current) {
-        gl.xr.getSession()!.cancelAnimationFrame(requestRef.current)
-      }
-    }
-  }, [loop, gl.xr])
 }
 
 export const useController = (handedness: XRHandedness) => {

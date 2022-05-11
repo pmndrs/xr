@@ -12,6 +12,6 @@
     "vite": "^2.4.3"
   },
   "dependencies": {
-    "@react-three/drei": "^8.8.3"
+    "@react-three/drei": "^9.7.1"
   }
 }
