@@ -2,9 +2,6 @@ import path from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const root = path.resolve('/').replace(/\\+/g, '/')
-const external = (id) => !id.startsWith('.') && !id.startsWith(root)
-
 export default defineConfig({
   server: {
     https: true
@@ -28,7 +25,7 @@ export default defineConfig({
       fileName: (format) => (format === 'cjs' ? 'index.cjs' : 'index.js')
     },
     rollupOptions: {
-      external
+      external: (id) => !id.startsWith('.') && !path.isAbsolute(id)
     }
   }
 })
