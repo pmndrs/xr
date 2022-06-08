@@ -13,14 +13,10 @@ npm install @react-three/xr
 ## Examples
 
 [<img height="50px" src="https://i.imgur.com/K71D3Ts.gif" />](https://codesandbox.io/s/react-xr-paddle-demo-v4uet)
-
-[<img height="50px" src="https://i.imgur.com/5yh7LKz.gif" />](https://codesandbox.io/s/react-xr-simple-demo-8i9ro) 
-
-[<img height="50px" src="https://i.imgur.com/yuNwPpn.gif" />](https://codesandbox.io/s/react-xr-simple-ar-demo-8w8hm) 
-
-[<img height="50px" src="https://i.imgur.com/T7WKFCO.gif" />](https://codesandbox.io/s/react-xr-hands-demo-gczkp) 
-
-[<img height="50px" src="https://i.imgur.com/Cxes0Xj.gif" />](https://codesandbox.io/s/react-xr-hands-physics-demo-tp97r) 
+[<img height="50px" src="https://i.imgur.com/5yh7LKz.gif" />](https://codesandbox.io/s/react-xr-simple-demo-8i9ro)
+[<img height="50px" src="https://i.imgur.com/yuNwPpn.gif" />](https://codesandbox.io/s/react-xr-simple-ar-demo-8w8hm)
+[<img height="50px" src="https://i.imgur.com/T7WKFCO.gif" />](https://codesandbox.io/s/react-xr-hands-demo-gczkp)
+[<img height="50px" src="https://i.imgur.com/Cxes0Xj.gif" />](https://codesandbox.io/s/react-xr-hands-physics-demo-tp97r)
 
 <p align="middle">
   <i>These demos are real, you can click them! They contain the full code, too.</i>
