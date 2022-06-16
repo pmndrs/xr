@@ -203,9 +203,9 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
     exitOnly = false,
     style = {
       position: 'absolute',
-      left: 0,
-      right: 0,
       bottom: '24px',
+      left: '50%',
+      transform: 'translateX(-50%)',
       padding: '12px 24px',
       border: '1px solid white',
       borderRadius: '4px',
@@ -214,8 +214,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
       font: 'normal 0.8125rem sans-serif',
       outline: 'none',
       zIndex: 99999,
-      cursor: 'pointer',
-      margin: '0 auto'
+      cursor: 'pointer'
     },
     onClick,
     children,
