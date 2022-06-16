@@ -1,43 +1,46 @@
-import type { WebGLRenderer, Group } from 'three'
+import * as THREE from 'three'
 
-export interface XRController {
-  inputSource: XRInputSource
+export class XRController extends THREE.Group {
+  public inputSource!: XRInputSource
+  /** Group with orientation of the preferred pointing ray */
+  readonly controller: THREE.XRTargetRaySpace
   /**
    * Group with orientation that should be used to render virtual
    * objects such that they appear to be held in the user’s hand
    */
-  grip: Group
-  /** Group with orientation of the preferred pointing ray */
-  controller: Group
+  readonly grip: THREE.XRGripSpace
   /** Group with hand */
-  hand: Group
-}
-export const XRController = {
-  make: (id: number, gl: WebGLRenderer, onConnected: (c: XRController) => any, onDisconnected: (c: XRController) => any) => {
-    const controller = gl.xr.getController(id)
-    const grip = gl.xr.getControllerGrip(id)
-    const hand = gl.xr.getHand(id)
+  readonly hand: THREE.XRHandSpace
 
-    const xrController: XRController = {
-      inputSource: undefined as any,
-      grip,
-      controller,
-      hand
-    }
-    grip.userData.name = 'grip'
-    controller.userData.name = 'controller'
-    hand.userData.name = 'hand'
+  constructor(id: number, gl: THREE.WebGLRenderer) {
+    super()
 
-    controller.addEventListener('connected', (event) => {
-      if (event.fake) {
-        return
-      }
-      xrController.inputSource = event.data
-      onConnected(xrController)
-    })
+    this.controller = gl.xr.getController(id)
+    this.grip = gl.xr.getControllerGrip(id)
+    this.hand = gl.xr.getHand(id)
 
-    controller.addEventListener('disconnected', (_) => {
-      onDisconnected(xrController)
-    })
+    this.grip.userData.name = 'grip'
+    this.controller.userData.name = 'controller'
+    this.hand.userData.name = 'hand'
+
+    this.controller.addEventListener('connected', this.onConnected)
+    this.controller.addEventListener('disconnected', this.onDisconnected)
+  }
+
+  onConnected(event: any) {
+    if (!event.fake) this.inputSource = event.data
+
+    this.visible = true
+    this.dispatchEvent(event)
+  }
+
+  onDisconnected(event: any) {
+    this.visible = false
+    this.dispatchEvent(event)
+  }
+
+  dispose() {
+    this.controller.removeEventListener('connected', this.onConnected)
+    this.controller.removeEventListener('disconnected', this.onDisconnected)
   }
 }
