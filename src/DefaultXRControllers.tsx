@@ -1,6 +1,7 @@
 import { useXR } from './XR'
 import React, { useEffect } from 'react'
-import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry, MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
+import type { MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
+import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
 

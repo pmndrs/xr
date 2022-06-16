@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import type { Object3D } from 'three'
 
 /**
  * Store data associated with some objects in the scene

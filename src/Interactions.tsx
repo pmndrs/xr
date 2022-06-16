@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
 import { useXR } from './XR'
-import { Object3D, Group, Matrix4, Intersection, XRHandedness } from 'three'
+import type { Object3D, Group, Intersection, XRHandedness } from 'three'
+import { Matrix4 } from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { ObjectsState } from './ObjectsState'
@@ -87,10 +88,10 @@ export function InteractionManager({ children }: { children: any }) {
       const hits = new Set()
       let intersections = intersect(controller)
 
-      if (state.raycaster.filter) {
+      if (state.events.filter) {
         // https://github.com/mrdoob/three.js/issues/16031
         // Allow custom userland intersect sort order
-        intersections = state.raycaster.filter(intersections, state)
+        intersections = state.events.filter(intersections, state)
       } else {
         // Otherwise, filter to first hit
         const hit = intersections.find((i) => i?.object)

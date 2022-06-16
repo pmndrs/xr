@@ -153,17 +153,6 @@ interface XRController {
 
 `inputSource` is the WebXR input source [(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource). Note that it will not be available before controller is connected.
 
-## `useXRFrame`
-
-Accepts a callback which will be invoked in the animation loop of an active XR session.
-[(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRSession/requestAnimationFrame)
-
-```jsx
-useXRFrame((time, xrFrame) => {
-  // do something on each frame of an active XR session
-})
-```
-
 ## `useController`
 
 Use this hook to get an instance of the controller
@@ -221,6 +210,13 @@ useEffect(() => {
   player.position.x += 5
 }, [])
 ```
+
+## Version 4 migration guide
+
+@react-three/xr@4 is updated to react@18 and @react-three/fiber@8
+
+* See [@react-three-fiber migration guide](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
+* `useXRFrame` is removed, use [extended useFrame](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
 
 ## Explore Examples
 
