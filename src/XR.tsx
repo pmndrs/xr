@@ -164,7 +164,6 @@ export interface XRCanvasProps extends ContainerProps {
    * 1 = maximum foveation = the edges render at lower resolution
    */
   foveation?: number
-  hideButton?: boolean
 }
 
 function XRCanvas({ foveation, children, ...rest }: Omit<XRCanvasProps, 'sessionInit'>) {
@@ -205,19 +204,19 @@ export function XRButton({ mode, sessionInit }: { mode: 'AR' | 'VR'; sessionInit
   return null
 }
 
-export function VRCanvas({ children, sessionInit, hideButton, ...rest }: XRCanvasProps) {
+export function VRCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
   return (
     <XRCanvas {...rest}>
-      {!hideButton && <XRButton mode="VR" sessionInit={sessionInit} />}
+      <XRButton mode="VR" sessionInit={sessionInit} />
       {children}
     </XRCanvas>
   )
 }
 
-export function ARCanvas({ children, sessionInit, hideButton, ...rest }: XRCanvasProps) {
+export function ARCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
   return (
     <XRCanvas {...rest}>
-      {!hideButton && <XRButton mode="AR" sessionInit={sessionInit} />}
+      <XRButton mode="AR" sessionInit={sessionInit} />
       {children}
     </XRCanvas>
   )
