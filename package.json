@@ -73,6 +73,7 @@
     "three": ">=0.141"
   },
   "dependencies": {
-    "three-stdlib": "^2.10.2"
+    "three-stdlib": "^2.10.2",
+    "zustand": "^3.7.1"
   }
 }

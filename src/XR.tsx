@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import * as React from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ARButton } from './webxr/ARButton'
-import { VRButton } from './webxr/VRButton'
+import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
 import { XRController } from './XRController'
-import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import type { WebGLRenderer } from 'three'
 import { Matrix4, Group } from 'three'
+import create, { GetState, SetState } from 'zustand'
 
 export interface XRContextValue {
   controllers: XRController[]
@@ -96,12 +93,33 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
+interface SessionStoreState {
+  set: SetState<SessionStoreState>
+  get: GetState<SessionStoreState>
+  session: XRSession | null
+}
+const sessionStore = create<SessionStoreState>((set, get) => ({ get, set, session: null }))
+
 export function XR({ foveation = 0, children }: { foveation?: number; children: React.ReactNode }) {
-  const { gl, camera } = useThree()
+  const gl = useThree((state) => state.gl)
+  const camera = useThree((state) => state.camera)
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [isHandTracking, setHandTracking] = React.useState(false)
   const [player] = React.useState(() => new Group())
   const controllers = useControllers(player)
+
+  React.useEffect(
+    () =>
+      sessionStore.subscribe((sessionState) => {
+        if (!sessionState.session) return
+
+        const session = gl.xr.getSession()
+        if (sessionState.session !== session) {
+          gl.xr.setSession(sessionState.session!)
+        }
+      }),
+    [gl.xr]
+  )
 
   React.useEffect(() => {
     const xr = gl.xr as any
@@ -156,18 +174,105 @@ export function XR({ foveation = 0, children }: { foveation?: number; children: 
   )
 }
 
-export interface XRCanvasProps extends ContainerProps {
+// React currently throws a warning when using useLayoutEffect on the server.
+// To get around it, we can conditionally useEffect on the server (no-op) and
+// useLayoutEffect on the client.
+const isSSR = typeof window === 'undefined' || !window.navigator || /ServerSideRendering|^Deno\//.test(window.navigator.userAgent)
+const useIsomorphicLayoutEffect = isSSR ? React.useEffect : React.useLayoutEffect
+
+export type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
+export interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /** The type of `XRSession` to create */
+  mode: 'AR' | 'VR' | 'inline'
+  /**
+   * `XRSession` configuration options.
+   * @see https://immersive-web.github.io/webxr/#feature-dependencies
+   */
   sessionInit?: XRSessionInit
+  /** Whether this button should only enter an `XRSession` */
+  enterOnly?: boolean
+  /** Whether this button should only exit an `XRSession` */
+  exitOnly?: boolean
+  /** React children, can also accept a callback returning an `XRButtonStatus` */
+  children?: React.ReactNode | ((status: React.ReactNode) => React.ReactNode)
+}
+
+export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
+  {
+    mode,
+    sessionInit = mode === 'VR' ? { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'] } : {},
+    enterOnly = false,
+    exitOnly = false,
+    style = {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: '24px',
+      padding: '12px 24px',
+      border: '1px solid white',
+      borderRadius: '4px',
+      background: 'rgba(0, 0, 0, 0.1)',
+      color: 'white',
+      font: 'normal 0.8125rem sans-serif',
+      outline: 'none',
+      zIndex: '99999',
+      cursor: 'pointer',
+      margin: '0 auto'
+    },
+    onClick,
+    children,
+    ...props
+  },
+  ref
+) {
+  const [status, setStatus] = React.useState<XRButtonStatus>('exited')
+  const label = status === 'unsupported' ? `${mode} unsupported` : `${status === 'entered' ? 'Exit' : 'Enter'} ${mode}`
+  const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
+
+  useIsomorphicLayoutEffect(() => {
+    if (!navigator?.xr) return void setStatus('unsupported')
+    navigator.xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
+  }, [sessionMode])
+
+  const toggleSession = React.useCallback(
+    async (event: any) => {
+      onClick?.(event)
+
+      const sessionState = sessionStore.getState()
+
+      // Bail if button only configures exit/enter
+      if (sessionState.session && enterOnly) return
+      if (!sessionState.session && exitOnly) return
+
+      // Exit/enter session
+      if (sessionState.session) {
+        await sessionState.session.end()
+        setStatus('exited')
+      } else {
+        const session = await navigator.xr!.requestSession(sessionMode, sessionInit)
+        sessionState.set(() => ({ session }))
+        setStatus('entered')
+      }
+    },
+    [onClick, enterOnly, exitOnly, sessionMode, sessionInit]
+  )
+
+  return (
+    <button {...props} ref={ref} style={style} onClick={status === 'unsupported' ? onClick : toggleSession}>
+      {typeof children === 'function' ? children(status) : children ?? label}
+    </button>
+  )
+})
+
+export interface XRCanvasProps extends ContainerProps {
   /**
    * Enables foveated rendering,
    * 0 = no foveation = full resolution,
    * 1 = maximum foveation = the edges render at lower resolution
    */
   foveation?: number
-  hideButton?: boolean
 }
-
-function XRCanvas({ foveation, children, ...rest }: Omit<XRCanvasProps, 'sessionInit'>) {
+export function XRCanvas({ foveation, children, ...rest }: XRCanvasProps) {
   return (
     <Canvas {...rest}>
       <XR foveation={foveation}>
@@ -177,49 +282,29 @@ function XRCanvas({ foveation, children, ...rest }: Omit<XRCanvasProps, 'session
   )
 }
 
-export function useXRButton(
-  mode: 'AR' | 'VR',
-  gl: WebGLRenderer,
-  sessionInit?: XRSessionInit,
-  container?: React.MutableRefObject<HTMLElement>
-) {
-  const button = React.useMemo<HTMLButtonElement | HTMLAnchorElement>(() => {
-    const target = mode === 'AR' ? ARButton : VRButton
-    return target.createButton(gl, sessionInit)
-  }, [mode, gl, sessionInit])
-
-  React.useLayoutEffect(() => {
-    const parent = container?.current ?? document.body
-    parent.appendChild(button)
-    return () => void parent.removeChild(button)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [button])
-
-  return button
+export interface VRCanvasProps extends XRCanvasProps {
+  hideButton?: boolean
+  sessionInit?: XRSessionInit
 }
-
-export function XRButton({ mode, sessionInit }: { mode: 'AR' | 'VR'; sessionInit?: XRSessionInit }) {
-  const gl = useThree((state) => state.gl)
-  useXRButton(mode, gl, sessionInit)
-
-  return null
-}
-
-export function VRCanvas({ children, sessionInit, hideButton, ...rest }: XRCanvasProps) {
+export function VRCanvas({ hideButton, sessionInit, children, ...rest }: VRCanvasProps) {
   return (
-    <XRCanvas {...rest}>
+    <>
       {!hideButton && <XRButton mode="VR" sessionInit={sessionInit} />}
-      {children}
-    </XRCanvas>
+      <XRCanvas {...rest}>{children}</XRCanvas>
+    </>
   )
 }
 
-export function ARCanvas({ children, sessionInit, hideButton, ...rest }: XRCanvasProps) {
+export interface ARCanvasProps extends XRCanvasProps {
+  hideButton?: boolean
+  sessionInit?: XRSessionInit
+}
+export function ARCanvas({ hideButton, sessionInit, children, ...rest }: ARCanvasProps) {
   return (
-    <XRCanvas {...rest}>
+    <>
       {!hideButton && <XRButton mode="AR" sessionInit={sessionInit} />}
-      {children}
-    </XRCanvas>
+      <XRCanvas {...rest}>{children}</XRCanvas>
+    </>
   )
 }
 
