@@ -1,15 +1,13 @@
-import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
-import { useXR } from './XR'
-import type { Object3D, Group, Intersection } from 'three'
-import { Matrix4 } from 'three'
+import * as React from 'react'
+import * as THREE from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
+import { useXR } from './XR'
 import { XRController } from './XRController'
 import { ObjectsState } from './ObjectsState'
-import mergeRefs from 'react-merge-refs'
 import { useXREvent, XREvent } from './XREvents'
 
 export interface XRInteractionEvent {
-  intersection?: Intersection
+  intersection?: THREE.Intersection
   controller: XRController
 }
 
@@ -28,9 +26,9 @@ export type XRInteractionHandler = (event: XRInteractionEvent) => any
 const warnAboutVRARCanvas = () => console.warn('You must provide a ARCanvas or VRCanvas as a wrapper to use interactions')
 
 export const InteractionsContext = React.createContext<{
-  hoverState: Record<XRHandedness, Map<Object3D, Intersection>>
-  addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
-  removeInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
+  hoverState: Record<XRHandedness, Map<THREE.Object3D, THREE.Intersection>>
+  addInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
+  removeInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => any
 }>({
   hoverState: {} as any,
   addInteraction: warnAboutVRARCanvas,
@@ -40,7 +38,7 @@ export function InteractionManager({ children }: { children: any }) {
   const state = useThree()
   const { controllers } = useXR()
 
-  const [hoverState] = React.useState<Record<XRHandedness, Map<Object3D, Intersection>>>(() => ({
+  const [hoverState] = React.useState<Record<XRHandedness, Map<THREE.Object3D, THREE.Intersection>>>(() => ({
     left: new Map(),
     right: new Map(),
     none: new Map()
@@ -49,23 +47,23 @@ export function InteractionManager({ children }: { children: any }) {
   const [interactions] = React.useState(() => ObjectsState.make<XRInteractionType, XRInteractionHandler>())
 
   const addInteraction = React.useCallback(
-    (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => {
+    (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => {
       ObjectsState.add(interactions, object, eventType, handler)
     },
     [interactions]
   )
 
   const removeInteraction = React.useCallback(
-    (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => {
+    (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => {
       ObjectsState.delete(interactions, object, eventType, handler)
     },
     [interactions]
   )
 
   const intersect = React.useCallback(
-    (controller: Object3D) => {
+    (controller: THREE.Object3D) => {
       const objects = Array.from(interactions.keys())
-      const tempMatrix = new Matrix4()
+      const tempMatrix = new THREE.Matrix4()
       tempMatrix.identity().extractRotation(controller.matrixWorld)
       state.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
       state.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
@@ -99,7 +97,7 @@ export function InteractionManager({ children }: { children: any }) {
       }
 
       intersections.forEach((intersection) => {
-        let eventObject: Object3D | null = intersection.object
+        let eventObject: THREE.Object3D | null = intersection.object
 
         while (eventObject) {
           if (ObjectsState.has(interactions, eventObject, 'onHover') && !hovering.has(eventObject)) {
@@ -139,21 +137,22 @@ export function InteractionManager({ children }: { children: any }) {
   useXREvent('squeezeend', triggerEvent('onSqueezeEnd'))
   useXREvent('squeezestart', triggerEvent('onSqueezeStart'))
 
-  const contextValue = useMemo(() => ({ addInteraction, removeInteraction, hoverState }), [addInteraction, removeInteraction, hoverState])
+  const contextValue = React.useMemo(
+    () => ({ addInteraction, removeInteraction, hoverState }),
+    [addInteraction, removeInteraction, hoverState]
+  )
 
   return <InteractionsContext.Provider value={contextValue}>{children}</InteractionsContext.Provider>
 }
 
 export const useInteraction = (ref: any, type: XRInteractionType, handler?: XRInteractionHandler) => {
-  const { addInteraction, removeInteraction } = useContext(InteractionsContext)
+  const { addInteraction, removeInteraction } = React.useContext(InteractionsContext)
 
   const isPresent = handler !== undefined
-  const handlerRef = useRef(handler)
-  useEffect(() => {
-    handlerRef.current = handler
-  }, [handler])
+  const handlerRef = React.useRef(handler)
+  React.useLayoutEffect(() => void (handlerRef.current = handler), [handler])
 
-  useEffect(() => {
+  React.useLayoutEffect(() => {
     if (!isPresent) return
 
     const handlerFn = (e: XRInteractionEvent) => {
@@ -167,40 +166,37 @@ export const useInteraction = (ref: any, type: XRInteractionType, handler?: XRIn
   }, [type, addInteraction, removeInteraction, isPresent, ref])
 }
 
-export const Interactive = forwardRef(
-  (
-    props: {
-      children: ReactNode
-      onHover?: XRInteractionHandler
-      onBlur?: XRInteractionHandler
-      onSelectStart?: XRInteractionHandler
-      onSelectEnd?: XRInteractionHandler
-      onSelect?: XRInteractionHandler
-      onSqueezeStart?: XRInteractionHandler
-      onSqueezeEnd?: XRInteractionHandler
-      onSqueeze?: XRInteractionHandler
-    },
-    passedRef
-  ) => {
-    const ref = useRef<Object3D>()
+export interface InteractiveProps {
+  children: React.ReactNode
+  onHover?: XRInteractionHandler
+  onBlur?: XRInteractionHandler
+  onSelectStart?: XRInteractionHandler
+  onSelectEnd?: XRInteractionHandler
+  onSelect?: XRInteractionHandler
+  onSqueezeStart?: XRInteractionHandler
+  onSqueezeEnd?: XRInteractionHandler
+  onSqueeze?: XRInteractionHandler
+}
+export const Interactive = React.forwardRef(function Interactive(props: InteractiveProps, passedRef) {
+  const ref = React.useRef<THREE.Group>(null!)
+  React.useImperativeHandle(passedRef, () => ref.current)
 
-    useInteraction(ref, 'onHover', props.onHover)
-    useInteraction(ref, 'onBlur', props.onBlur)
-    useInteraction(ref, 'onSelectStart', props.onSelectStart)
-    useInteraction(ref, 'onSelectEnd', props.onSelectEnd)
-    useInteraction(ref, 'onSelect', props.onSelect)
-    useInteraction(ref, 'onSqueezeStart', props.onSqueezeStart)
-    useInteraction(ref, 'onSqueezeEnd', props.onSqueezeEnd)
-    useInteraction(ref, 'onSqueeze', props.onSqueeze)
+  useInteraction(ref, 'onHover', props.onHover)
+  useInteraction(ref, 'onBlur', props.onBlur)
+  useInteraction(ref, 'onSelectStart', props.onSelectStart)
+  useInteraction(ref, 'onSelectEnd', props.onSelectEnd)
+  useInteraction(ref, 'onSelect', props.onSelect)
+  useInteraction(ref, 'onSqueezeStart', props.onSqueezeStart)
+  useInteraction(ref, 'onSqueezeEnd', props.onSqueezeEnd)
+  useInteraction(ref, 'onSqueeze', props.onSqueeze)
 
-    return <group ref={mergeRefs([passedRef, ref])}>{props.children}</group>
-  }
-)
+  return <group ref={ref}>{props.children}</group>
+})
 
-export function RayGrab({ children }: { children: ReactNode }) {
-  const grabbingController = useRef<Object3D>()
-  const groupRef = useRef<Group>()
-  const previousTransform = useRef<Matrix4 | undefined>(undefined)
+export function RayGrab({ children }: { children: React.ReactNode }) {
+  const grabbingController = React.useRef<THREE.Object3D>()
+  const groupRef = React.useRef<THREE.Group>()
+  const previousTransform = React.useRef<THREE.Matrix4 | undefined>(undefined)
 
   useXREvent('selectend', (e) => {
     if (e.controller.controller === grabbingController.current) {

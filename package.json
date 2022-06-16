@@ -73,7 +73,6 @@
     "three": ">=0.141"
   },
   "dependencies": {
-    "react-merge-refs": "^1.1.0",
     "three-stdlib": "^2.8.6"
   }
 }

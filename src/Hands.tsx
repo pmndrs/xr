@@ -1,14 +1,14 @@
+import * as React from 'react'
 import { useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
-
 import { HandModel } from './webxr/HandModel.js'
 import { useXR } from './XR'
 
 export function Hands(props: { modelLeft?: string; modelRight?: string }) {
-  const { scene, gl } = useThree()
+  const scene = useThree((state) => state.scene)
+  const gl = useThree((state) => state.gl)
   const { controllers } = useXR()
 
-  useEffect(() => {
+  React.useLayoutEffect(() => {
     controllers.forEach(({ hand, inputSource }) => {
       const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
       if (handModel) {

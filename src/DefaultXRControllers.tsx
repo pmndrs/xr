@@ -1,16 +1,17 @@
-import { useXR } from './XR'
-import React, { useEffect } from 'react'
-import type { MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
+import * as React from 'react'
+import * as THREE from 'three'
 import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { useXR } from './XR'
 import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
 
 const modelFactory = new XRControllerModelFactory()
-const modelCache = new WeakMap<Group, any>()
-export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshBasicMaterialParameters }) {
-  const { scene } = useThree()
+const modelCache = new WeakMap<THREE.Group, any>()
+
+export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: THREE.MeshBasicMaterialParameters }) {
+  const scene = useThree((state) => state.scene)
   const { controllers, hoverState } = useXR()
-  const [rays] = React.useState(new Map<number, Mesh>())
+  const [rays] = React.useState(() => new Map<number, Mesh>())
 
   // Show ray line when hovering objects
   useFrame(() => {
@@ -18,7 +19,7 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshB
       const ray = rays.get(it.controller.id)
       if (!ray) return
 
-      const intersection: Intersection = hoverState[it.inputSource.handedness].values().next().value
+      const intersection: THREE.Intersection = hoverState[it.inputSource.handedness].values().next().value
       if (!intersection || it.inputSource.handedness === 'none') {
         ray.visible = false
         return
@@ -35,12 +36,12 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshB
     })
   })
 
-  useEffect(() => {
+  React.useLayoutEffect(() => {
     const cleanups: any[] = []
 
     controllers.forEach(({ controller, grip, inputSource }) => {
       // Attach 3D model of the controller
-      let model: Object3D
+      let model: THREE.Object3D
       if (modelCache.has(controller)) {
         model = modelCache.get(controller)
       } else {
