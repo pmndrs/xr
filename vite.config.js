@@ -18,11 +18,11 @@ export default defineConfig({
     minify: false,
     outDir: path.resolve(process.cwd(), 'dist'),
     emptyOutDir: true,
-    target: 'esnext',
+    target: 'es2018',
     lib: {
       formats: ['es', 'cjs'],
       entry: path.resolve(process.cwd(), 'src/index.tsx'),
-      fileName: (format) => (format === 'cjs' ? 'index.cjs' : 'index.js')
+      fileName: (format) => (format === 'es' ? 'index.mjs' : 'index.js')
     },
     rollupOptions: {
       external: (id) => !id.startsWith('.') && !path.isAbsolute(id)

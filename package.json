@@ -24,12 +24,11 @@
     "Michael Bashurov (https://github.com/saitonakamura)",
     "Cody Bennett (https://github.com/codyjasonbennett)"
   ],
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/*",
-    "src/*"
+    "dist/*"
   ],
   "sideEffects": false,
   "scripts": {
