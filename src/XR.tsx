@@ -198,24 +198,13 @@ export interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElem
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
   {
     mode,
-    sessionInit = mode === 'VR' ? { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking'] } : {},
+    sessionInit = {
+      // @ts-ignore
+      domOverlay: { root: document.body },
+      optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking']
+    },
     enterOnly = false,
     exitOnly = false,
-    style = {
-      position: 'absolute',
-      bottom: '24px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      padding: '12px 24px',
-      border: '1px solid white',
-      borderRadius: '4px',
-      background: 'rgba(0, 0, 0, 0.1)',
-      color: 'white',
-      font: 'normal 0.8125rem sans-serif',
-      outline: 'none',
-      zIndex: 99999,
-      cursor: 'pointer'
-    },
     onClick,
     children,
     ...props
@@ -255,7 +244,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   )
 
   return (
-    <button {...props} ref={ref} style={style} onClick={status === 'unsupported' ? onClick : toggleSession}>
+    <button {...props} ref={ref} onClick={status === 'unsupported' ? onClick : toggleSession}>
       {typeof children === 'function' ? children(status) : children ?? label}
     </button>
   )
@@ -279,13 +268,29 @@ export function XRCanvas({ foveation, children, ...rest }: XRCanvasProps) {
   )
 }
 
+const buttonStyles: any = {
+  position: 'absolute',
+  bottom: '24px',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  padding: '12px 24px',
+  border: '1px solid white',
+  borderRadius: '4px',
+  background: 'rgba(0, 0, 0, 0.1)',
+  color: 'white',
+  font: 'normal 0.8125rem sans-serif',
+  outline: 'none',
+  zIndex: 99999,
+  cursor: 'pointer'
+}
+
 export interface VRCanvasProps extends XRCanvasProps {
   sessionInit?: XRSessionInit
 }
 export function VRCanvas({ sessionInit, children, ...rest }: VRCanvasProps) {
   return (
     <>
-      <XRButton mode="VR" sessionInit={sessionInit} />
+      <XRButton mode="VR" style={buttonStyles} sessionInit={sessionInit} />
       <XRCanvas {...rest}>{children}</XRCanvas>
     </>
   )
@@ -297,7 +302,7 @@ export interface ARCanvasProps extends XRCanvasProps {
 export function ARCanvas({ sessionInit, children, ...rest }: ARCanvasProps) {
   return (
     <>
-      <XRButton mode="AR" sessionInit={sessionInit} />
+      <XRButton mode="AR" style={buttonStyles} sessionInit={sessionInit} />
       <XRCanvas {...rest}>{children}</XRCanvas>
     </>
   )
