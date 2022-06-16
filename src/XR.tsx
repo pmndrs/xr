@@ -121,8 +121,10 @@ export function XR({ foveation = 0, children }: XRProps) {
   return (
     <XRContext.Provider value={value}>
       <primitive object={player} dispose={null}>
-        <primitive object={camera} dispose={null} />
-        {controllers}
+        <primitive object={camera} />
+        {controllers.map((controller, i) => (
+          <primitive key={`controller-${i}`} object={controller} />
+        ))}
       </primitive>
       {children}
     </XRContext.Provider>
