@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import * as React from 'react'
 import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
 import { XRController } from './XRController'
@@ -215,7 +213,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
       color: 'white',
       font: 'normal 0.8125rem sans-serif',
       outline: 'none',
-      zIndex: '99999',
+      zIndex: 99999,
       cursor: 'pointer',
       margin: '0 auto'
     },
