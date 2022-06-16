@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
 import { useXR } from './XR'
-import type { Object3D, Group, Intersection, XRHandedness } from 'three'
+import type { Object3D, Group, Intersection } from 'three'
 import { Matrix4 } from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { XRController } from './XRController'

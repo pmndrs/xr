@@ -7,15 +7,7 @@ import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import type {
-  XRSessionInit,
-  XRHandedness,
-  XRHitTestResult,
-  XRHitTestSource,
-  XRInputSourceChangeEvent,
-  XRReferenceSpace,
-  WebGLRenderer
-} from 'three'
+import type { WebGLRenderer } from 'three'
 import { Matrix4, Group } from 'three'
 
 export interface XRContextValue {
@@ -70,7 +62,7 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
 
     if (!hitTestSourceRequested.current) {
       session.requestReferenceSpace('viewer').then((referenceSpace: XRReferenceSpace) => {
-        session.requestHitTestSource({ space: referenceSpace }).then((source: XRHitTestSource) => {
+        session.requestHitTestSource?.({ space: referenceSpace })?.then((source: XRHitTestSource) => {
           hitTestSource.current = source
         })
       })
