@@ -1,7 +1,6 @@
 import React from 'react'
 import { XRController } from './XRController'
 import { useXR } from './XR'
-import type { XRHandedness } from 'three'
 
 export interface XREvent {
   originalEvent: any
