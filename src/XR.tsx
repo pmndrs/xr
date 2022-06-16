@@ -280,26 +280,24 @@ export function XRCanvas({ foveation, children, ...rest }: XRCanvasProps) {
 }
 
 export interface VRCanvasProps extends XRCanvasProps {
-  hideButton?: boolean
   sessionInit?: XRSessionInit
 }
-export function VRCanvas({ hideButton, sessionInit, children, ...rest }: VRCanvasProps) {
+export function VRCanvas({ sessionInit, children, ...rest }: VRCanvasProps) {
   return (
     <>
-      {!hideButton && <XRButton mode="VR" sessionInit={sessionInit} />}
+      <XRButton mode="VR" sessionInit={sessionInit} />
       <XRCanvas {...rest}>{children}</XRCanvas>
     </>
   )
 }
 
 export interface ARCanvasProps extends XRCanvasProps {
-  hideButton?: boolean
   sessionInit?: XRSessionInit
 }
-export function ARCanvas({ hideButton, sessionInit, children, ...rest }: ARCanvasProps) {
+export function ARCanvas({ sessionInit, children, ...rest }: ARCanvasProps) {
   return (
     <>
-      {!hideButton && <XRButton mode="AR" sessionInit={sessionInit} />}
+      <XRButton mode="AR" sessionInit={sessionInit} />
       <XRCanvas {...rest}>{children}</XRCanvas>
     </>
   )
