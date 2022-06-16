@@ -95,10 +95,18 @@ interface SessionStoreState {
   set: SetState<SessionStoreState>
   get: GetState<SessionStoreState>
   session: XRSession | null
+  foveation: number
+  referenceSpace: XRReferenceSpaceType
 }
-const sessionStore = create<SessionStoreState>((set, get) => ({ get, set, session: null }))
+const sessionStore = create<SessionStoreState>((set, get) => ({
+  get,
+  set,
+  session: null,
+  foveation: 0,
+  referenceSpace: 'local-floor'
+}))
 
-export function XR({ foveation = 0, children }: { foveation?: number; children: React.ReactNode }) {
+export function XR({ children }: { children: React.ReactNode }) {
   const gl = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
@@ -108,38 +116,28 @@ export function XR({ foveation = 0, children }: { foveation?: number; children: 
 
   React.useEffect(
     () =>
-      sessionStore.subscribe((sessionState) => {
-        if (!sessionState.session) return
+      sessionStore.subscribe(({ session, referenceSpace, foveation }) => {
+        const activeSession = gl.xr.getSession()
+        if (!session || session === activeSession) return
 
-        const session = gl.xr.getSession()
-        if (sessionState.session !== session) {
-          gl.xr.setSession(sessionState.session!)
-        }
+        gl.xr.setSession(session!)
+        gl.xr.setReferenceSpaceType(referenceSpace)
+        gl.xr.setFoveation(foveation)
       }),
     [gl.xr]
   )
 
   React.useEffect(() => {
-    const xr = gl.xr as any
+    const handleSessionChange = () => setIsPresenting(gl.xr.isPresenting)
 
-    const handleSessionChange = () => setIsPresenting(xr.isPresenting)
-
-    xr.addEventListener('sessionstart', handleSessionChange)
-    xr.addEventListener('sessionend', handleSessionChange)
+    gl.xr.addEventListener('sessionstart', handleSessionChange)
+    gl.xr.addEventListener('sessionend', handleSessionChange)
 
     return () => {
-      xr.removeEventListener('sessionstart', handleSessionChange)
-      xr.removeEventListener('sessionend', handleSessionChange)
+      gl.xr.removeEventListener('sessionstart', handleSessionChange)
+      gl.xr.removeEventListener('sessionend', handleSessionChange)
     }
-  }, [gl])
-
-  React.useEffect(() => {
-    const xr = gl.xr as any
-
-    if (xr.setFoveation) {
-      xr.setFoveation(foveation)
-    }
-  }, [gl, foveation])
+  }, [gl.xr])
 
   React.useEffect(() => {
     const session = gl.xr.getSession()
@@ -187,6 +185,14 @@ export interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElem
    * @see https://immersive-web.github.io/webxr/#feature-dependencies
    */
   sessionInit?: XRSessionInit
+  /**
+   * Enables foveated rendering,
+   * 0 = no foveation = full resolution,
+   * 1 = maximum foveation = the edges render at lower resolution
+   */
+  foveation?: number
+  /** Type of WebXR reference space to use. */
+  referenceSpace?: XRReferenceSpaceType
   /** Whether this button should only enter an `XRSession` */
   enterOnly?: boolean
   /** Whether this button should only exit an `XRSession` */
@@ -203,6 +209,8 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
       domOverlay: { root: document.body },
       optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking']
     },
+    foveation = 0,
+    referenceSpace = 'local-floor',
     enterOnly = false,
     exitOnly = false,
     onClick,
@@ -236,11 +244,11 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
         setStatus('exited')
       } else {
         const session = await navigator.xr!.requestSession(sessionMode, sessionInit)
-        sessionState.set(() => ({ session }))
+        sessionState.set(() => ({ session, foveation, referenceSpace }))
         setStatus('entered')
       }
     },
-    [onClick, enterOnly, exitOnly, sessionMode, sessionInit]
+    [onClick, enterOnly, exitOnly, sessionMode, sessionInit, foveation, referenceSpace]
   )
 
   return (
@@ -250,18 +258,10 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   )
 })
 
-export interface XRCanvasProps extends ContainerProps {
-  /**
-   * Enables foveated rendering,
-   * 0 = no foveation = full resolution,
-   * 1 = maximum foveation = the edges render at lower resolution
-   */
-  foveation?: number
-}
-export function XRCanvas({ foveation, children, ...rest }: XRCanvasProps) {
+export function XRCanvas({ children, ...rest }: ContainerProps) {
   return (
     <Canvas {...rest}>
-      <XR foveation={foveation}>
+      <XR>
         <InteractionManager>{children}</InteractionManager>
       </XR>
     </Canvas>
@@ -284,25 +284,29 @@ const buttonStyles: any = {
   cursor: 'pointer'
 }
 
-export interface VRCanvasProps extends XRCanvasProps {
+export interface VRCanvasProps extends ContainerProps {
   sessionInit?: XRSessionInit
+  foveation?: number
+  referenceSpace?: XRReferenceSpaceType
 }
-export function VRCanvas({ sessionInit, children, ...rest }: VRCanvasProps) {
+export function VRCanvas({ sessionInit, foveation, referenceSpace, children, ...rest }: VRCanvasProps) {
   return (
     <>
-      <XRButton mode="VR" style={buttonStyles} sessionInit={sessionInit} />
+      <XRButton mode="VR" style={buttonStyles} sessionInit={sessionInit} foveation={foveation} referenceSpace={referenceSpace} />
       <XRCanvas {...rest}>{children}</XRCanvas>
     </>
   )
 }
 
-export interface ARCanvasProps extends XRCanvasProps {
+export interface ARCanvasProps extends ContainerProps {
   sessionInit?: XRSessionInit
+  foveation?: number
+  referenceSpace?: XRReferenceSpaceType
 }
-export function ARCanvas({ sessionInit, children, ...rest }: ARCanvasProps) {
+export function ARCanvas({ sessionInit, foveation, referenceSpace, children, ...rest }: ARCanvasProps) {
   return (
     <>
-      <XRButton mode="AR" style={buttonStyles} sessionInit={sessionInit} />
+      <XRButton mode="AR" style={buttonStyles} sessionInit={sessionInit} foveation={foveation} referenceSpace={referenceSpace} />
       <XRCanvas {...rest}>{children}</XRCanvas>
     </>
   )
