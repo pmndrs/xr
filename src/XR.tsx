@@ -179,7 +179,7 @@ export function XR({
       session.removeEventListener('visibilitychange', handleVisibilityChange)
       session.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
-  }, [session, gl.xr])
+  }, [session, gl.xr, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange])
 
   React.useEffect(() => {
     const handleSessionChange = () => setIsPresenting(gl.xr.isPresenting)
