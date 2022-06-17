@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
+import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
 import { InteractionManager, InteractionsContext } from './Interactions'
 import { Matrix4, Group, WebXRManager, XRControllerEventType } from 'three'
 import create, { GetState, SetState } from 'zustand'
