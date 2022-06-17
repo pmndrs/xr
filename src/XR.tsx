@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, InteractionsContext } from './Interactions'
-import { Matrix4, Group } from 'three'
+import { Matrix4, Group, WebXRManager, XRControllerEventType } from 'three'
 import create, { GetState, SetState } from 'zustand'
 
 export interface XRContextValue {
@@ -99,14 +99,11 @@ interface SessionStoreState {
 }
 const sessionStore = create<SessionStoreState>((set, get) => ({ get, set, session: null }))
 
-export type XRCanvasEventType = 'sessionstart' | 'sessionend' | 'visibilitychange' | 'inputsourceschange'
-export class XRCanvasEvent extends Event {
+export type XRManagerEvent = { type: 'sessionstart' | 'sessionend'; target: WebXRManager }
+export type XRControllerEvent = { type: XRControllerEventType; data?: XRInputSource }
+export interface XRCanvasEvent {
+  readonly nativeEvent: XRManagerEvent | XRControllerEvent | XRSessionEvent
   readonly session: XRSession
-
-  constructor(type: XRCanvasEventType, session: XRSession) {
-    super(type)
-    this.session = session
-  }
 }
 export interface XRProps {
   /**
@@ -163,10 +160,10 @@ export function XR({
   React.useEffect(() => {
     if (!session) return
 
-    const handleSessionStart = () => onSessionStart?.(new XRCanvasEvent('sessionstart', session))
-    const handleSessionEnd = () => onSessionEnd?.(new XRCanvasEvent('sessionend', session))
-    const handleVisibilityChange = () => onVisibilityChange?.(new XRCanvasEvent('visibilitychange', session))
-    const handleInputSourcesChange = () => onInputSourcesChange?.(new XRCanvasEvent('inputsourceschange', session))
+    const handleSessionStart = (nativeEvent: XRManagerEvent) => onSessionStart?.({ nativeEvent, session })
+    const handleSessionEnd = (nativeEvent: XRManagerEvent) => onSessionEnd?.({ nativeEvent, session })
+    const handleVisibilityChange = (nativeEvent: XRSessionEvent) => onVisibilityChange?.({ nativeEvent, session })
+    const handleInputSourcesChange = (nativeEvent: XRSessionEvent) => onInputSourcesChange?.({ nativeEvent, session })
 
     gl.xr.addEventListener('sessionstart', handleSessionStart)
     gl.xr.addEventListener('sessionend', handleSessionEnd)
