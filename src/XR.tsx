@@ -99,11 +99,11 @@ interface SessionStoreState {
 }
 const sessionStore = create<SessionStoreState>((set, get) => ({ get, set, session: null }))
 
-export type XREventType = 'sessionstart' | 'sessionend' | 'visibilitychange' | 'inputsourceschange'
-export class XREvent extends Event {
+export type XRCanvasEventType = 'sessionstart' | 'sessionend' | 'visibilitychange' | 'inputsourceschange'
+export class XRCanvasEvent extends Event {
   readonly session: XRSession
 
-  constructor(type: XREventType, session: XRSession) {
+  constructor(type: XRCanvasEventType, session: XRSession) {
     super(type)
     this.session = session
   }
@@ -118,13 +118,13 @@ export interface XRProps {
   /** Type of WebXR reference space to use. */
   referenceSpace?: XRReferenceSpaceType
   /** Called as an XRSession is requested. */
-  onSessionStart?: (event: XREvent) => void
+  onSessionStart?: (event: XRCanvasEvent) => void
   /** Called after an XRSession is terminated. */
-  onSessionEnd?: (event: XREvent) => void
+  onSessionEnd?: (event: XRCanvasEvent) => void
   /** Called when an XRSession is hidden or unfocused. */
-  onVisibilityChange?: (event: XREvent) => void
+  onVisibilityChange?: (event: XRCanvasEvent) => void
   /** Called when available inputsources change. */
-  onInputSourcesChange?: (event: XREvent) => void
+  onInputSourcesChange?: (event: XRCanvasEvent) => void
   children: React.ReactNode
 }
 
@@ -163,10 +163,10 @@ export function XR({
   React.useEffect(() => {
     if (!session) return
 
-    const handleSessionStart = () => onSessionStart?.(new XREvent('sessionstart', session))
-    const handleSessionEnd = () => onSessionEnd?.(new XREvent('sessionend', session))
-    const handleVisibilityChange = () => onVisibilityChange?.(new XREvent('visibilitychange', session))
-    const handleInputSourcesChange = () => onInputSourcesChange?.(new XREvent('inputsourceschange', session))
+    const handleSessionStart = () => onSessionStart?.(new XRCanvasEvent('sessionstart', session))
+    const handleSessionEnd = () => onSessionEnd?.(new XRCanvasEvent('sessionend', session))
+    const handleVisibilityChange = () => onVisibilityChange?.(new XRCanvasEvent('visibilitychange', session))
+    const handleInputSourcesChange = () => onInputSourcesChange?.(new XRCanvasEvent('inputsourceschange', session))
 
     gl.xr.addEventListener('sessionstart', handleSessionStart)
     gl.xr.addEventListener('sessionend', handleSessionEnd)
