@@ -253,10 +253,11 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   )
 })
 
-export function XRCanvas({ children, ...rest }: ContainerProps) {
+export interface XRCanvasProps extends ContainerProps, XRProps {}
+export function XRCanvas({ foveation, referenceSpace, children, ...rest }: XRCanvasProps) {
   return (
     <Canvas {...rest}>
-      <XR>
+      <XR foveation={foveation} referenceSpace={referenceSpace}>
         <InteractionManager>{children}</InteractionManager>
       </XR>
     </Canvas>
@@ -279,7 +280,7 @@ const buttonStyles: any = {
   cursor: 'pointer'
 }
 
-export interface VRCanvasProps extends ContainerProps, XRProps, Pick<XRButtonProps, 'sessionInit'> {}
+export interface VRCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
 export function VRCanvas({ sessionInit, children, ...rest }: VRCanvasProps) {
   return (
     <>
@@ -289,7 +290,7 @@ export function VRCanvas({ sessionInit, children, ...rest }: VRCanvasProps) {
   )
 }
 
-export interface ARCanvasProps extends ContainerProps, XRProps, Pick<XRButtonProps, 'sessionInit'> {}
+export interface ARCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
 export function ARCanvas({ sessionInit, children, ...rest }: ARCanvasProps) {
   return (
     <>
