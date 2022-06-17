@@ -1,63 +1,73 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import * as React from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
 import { ARButton } from './webxr/ARButton'
 import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
-import { Props as ContainerProps } from '@react-three/fiber/dist/declarations/src/web/Canvas'
-import { InteractionManager, InteractionsContext } from './Interactions'
-import type { WebGLRenderer } from 'three'
+import { ObjectsState } from './ObjectsState'
+import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
+import type { Intersection, Object3D, WebGLRenderer } from 'three'
 import { Matrix4, Group } from 'three'
+import create, { EqualityChecker, GetState, SetState, StateSelector } from 'zustand'
 
-export interface XRContextValue {
+export interface XRState {
+  set: SetState<XRState>
+  get: GetState<XRState>
+
   controllers: XRController[]
-  isPresenting: boolean
   player: Group
   isHandTracking: boolean
+  session: XRSession | null
+  foveation: number
+  referenceSpace: XRReferenceSpaceType
+
+  hoverState: Record<XRHandedness, Map<Object3D, Intersection>>
+  interactions: ObjectsState<XRInteractionType, XRInteractionHandler>
+  hasInteraction: (object: Object3D, eventType: XRInteractionType) => boolean
+  getInteraction: (object: Object3D, eventType: XRInteractionType) => XRInteractionHandler[] | undefined
+  addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
+  removeInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
 }
-const XRContext = React.createContext<XRContextValue>({} as any)
+const XRStore = create<XRState>((set, get) => ({
+  set,
+  get,
 
-const useControllers = (group: Group): XRController[] => {
-  const { gl } = useThree()
-  const [controllers, setControllers] = React.useState<XRController[]>([])
+  controllers: [],
+  player: new Group(),
+  isHandTracking: false,
+  session: null,
+  foveation: 0,
+  referenceSpace: 'local-floor',
 
-  React.useEffect(() => {
-    const ids = [0, 1]
-    ids.forEach((id) => {
-      XRController.make(
-        id,
-        gl,
-        (controller) => {
-          group.add(controller.controller)
-          group.add(controller.grip)
-          group.add(controller.hand)
-          setControllers((it) => [...it, controller])
-        },
-        (controller) => {
-          group.remove(controller.controller)
-          group.remove(controller.grip)
-          group.remove(controller.hand)
-          setControllers((existing) => existing.filter((it) => it !== controller))
-        }
-      )
-    })
-  }, [gl, group])
+  hoverState: {
+    left: new Map(),
+    right: new Map(),
+    none: new Map()
+  },
+  interactions: ObjectsState.make<XRInteractionType, XRInteractionHandler>(),
+  hasInteraction(object: Object3D, eventType: XRInteractionType) {
+    return ObjectsState.has(get().interactions, object, eventType)
+  },
+  getInteraction(object: Object3D, eventType: XRInteractionType) {
+    return ObjectsState.get(get().interactions, object, eventType)
+  },
+  addInteraction(object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+    ObjectsState.add(get().interactions, object, eventType, handler)
+  },
+  removeInteraction(object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+    ObjectsState.delete(get().interactions, object, eventType, handler)
+  }
+}))
 
-  return controllers
-}
-
-export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestResult) => void) {
-  const { gl } = useThree()
-
+export type HitTestCallback = (hitMatrix: Matrix4, hit: XRHitTestResult) => void
+export function useHitTest(hitTestCallback: HitTestCallback) {
   const hitTestSource = React.useRef<XRHitTestSource | undefined>()
   const hitTestSourceRequested = React.useRef(false)
   const [hitMatrix] = React.useState(() => new Matrix4())
 
-  useFrame((_, __, frame) => {
-    if (!gl.xr.isPresenting) return
+  useFrame((state, _, frame) => {
+    if (!state.gl.xr.isPresenting) return
 
-    const session = gl.xr.getSession()
+    const session = state.gl.xr.getSession()
     if (!session) return
 
     if (!hitTestSourceRequested.current) {
@@ -77,8 +87,8 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
       hitTestSourceRequested.current = true
     }
 
-    if (hitTestSource.current && gl.xr.isPresenting && frame) {
-      const referenceSpace = gl.xr.getReferenceSpace()
+    if (hitTestSource.current && state.gl.xr.isPresenting && frame) {
+      const referenceSpace = state.gl.xr.getReferenceSpace()
 
       if (referenceSpace) {
         const hitTestResults = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
@@ -96,85 +106,103 @@ export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestR
   })
 }
 
-export function XR({ foveation = 0, children }: { foveation?: number; children: React.ReactNode }) {
-  const { gl, camera } = useThree()
-  const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
-  const [isHandTracking, setHandTracking] = React.useState(false)
-  const [player] = React.useState(() => new Group())
-  const controllers = useControllers(player)
-
-  React.useEffect(() => {
-    const xr = gl.xr as any
-
-    const handleSessionChange = () => setIsPresenting(xr.isPresenting)
-
-    xr.addEventListener('sessionstart', handleSessionChange)
-    xr.addEventListener('sessionend', handleSessionChange)
-
-    return () => {
-      xr.removeEventListener('sessionstart', handleSessionChange)
-      xr.removeEventListener('sessionend', handleSessionChange)
-    }
-  }, [gl])
-
-  React.useEffect(() => {
-    const xr = gl.xr as any
-
-    if (xr.setFoveation) {
-      xr.setFoveation(foveation)
-    }
-  }, [gl, foveation])
-
-  React.useEffect(() => {
-    const session = gl.xr.getSession()
-
-    const handleInputSourcesChange = (event: Event | XRInputSourceChangeEvent) =>
-      setHandTracking(Object.values((event as XRInputSourceChangeEvent).session.inputSources).some((source) => source.hand))
-
-    session?.addEventListener('inputsourceschange', handleInputSourcesChange)
-
-    setHandTracking(Object.values(session?.inputSources ?? []).some((source) => source.hand))
-
-    return () => {
-      session?.removeEventListener('inputsourceschange', handleInputSourcesChange)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPresenting])
-
-  const value = React.useMemo(
-    () => ({ controllers, isPresenting, isHandTracking, player }),
-    [controllers, isPresenting, isHandTracking, player]
-  )
-
-  return (
-    <XRContext.Provider value={value}>
-      <primitive object={player} dispose={null}>
-        <primitive object={camera} dispose={null} />
-      </primitive>
-      {children}
-    </XRContext.Provider>
-  )
-}
-
-export interface XRCanvasProps extends ContainerProps {
-  sessionInit?: XRSessionInit
+export interface XRProps {
   /**
    * Enables foveated rendering,
    * 0 = no foveation = full resolution,
    * 1 = maximum foveation = the edges render at lower resolution
    */
   foveation?: number
+  /** Type of WebXR reference space to use. */
+  referenceSpace?: XRReferenceSpaceType
+  children: React.ReactNode
+}
+function XR({ foveation = 0, referenceSpace = 'local-floor', children }: XRProps) {
+  const gl = useThree((state) => state.gl)
+  const camera = useThree((state) => state.camera)
+  const player = useXR((state) => state.player)
+  const set = useXR((state) => state.set)
+  const session = useXR((state) => state.session)
+
+  React.useEffect(() => {
+    const ids = [0, 1]
+    ids.forEach((id) => {
+      XRController.make(
+        id,
+        gl,
+        (controller) => {
+          player.add(controller.controller)
+          player.add(controller.grip)
+          player.add(controller.hand)
+          set((state) => ({ controllers: [...state.controllers, controller] }))
+        },
+        (controller) => {
+          player.remove(controller.controller)
+          player.remove(controller.grip)
+          player.remove(controller.hand)
+          set((state) => ({ controllers: state.controllers.filter((it) => it !== controller) }))
+        }
+      )
+    })
+  }, [gl, set, player])
+
+  React.useEffect(() => {
+    const handleSessionChange = () => set(() => ({ session: gl.xr.getSession() }))
+    gl.xr.addEventListener('sessionstart', handleSessionChange)
+    gl.xr.addEventListener('sessionend', handleSessionChange)
+
+    return () => {
+      gl.xr.removeEventListener('sessionstart', handleSessionChange)
+      gl.xr.removeEventListener('sessionend', handleSessionChange)
+    }
+  }, [gl.xr, set])
+
+  React.useEffect(() => {
+    if (gl.xr.getFoveation() !== foveation) {
+      gl.xr.setFoveation(foveation)
+      set(() => ({ foveation }))
+    }
+  }, [gl, foveation, set])
+
+  React.useEffect(() => {
+    gl.xr.setReferenceSpaceType(referenceSpace)
+    set(() => ({ referenceSpace }))
+  }, [gl.xr, referenceSpace, set])
+
+  React.useEffect(() => {
+    const handleInputSourcesChange = (event: Event | XRInputSourceChangeEvent) =>
+      set(() => ({ isHandTracking: Object.values((event as XRInputSourceChangeEvent).session.inputSources).some((source) => source.hand) }))
+    session?.addEventListener('inputsourceschange', handleInputSourcesChange)
+    set(() => ({ isHandTracking: Object.values(session?.inputSources ?? []).some((source) => source.hand) }))
+
+    return () => {
+      session?.removeEventListener('inputsourceschange', handleInputSourcesChange)
+    }
+  }, [session, set])
+
+  return (
+    <>
+      <primitive object={player} dispose={null}>
+        {camera && <primitive object={camera} />}
+      </primitive>
+      {children}
+    </>
+  )
 }
 
-function XRCanvas({ foveation, children, ...rest }: Omit<XRCanvasProps, 'sessionInit'>) {
+export interface XRCanvasProps extends ContainerProps, XRProps {}
+export const XRCanvas = React.forwardRef<HTMLCanvasElement, XRCanvasProps>(function XRCanvas(
+  { foveation, referenceSpace, children, ...rest },
+  forwardedRef
+) {
   return (
-    <Canvas {...rest}>
-      <XR foveation={foveation}>
+    <Canvas {...rest} ref={forwardedRef}>
+      <XR foveation={foveation} referenceSpace={referenceSpace}>
         <InteractionManager>{children}</InteractionManager>
       </XR>
     </Canvas>
   )
-}
+})
 
 export function useXRButton(
   mode: 'AR' | 'VR',
@@ -204,7 +232,14 @@ export function XRButton({ mode, sessionInit }: { mode: 'AR' | 'VR'; sessionInit
   return null
 }
 
-export function VRCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
+export interface VRCanvasProps extends XRCanvasProps {
+  /**
+   * `XRSession` configuration options.
+   * @see https://immersive-web.github.io/webxr/#feature-dependencies
+   */
+  sessionInit?: XRSessionInit
+}
+export function VRCanvas({ sessionInit, children, ...rest }: VRCanvasProps) {
   return (
     <XRCanvas {...rest}>
       <XRButton mode="VR" sessionInit={sessionInit} />
@@ -213,7 +248,14 @@ export function VRCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
   )
 }
 
-export function ARCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
+export interface ARCanvasProps extends XRCanvasProps {
+  /**
+   * `XRSession` configuration options.
+   * @see https://immersive-web.github.io/webxr/#feature-dependencies
+   */
+  sessionInit?: XRSessionInit
+}
+export function ARCanvas({ sessionInit, children, ...rest }: ARCanvasProps) {
   return (
     <XRCanvas {...rest}>
       <XRButton mode="AR" sessionInit={sessionInit} />
@@ -222,17 +264,15 @@ export function ARCanvas({ children, sessionInit, ...rest }: XRCanvasProps) {
   )
 }
 
-export const useXR = () => {
-  const xrValue = React.useContext(XRContext)
-  const interactionsValue = React.useContext(InteractionsContext)
-
-  const contextValue = React.useMemo(() => ({ ...xrValue, ...interactionsValue }), [xrValue, interactionsValue])
-
-  return contextValue
+export function useXR<T = XRState>(
+  selector: StateSelector<XRState, T> = (state) => state as unknown as T,
+  equalityFn?: EqualityChecker<T>
+) {
+  return XRStore(selector, equalityFn)
 }
 
-export const useController = (handedness: XRHandedness) => {
-  const { controllers } = useXR()
+export function useController(handedness: XRHandedness) {
+  const controllers = useXR((state) => state.controllers)
   const controller = React.useMemo(() => controllers.find((it) => it.inputSource.handedness === handedness), [handedness, controllers])
 
   return controller

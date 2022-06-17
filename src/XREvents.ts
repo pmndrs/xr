@@ -9,12 +9,10 @@ export interface XREvent {
 
 export type XREventType = 'select' | 'selectstart' | 'selectend' | 'squeeze' | 'squeezestart' | 'squeezeend'
 
-export const useXREvent = (event: XREventType, handler: (e: XREvent) => any, { handedness }: { handedness?: XRHandedness } = {}) => {
+export function useXREvent(event: XREventType, handler: (e: XREvent) => any, handedness?: XRHandedness) {
   const handlerRef = React.useRef<(e: XREvent) => any>(handler)
-  React.useEffect(() => {
-    handlerRef.current = handler
-  }, [handler])
-  const { controllers: allControllers } = useXR()
+  React.useEffect(() => void (handlerRef.current = handler), [handler])
+  const allControllers = useXR((state) => state.controllers)
 
   React.useEffect(() => {
     const controllers = handedness ? allControllers.filter((it) => it.inputSource.handedness === handedness) : allControllers

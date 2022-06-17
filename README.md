@@ -132,7 +132,7 @@ import { VRCanvas } from '@react-three/xr'
 Hook that can only be used by components inside `XRCanvas` component.
 
 ```jsx
-const { controllers, player, isPresenting } = useXR()
+const { controllers, player, session } = useXR()
 ```
 
 Controllers is an array of `XRController` objects
@@ -215,8 +215,8 @@ useEffect(() => {
 
 @react-three/xr@4 is updated to react@18 and @react-three/fiber@8
 
-* See [@react-three-fiber migration guide](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
-* `useXRFrame` is removed, use [extended useFrame](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
+- See [@react-three-fiber migration guide](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
+- `useXRFrame` is removed, use [extended useFrame](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
 
 ## Explore Examples
 

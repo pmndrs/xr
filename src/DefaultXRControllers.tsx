@@ -7,9 +7,11 @@ import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
 
 const modelFactory = new XRControllerModelFactory()
 const modelCache = new WeakMap<Group, any>()
+
 export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshBasicMaterialParameters }) {
-  const { scene } = useThree()
-  const { controllers, hoverState } = useXR()
+  const scene = useThree((state) => state.scene)
+  const controllers = useXR((state) => state.controllers)
+  const hoverState = useXR((state) => state.hoverState)
   const [rays] = React.useState(new Map<number, Mesh>())
 
   // Show ray line when hovering objects
@@ -19,10 +21,7 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshB
       if (!ray) return
 
       const intersection: Intersection = hoverState[it.inputSource.handedness].values().next().value
-      if (!intersection || it.inputSource.handedness === 'none') {
-        ray.visible = false
-        return
-      }
+      if (!intersection || it.inputSource.handedness === 'none') return (ray.visible = false)
 
       const rayLength = intersection.distance
 

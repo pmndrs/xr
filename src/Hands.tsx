@@ -4,9 +4,14 @@ import { useEffect } from 'react'
 import { HandModel } from './webxr/HandModel.js'
 import { useXR } from './XR'
 
-export function Hands(props: { modelLeft?: string; modelRight?: string }) {
-  const { scene, gl } = useThree()
-  const { controllers } = useXR()
+export interface HandsProps {
+  modelLeft?: string
+  modelRight?: string
+}
+export function Hands(props: HandsProps) {
+  const scene = useThree((state) => state.scene)
+  const gl = useThree((state) => state.gl)
+  const controllers = useXR((state) => state.controllers)
 
   useEffect(() => {
     controllers.forEach(({ hand, inputSource }) => {

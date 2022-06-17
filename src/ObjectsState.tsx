@@ -14,10 +14,10 @@ import type { Object3D } from 'three'
  */
 export type ObjectsState<Key extends string, Value> = Map<Object3D, Record<Key, Value[]>>
 export const ObjectsState = {
-  make: function <Key extends string, Value>() {
+  make<Key extends string, Value>() {
     return new Map() as ObjectsState<Key, Value>
   },
-  add: function <Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key, value: Value) {
+  add<Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key, value: Value) {
     if (!state.has(object)) {
       state.set(object, { key: [value] } as any)
     }
@@ -27,7 +27,7 @@ export const ObjectsState = {
     }
     entry[key].push(value)
   },
-  delete: function <Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key, value: Value) {
+  delete<Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key, value: Value) {
     const entry = state.get(object)
     if (!entry || !entry[key]) return
     entry[key] = entry[key].filter((it) => it !== value)
@@ -41,11 +41,11 @@ export const ObjectsState = {
       state.delete(object)
     }
   },
-  has: function <Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key) {
+  has<Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key) {
     const entry = state.get(object)
     return !!(entry && entry[key])
   },
-  get: function <Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key) {
+  get<Key extends string, Value>(state: ObjectsState<Key, Value>, object: Object3D, key: Key) {
     const entry = state.get(object)
     return entry && entry[key]
   }
