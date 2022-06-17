@@ -6,6 +6,7 @@ import { Matrix4, Group } from 'three'
 import create, { GetState, SetState } from 'zustand'
 
 export interface XRContextValue {
+  session: XRSession | null
   controllers: XRController[]
   isPresenting: boolean
   player: Group
@@ -98,6 +99,15 @@ interface SessionStoreState {
 }
 const sessionStore = create<SessionStoreState>((set, get) => ({ get, set, session: null }))
 
+export type XREventType = 'sessionstart' | 'sessionend' | 'visibilitychange' | 'inputsourceschange'
+export class XREvent extends Event {
+  readonly session: XRSession
+
+  constructor(type: XREventType, session: XRSession) {
+    super(type)
+    this.session = session
+  }
+}
 export interface XRProps {
   /**
    * Enables foveated rendering,
@@ -107,12 +117,29 @@ export interface XRProps {
   foveation?: number
   /** Type of WebXR reference space to use. */
   referenceSpace?: XRReferenceSpaceType
+  /** Called as an XRSession is requested. */
+  onSessionStart?: (event: XREvent) => void
+  /** Called after an XRSession is terminated. */
+  onSessionEnd?: (event: XREvent) => void
+  /** Called when an XRSession is hidden or unfocused. */
+  onVisibilityChange?: (event: XREvent) => void
+  /** Called when available inputsources change. */
+  onInputSourcesChange?: (event: XREvent) => void
   children: React.ReactNode
 }
 
-export function XR({ foveation = 0, referenceSpace = 'local-floor', children }: XRProps) {
+export function XR({
+  foveation = 0,
+  referenceSpace = 'local-floor',
+  onSessionStart,
+  onSessionEnd,
+  onVisibilityChange,
+  onInputSourcesChange,
+  children
+}: XRProps) {
   const gl = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
+  const [session, setSession] = React.useState<XRSession | null>(null)
   const [isPresenting, setIsPresenting] = React.useState(() => gl.xr.isPresenting)
   const [isHandTracking, setHandTracking] = React.useState(false)
   const [player] = React.useState(() => new Group())
@@ -121,9 +148,10 @@ export function XR({ foveation = 0, referenceSpace = 'local-floor', children }: 
   React.useEffect(
     () =>
       sessionStore.subscribe(({ session }) => {
-        const activeSession = gl.xr.getSession()
-        if (!session || session === activeSession) return
+        const previousSession = gl.xr.getSession()
+        if (previousSession && !session) previousSession.end()
 
+        setSession(session)
         gl.xr.setSession(session!)
       }),
     [gl.xr]
@@ -131,6 +159,27 @@ export function XR({ foveation = 0, referenceSpace = 'local-floor', children }: 
 
   React.useEffect(() => void gl.xr.setFoveation?.(foveation), [gl.xr, foveation])
   React.useEffect(() => void gl.xr.setReferenceSpaceType?.(referenceSpace), [gl.xr, referenceSpace])
+
+  React.useEffect(() => {
+    if (!session) return
+
+    const handleSessionStart = () => onSessionStart?.(new XREvent('sessionstart', session))
+    const handleSessionEnd = () => onSessionEnd?.(new XREvent('sessionend', session))
+    const handleVisibilityChange = () => onVisibilityChange?.(new XREvent('visibilitychange', session))
+    const handleInputSourcesChange = () => onInputSourcesChange?.(new XREvent('inputsourceschange', session))
+
+    gl.xr.addEventListener('sessionstart', handleSessionStart)
+    gl.xr.addEventListener('sessionend', handleSessionEnd)
+    session.addEventListener('visibilitychange', handleVisibilityChange)
+    session.addEventListener('inputsourceschange', handleInputSourcesChange)
+
+    return () => {
+      gl.xr.removeEventListener('sessionstart', handleSessionStart)
+      gl.xr.removeEventListener('sessionend', handleSessionEnd)
+      session.removeEventListener('visibilitychange', handleVisibilityChange)
+      session.removeEventListener('inputsourceschange', handleInputSourcesChange)
+    }
+  }, [session, gl.xr])
 
   React.useEffect(() => {
     const handleSessionChange = () => setIsPresenting(gl.xr.isPresenting)
@@ -161,8 +210,8 @@ export function XR({ foveation = 0, referenceSpace = 'local-floor', children }: 
   }, [isPresenting])
 
   const value = React.useMemo(
-    () => ({ controllers, isPresenting, isHandTracking, player }),
-    [controllers, isPresenting, isHandTracking, player]
+    () => ({ session, controllers, isPresenting, isHandTracking, player }),
+    [session, controllers, isPresenting, isHandTracking, player]
   )
 
   return (
@@ -254,10 +303,26 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
 })
 
 export interface XRCanvasProps extends ContainerProps, XRProps {}
-export function XRCanvas({ foveation, referenceSpace, children, ...rest }: XRCanvasProps) {
+export function XRCanvas({
+  foveation,
+  referenceSpace,
+  onSessionStart,
+  onSessionEnd,
+  onVisibilityChange,
+  onInputSourcesChange,
+  children,
+  ...rest
+}: XRCanvasProps) {
   return (
     <Canvas {...rest}>
-      <XR foveation={foveation} referenceSpace={referenceSpace}>
+      <XR
+        foveation={foveation}
+        referenceSpace={referenceSpace}
+        onSessionStart={onSessionStart}
+        onSessionEnd={onSessionEnd}
+        onVisibilityChange={onVisibilityChange}
+        onInputSourcesChange={onInputSourcesChange}
+      >
         <InteractionManager>{children}</InteractionManager>
       </XR>
     </Canvas>
