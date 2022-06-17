@@ -141,14 +141,6 @@ interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
    * @see https://immersive-web.github.io/webxr/#feature-dependencies
    */
   sessionInit?: XRSessionInit
-  /**
-   * Enables foveated rendering,
-   * 0 = no foveation = full resolution,
-   * 1 = maximum foveation = the edges render at lower resolution
-   */
-  foveation?: number
-  /** Type of WebXR reference space to use. */
-  referenceSpace?: XRReferenceSpaceType
   /** Whether this button should only enter an `XRSession` */
   enterOnly?: boolean
   /** Whether this button should only exit an `XRSession` */
