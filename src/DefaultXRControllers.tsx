@@ -3,24 +3,25 @@ import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
+import { XRController } from 'XRController'
 
 const modelFactory = new XRControllerModelFactory()
 const modelCache = new WeakMap<THREE.Group, any>()
+const rays = new Map<XRController, THREE.Mesh>()
 
 export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: THREE.MeshBasicMaterialParameters }) {
   const scene = useThree((state) => state.scene)
   const controllers = useXR((state) => state.controllers)
   const hoverState = useXR((state) => state.hoverState)
-  const [rays] = React.useState(() => new Map<number, THREE.Mesh>())
 
   // Show ray line when hovering objects
   useFrame(() => {
-    controllers.forEach((it) => {
-      const ray = rays.get(it.index)
+    controllers.forEach((target) => {
+      const ray = rays.get(target)
       if (!ray) return
 
-      const intersection: THREE.Intersection = hoverState[it.inputSource.handedness].values().next().value
-      if (!intersection || it.inputSource.handedness === 'none') return (ray.visible = false)
+      const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
+      if (!intersection || target.inputSource.handedness === 'none') return (ray.visible = false)
 
       const rayLength = intersection.distance
 
@@ -36,17 +37,17 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: THREE
   React.useEffect(() => {
     const cleanups: any[] = []
 
-    controllers.forEach((it) => {
+    controllers.forEach((target) => {
       // Attach 3D model of the controller
       let model: THREE.Object3D
-      if (modelCache.has(it.controller)) {
-        model = modelCache.get(it.controller)
+      if (modelCache.has(target.controller)) {
+        model = modelCache.get(target.controller)
       } else {
-        model = modelFactory.createControllerModel(it.controller) as any
-        it.controller.dispatchEvent({ type: 'connected', data: it.inputSource, fake: true })
-        modelCache.set(it.controller, model)
+        model = modelFactory.createControllerModel(target.controller) as any
+        target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
+        modelCache.set(target.controller, model)
       }
-      it.grip.add(model)
+      target.grip.add(model)
 
       // Add Ray line (used for hovering)
       const ray = new THREE.Mesh()
@@ -54,13 +55,13 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: THREE
       ray.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff), opacity: 0.8, transparent: true, ...rayMaterial })
       ray.geometry = new THREE.BoxBufferGeometry(0.002, 1, 0.002)
 
-      rays.set(it.index, ray)
-      it.controller.add(ray)
+      rays.set(target, ray)
+      target.controller.add(ray)
 
       cleanups.push(() => {
-        it.grip.remove(model)
-        it.controller.remove(ray)
-        rays.delete(it.controller.id)
+        target.grip.remove(model)
+        target.controller.remove(ray)
+        rays.delete(target)
       })
     })
 

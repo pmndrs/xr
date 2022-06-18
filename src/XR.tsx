@@ -57,11 +57,12 @@ const XRStore = create<XRState>((set, get) => ({
   }
 }))
 
+const hitMatrix = new THREE.Matrix4()
+
 export type HitTestCallback = (hitMatrix: THREE.Matrix4, hit: XRHitTestResult) => void
 export function useHitTest(hitTestCallback: HitTestCallback) {
   const hitTestSource = React.useRef<XRHitTestSource | undefined>()
   const hitTestSourceRequested = React.useRef(false)
-  const [hitMatrix] = React.useState(() => new THREE.Matrix4())
 
   useFrame((state, _, frame) => {
     if (!state.gl.xr.isPresenting) return
@@ -90,9 +91,8 @@ export function useHitTest(hitTestCallback: HitTestCallback) {
       const referenceSpace = state.gl.xr.getReferenceSpace()
 
       if (referenceSpace) {
-        const hitTestResults = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
-        if (hitTestResults.length) {
-          const hit = hitTestResults[0]
+        const [hit] = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
+        if (hit) {
           const pose = hit.getPose(referenceSpace)
 
           if (pose) {
