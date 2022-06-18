@@ -106,7 +106,7 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
   useXREvent('squeezeend', triggerEvent('onSqueezeEnd'))
   useXREvent('squeezestart', triggerEvent('onSqueezeStart'))
 
-  return children
+  return <>{children}</>
 }
 
 export function useInteraction(ref: React.RefObject<THREE.Object3D>, type: XRInteractionType, handler?: XRInteractionHandler) {
