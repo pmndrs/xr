@@ -100,8 +100,14 @@ interface SessionStoreState {
 }
 const sessionStore = create<SessionStoreState>((set, get) => ({ get, set, session: null }))
 
-export type XRManagerEvent = { type: 'sessionstart' | 'sessionend'; target: WebXRManager }
-export type XRControllerEvent = { type: XRControllerEventType; data?: XRInputSource }
+export interface XRManagerEvent {
+  type: 'sessionstart' | 'sessionend'
+  target: WebXRManager
+}
+export interface XRControllerEvent {
+  type: XRControllerEventType
+  data?: XRInputSource
+}
 export interface XRCanvasEvent {
   readonly nativeEvent: XRManagerEvent | XRControllerEvent | XRSessionEvent
   readonly session: XRSession
@@ -192,20 +198,19 @@ export function XR({
   }, [gl.xr])
 
   React.useEffect(() => {
-    const session = gl.xr.getSession()
+    if (!session) return
 
     const handleInputSourcesChange = (event: Event | XRInputSourceChangeEvent) =>
       setHandTracking(Object.values((event as XRInputSourceChangeEvent).session.inputSources).some((source) => source.hand))
 
-    session?.addEventListener('inputsourceschange', handleInputSourcesChange)
+    session.addEventListener('inputsourceschange', handleInputSourcesChange)
 
-    setHandTracking(Object.values(session?.inputSources ?? []).some((source) => source.hand))
+    setHandTracking(Object.values(session.inputSources).some((source) => source.hand))
 
     return () => {
-      session?.removeEventListener('inputsourceschange', handleInputSourcesChange)
+      session.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPresenting])
+  }, [session, isPresenting])
 
   const value = React.useMemo(
     () => ({ session, controllers, isPresenting, isHandTracking, player }),
