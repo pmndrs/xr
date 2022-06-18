@@ -1,26 +1,25 @@
-import { useXR } from './XR'
-import React, { useEffect } from 'react'
-import type { MeshBasicMaterialParameters, Group, Object3D, Intersection } from 'three'
-import { Color, Mesh, MeshBasicMaterial, BoxBufferGeometry } from 'three'
+import * as React from 'react'
+import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { useXR } from './XR'
 import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
 
 const modelFactory = new XRControllerModelFactory()
-const modelCache = new WeakMap<Group, any>()
+const modelCache = new WeakMap<THREE.Group, any>()
 
-export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshBasicMaterialParameters }) {
+export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: THREE.MeshBasicMaterialParameters }) {
   const scene = useThree((state) => state.scene)
   const controllers = useXR((state) => state.controllers)
   const hoverState = useXR((state) => state.hoverState)
-  const [rays] = React.useState(new Map<number, Mesh>())
+  const [rays] = React.useState(() => new Map<number, THREE.Mesh>())
 
   // Show ray line when hovering objects
   useFrame(() => {
     controllers.forEach((it) => {
-      const ray = rays.get(it.controller.id)
+      const ray = rays.get(it.index)
       if (!ray) return
 
-      const intersection: Intersection = hoverState[it.inputSource.handedness].values().next().value
+      const intersection: THREE.Intersection = hoverState[it.inputSource.handedness].values().next().value
       if (!intersection || it.inputSource.handedness === 'none') return (ray.visible = false)
 
       const rayLength = intersection.distance
@@ -34,34 +33,34 @@ export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: MeshB
     })
   })
 
-  useEffect(() => {
+  React.useEffect(() => {
     const cleanups: any[] = []
 
-    controllers.forEach(({ controller, grip, inputSource }) => {
+    controllers.forEach((it) => {
       // Attach 3D model of the controller
-      let model: Object3D
-      if (modelCache.has(controller)) {
-        model = modelCache.get(controller)
+      let model: THREE.Object3D
+      if (modelCache.has(it.controller)) {
+        model = modelCache.get(it.controller)
       } else {
-        model = modelFactory.createControllerModel(controller) as any
-        controller.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
-        modelCache.set(controller, model)
+        model = modelFactory.createControllerModel(it.controller) as any
+        it.controller.dispatchEvent({ type: 'connected', data: it.inputSource, fake: true })
+        modelCache.set(it.controller, model)
       }
-      grip.add(model)
+      it.grip.add(model)
 
       // Add Ray line (used for hovering)
-      const ray = new Mesh()
+      const ray = new THREE.Mesh()
       ray.rotation.set(Math.PI / 2, 0, 0)
-      ray.material = new MeshBasicMaterial({ color: new Color(0xffffff), opacity: 0.8, transparent: true, ...rayMaterial })
-      ray.geometry = new BoxBufferGeometry(0.002, 1, 0.002)
+      ray.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff), opacity: 0.8, transparent: true, ...rayMaterial })
+      ray.geometry = new THREE.BoxBufferGeometry(0.002, 1, 0.002)
 
-      rays.set(controller.id, ray)
-      controller.add(ray)
+      rays.set(it.index, ray)
+      it.controller.add(ray)
 
       cleanups.push(() => {
-        grip.remove(model)
-        controller.remove(ray)
-        rays.delete(controller.id)
+        it.grip.remove(model)
+        it.controller.remove(ray)
+        rays.delete(it.controller.id)
       })
     })
 

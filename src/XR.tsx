@@ -1,38 +1,37 @@
 import * as React from 'react'
+import * as THREE from 'three'
+import create, { EqualityChecker, GetState, SetState, StateSelector } from 'zustand'
 import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
 import { ARButton } from './webxr/ARButton'
 import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
 import { ObjectsState } from './ObjectsState'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
-import type { Intersection, Object3D, WebGLRenderer } from 'three'
-import { Matrix4, Group } from 'three'
-import create, { EqualityChecker, GetState, SetState, StateSelector } from 'zustand'
 
 export interface XRState {
   set: SetState<XRState>
   get: GetState<XRState>
 
   controllers: XRController[]
-  player: Group
+  player: THREE.Group
   isHandTracking: boolean
   session: XRSession | null
   foveation: number
   referenceSpace: XRReferenceSpaceType
 
-  hoverState: Record<XRHandedness, Map<Object3D, Intersection>>
+  hoverState: Record<XRHandedness, Map<THREE.Object3D, THREE.Intersection>>
   interactions: ObjectsState<XRInteractionType, XRInteractionHandler>
-  hasInteraction: (object: Object3D, eventType: XRInteractionType) => boolean
-  getInteraction: (object: Object3D, eventType: XRInteractionType) => XRInteractionHandler[] | undefined
-  addInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
-  removeInteraction: (object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
+  hasInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => boolean
+  getInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => XRInteractionHandler[] | undefined
+  addInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
+  removeInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
 }
 const XRStore = create<XRState>((set, get) => ({
   set,
   get,
 
   controllers: [],
-  player: new Group(),
+  player: new THREE.Group(),
   isHandTracking: false,
   session: null,
   foveation: 0,
@@ -44,25 +43,25 @@ const XRStore = create<XRState>((set, get) => ({
     none: new Map()
   },
   interactions: ObjectsState.make<XRInteractionType, XRInteractionHandler>(),
-  hasInteraction(object: Object3D, eventType: XRInteractionType) {
+  hasInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
     return ObjectsState.has(get().interactions, object, eventType)
   },
-  getInteraction(object: Object3D, eventType: XRInteractionType) {
+  getInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
     return ObjectsState.get(get().interactions, object, eventType)
   },
-  addInteraction(object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+  addInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
     ObjectsState.add(get().interactions, object, eventType, handler)
   },
-  removeInteraction(object: Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+  removeInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
     ObjectsState.delete(get().interactions, object, eventType, handler)
   }
 }))
 
-export type HitTestCallback = (hitMatrix: Matrix4, hit: XRHitTestResult) => void
+export type HitTestCallback = (hitMatrix: THREE.Matrix4, hit: XRHitTestResult) => void
 export function useHitTest(hitTestCallback: HitTestCallback) {
   const hitTestSource = React.useRef<XRHitTestSource | undefined>()
   const hitTestSourceRequested = React.useRef(false)
-  const [hitMatrix] = React.useState(() => new Matrix4())
+  const [hitMatrix] = React.useState(() => new THREE.Matrix4())
 
   useFrame((state, _, frame) => {
     if (!state.gl.xr.isPresenting) return
@@ -125,25 +124,25 @@ function XR({ foveation = 0, referenceSpace = 'local-floor', children }: XRProps
   const session = useXR((state) => state.session)
 
   React.useEffect(() => {
-    const ids = [0, 1]
-    ids.forEach((id) => {
-      XRController.make(
-        id,
-        gl,
-        (controller) => {
-          player.add(controller.controller)
-          player.add(controller.grip)
-          player.add(controller.hand)
-          set((state) => ({ controllers: [...state.controllers, controller] }))
-        },
-        (controller) => {
-          player.remove(controller.controller)
-          player.remove(controller.grip)
-          player.remove(controller.hand)
-          set((state) => ({ controllers: state.controllers.filter((it) => it !== controller) }))
-        }
-      )
+    const handlers = [0, 1].map((id) => {
+      const controller = new XRController(id, gl)
+      const onConnected = () => set((state) => ({ controllers: [...state.controllers, controller] }))
+      const onDisconnected = () => set((state) => ({ controllers: state.controllers.filter((it) => it !== controller) }))
+
+      controller.addEventListener('connected', onConnected)
+      controller.addEventListener('disconnected', onDisconnected)
+      player.add(controller)
+
+      return () => {
+        controller.removeEventListener('connected', onConnected)
+        controller.removeEventListener('disconnected', onDisconnected)
+        player.remove(controller)
+      }
     })
+
+    return () => {
+      handlers.forEach((cleanup) => cleanup())
+    }
   }, [gl, set, player])
 
   React.useEffect(() => {
@@ -206,7 +205,7 @@ export const XRCanvas = React.forwardRef<HTMLCanvasElement, XRCanvasProps>(funct
 
 export function useXRButton(
   mode: 'AR' | 'VR',
-  gl: WebGLRenderer,
+  gl: THREE.WebGLRenderer,
   sessionInit?: XRSessionInit,
   container?: React.MutableRefObject<HTMLElement>
 ) {

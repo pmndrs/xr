@@ -1,8 +1,7 @@
+import * as React from 'react'
 import { useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
-
-import { HandModel } from './webxr/HandModel.js'
 import { useXR } from './XR'
+import { HandModel } from './webxr/HandModel.js'
 
 export interface HandsProps {
   modelLeft?: string
@@ -13,7 +12,7 @@ export function Hands(props: HandsProps) {
   const gl = useThree((state) => state.gl)
   const controllers = useXR((state) => state.controllers)
 
-  useEffect(() => {
+  React.useEffect(() => {
     controllers.forEach(({ hand, inputSource }) => {
       const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
       if (handModel) {
