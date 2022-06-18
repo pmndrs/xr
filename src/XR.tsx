@@ -5,7 +5,6 @@ import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-thre
 import { ARButton } from './webxr/ARButton'
 import { VRButton } from './webxr/VRButton'
 import { XRController } from './XRController'
-import { ObjectsState } from './ObjectsState'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
 
 export interface XRState {
@@ -20,7 +19,7 @@ export interface XRState {
   referenceSpace: XRReferenceSpaceType
 
   hoverState: Record<XRHandedness, Map<THREE.Object3D, THREE.Intersection>>
-  interactions: ObjectsState<XRInteractionType, XRInteractionHandler>
+  interactions: Map<THREE.Object3D, Record<XRInteractionType, XRInteractionHandler[]>>
   hasInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => boolean
   getInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => XRInteractionHandler[] | undefined
   addInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
@@ -42,18 +41,37 @@ const XRStore = create<XRState>((set, get) => ({
     right: new Map(),
     none: new Map()
   },
-  interactions: ObjectsState.make<XRInteractionType, XRInteractionHandler>(),
+  interactions: new Map(),
   hasInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
-    return ObjectsState.has(get().interactions, object, eventType)
+    return !!get().interactions.get(object)?.[eventType].length
   },
   getInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
-    return ObjectsState.get(get().interactions, object, eventType)
+    return get().interactions.get(object)?.[eventType]
   },
   addInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
-    ObjectsState.add(get().interactions, object, eventType, handler)
+    const interactions = get().interactions
+    if (!interactions.has(object)) {
+      interactions.set(object, {
+        onHover: [],
+        onBlur: [],
+        onSelectStart: [],
+        onSelectEnd: [],
+        onSelect: [],
+        onSqueeze: [],
+        onSqueezeEnd: [],
+        onSqueezeStart: []
+      })
+    }
+
+    const target = interactions.get(object)!
+    target[eventType].push(handler)
   },
   removeInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
-    ObjectsState.delete(get().interactions, object, eventType, handler)
+    const target = get().interactions.get(object)
+    if (target) {
+      const interactionIndex = target[eventType].indexOf(handler)
+      if (interactionIndex !== -1) target[eventType].splice(interactionIndex, 1)
+    }
   }
 }))
 
