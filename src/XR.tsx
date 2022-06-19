@@ -114,20 +114,20 @@ export interface XRCanvasEvent {
 }
 export interface XRProps {
   /**
-   * Enables foveated rendering,
-   * 0 = no foveation = full resolution,
+   * Enables foveated rendering
+   * 0 = no foveation = full resolution
    * 1 = maximum foveation = the edges render at lower resolution
    */
   foveation?: number
-  /** Type of WebXR reference space to use. */
+  /** Type of WebXR reference space to use */
   referenceSpace?: XRReferenceSpaceType
-  /** Called as an XRSession is requested. */
+  /** Called as an XRSession is requested */
   onSessionStart?: (event: XRCanvasEvent) => void
-  /** Called after an XRSession is terminated. */
+  /** Called after an XRSession is terminated */
   onSessionEnd?: (event: XRCanvasEvent) => void
   /** Called when an XRSession is hidden or unfocused. */
   onVisibilityChange?: (event: XRCanvasEvent) => void
-  /** Called when available inputsources change. */
+  /** Called when available inputsources change */
   onInputSourcesChange?: (event: XRCanvasEvent) => void
   children: React.ReactNode
 }
@@ -238,7 +238,7 @@ export interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElem
   /** The type of `XRSession` to create */
   mode: 'AR' | 'VR' | 'inline'
   /**
-   * `XRSession` configuration options.
+   * `XRSession` configuration options
    * @see https://immersive-web.github.io/webxr/#feature-dependencies
    */
   sessionInit?: XRSessionInit

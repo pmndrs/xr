@@ -137,7 +137,7 @@ interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** The type of `XRSession` to create */
   mode: 'AR' | 'VR' | 'inline'
   /**
-   * `XRSession` configuration options.
+   * `XRSession` configuration options
    * @see https://immersive-web.github.io/webxr/#feature-dependencies
    */
   sessionInit?: XRSessionInit
