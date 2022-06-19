@@ -219,7 +219,7 @@ function XR({
   return (
     <>
       <primitive object={player} dispose={null}>
-        {camera && <primitive object={camera} />}
+        <primitive object={camera} />
       </primitive>
       {children}
     </>
