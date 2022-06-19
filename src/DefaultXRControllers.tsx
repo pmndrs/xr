@@ -1,75 +1,95 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { useFrame, useThree } from '@react-three/fiber'
-import { XRControllerModelFactory } from 'three-stdlib'
+import { XRControllerModelFactory, XRControllerModel } from 'three-stdlib'
+import { useFrame, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
 
 const modelFactory = new XRControllerModelFactory()
-const modelCache = new WeakMap<THREE.Group, any>()
-const rays = new Map<XRController, THREE.Mesh>()
 
-export function DefaultXRControllers({ rayMaterial = {} }: { rayMaterial?: THREE.MeshBasicMaterialParameters }) {
-  const scene = useThree((state) => state.scene)
-  const controllers = useXR((state) => state.controllers)
+export interface ControllerModelProps extends Partial<JSX.IntrinsicElements['object3D']> {
+  target: XRController
+}
+export const ControllerModel = React.forwardRef<XRControllerModel, ControllerModelProps>(function ControllerModel(
+  { target, ...props },
+  forwardedRef
+) {
+  const model = React.useMemo(() => {
+    const controllerModel = modelFactory.createControllerModel(target.controller)
+    target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
+    return controllerModel
+  }, [target.controller, target.inputSource])
+
+  return <>{createPortal(<primitive {...props} ref={forwardedRef} object={model} />, target.grip)}</>
+})
+
+export interface RayProps extends Partial<JSX.IntrinsicElements['mesh']> {
+  target: XRController
+}
+export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target, ...props }, forwardedRef) {
+  const ray = React.useRef<THREE.Mesh>(null!)
   const hoverState = useXR((state) => state.hoverState)
+  React.useImperativeHandle(forwardedRef, () => ray.current)
 
   // Show ray line when hovering objects
   useFrame(() => {
-    controllers.forEach((target) => {
-      const ray = rays.get(target)
-      if (!ray) return
+    if (!ray.current) return
 
-      const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
-      if (!intersection || target.inputSource.handedness === 'none') return (ray.visible = false)
+    const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
+    if (!intersection || target.inputSource.handedness === 'none') return (ray.current.visible = false)
 
-      const rayLength = intersection.distance
+    const rayLength = intersection.distance
 
-      // Tiny offset to clip ray on AR devices
-      // that don't have handedness set to 'none'
-      const offset = -0.01
-      ray.visible = true
-      ray.scale.y = rayLength + offset
-      ray.position.z = -rayLength / 2 - offset
-    })
+    // Tiny offset to clip ray on AR devices
+    // that don't have handedness set to 'none'
+    const offset = -0.01
+    ray.current.visible = true
+    ray.current.scale.y = rayLength + offset
+    ray.current.position.z = -rayLength / 2 - offset
   })
 
-  React.useEffect(() => {
-    const cleanups: any[] = []
+  return (
+    <>
+      {createPortal(
+        <mesh ref={ray} {...props}>
+          <boxGeometry args={[0.002, 1, 0.002]} />
+          <meshBasicMaterial opacity={0.8} transparent />
+        </mesh>,
+        target.controller
+      )}
+    </>
+  )
+})
 
-    controllers.forEach((target) => {
-      // Attach 3D model of the controller
-      let model: THREE.Object3D
-      if (modelCache.has(target.controller)) {
-        model = modelCache.get(target.controller)
-      } else {
-        model = modelFactory.createControllerModel(target.controller) as any
-        target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
-        modelCache.set(target.controller, model)
-      }
-      target.grip.add(model)
-
-      // Add Ray line (used for hovering)
-      const ray = new THREE.Mesh()
-      ray.rotation.set(Math.PI / 2, 0, 0)
-      ray.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff), opacity: 0.8, transparent: true, ...rayMaterial })
-      ray.geometry = new THREE.BoxBufferGeometry(0.002, 1, 0.002)
-
-      rays.set(target, ray)
-      target.controller.add(ray)
-
-      cleanups.push(() => {
-        target.grip.remove(model)
-        target.controller.remove(ray)
-        rays.delete(target)
-      })
-    })
-
-    return () => {
-      cleanups.forEach((fn) => fn())
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controllers, scene, rays, JSON.stringify(rayMaterial)])
-
-  return null
+export interface DefaultXRControllersProps extends Partial<JSX.IntrinsicElements['group']> {
+  /** Optional material props to pass to controllers' ray indicators */
+  rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
 }
+export const DefaultXRControllers = React.forwardRef<THREE.Group, DefaultXRControllersProps>(function DefaultXRControllers(
+  { rayMaterial = {}, ...props },
+  forwardedRef
+) {
+  const controllers = useXR((state) => state.controllers)
+  const rayMaterialProps = React.useMemo(
+    () =>
+      Object.entries(rayMaterial).reduce(
+        (acc, [key, value]) => ({
+          ...acc,
+          [`material-${key}`]: value
+        }),
+        {}
+      ),
+    [rayMaterial]
+  )
+
+  return (
+    <group {...props} ref={forwardedRef}>
+      {controllers.map((controller, i) => (
+        <group key={`controller-${i}`}>
+          <ControllerModel target={controller} />
+          <Ray target={controller} {...rayMaterialProps} />
+        </group>
+      ))}
+    </group>
+  )
+})
