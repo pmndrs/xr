@@ -119,13 +119,6 @@ export function useHitTest(hitTestCallback: HitTestCallback) {
   })
 }
 
-interface SessionStoreState {
-  set: SetState<SessionStoreState>
-  get: GetState<SessionStoreState>
-  session: XRSession | null
-}
-const sessionStore = create<SessionStoreState>((set, get) => ({ get, set, session: null }))
-
 export interface XRManagerEvent {
   type: 'sessionstart' | 'sessionend'
   target: THREE.WebXRManager
@@ -172,17 +165,12 @@ function XR({
   const set = useXR((state) => state.set)
   const session = useXR((state) => state.session)
 
-  React.useEffect(
-    () =>
-      sessionStore.subscribe(({ session }) => {
-        const previousSession = gl.xr.getSession()
-        if (previousSession && !session) previousSession.end()
+  React.useEffect(() => {
+    const activeSession = gl.xr.getSession()
+    if (activeSession && !session) activeSession.end()
 
-        set(() => ({ session }))
-        gl.xr.setSession(session!)
-      }),
-    [gl.xr, set]
-  )
+    gl.xr.setSession(session!)
+  }, [gl.xr, session])
 
   React.useEffect(() => {
     const handlers = [0, 1].map((id) => {
@@ -301,19 +289,19 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
     async (event: any) => {
       onClick?.(event)
 
-      const sessionState = sessionStore.getState()
+      const xrState = XRStore.getState()
 
       // Bail if button only configures exit/enter
-      if (sessionState.session && enterOnly) return
-      if (!sessionState.session && exitOnly) return
+      if (xrState.session && enterOnly) return
+      if (!xrState.session && exitOnly) return
 
       // Exit/enter session
-      if (sessionState.session) {
-        await sessionState.session.end()
+      if (xrState.session) {
+        await xrState.session.end()
         setStatus('exited')
       } else {
         const session = await navigator.xr!.requestSession(sessionMode, sessionInit)
-        sessionState.set(() => ({ session }))
+        xrState.set(() => ({ session }))
         setStatus('entered')
       }
     },
