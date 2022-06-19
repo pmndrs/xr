@@ -176,9 +176,7 @@ function XR({
       }
     })
 
-    return () => {
-      handlers.forEach((cleanup) => cleanup())
-    }
+    return () => handlers.forEach((cleanup) => cleanup())
   }, [gl, set, player])
 
   React.useEffect(() => void gl.xr.setSession(session!), [gl.xr, session])

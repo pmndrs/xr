@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { XRControllerEvent } from './XREvents'
 
 export class XRController extends THREE.Group {
   readonly index: number
@@ -6,8 +7,6 @@ export class XRController extends THREE.Group {
   readonly grip: THREE.XRGripSpace
   readonly hand: THREE.XRHandSpace
   inputSource!: XRInputSource
-  onConnected: (event: any) => void
-  onDisconnected: (event: any) => void
 
   constructor(index: number, gl: THREE.WebGLRenderer) {
     super()
@@ -24,23 +23,26 @@ export class XRController extends THREE.Group {
     this.visible = false
     this.add(this.controller, this.grip, this.hand)
 
-    this.onConnected = (event: any) => {
-      if (event.fake) return
-
-      this.visible = true
-      this.inputSource = event.data
-      this.dispatchEvent(event)
-    }
-
-    this.onDisconnected = (event: any) => {
-      if (event.fake) return
-
-      this.visible = false
-      this.dispatchEvent(event)
-    }
+    this.onConnected = this.onConnected.bind(this)
+    this.onDisconnected = this.onDisconnected.bind(this)
 
     this.controller.addEventListener('connected', this.onConnected)
     this.controller.addEventListener('disconnected', this.onDisconnected)
+  }
+
+  onConnected(event: XRControllerEvent) {
+    if (event.fake) return
+
+    this.visible = true
+    this.inputSource = event.data!
+    this.dispatchEvent(event)
+  }
+
+  onDisconnected(event: XRControllerEvent) {
+    if (event.fake) return
+
+    this.visible = false
+    this.dispatchEvent(event)
   }
 
   dispose() {

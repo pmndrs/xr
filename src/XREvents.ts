@@ -12,6 +12,8 @@ export type XRControllerEventType = Exclude<THREE.XRControllerEventType, XRSessi
 export interface XRControllerEvent {
   type: XRControllerEventType
   target: XRController
+  data?: XRInputSource
+  fake?: boolean
 }
 
 export type XREventHandler<T extends XREventRepresentation> = (event: XREvent<T>) => void
@@ -19,21 +21,17 @@ export type XREventHandler<T extends XREventRepresentation> = (event: XREvent<T>
 export function useXREvent(event: XRControllerEventType, handler: XREventHandler<XRControllerEvent>, handedness?: XRHandedness) {
   const handlerRef = React.useRef<XREventHandler<XRControllerEvent>>(handler)
   React.useEffect(() => void (handlerRef.current = handler), [handler])
-  const allControllers = useXR((state) => state.controllers)
-  const controllers = React.useMemo(
-    () => (handedness ? allControllers.filter((it) => it.inputSource.handedness === handedness) : allControllers),
-    [handedness, allControllers]
-  )
+  const controllers = useXR((state) => state.controllers)
 
   React.useEffect(() => {
-    const cleanups: any[] = []
+    const targets = handedness ? controllers.filter((it) => it.inputSource.handedness === handedness) : controllers
 
-    controllers.forEach((target) => {
-      const listener = (nativeEvent: any) => handlerRef.current({ nativeEvent, target })
+    const listeners = targets.map((target) => {
+      const listener = (nativeEvent: XRControllerEvent) => handlerRef.current({ nativeEvent, target })
       target.controller.addEventListener(event, listener)
-      cleanups.push(() => target.controller.removeEventListener(event, listener))
+      return () => target.controller.removeEventListener(event, listener)
     })
 
-    return () => cleanups.forEach((fn) => fn())
-  }, [controllers, event])
+    return () => listeners.forEach((cleanup) => cleanup())
+  }, [controllers, handedness, event])
 }
