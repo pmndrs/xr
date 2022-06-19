@@ -74,6 +74,7 @@
   },
   "dependencies": {
     "react-merge-refs": "^1.1.0",
-    "three-stdlib": "^2.8.6"
+    "three-stdlib": "^2.8.6",
+    "zustand": "^3.7.1"
   }
 }

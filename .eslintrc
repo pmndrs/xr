@@ -17,13 +17,13 @@
   "rules": {
     "curly": ["warn", "multi-line", "consistent"],
     "no-console": "off",
+    "no-shadow": "off",
     "no-dupe-class-members": "error",
     "no-empty": "warn",
     "no-undef": "error",
     "no-unused-vars": "error",
     "no-var": "warn",
     "prefer-const": "warn",
-    "no-shadow": "warn",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-uses-vars": "error",
@@ -56,7 +56,9 @@
         "@typescript-eslint/no-inferrable-types": "warn",
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-empty-interface": "off",
-        "@typescript-eslint/ban-ts-ignore": "off"
+        "@typescript-eslint/ban-ts-ignore": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
       }
     }
   ],
