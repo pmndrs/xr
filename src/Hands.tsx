@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useThree } from '@react-three/fiber'
+import { OculusHandModel } from 'three-stdlib'
 import { useXR } from './XR'
-import { HandModel } from './webxr/HandModel.js'
 
 export interface HandsProps {
   modelLeft?: string
@@ -14,13 +14,14 @@ export function Hands(props: HandsProps) {
 
   React.useEffect(() => {
     controllers.forEach(({ hand, inputSource }) => {
-      const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
+      const handModel = hand.children.find((child) => child instanceof OculusHandModel) as OculusHandModel | undefined
       if (handModel) {
         hand.remove(handModel)
         handModel.dispose()
       }
 
-      hand.add(new HandModel(hand, [props.modelLeft, props.modelRight]))
+      const handModels = [props.modelLeft, props.modelRight].filter(Boolean) as string[]
+      hand.add(new OculusHandModel(hand, handModels.length ? handModels : undefined))
 
       // throwing fake event for the Oculus Hand Model so it starts loading
       hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
@@ -28,7 +29,7 @@ export function Hands(props: HandsProps) {
 
     return () => {
       controllers.forEach(({ hand }) => {
-        const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
+        const handModel = hand.children.find((child) => child instanceof OculusHandModel) as OculusHandModel | undefined
         if (handModel) {
           hand.remove(handModel)
           handModel.dispose()

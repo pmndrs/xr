@@ -1,9 +1,9 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { XRControllerModelFactory } from 'three-stdlib'
 import { useXR } from './XR'
-import { XRControllerModelFactory } from './webxr/XRControllerModelFactory'
-import { XRController } from 'XRController'
+import { XRController } from './XRController'
 
 const modelFactory = new XRControllerModelFactory()
 const modelCache = new WeakMap<THREE.Group, any>()
