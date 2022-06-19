@@ -109,7 +109,7 @@ it supports optional third parameter with options
 useXREvent('squeeze', () => console.log('Left controller squeeze'), { handedness: 'left' })
 ```
 
-## VRCanvas, ARCanvas componentss
+## VRCanvas, ARCanvas components
 
 Extended react-three-fiber [Canvas](https://docs.pmnd.rs/react-three-fiber/api/canvas) that includes:
 
@@ -125,6 +125,38 @@ import { VRCanvas } from '@react-three/xr'
 
 <VRCanvas>
   {/* All your regular react-three-fiber elements go here */}
+```
+
+## Custom Button and Canvas
+
+react-xr includes a primitive `XRCanvas` and `XRButton` to compose your canvas and session buttons in your UI.
+
+```tsx
+type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
+interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /** The type of `XRSession` to create */
+  mode: 'AR' | 'VR' | 'inline'
+  /**
+   * `XRSession` configuration options
+   * @see https://immersive-web.github.io/webxr/#feature-dependencies
+   */
+  sessionInit?: XRSessionInit
+  /** Whether this button should only enter an `XRSession` */
+  enterOnly?: boolean
+  /** Whether this button should only exit an `XRSession` */
+  exitOnly?: boolean
+  /** React children, can also accept a callback returning an `XRButtonStatus` */
+  children?: React.ReactNode | ((status: React.ReactNode) => React.ReactNode)
+}
+```
+
+For example, this would be equivalent to `VRCanvas`:
+
+```jsx
+<XRButton mode="VR" sessionInit={sessionInit} />
+<XRCanvas>
+  // ...
+</XRCanvas>
 ```
 
 ## `useXR`
