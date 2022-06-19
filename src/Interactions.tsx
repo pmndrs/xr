@@ -36,7 +36,8 @@ export const InteractionsContext = React.createContext<{
   removeInteraction: warnAboutVRARCanvas
 })
 export function InteractionManager({ children }: { children: any }) {
-  const state = useThree()
+  const raycaster = useThree((state) => state.raycaster)
+  const get = useThree((state) => state.get)
   const { controllers } = useXR()
 
   const [hoverState] = React.useState<Record<XRHandedness, Map<Object3D, Intersection>>>(() => ({
@@ -66,12 +67,12 @@ export function InteractionManager({ children }: { children: any }) {
       const objects = Array.from(interactions.keys())
       const tempMatrix = new Matrix4()
       tempMatrix.identity().extractRotation(controller.matrixWorld)
-      state.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
-      state.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
+      raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
+      raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
 
-      return state.raycaster.intersectObjects(objects, true)
+      return raycaster.intersectObjects(objects, true)
     },
-    [interactions, state.raycaster]
+    [interactions, raycaster]
   )
 
   // Trigger hover and blur events
@@ -87,10 +88,10 @@ export function InteractionManager({ children }: { children: any }) {
       const hits = new Set()
       let intersections = intersect(controller)
 
-      if (state.raycaster.filter) {
+      if (raycaster.filter) {
         // https://github.com/mrdoob/three.js/issues/16031
         // Allow custom userland intersect sort order
-        intersections = state.raycaster.filter(intersections, state)
+        intersections = raycaster.filter(intersections, get())
       } else {
         // Otherwise, filter to first hit
         const hit = intersections.find((i) => i?.object)
