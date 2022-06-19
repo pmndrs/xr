@@ -22,6 +22,8 @@ export type XRInteractionType =
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
+const tempMatrix = new THREE.Matrix4()
+
 export function InteractionManager({ children }: { children: React.ReactNode }) {
   const events = useThree((state) => state.events)
   const get = useThree((state) => state.get)
@@ -35,7 +37,6 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
   const intersect = React.useCallback(
     (controller: THREE.Object3D) => {
       const objects = Array.from(interactions.keys())
-      const tempMatrix = new THREE.Matrix4()
       tempMatrix.identity().extractRotation(controller.matrixWorld)
       raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
