@@ -35,6 +35,9 @@ export const InteractionsContext = React.createContext<{
   addInteraction: warnAboutVRARCanvas,
   removeInteraction: warnAboutVRARCanvas
 })
+
+const tempMatrix = new THREE.Matrix4()
+
 export function InteractionManager({ children }: { children: any }) {
   const raycaster = useThree((state) => state.raycaster)
   const get = useThree((state) => state.get)
@@ -65,7 +68,6 @@ export function InteractionManager({ children }: { children: any }) {
   const intersect = React.useCallback(
     (controller: Object3D) => {
       const objects = Array.from(interactions.keys())
-      const tempMatrix = new Matrix4()
       tempMatrix.identity().extractRotation(controller.matrixWorld)
       raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld)
       raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix)
