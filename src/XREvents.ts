@@ -2,15 +2,22 @@ import * as React from 'react'
 import { XRController } from './XRController'
 import { useXR } from './XR'
 
-export type XREventType = 'select' | 'selectstart' | 'selectend' | 'squeeze' | 'squeezestart' | 'squeezeend'
-export interface XREvent {
-  nativeEvent: any
+export type XREventRepresentation = { type: string; target: any }
+export interface XREvent<T extends XREventRepresentation> {
+  nativeEvent: T
+  target: T['target']
+}
+
+export type XRControllerEventType = Exclude<THREE.XRControllerEventType, XRSessionEventType>
+export interface XRControllerEvent {
+  type: XRControllerEventType
   target: XRController
 }
-export type XREventHandler = (event: XREvent) => void
 
-export function useXREvent(event: XREventType, handler: XREventHandler, handedness?: XRHandedness) {
-  const handlerRef = React.useRef<XREventHandler>(handler)
+export type XREventHandler<T extends XREventRepresentation> = (event: XREvent<T>) => void
+
+export function useXREvent(event: XRControllerEventType, handler: XREventHandler<XRControllerEvent>, handedness?: XRHandedness) {
+  const handlerRef = React.useRef<XREventHandler<XRControllerEvent>>(handler)
   React.useEffect(() => void (handlerRef.current = handler), [handler])
   const allControllers = useXR((state) => state.controllers)
   const controllers = React.useMemo(
