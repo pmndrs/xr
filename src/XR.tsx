@@ -166,13 +166,6 @@ function XR({
   const session = useXR((state) => state.session)
 
   React.useEffect(() => {
-    const activeSession = gl.xr.getSession()
-    if (activeSession && !session) activeSession.end()
-
-    gl.xr.setSession(session!)
-  }, [gl.xr, session])
-
-  React.useEffect(() => {
     const handlers = [0, 1].map((id) => {
       const controller = new XRController(id, gl)
       const onConnected = () => set((state) => ({ controllers: [...state.controllers, controller] }))
@@ -193,6 +186,8 @@ function XR({
       handlers.forEach((cleanup) => cleanup())
     }
   }, [gl, set, player])
+
+  React.useEffect(() => void gl.xr.setSession(session!), [gl.xr, session])
 
   React.useEffect(() => {
     if (gl.xr.getFoveation() !== foveation) {
@@ -295,15 +290,18 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
       if (xrState.session && enterOnly) return
       if (!xrState.session && exitOnly) return
 
+      let session: XRSession | null = null
+
       // Exit/enter session
       if (xrState.session) {
         await xrState.session.end()
         setStatus('exited')
       } else {
-        const session = await navigator.xr!.requestSession(sessionMode, sessionInit)
-        xrState.set(() => ({ session }))
+        session = await navigator.xr!.requestSession(sessionMode, sessionInit)
         setStatus('entered')
       }
+
+      xrState.set(() => ({ session }))
     },
     [onClick, enterOnly, exitOnly, sessionMode, sessionInit]
   )
