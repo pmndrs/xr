@@ -221,7 +221,7 @@ export function RayGrab({ children }: { children: ReactNode }) {
     group.applyMatrix4(controller.matrixWorld)
     group.updateWorldMatrix(false, true)
 
-    previousTransform.current = controller.matrixWorld.clone().invert()
+    previousTransform.current.copy(controller.matrixWorld).invert()
   })
 
   return (

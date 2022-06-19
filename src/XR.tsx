@@ -55,12 +55,13 @@ const useControllers = (group: Group): XRController[] => {
   return controllers
 }
 
+const hitMatrix = new Matrix4()
+
 export function useHitTest(hitTestCallback: (hitMatrix: Matrix4, hit: XRHitTestResult) => void) {
   const { gl } = useThree()
 
   const hitTestSource = React.useRef<XRHitTestSource | undefined>()
   const hitTestSourceRequested = React.useRef(false)
-  const [hitMatrix] = React.useState(() => new Matrix4())
 
   useFrame(() => {
     if (!gl.xr.isPresenting) return
