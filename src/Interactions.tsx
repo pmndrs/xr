@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
-import { useXREvent, XREvent } from './XREvents'
+import { useXREvent, XREvent, XRControllerEvent } from './XREvents'
 
 export interface XRInteractionEvent {
   intersection?: THREE.Intersection
@@ -90,7 +90,7 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
   })
 
   const triggerEvent = React.useCallback(
-    (interaction: XRInteractionType) => (e: XREvent) => {
+    (interaction: XRInteractionType) => (e: XREvent<XRControllerEvent>) => {
       const hovering = hoverState[e.target.inputSource.handedness]
       for (const hovered of hovering.keys()) {
         getInteraction(hovered, interaction)?.forEach((handler) => handler({ target: e.target, intersection: hovering.get(hovered) }))
