@@ -16,12 +16,13 @@ export const ControllerModel = React.forwardRef<XRControllerModel, ControllerMod
 ) {
   const model = React.useMemo(() => modelFactory.createControllerModel(target.controller), [target.controller])
 
+  // Dispatch fake connected event to start loading model on mount
   React.useEffect(
     () => void target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true }),
     [target.controller, target.inputSource]
   )
 
-  return <>{createPortal(<primitive {...props} ref={forwardedRef} object={model} />, target.grip)}</>
+  return <primitive {...props} ref={forwardedRef} object={model} />
 })
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['mesh']> {
@@ -50,15 +51,10 @@ export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target,
   })
 
   return (
-    <>
-      {createPortal(
-        <mesh ref={ray} {...props}>
-          <boxGeometry args={[0.002, 1, 0.002]} />
-          <meshBasicMaterial opacity={0.8} transparent />
-        </mesh>,
-        target.controller
-      )}
-    </>
+    <mesh ref={ray} {...props}>
+      <boxGeometry args={[0.002, 1, 0.002]} />
+      <meshBasicMaterial opacity={0.8} transparent />
+    </mesh>
   )
 })
 
@@ -85,10 +81,10 @@ export const DefaultXRControllers = React.forwardRef<THREE.Group, DefaultXRContr
 
   return (
     <group {...props} ref={forwardedRef}>
-      {controllers.map((controller, i) => (
+      {controllers.map((target, i) => (
         <group key={`controller-${i}`}>
-          <ControllerModel target={controller} />
-          <Ray target={controller} {...rayMaterialProps} />
+          {createPortal(<ControllerModel target={target} />, target.grip)}
+          {createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller)}
         </group>
       ))}
     </group>
