@@ -14,11 +14,12 @@ export const ControllerModel = React.forwardRef<XRControllerModel, ControllerMod
   { target, ...props },
   forwardedRef
 ) {
-  const model = React.useMemo(() => {
-    const controllerModel = modelFactory.createControllerModel(target.controller)
-    target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
-    return controllerModel
-  }, [target.controller, target.inputSource])
+  const model = React.useMemo(() => modelFactory.createControllerModel(target.controller), [target.controller])
+
+  React.useEffect(
+    () => void target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true }),
+    [target.controller, target.inputSource]
+  )
 
   return <>{createPortal(<primitive {...props} ref={forwardedRef} object={model} />, target.grip)}</>
 })
