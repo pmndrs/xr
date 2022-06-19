@@ -239,7 +239,7 @@ const isSSR = typeof window === 'undefined' || !window.navigator || /ServerSideR
 const useIsomorphicLayoutEffect = isSSR ? React.useEffect : React.useLayoutEffect
 
 export type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
-export interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   /** The type of `XRSession` to create */
   mode: 'AR' | 'VR' | 'inline'
   /**
