@@ -23,11 +23,8 @@ function Button(props) {
 }
 
 function PlayerExample() {
-  const { player } = useXR()
-
-  useFrame(() => {
-    player.rotation.x = player.rotation.y += 0.01
-  })
+  const player = useXR((state) => state.player)
+  useFrame(() => void (player.rotation.x = player.rotation.y += 0.01))
 
   return null
 }

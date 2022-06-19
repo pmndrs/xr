@@ -1,22 +1,27 @@
+import * as React from 'react'
 import { useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
-
-import { HandModel } from './webxr/HandModel.js'
+import { OculusHandModel } from 'three-stdlib'
 import { useXR } from './XR'
 
-export function Hands(props: { modelLeft?: string; modelRight?: string }) {
-  const { scene, gl } = useThree()
-  const { controllers } = useXR()
+export interface HandsProps {
+  modelLeft?: string
+  modelRight?: string
+}
+export function Hands(props: HandsProps) {
+  const scene = useThree((state) => state.scene)
+  const gl = useThree((state) => state.gl)
+  const controllers = useXR((state) => state.controllers)
 
-  useEffect(() => {
+  React.useEffect(() => {
     controllers.forEach(({ hand, inputSource }) => {
-      const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
+      const handModel = hand.children.find((child) => child instanceof OculusHandModel) as OculusHandModel | undefined
       if (handModel) {
         hand.remove(handModel)
         handModel.dispose()
       }
 
-      hand.add(new HandModel(hand, [props.modelLeft, props.modelRight]))
+      const handModels = [props.modelLeft, props.modelRight].filter(Boolean) as string[]
+      hand.add(new OculusHandModel(hand, handModels.length ? handModels : undefined))
 
       // throwing fake event for the Oculus Hand Model so it starts loading
       hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
@@ -24,7 +29,7 @@ export function Hands(props: { modelLeft?: string; modelRight?: string }) {
 
     return () => {
       controllers.forEach(({ hand }) => {
-        const handModel = hand.children.find((child) => child instanceof HandModel) as HandModel | undefined
+        const handModel = hand.children.find((child) => child instanceof OculusHandModel) as OculusHandModel | undefined
         if (handModel) {
           hand.remove(handModel)
           handModel.dispose()
