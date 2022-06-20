@@ -58,14 +58,11 @@ export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target,
   )
 })
 
-export interface DefaultXRControllersProps extends Partial<JSX.IntrinsicElements['group']> {
+export interface DefaultXRControllersProps {
   /** Optional material props to pass to controllers' ray indicators */
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
 }
-export const DefaultXRControllers = React.forwardRef<THREE.Group, DefaultXRControllersProps>(function DefaultXRControllers(
-  { rayMaterial = {}, ...props },
-  forwardedRef
-) {
+export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersProps) {
   const controllers = useXR((state) => state.controllers)
   const rayMaterialProps = React.useMemo(
     () =>
@@ -79,14 +76,10 @@ export const DefaultXRControllers = React.forwardRef<THREE.Group, DefaultXRContr
     [rayMaterial]
   )
 
-  return (
-    <group {...props} ref={forwardedRef}>
-      {controllers.map((target, i) => (
-        <group key={`controller-${i}`}>
-          {createPortal(<ControllerModel target={target} />, target.grip)}
-          {createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller)}
-        </group>
-      ))}
+  return controllers.map((target, i) => (
+    <group key={`controller-${i}`}>
+      {createPortal(<ControllerModel target={target} />, target.grip)}
+      {createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller)}
     </group>
-  )
-})
+  ))
+}
