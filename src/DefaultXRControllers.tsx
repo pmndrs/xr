@@ -72,8 +72,10 @@ export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersP
 
   return (
     <>
-      {controllerModels.map((controllerModel, i) => createPortal(<primitive object={controllerModel} />, controllers[i].grip))}
       {controllers.map((target) => createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller))}
+      {controllerModels.map(
+        (controllerModel, i) => controllers[i] && createPortal(<primitive object={controllerModel} />, controllers[i].grip)
+      )}
     </>
   )
 }

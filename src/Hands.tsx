@@ -24,5 +24,5 @@ export function Hands({ modelLeft, modelRight }: HandsProps) {
     return () => hands.forEach((cleanup) => cleanup())
   }, [controllers, modelLeft, modelRight])
 
-  return handModels.map((model, i) => createPortal(<primitive object={model} />, controllers[i].hand))
+  return handModels.map((model, i) => controllers[i] && createPortal(<primitive object={model} />, controllers[i].hand))
 }
