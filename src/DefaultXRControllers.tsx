@@ -31,9 +31,8 @@ export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target,
   })
 
   return (
-    <mesh ref={ray} rotation-x={Math.PI / 2} {...props}>
+    <mesh ref={ray} rotation-x={Math.PI / 2} material-opacity={0.8} material-transparent={true} {...props}>
       <boxGeometry args={[0.002, 1, 0.002]} />
-      <meshBasicMaterial opacity={0.8} transparent />
     </mesh>
   )
 })
