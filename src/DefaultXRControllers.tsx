@@ -6,9 +6,12 @@ import { useXR } from './XR'
 import { XRController } from './XRController'
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['mesh']> {
+  /** The XRController to attach the ray to */
   target: XRController
+  /** Whether to hide the ray on controller blur. Default is `false` */
+  hideOnBlur?: boolean
 }
-export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target, ...props }, forwardedRef) {
+export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target, hideOnBlur = false, ...props }, forwardedRef) {
   const ray = React.useRef<THREE.Mesh>(null!)
   const hoverState = useXR((state) => state.hoverState)
   React.useImperativeHandle(forwardedRef, () => ray.current)
@@ -17,17 +20,22 @@ export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target,
   useFrame(() => {
     if (!ray.current) return
 
-    const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
-    if (!intersection || target.inputSource.handedness === 'none') return (ray.current.visible = false)
+    let rayLength = 1
 
-    const rayLength = intersection.distance
+    const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
+    console.log(intersection && target.inputSource.handedness !== 'none')
+    if (intersection && target.inputSource.handedness !== 'none') {
+      rayLength = intersection.distance
+      if (hideOnBlur) ray.current.visible = false
+    } else if (hideOnBlur) {
+      ray.current.visible = true
+    }
 
     // Tiny offset to clip ray on AR devices
     // that don't have handedness set to 'none'
     const offset = -0.01
-    ray.current.visible = true
-    ray.current.scale.y = rayLength + offset
-    ray.current.position.z = -rayLength / 2 - offset
+    ray.current.scale.y = rayLength * 2 + offset
+    ray.current.position.z = -rayLength / 2
   })
 
   return (
@@ -42,8 +50,10 @@ const modelFactory = new XRControllerModelFactory()
 export interface DefaultXRControllersProps {
   /** Optional material props to pass to controllers' ray indicators */
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
+  /** Whether to hide controllers' rays on blur. Default is `false` */
+  hideRaysOnBlur?: boolean
 }
-export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersProps) {
+export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false }: DefaultXRControllersProps) {
   const controllers = useXR((state) => state.controllers)
   const [controllerModels, setControllerModels] = React.useState<XRControllerModel[]>([])
   const rayMaterialProps = React.useMemo(
@@ -72,9 +82,11 @@ export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersP
 
   return (
     <>
-      {controllers.map((target) => createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller))}
       {controllerModels.map(
         (controllerModel, i) => controllers[i] && createPortal(<primitive object={controllerModel} />, controllers[i].grip)
+      )}
+      {controllers.map((target) =>
+        createPortal(<Ray hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />, target.controller)
       )}
     </>
   )
