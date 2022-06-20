@@ -20,8 +20,7 @@ export function Hands(props: HandsProps) {
         handModel.dispose()
       }
 
-      const handModels = [props.modelLeft, props.modelRight].filter(Boolean) as string[]
-      hand.add(new OculusHandModel(hand, handModels.length ? handModels : undefined))
+      hand.add(new OculusHandModel(hand, props.modelLeft, props.modelRight))
 
       // throwing fake event for the Oculus Hand Model so it starts loading
       hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })
