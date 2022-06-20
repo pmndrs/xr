@@ -2596,10 +2596,26 @@ three-mesh-bvh@^0.5.10:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.12.tgz#7f5ec1b6f13eac7dc85a7a3da307e6c4d4c30525"
   integrity sha512-ehq32H4tBkTGnU5x+WhUqMx7xEl/Z4QJ3+r1uzmSgZf0YqlX7mKhl67YHsJ74667VFdVTcu6JOxb0OOVXxqlsQ==
 
-three-stdlib@^2.10.2, three-stdlib@^2.12.0:
+three-stdlib@^2.10.2:
   version "2.12.0"
   resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.12.0.tgz#88103ac9dc0592d51ffd0e39b5c57650d5b0a9ea"
   integrity sha512-lDMBG4jNJr+XASI9AZpM+Vl8DWVWpVyQS4r64ADY6+l2JD31yf/nhjLHEeEh7Mf7S+Q8b9eDhC3wVIGnjS91DA==
+  dependencies:
+    "@babel/runtime" "^7.16.7"
+    "@webgpu/glslang" "^0.0.15"
+    chevrotain "^10.1.2"
+    draco3d "^1.4.1"
+    fflate "^0.6.9"
+    ktx-parse "^0.2.1"
+    mmd-parser "^1.0.4"
+    opentype.js "^1.3.3"
+    potpack "^1.0.1"
+    zstddec "^0.0.2"
+
+three-stdlib@^2.12.1:
+  version "2.12.1"
+  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.12.1.tgz#b63de05cf7f7803e630a7c0c5887e85ae06178ca"
+  integrity sha512-G3SSsCOBiWa0sjjPt+K28ikQ84Plm/ZVUozMfWagK59kZqBWcaPVXpOThkAgvdBpm2zCWLW3edAoW/4XIbljVQ==
   dependencies:
     "@babel/runtime" "^7.16.7"
     "@webgpu/glslang" "^0.0.15"
