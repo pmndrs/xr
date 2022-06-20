@@ -27,7 +27,6 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
     let rayLength = 1
 
     const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
-    console.log(intersection && target.inputSource.handedness !== 'none')
     if (intersection && target.inputSource.handedness !== 'none') {
       rayLength = intersection.distance
       if (hideOnBlur) ray.current.visible = false
