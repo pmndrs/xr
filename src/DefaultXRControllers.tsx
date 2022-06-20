@@ -20,10 +20,11 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
   )
   React.useImperativeHandle(forwardedRef, () => ray.current)
 
+  // Hide ray when swapping to hand controllers
+  React.useEffect(() => void (ray.current.visible = !target.inputSource.hand), [target.inputSource.hand])
+
   // Show ray line when hovering objects
   useFrame(() => {
-    if (!ray.current) return
-
     let rayLength = 1
 
     const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
