@@ -51,7 +51,7 @@ export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target,
   })
 
   return (
-    <mesh ref={ray} {...props}>
+    <mesh ref={ray} rotation-x={Math.PI / 2} {...props}>
       <boxGeometry args={[0.002, 1, 0.002]} />
       <meshBasicMaterial opacity={0.8} transparent />
     </mesh>
@@ -77,9 +77,9 @@ export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersP
   )
 
   return controllers.map((target, i) => (
-    <group key={`controller-${i}`}>
+    <React.Fragment key={`controller-${i}`}>
       {createPortal(<ControllerModel target={target} />, target.grip)}
       {createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller)}
-    </group>
+    </React.Fragment>
   ))
 }
