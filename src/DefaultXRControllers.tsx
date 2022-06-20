@@ -5,26 +5,6 @@ import { useFrame, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
 
-const modelFactory = new XRControllerModelFactory()
-
-export interface ControllerModelProps extends Partial<JSX.IntrinsicElements['object3D']> {
-  target: XRController
-}
-export const ControllerModel = React.forwardRef<XRControllerModel, ControllerModelProps>(function ControllerModel(
-  { target, ...props },
-  forwardedRef
-) {
-  const model = React.useMemo(() => modelFactory.createControllerModel(target.controller), [target.controller])
-
-  // Dispatch fake connected event to start loading model on mount
-  React.useEffect(
-    () => void target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true }),
-    [target.controller, target.inputSource]
-  )
-
-  return <primitive {...props} ref={forwardedRef} object={model} />
-})
-
 export interface RayProps extends Partial<JSX.IntrinsicElements['mesh']> {
   target: XRController
 }
@@ -58,12 +38,15 @@ export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target,
   )
 })
 
+const modelFactory = new XRControllerModelFactory()
+
 export interface DefaultXRControllersProps {
   /** Optional material props to pass to controllers' ray indicators */
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
 }
 export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersProps) {
   const controllers = useXR((state) => state.controllers)
+  const [controllerModels, setControllerModels] = React.useState<XRControllerModel[]>([])
   const rayMaterialProps = React.useMemo(
     () =>
       Object.entries(rayMaterial).reduce(
@@ -76,10 +59,22 @@ export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersP
     [rayMaterial]
   )
 
-  return controllers.map((target, i) => (
-    <React.Fragment key={`controller-${i}`}>
-      {createPortal(<ControllerModel target={target} />, target.grip)}
-      {createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller)}
-    </React.Fragment>
-  ))
+  React.useEffect(() => {
+    const controllerModels = controllers.map((target) => {
+      const controllerModel = modelFactory.createControllerModel(target.controller)
+      setControllerModels((entries) => [...entries, controllerModel])
+      target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
+
+      return () => setControllerModels((entries) => entries.filter((entry) => entry !== controllerModel))
+    })
+
+    return () => controllerModels.forEach((cleanup) => cleanup())
+  }, [controllers])
+
+  return (
+    <>
+      {controllerModels.map((controllerModel, i) => createPortal(<primitive object={controllerModel} />, controllers[i].grip))}
+      {controllers.map((target) => createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller))}
+    </>
+  )
 }

@@ -9,18 +9,20 @@ export interface HandsProps {
 }
 export function Hands({ modelLeft, modelRight }: HandsProps) {
   const controllers = useXR((state) => state.controllers)
-  const handModels = React.useMemo(
-    () => controllers.map(({ hand }) => [hand, new OculusHandModel(hand, modelLeft, modelRight)]),
-    [controllers, modelLeft, modelRight]
-  )
+  const [handModels, setHandModels] = React.useState<OculusHandModel[]>([])
 
   // Dispatch fake connected event to start loading models on mount
-  React.useEffect(
-    () => void controllers.forEach(({ hand, inputSource }) => hand.dispatchEvent({ type: 'connected', data: inputSource, fake: true })),
-    [controllers]
-  )
+  React.useEffect(() => {
+    const hands = controllers.map((controller) => {
+      const handModel = new OculusHandModel(controller.hand, modelLeft, modelRight)
+      setHandModels((entries) => [...entries, handModel])
+      controller.hand.dispatchEvent({ type: 'connected', data: controller.inputSource, fake: true })
 
-  return handModels.map(([hand, model], i) => (
-    <React.Fragment key={`hand-${i}`}>{createPortal(<primitive object={model} />, hand)}</React.Fragment>
-  ))
+      return () => setHandModels((entries) => entries.filter((entry) => entry !== handModel))
+    })
+
+    return () => hands.forEach((cleanup) => cleanup())
+  }, [controllers, modelLeft, modelRight])
+
+  return handModels.map((model, i) => createPortal(<primitive object={model} />, controllers[i].hand))
 }
