@@ -21,6 +21,7 @@ export type XRInteractionType =
   | 'onSqueeze'
   | 'onSqueezeEnd'
   | 'onSqueezeStart'
+  | 'onSqueezeMissed'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => any
 
@@ -116,6 +117,10 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
         } else {
           if (interaction === 'onSelect' && handlers['onSelectMissed']) {
             for (const handler of handlers['onSelectMissed']) {
+              handler({ target: e.target, intersections })
+            }
+          } else if (interaction === 'onSqueeze' && handlers['onSqueezeMissed']) {
+            for (const handler of handlers['onSqueezeMissed']) {
               handler({ target: e.target, intersections })
             }
           }

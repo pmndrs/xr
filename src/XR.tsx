@@ -61,7 +61,8 @@ const XRStore = create<XRState>((set, get) => ({
         onSelectMissed: [],
         onSqueeze: [],
         onSqueezeEnd: [],
-        onSqueezeStart: []
+        onSqueezeStart: [],
+        onSqueezeMissed: []
       })
     }
 
