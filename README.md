@@ -164,7 +164,7 @@ For example, this would be equivalent to `VRCanvas`:
 Hook that can only be used by components inside `XRCanvas` component.
 
 ```jsx
-const { controllers, player, session } = useXR()
+const { controllers, isPresenting, isHandTracking, player, session, foveation, referenceSpace, ... } = useXR()
 ```
 
 Controllers is an array of `XRController` objects
