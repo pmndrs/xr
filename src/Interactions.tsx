@@ -7,15 +7,17 @@ import { useXREvent, XREvent, XRControllerEvent } from './XREvents'
 
 export interface XRInteractionEvent {
   intersection?: THREE.Intersection
+  intersections: THREE.Intersection[]
   target: XRController
 }
 
 export type XRInteractionType =
   | 'onHover'
   | 'onBlur'
-  | 'onSelectStart'
-  | 'onSelectEnd'
   | 'onSelect'
+  | 'onSelectEnd'
+  | 'onSelectStart'
+  | 'onSelectMissed'
   | 'onSqueeze'
   | 'onSqueezeEnd'
   | 'onSqueezeStart'
@@ -50,7 +52,7 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
   useFrame(() => {
     if (interactions.size === 0) return
 
-    controllers.forEach((target) => {
+    for (const target of controllers) {
       const hovering = hoverState[target.inputSource.handedness]
       const hits = new Set()
       let intersections = intersect(target.controller)
@@ -65,37 +67,60 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
         if (hit) intersections = [hit]
       }
 
-      intersections.forEach((intersection) => {
+      for (const intersection of intersections) {
         let eventObject: THREE.Object3D | null = intersection.object
 
         while (eventObject) {
           if (hasInteraction(eventObject, 'onHover') && !hovering.has(eventObject)) {
-            getInteraction(eventObject, 'onHover')?.forEach((handler) => handler({ target, intersection }))
+            const handlers = getInteraction(eventObject, 'onHover')!
+            for (const handler of handlers) {
+              handler({ target, intersection, intersections })
+            }
           }
 
           hovering.set(eventObject, intersection)
           hits.add(eventObject.id)
           eventObject = eventObject.parent
         }
-      })
+      }
 
       // Trigger blur on all the object that were hovered in the previous frame
       // but missed in this one
       for (const eventObject of hovering.keys()) {
         if (!hits.has(eventObject.id)) {
-          getInteraction(eventObject, 'onBlur')?.forEach((handler) => handler({ target }))
           hovering.delete(eventObject)
+
+          const handlers = getInteraction(eventObject, 'onBlur')
+          if (!handlers) continue
+
+          for (const handler of handlers) {
+            handler({ target, intersections })
+          }
         }
       }
-    })
+    }
   })
 
   const triggerEvent = React.useCallback(
     (interaction: XRInteractionType) => (e: XREvent<XRControllerEvent>) => {
       const hovering = hoverState[e.target.inputSource.handedness]
-      for (const hovered of hovering.keys()) {
-        getInteraction(hovered, interaction)?.forEach((handler) => handler({ target: e.target, intersection: hovering.get(hovered) }))
-      }
+      const intersections = Array.from(hovering.values())
+
+      interactions.forEach((handlers, object) => {
+        if (hovering.has(object)) {
+          if (!handlers[interaction]) return
+
+          for (const handler of handlers[interaction]) {
+            handler({ target: e.target, intersections })
+          }
+        } else {
+          if (interaction === 'onSelect' && handlers['onSelectMissed']) {
+            for (const handler of handlers['onSelectMissed']) {
+              handler({ target: e.target, intersections })
+            }
+          }
+        }
+      })
     },
     [hoverState, getInteraction]
   )
