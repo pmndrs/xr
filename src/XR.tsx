@@ -75,46 +75,30 @@ const XRStore = create<XRState>((set, get) => ({
 const hitMatrix = new THREE.Matrix4()
 
 export type HitTestCallback = (hitMatrix: THREE.Matrix4, hit: XRHitTestResult) => void
+
 export function useHitTest(hitTestCallback: HitTestCallback) {
+  const session = useXR((state) => state.session)
   const hitTestSource = React.useRef<XRHitTestSource | undefined>()
-  const hitTestSourceRequested = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!session) return void (hitTestSource.current = undefined)
+
+    session.requestReferenceSpace('viewer').then(async (referenceSpace) => {
+      hitTestSource.current = await session?.requestHitTestSource?.({ space: referenceSpace })
+    })
+  }, [session])
 
   useFrame((state, _, frame) => {
-    if (!state.gl.xr.isPresenting) return
+    if (!frame || !hitTestSource.current) return
 
-    const session = state.gl.xr.getSession()
-    if (!session) return
+    const [hit] = frame.getHitTestResults(hitTestSource.current)
+    if (hit) {
+      const referenceSpace = state.gl.xr.getReferenceSpace()!
+      const pose = hit.getPose(referenceSpace)
 
-    if (!hitTestSourceRequested.current) {
-      session.requestReferenceSpace('viewer').then((referenceSpace: XRReferenceSpace) => {
-        session.requestHitTestSource?.({ space: referenceSpace })?.then((source: XRHitTestSource) => {
-          hitTestSource.current = source
-        })
-      })
-      session.addEventListener(
-        'end',
-        () => {
-          hitTestSourceRequested.current = false
-          hitTestSource.current = undefined
-        },
-        { once: true }
-      )
-      hitTestSourceRequested.current = true
-    }
-
-    if (hitTestSource.current && state.gl.xr.isPresenting && frame) {
-      const referenceSpace = state.gl.xr.getReferenceSpace()
-
-      if (referenceSpace) {
-        const [hit] = frame.getHitTestResults(hitTestSource.current as XRHitTestSource)
-        if (hit) {
-          const pose = hit.getPose(referenceSpace)
-
-          if (pose) {
-            hitMatrix.fromArray(pose.transform.matrix)
-            hitTestCallback(hitMatrix, hit)
-          }
-        }
+      if (pose) {
+        hitMatrix.fromArray(pose.transform.matrix)
+        hitTestCallback(hitMatrix, hit)
       }
     }
   })
@@ -255,7 +239,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
     sessionInit = {
       // @ts-ignore
       domOverlay: { root: document.body },
-      optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking']
+      optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking']
     },
     enterOnly = false,
     exitOnly = false,
