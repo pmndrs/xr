@@ -214,7 +214,7 @@ function XR({
       gl.xr.removeEventListener('sessionstart', handleSessionChange)
       gl.xr.removeEventListener('sessionend', handleSessionChange)
     }
-  }, [gl.xr])
+  }, [set, gl.xr])
 
   React.useEffect(() => {
     if (!session) return
@@ -227,7 +227,7 @@ function XR({
     handleInputSourcesChange({ session })
 
     return () => session.removeEventListener('inputsourceschange', handleInputSourcesChange)
-  }, [session])
+  }, [set, session])
 
   return (
     <>
