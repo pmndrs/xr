@@ -12,8 +12,9 @@ export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   hideOnBlur?: boolean
 }
 export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target, hideOnBlur = false, ...props }, forwardedRef) {
-  const ray = React.useRef<THREE.Line>(null!)
+  const isHandTracking = useXR((state) => state.isHandTracking)
   const hoverState = useXR((state) => state.hoverState)
+  const ray = React.useRef<THREE.Line>(null!)
   const rayGeometry = React.useMemo(
     () => new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]),
     []
@@ -21,7 +22,7 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
   React.useImperativeHandle(forwardedRef, () => ray.current)
 
   // Hide ray when swapping to hand controllers
-  React.useEffect(() => void (ray.current.visible = !target.inputSource.hand), [target.inputSource.hand])
+  React.useEffect(() => void (ray.current.visible = !isHandTracking), [isHandTracking])
 
   // Show ray line when hovering objects
   useFrame(() => {
