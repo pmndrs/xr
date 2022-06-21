@@ -11,6 +11,8 @@ export interface XRState {
   get: GetState<XRState>
 
   controllers: XRController[]
+  isPresenting: boolean
+  isHandTracking: boolean
   player: THREE.Group
   session: XRSession | null
   foveation: number
@@ -28,6 +30,8 @@ const XRStore = create<XRState>((set, get) => ({
   get,
 
   controllers: [],
+  isPresenting: false,
+  isHandTracking: false,
   player: new THREE.Group(),
   session: null,
   foveation: 0,
@@ -199,6 +203,31 @@ function XR({
       session.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
   }, [session, gl.xr, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange])
+
+  React.useEffect(() => {
+    const handleSessionChange = () => set(() => ({ isPresenting: gl.xr.isPresenting }))
+
+    gl.xr.addEventListener('sessionstart', handleSessionChange)
+    gl.xr.addEventListener('sessionend', handleSessionChange)
+
+    return () => {
+      gl.xr.removeEventListener('sessionstart', handleSessionChange)
+      gl.xr.removeEventListener('sessionend', handleSessionChange)
+    }
+  }, [gl.xr])
+
+  React.useEffect(() => {
+    if (!session) return
+
+    const handleInputSourcesChange = (event: { session: XRSession }) =>
+      set(() => ({
+        isHandTracking: Object.values(event.session.inputSources).some((source) => source.hand)
+      }))
+    session.addEventListener('inputsourceschange', handleInputSourcesChange)
+    handleInputSourcesChange({ session })
+
+    return () => session.removeEventListener('inputsourceschange', handleInputSourcesChange)
+  }, [session])
 
   return (
     <>
