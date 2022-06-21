@@ -127,7 +127,7 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
         }
       })
     },
-    [hoverState, getInteraction]
+    [hoverState, interactions]
   )
 
   useXREvent('select', triggerEvent('onSelect'))
