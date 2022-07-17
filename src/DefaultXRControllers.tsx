@@ -66,7 +66,7 @@ export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false 
         }),
         {}
       ),
-    [rayMaterial]
+    [JSON.stringify(rayMaterial)]
   )
 
   React.useEffect(() => {
