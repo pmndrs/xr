@@ -55,12 +55,14 @@ const XRStore = create<XRState>((set, get) => ({
       interactions.set(object, {
         onHover: [],
         onBlur: [],
-        onSelectStart: [],
-        onSelectEnd: [],
         onSelect: [],
+        onSelectEnd: [],
+        onSelectStart: [],
+        onSelectMissed: [],
         onSqueeze: [],
         onSqueezeEnd: [],
-        onSqueezeStart: []
+        onSqueezeStart: [],
+        onSqueezeMissed: []
       })
     }
 
