@@ -88,10 +88,17 @@ export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false 
     }
   }, [controllers])
 
-  return controllers.map((target, i) => (
-    <React.Fragment key={i}>
-      {createPortal(<defaultXRController args={[target]} />, target.grip)}
-      {createPortal(<Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />, target.controller)}
-    </React.Fragment>
-  ))
+  return (
+    <>
+      {controllers.map((target, i) => (
+        <React.Fragment key={i}>
+          {createPortal(<defaultXRController args={[target]} />, target.grip)}
+          {createPortal(
+            <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
+            target.controller
+          )}
+        </React.Fragment>
+      ))}
+    </>
+  )
 }

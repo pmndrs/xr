@@ -26,5 +26,5 @@ export function Hands({ modelLeft, modelRight }: HandsProps) {
     }
   }, [controllers, modelLeft, modelRight])
 
-  return controllers.map(({ hand }) => createPortal(<oculusHandModel args={[hand, modelLeft, modelRight]} />, hand))
+  return <>{controllers.map(({ hand }) => createPortal(<oculusHandModel args={[hand, modelLeft, modelRight]} />, hand))}</>
 }
