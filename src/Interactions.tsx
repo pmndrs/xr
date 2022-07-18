@@ -168,7 +168,7 @@ export interface InteractiveProps {
   onSqueeze?: XRInteractionHandler
   children: React.ReactNode
 }
-export const Interactive = React.forwardRef(function Interactive(
+export const Interactive = React.forwardRef<THREE.Group, InteractiveProps>(function Interactive(
   { onHover, onBlur, onSelectStart, onSelectEnd, onSelect, onSqueezeStart, onSqueezeEnd, onSqueeze, children }: InteractiveProps,
   passedRef
 ) {
@@ -187,29 +187,26 @@ export const Interactive = React.forwardRef(function Interactive(
   return <group ref={ref}>{children}</group>
 })
 
-export function RayGrab({ children }: { children: React.ReactNode }) {
+export interface RayGrabProps extends InteractiveProps {}
+export const RayGrab = React.forwardRef<THREE.Group, RayGrabProps>(function RayGrab(
+  { onSelectStart, onSelectEnd, children, ...rest },
+  forwardedRef
+) {
   const grabbingController = React.useRef<THREE.Object3D>()
-  const groupRef = React.useRef<THREE.Group>()
-  const previousTransform = React.useRef<THREE.Matrix4 | undefined>(undefined)
-
-  useXREvent('selectend', ({ target }) => {
-    if (target.controller === grabbingController.current) {
-      grabbingController.current = undefined
-      previousTransform.current = undefined
-    }
-  })
+  const groupRef = React.useRef<THREE.Group>(null!)
+  const previousTransform = React.useMemo(() => new THREE.Matrix4(), [])
+  React.useImperativeHandle(forwardedRef, () => groupRef.current)
 
   useFrame(() => {
-    if (!grabbingController.current || !previousTransform.current || !groupRef.current) return
-
     const controller = grabbingController.current
     const group = groupRef.current
+    if (!controller) return
 
-    group.applyMatrix4(previousTransform.current)
+    group.applyMatrix4(previousTransform)
     group.applyMatrix4(controller.matrixWorld)
-    group.updateWorldMatrix(false, true)
+    group.updateMatrixWorld()
 
-    previousTransform.current.copy(controller.matrixWorld).invert()
+    previousTransform.copy(controller.matrixWorld).invert()
   })
 
   return (
@@ -217,10 +214,18 @@ export function RayGrab({ children }: { children: React.ReactNode }) {
       ref={groupRef}
       onSelectStart={(e) => {
         grabbingController.current = e.target.controller
-        previousTransform.current = e.target.controller.matrixWorld.clone().invert()
+        previousTransform.copy(e.target.controller.matrixWorld).invert()
+        onSelectStart?.(e)
       }}
+      onSelectEnd={(e) => {
+        if (e.target.controller === grabbingController.current) {
+          grabbingController.current = undefined
+        }
+        onSelectEnd?.(e)
+      }}
+      {...rest}
     >
       {children}
     </Interactive>
   )
-}
+})
