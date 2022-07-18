@@ -24,56 +24,81 @@ npm install @react-three/xr
 
 ## Getting started
 
-Add `VRCanvas` or `ARCanvas` component (or replace your existing react-three-fiber `Canvas` component)
+react-xr provides immersive `VRCanvas` and `ARCanvas` components that extend the react-three-fiber `Canvas`. These components configure an XR button and configures your scene for XR rendering and interaction.
 
 ```jsx
-import { VRCanvas } from '@react-three/xr'
+import { VRCanvas, ARCanvas } from '@react-three/xr'
 
 function App() {
   return (
     <VRCanvas>
-      {/* All your regular react-three-fiber elements go here */}
+      <mesh>
+        <boxGeometry />
+        <meshBasicMaterial color="blue" />
+      </mesh>
     </VRCanvas>
+  )
+}
 ```
+
+See [XRCanvas](#xrcanvas) for a full list of props.
 
 ## Adding controllers to the scene
 
-To get started with default controller models add `DefaultXRControllers` component. It will fetch appropriate input profile models. You can learn more [here](https://github.com/immersive-web/webxr-input-profiles/tree/main/packages/motion-controllers).
+To get started with default controller models add `<DefaultXRControllers />` to your scene. It will fetch appropriate input profile models for your device from [`@webxr-input-profiles/motion-controllers`](https://github.com/immersive-web/webxr-input-profiles/tree/main/packages/motion-controllers).
 
 ```jsx
-import { VRCanvas, DefaultXRControllers } from '@react-three/xr'
-
-<VRCanvas>
-  <DefaultXRControllers />
+<DefaultXRControllers
+  /** Optional material props to pass to controllers' ray indicators */
+  rayMaterial={{ color: 'blue' }}
+  /** Whether to hide controllers' rays on blur. Default is `false` */
+  hideRaysOnBlur={false}
+/>
 ```
 
 You can access controllers' state (position, orientation, etc.) by using `useXR()` hook
 
 ```jsx
 const { controllers } = useXR()
+
+// or, via a Zustand selector
+const controllers = useXR((state) => state.controllers)
 ```
 
 ## Interactions
 
-To interact with objects using controllers you can use `<Interactive>` component or `useInteraction` hook. They allow adding handlers to your objects. All interactions are use rays that are shot from the controllers.
+To interact with objects using controllers you can use `<Interactive>` component or `useInteraction` hook. They allow adding controller event handlers to your objects.
 
-### `<Interactive>`
+### Interactive
 
-Use this component to wrap your objects and pass handlers as props. Supports select, hover, blur and squeeze events.
+`<Interactive />` wraps your objects and accepts XR controller event handlers as props. Supports `select`, `hover`, `blur` and `squeeze` events (see [XR inputsources](https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API/Inputs#input_sources)).
 
 ```jsx
-const [isHovered, setIsHovered] = useState(false)
-
-return (
-  <Interactive onSelect={() => console.log('clicked!')} onHover={() => setIsHovered(true)} onBlur={() => setIsHovered(false)}>
-    <Box />
-  </Interactive>
-)
+<Interactive
+  /* Called when hovered by a controller */
+  onHover={(event: XRInteractionEvent) => ...}
+  /* Called when unhovered by a controller */
+  onBlur={(event: XRInteractionEvent) => ...}
+  /* Called on button press when selected by a controller */
+  onSelectStart={(event: XRInteractionEvent) => ...}
+  /* Called on button release when selected by a controller */
+  onSelectEnd={(event: XRInteractionEvent) => ...}
+  /* Called when selected by a controller */
+  onSelect={(event: XRInteractionEvent) => ...}
+  /* Called on button press when squeezed by a controller */
+  onSqueezeStart={(event: XRInteractionEvent) => ...}
+  /* Called on button release when squeezed by a controller */
+  onSqueezeEnd={(event: XRInteractionEvent) => ...}
+  /* Called when squeezed by a controller */
+  onSqueeze={(event: XRInteractionEvent) => ...}
+>
+  <Box />
+</Interactive>
 ```
 
-### `<RayGrab>`
+### RayGrab
 
-Wrap any object with a `RayGrab` component to make it grabbable
+`<RayGrab />` is a specialized `<Interactive />` that can be grabbed and moved by controllers.
 
 ```jsx
 <RayGrab>
@@ -81,74 +106,36 @@ Wrap any object with a `RayGrab` component to make it grabbable
 </RayGrab>
 ```
 
-### `useInteraction`
+### useInteraction
 
-Attach handler to an existing object in a scene
+`useInteraction` subscribes an existing element to controller events.
+
+The following interaction events are supported: `onHover`, `onBlur`, `onSelect`, `onSelectEnd`, `onSelectStart`, `onSelectMissed`, `onSqueeze`, `onSqueezeEnd`, `onSqueezeStart`, `onSqueezeMissed`.
 
 ```jsx
-const ref = useResource()
+const boxRef = useRef()
+useInteraction(boxRef, 'onSelect', (event: XRInteractionEvent) => ...)
 
-useInteraction(ref, 'onSelect', () => console.log('selected!'))
-
-return <Box ref={ref} />
+<Box ref={boxRef} />
 ```
 
 ## Events
 
-To handle controller events that are not bound to any object in the scene you can use `useXREvent()` hook.
-
-Every controller emits following events: select, selectstart, selectend, squeeze, squeezestart, squeezeend.
+To handle controller events that are not bound to any object in the scene you can use `useXREvent` hook. This is a low-level abstraction that subscribes directly into the native XRInputSource (see [`XRInputSourceEvent`](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceEvent#event_types)).
 
 ```jsx
-useXREvent('squeeze', (e) => console.log('squeeze event has been triggered'))
+useXREvent('squeeze', (event: XRControllerEvent) => ...)
 ```
 
-it supports optional third parameter with options
+It supports an optional third parameter with options for filtering by handedness.
 
 ```jsx
-useXREvent('squeeze', () => console.log('Left controller squeeze'), { handedness: 'left' })
+useXREvent('squeeze', (event: XRControllerEvent) => ..., { handedness: 'left' | 'right' | 'none' })
 ```
 
-## VRCanvas, ARCanvas components
-
-Extended react-three-fiber [Canvas](https://docs.pmnd.rs/react-three-fiber/api/canvas) that includes:
-
-- Button to start VR session
-- Color management
-- VR Mode
-- react-xr context
-
-For VR apps use `VRCanvas` and for AR apps use `ARCanvas`
-
-```jsx
-import { VRCanvas } from '@react-three/xr'
-
-<VRCanvas>
-  {/* All your regular react-three-fiber elements go here */}
-```
-
-## Custom Button and Canvas
+## Custom XRButton and XRCanvas
 
 react-xr includes a primitive `XRCanvas` and `XRButton` to compose your canvas and session buttons in your UI.
-
-```tsx
-type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
-interface XRButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  /** The type of `XRSession` to create */
-  mode: 'AR' | 'VR' | 'inline'
-  /**
-   * `XRSession` configuration options
-   * @see https://immersive-web.github.io/webxr/#feature-dependencies
-   */
-  sessionInit?: XRSessionInit
-  /** Whether this button should only enter an `XRSession` */
-  enterOnly?: boolean
-  /** Whether this button should only exit an `XRSession` */
-  exitOnly?: boolean
-  /** React children, can also accept a callback returning an `XRButtonStatus` */
-  children?: React.ReactNode | ((status: React.ReactNode) => React.ReactNode)
-}
-```
 
 For example, this would be equivalent to `VRCanvas`:
 
@@ -159,31 +146,81 @@ For example, this would be equivalent to `VRCanvas`:
 </XRCanvas>
 ```
 
-## `useXR`
+### XRButton
 
-Hook that can only be used by components inside `XRCanvas` component.
-
-```jsx
-const { controllers, isPresenting, isHandTracking, player, session, foveation, referenceSpace, ... } = useXR()
-```
-
-Controllers is an array of `XRController` objects
+`<XRButton />` is an HTML `<button />` that can be used to init and display info for your WebXR session.
 
 ```jsx
-interface XRController {
-  grip: Group
-  controller: Group
-  inputSource: XRInputSource
-  // ...
-  // more in XRController.ts
-}
+<XRButton
+  /* The type of `XRSession` to create */
+  mode={'AR' | 'VR' | 'inline'}
+  /**
+   * `XRSession` configuration options
+   * @see https://immersive-web.github.io/webxr/#feature-dependencies
+   */
+  sessionInit={{
+    domOverlay: { root: document.body },
+    optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking']
+  }}
+  /** Whether this button should only enter an `XRSession`. Default is `false` */
+  enterOnly={false}
+  /** Whether this button should only exit an `XRSession`. Default is `false` */
+  exitOnly={false}
+>
+  {/* Can accept regular DOM children and has an optional callback with the XR button status (unsupported, exited, entered) */}
+  {(status) => `WebXR ${status}`}
+</XRButton>
 ```
 
-`grip` and `controller` are ThreeJS groups that have the position and orientation of xr controllers. `grip` has an orientation that should be used to render virtual objects such that they appear to be held in the user’s hand and `controller` has an orientation of the preferred pointing ray.
+### XRCanvas
 
-<img width="200" height="200" src="https://i.imgur.com/3stLjfR.jpg" />
+`<XRCanvas />` is a react-three-fiber `<Canvas />` that configures your scene for XR rendering and interaction. It is the base component of `<VRCanvas />` and `<ARCanvas />`.
 
-`inputSource` is the WebXR input source [(MDN)](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource). Note that it will not be available before controller is connected.
+```jsx
+<XRCanvas
+  /**
+   * Enables foveated rendering. Default is `0`
+   * 0 = no foveation, full resolution
+   * 1 = maximum foveation, the edges render at lower resolution
+   */
+  foveation={0}
+  /** Type of WebXR reference space to use. Default is `local-space` */
+  referenceSpace="local-space"
+  /** Called as an XRSession is requested */
+  onSessionStart={(event: XREvent<XRManagerEvent>) => ...}
+  /** Called after an XRSession is terminated */
+  onSessionEnd={(event: XREvent<XRManagerEvent>) => ...}
+  /** Called when an XRSession is hidden or unfocused. */
+  onVisibilityChange={(event: XREvent<XRSessionEvent>) => ...}
+  /** Called when available inputsources change */
+  onInputSourcesChange={(event: XREvent<XRSessionEvent>) => ...}
+>
+  {/* All your regular react-three-fiber elements go here */}
+</XRCanvas>
+```
+
+## useXR
+
+This hook gives you access to the current WebXR state defined by `<XRCanvas />`.
+
+```jsx
+const {
+  // An array of connected `XRController`
+  controllers,
+  // Whether the XR device is presenting in an XR session
+  isPresenting,
+  // Whether hand tracking inputs are active
+  isHandTracking,
+  // A THREE.Group representing the XR viewer or player
+  player,
+  // The active `XRSession`
+  session,
+  // `XRSession` foveation. This can be configured as `foveation` on ARCanvas or VRCanvas. Default is `0`
+  foveation,
+  // `XRSession` reference-space type. This can be configured as `referenceSpace` on ARCanvas or VRCanvas. Default is `local-floor`
+  referenceSpace
+} = useXR()
+```
 
 ## `useController`
 
@@ -213,9 +250,9 @@ useHitTest((hitMatrix, hit) => {
 })
 ```
 
-## `<Hands>`
+## Hands
 
-Add hands model for hand-tracking. Works out of the box on Oculus Browser v13, and can be enabled on versions as low as v10.2 with #webxr-hands experimental flag enabled.
+Add hands model for hand-tracking. Works out of the box on Oculus Browser v13, and can be enabled on versions as low as v10.2 with `#webxr-hands` experimental flag enabled.
 
 ```jsx
 <VRCanvas>
@@ -225,10 +262,11 @@ Add hands model for hand-tracking. Works out of the box on Oculus Browser v13, a
 ### Custom hands model
 
 While a default model is provided, you might want to use a different model that fit your design.
+
 It can work with any glTF model as long as they're ready for WebXR handtracking. If you don't specify a model for one hand it'll use the default one.
 
 ```jsx
-<Hands modelLeft={'/model_left.gltf'} modelRight={'/model_right.glb'} />
+<Hands modelLeft="/model-left.glb" modelRight="model-right.glb />
 ```
 
 ## Player
@@ -242,13 +280,6 @@ useEffect(() => {
   player.position.x += 5
 }, [])
 ```
-
-## Version 4 migration guide
-
-@react-three/xr@4 is updated to react@18 and @react-three/fiber@8
-
-- See [@react-three-fiber migration guide](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
-- `useXRFrame` is removed, use [extended useFrame](https://docs.pmnd.rs/react-three-fiber/tutorials/v8-migration-guide#extended-useframe)
 
 ## Explore Examples
 
