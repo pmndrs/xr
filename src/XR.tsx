@@ -354,24 +354,28 @@ const buttonStyles: any = {
 }
 
 export interface VRCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-export function VRCanvas({ sessionInit, children, ...rest }: VRCanvasProps) {
+export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(function VRCanvas({ sessionInit, children, ...rest }, ref) {
   return (
     <>
       <XRButton mode="VR" style={buttonStyles} sessionInit={sessionInit} />
-      <XRCanvas {...rest}>{children}</XRCanvas>
+      <XRCanvas ref={ref} {...rest}>
+        {children}
+      </XRCanvas>
     </>
   )
-}
+})
 
 export interface ARCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-export function ARCanvas({ sessionInit, children, ...rest }: ARCanvasProps) {
+export const ARCanvas = React.forwardRef<HTMLCanvasElement, ARCanvasProps>(function ARCanvas({ sessionInit, children, ...rest }, ref) {
   return (
     <>
       <XRButton mode="AR" style={buttonStyles} sessionInit={sessionInit} />
-      <XRCanvas {...rest}>{children}</XRCanvas>
+      <XRCanvas ref={ref} {...rest}>
+        {children}
+      </XRCanvas>
     </>
   )
-}
+})
 
 export function useXR<T = XRState>(
   selector: StateSelector<XRState, T> = (state) => state as unknown as T,
