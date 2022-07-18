@@ -83,12 +83,16 @@ To interact with objects using controllers you can use `<Interactive>` component
   onSelectStart={(event: XRInteractionEvent) => ...}
   /* Called on button release when selected by a controller */
   onSelectEnd={(event: XRInteractionEvent) => ...}
+  /* Called on button release when another interactive is selected by a controller */
+  onSelectMissed={(event: XRInteractionEvent) => ...}
   /* Called when selected by a controller */
   onSelect={(event: XRInteractionEvent) => ...}
   /* Called on button press when squeezed by a controller */
   onSqueezeStart={(event: XRInteractionEvent) => ...}
   /* Called on button release when squeezed by a controller */
   onSqueezeEnd={(event: XRInteractionEvent) => ...}
+  /* Called on button release when another interactive is squeezed by a controller */
+  onSqueezeMissed={(event: XRInteractionEvent) => ...}
   /* Called when squeezed by a controller */
   onSqueeze={(event: XRInteractionEvent) => ...}
 >

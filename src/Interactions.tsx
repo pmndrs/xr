@@ -162,14 +162,28 @@ export interface InteractiveProps {
   onBlur?: XRInteractionHandler
   onSelectStart?: XRInteractionHandler
   onSelectEnd?: XRInteractionHandler
+  onSelectMissed?: XRInteractionHandler
   onSelect?: XRInteractionHandler
   onSqueezeStart?: XRInteractionHandler
   onSqueezeEnd?: XRInteractionHandler
+  onSqueezeMissed?: XRInteractionHandler
   onSqueeze?: XRInteractionHandler
   children: React.ReactNode
 }
 export const Interactive = React.forwardRef<THREE.Group, InteractiveProps>(function Interactive(
-  { onHover, onBlur, onSelectStart, onSelectEnd, onSelect, onSqueezeStart, onSqueezeEnd, onSqueeze, children }: InteractiveProps,
+  {
+    onHover,
+    onBlur,
+    onSelectStart,
+    onSelectEnd,
+    onSelectMissed,
+    onSelect,
+    onSqueezeStart,
+    onSqueezeEnd,
+    onSqueezeMissed,
+    onSqueeze,
+    children
+  }: InteractiveProps,
   passedRef
 ) {
   const ref = React.useRef<THREE.Group>(null!)
@@ -179,9 +193,11 @@ export const Interactive = React.forwardRef<THREE.Group, InteractiveProps>(funct
   useInteraction(ref, 'onBlur', onBlur)
   useInteraction(ref, 'onSelectStart', onSelectStart)
   useInteraction(ref, 'onSelectEnd', onSelectEnd)
+  useInteraction(ref, 'onSelectMissed', onSelectMissed)
   useInteraction(ref, 'onSelect', onSelect)
   useInteraction(ref, 'onSqueezeStart', onSqueezeStart)
   useInteraction(ref, 'onSqueezeEnd', onSqueezeEnd)
+  useInteraction(ref, 'onSqueezeMissed', onSqueezeMissed)
   useInteraction(ref, 'onSqueeze', onSqueeze)
 
   return <group ref={ref}>{children}</group>
