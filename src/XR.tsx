@@ -261,7 +261,7 @@ export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButto
   /** Whether this button should only exit an `XRSession` */
   exitOnly?: boolean
   /** React children, can also accept a callback returning an `XRButtonStatus` */
-  children?: React.ReactNode | ((status: React.ReactNode) => React.ReactNode)
+  children?: React.ReactNode | ((status: XRButtonStatus) => React.ReactNode)
 }
 
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
@@ -290,7 +290,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   }, [sessionMode])
 
   const toggleSession = React.useCallback(
-    async (event: any) => {
+    async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onClick?.(event)
 
       const xrState = XRStore.getState()
