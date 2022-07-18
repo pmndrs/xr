@@ -36,7 +36,7 @@ export const InteractionsContext = React.createContext<{
   removeInteraction: warnAboutVRARCanvas
 })
 
-const tempMatrix = new THREE.Matrix4()
+const tempMatrix = new Matrix4()
 
 export function InteractionManager({ children }: { children: any }) {
   const raycaster = useThree((state) => state.raycaster)
