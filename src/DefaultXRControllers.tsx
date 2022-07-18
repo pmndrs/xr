@@ -5,36 +5,45 @@ import { useFrame, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
 
-export interface RayProps extends Partial<JSX.IntrinsicElements['mesh']> {
+export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
+  /** The XRController to attach the ray to */
   target: XRController
+  /** Whether to hide the ray on controller blur. Default is `false` */
+  hideOnBlur?: boolean
 }
-export const Ray = React.forwardRef<THREE.Mesh, RayProps>(function Ray({ target, ...props }, forwardedRef) {
-  const ray = React.useRef<THREE.Mesh>(null!)
+export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target, hideOnBlur = false, ...props }, forwardedRef) {
+  const isHandTracking = useXR((state) => state.isHandTracking)
   const hoverState = useXR((state) => state.hoverState)
+  const ray = React.useRef<THREE.Line>(null!)
+  const rayGeometry = React.useMemo(
+    () => new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]),
+    []
+  )
   React.useImperativeHandle(forwardedRef, () => ray.current)
+
+  // Hide ray when swapping to hand controllers
+  React.useEffect(() => void (ray.current.visible = !isHandTracking), [isHandTracking])
 
   // Show ray line when hovering objects
   useFrame(() => {
-    if (!ray.current) return
+    let rayLength = 1
 
     const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
-    if (!intersection || target.inputSource.handedness === 'none') return (ray.current.visible = false)
-
-    const rayLength = intersection.distance
+    if (intersection && target.inputSource.handedness !== 'none') {
+      rayLength = intersection.distance
+      if (hideOnBlur) ray.current.visible = false
+    } else if (hideOnBlur) {
+      ray.current.visible = true
+    }
 
     // Tiny offset to clip ray on AR devices
     // that don't have handedness set to 'none'
     const offset = -0.01
-    ray.current.visible = true
-    ray.current.scale.y = rayLength + offset
-    ray.current.position.z = -rayLength / 2 - offset
+    ray.current.scale.z = rayLength + offset
   })
 
-  return (
-    <mesh ref={ray} rotation-x={Math.PI / 2} material-opacity={0.8} material-transparent={true} {...props}>
-      <boxGeometry args={[0.002, 1, 0.002]} />
-    </mesh>
-  )
+  // @ts-ignore TS assumes that JS is for the web, and overrides line w/SVG props
+  return <line ref={ray} geometry={rayGeometry} material-opacity={0.8} material-transparent={true} {...props} />
 })
 
 const modelFactory = new XRControllerModelFactory()
@@ -42,8 +51,10 @@ const modelFactory = new XRControllerModelFactory()
 export interface DefaultXRControllersProps {
   /** Optional material props to pass to controllers' ray indicators */
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
+  /** Whether to hide controllers' rays on blur. Default is `false` */
+  hideRaysOnBlur?: boolean
 }
-export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersProps) {
+export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false }: DefaultXRControllersProps) {
   const controllers = useXR((state) => state.controllers)
   const [controllerModels, setControllerModels] = React.useState<XRControllerModel[]>([])
   const rayMaterialProps = React.useMemo(
@@ -55,7 +66,7 @@ export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersP
         }),
         {}
       ),
-    [rayMaterial]
+    [JSON.stringify(rayMaterial)]
   )
 
   React.useEffect(() => {
@@ -72,9 +83,11 @@ export function DefaultXRControllers({ rayMaterial = {} }: DefaultXRControllersP
 
   return (
     <>
-      {controllers.map((target) => createPortal(<Ray target={target} {...rayMaterialProps} />, target.controller))}
       {controllerModels.map(
         (controllerModel, i) => controllers[i] && createPortal(<primitive object={controllerModel} />, controllers[i].grip)
+      )}
+      {controllers.map((target) =>
+        createPortal(<Ray hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />, target.controller)
       )}
     </>
   )
