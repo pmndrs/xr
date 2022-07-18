@@ -259,19 +259,7 @@ export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButto
 }
 
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
-  {
-    mode,
-    sessionInit = {
-      // @ts-ignore
-      domOverlay: { root: document.body },
-      optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking']
-    },
-    enterOnly = false,
-    exitOnly = false,
-    onClick,
-    children,
-    ...props
-  },
+  { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, children, ...props },
   ref
 ) {
   const [status, setStatus] = React.useState<XRButtonStatus>('exited')
@@ -354,7 +342,16 @@ const buttonStyles: any = {
 }
 
 export interface VRCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(function VRCanvas({ sessionInit, children, ...rest }, ref) {
+export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(function VRCanvas(
+  {
+    sessionInit = {
+      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+    },
+    children,
+    ...rest
+  },
+  ref
+) {
   return (
     <>
       <XRButton mode="VR" style={buttonStyles} sessionInit={sessionInit} />
@@ -366,7 +363,18 @@ export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(funct
 })
 
 export interface ARCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-export const ARCanvas = React.forwardRef<HTMLCanvasElement, ARCanvasProps>(function ARCanvas({ sessionInit, children, ...rest }, ref) {
+export const ARCanvas = React.forwardRef<HTMLCanvasElement, ARCanvasProps>(function ARCanvas(
+  {
+    sessionInit = {
+      // @ts-ignore
+      domOverlay: { root: document.body },
+      optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar']
+    },
+    children,
+    ...rest
+  },
+  ref
+) {
   return (
     <>
       <XRButton mode="AR" style={buttonStyles} sessionInit={sessionInit} />

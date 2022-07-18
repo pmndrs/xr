@@ -140,7 +140,7 @@ react-xr includes a primitive `XRCanvas` and `XRButton` to compose your canvas a
 For example, this would be equivalent to `VRCanvas`:
 
 ```jsx
-<XRButton mode="VR" sessionInit={sessionInit} />
+<XRButton mode="VR" sessionInit={{ optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }} />
 <XRCanvas>
   // ...
 </XRCanvas>
@@ -158,10 +158,7 @@ For example, this would be equivalent to `VRCanvas`:
    * `XRSession` configuration options
    * @see https://immersive-web.github.io/webxr/#feature-dependencies
    */
-  sessionInit={{
-    domOverlay: { root: document.body },
-    optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar', 'local-floor', 'bounded-floor', 'hand-tracking']
-  }}
+  sessionInit={{ optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }}
   /** Whether this button should only enter an `XRSession`. Default is `false` */
   enterOnly={false}
   /** Whether this button should only exit an `XRSession`. Default is `false` */
