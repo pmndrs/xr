@@ -13,7 +13,13 @@ import {
   XRHitTestSource,
   XRInputSourceChangeEvent,
   XRReferenceSpace,
-  WebGLRenderer
+  XRSession,
+  WebXRManager,
+  XRControllerEventType,
+  XRInputSource,
+  XRReferenceSpaceType,
+  XRSessionMode,
+  Navigator
 } from 'three'
 import create, { GetState, SetState } from 'zustand'
 
@@ -123,6 +129,9 @@ export interface XRControllerEvent {
   type: XRControllerEventType
   data?: XRInputSource
 }
+export interface XRSessionEvent extends Event {
+  session: XRSession
+}
 export interface XRCanvasEvent {
   readonly nativeEvent: XRManagerEvent | XRControllerEvent | XRSessionEvent
   readonly session: XRSession
@@ -189,14 +198,14 @@ export function XR({
 
     gl.xr.addEventListener('sessionstart', handleSessionStart)
     gl.xr.addEventListener('sessionend', handleSessionEnd)
-    session.addEventListener('visibilitychange', handleVisibilityChange)
-    session.addEventListener('inputsourceschange', handleInputSourcesChange)
+    session.addEventListener('visibilitychange', handleVisibilityChange as any)
+    session.addEventListener('inputsourceschange', handleInputSourcesChange as any)
 
     return () => {
       gl.xr.removeEventListener('sessionstart', handleSessionStart)
       gl.xr.removeEventListener('sessionend', handleSessionEnd)
-      session.removeEventListener('visibilitychange', handleVisibilityChange)
-      session.removeEventListener('inputsourceschange', handleInputSourcesChange)
+      session.removeEventListener('visibilitychange', handleVisibilityChange as any)
+      session.removeEventListener('inputsourceschange', handleInputSourcesChange as any)
     }
   }, [session, gl.xr, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange])
 
@@ -286,8 +295,8 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
 
   useIsomorphicLayoutEffect(() => {
-    if (!navigator?.xr) return void setStatus('unsupported')
-    navigator.xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
+    if (!(navigator as Navigator)?.xr) return void setStatus('unsupported')
+    ;(navigator as Navigator).xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
   }, [sessionMode])
 
   const toggleSession = React.useCallback(
@@ -305,7 +314,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
         await sessionState.session.end()
         setStatus('exited')
       } else {
-        const session = await navigator.xr!.requestSession(sessionMode, sessionInit)
+        const session = await (navigator as Navigator).xr!.requestSession(sessionMode, sessionInit)
         sessionState.set(() => ({ session }))
         setStatus('entered')
       }
