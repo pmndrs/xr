@@ -1,31 +1,12 @@
 import * as React from 'react'
-import * as THREE from 'three'
 import { Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { OculusHandModel } from 'three-stdlib'
 import { useXR } from './XR'
-import { XRController } from './XRController'
-
-class HandModel extends THREE.Group {
-  readonly target: XRController
-
-  constructor(target: XRController, modelLeft?: string, modelRight?: string) {
-    super()
-    this.target = target
-    this.add(new OculusHandModel(target.hand, modelLeft, modelRight))
-
-    // Send fake connected event (no-op) so model starts loading
-    this.target.hand.dispatchEvent({ type: 'connected', data: this.target.inputSource, fake: true })
-  }
-
-  dispose() {
-    this.target.hand.dispatchEvent({ type: 'disconnected', data: this.target.inputSource, fake: true })
-  }
-}
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      handModel: Object3DNode<HandModel, typeof HandModel>
+      oculusHandModel: Object3DNode<OculusHandModel, typeof OculusHandModel>
     }
   }
 }
@@ -36,7 +17,14 @@ export interface HandsProps {
 }
 export function Hands({ modelLeft, modelRight }: HandsProps) {
   const controllers = useXR((state) => state.controllers)
-  React.useMemo(() => extend({ HandModel }), [])
+  React.useMemo(() => extend({ OculusHandModel }), [])
 
-  return controllers.map((target) => createPortal(<handModel args={[target, modelLeft, modelRight]} />, target.hand))
+  // Send fake connected event (no-op) so models start loading
+  React.useEffect(() => {
+    for (const target of controllers) {
+      target.hand.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
+    }
+  }, [controllers, modelLeft, modelRight])
+
+  return controllers.map(({ hand }) => createPortal(<oculusHandModel args={[hand, modelLeft, modelRight]} />, hand))
 }

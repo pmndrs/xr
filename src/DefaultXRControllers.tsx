@@ -45,19 +45,9 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
 const modelFactory = new XRControllerModelFactory()
 
 class DefaultXRController extends THREE.Group {
-  readonly target: XRController
-
   constructor(target: XRController) {
     super()
-    this.target = target
     this.add(modelFactory.createControllerModel(target.controller))
-
-    // Send fake connected event (no-op) so model starts loading
-    this.target.controller.dispatchEvent({ type: 'connected', data: this.target.inputSource, fake: true })
-  }
-
-  dispose() {
-    this.target.controller.dispatchEvent({ type: 'disconnected', data: this.target.inputSource, fake: true })
   }
 }
 
@@ -90,6 +80,13 @@ export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false 
     [JSON.stringify(rayMaterial)] // eslint-disable-line react-hooks/exhaustive-deps
   )
   React.useMemo(() => extend({ DefaultXRController }), [])
+
+  // Send fake connected event (no-op) so models start loading
+  React.useEffect(() => {
+    for (const target of controllers) {
+      target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
+    }
+  }, [controllers])
 
   return controllers.map((target, i) => (
     <React.Fragment key={i}>
