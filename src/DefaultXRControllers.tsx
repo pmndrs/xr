@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import { XRControllerModelFactory, XRControllerModel } from 'three-stdlib'
-import { useFrame, createPortal } from '@react-three/fiber'
+import { XRControllerModelFactory } from 'three-stdlib'
+import { useFrame, Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
 
@@ -12,7 +12,6 @@ export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   hideOnBlur?: boolean
 }
 export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target, hideOnBlur = false, ...props }, forwardedRef) {
-  const isHandTracking = useXR((state) => state.isHandTracking)
   const hoverState = useXR((state) => state.hoverState)
   const ray = React.useRef<THREE.Line>(null!)
   const rayGeometry = React.useMemo(
@@ -20,9 +19,6 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
     []
   )
   React.useImperativeHandle(forwardedRef, () => ray.current)
-
-  // Hide ray when swapping to hand controllers
-  React.useEffect(() => void (ray.current.visible = !isHandTracking), [isHandTracking])
 
   // Show ray line when hovering objects
   useFrame(() => {
@@ -48,6 +44,31 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
 
 const modelFactory = new XRControllerModelFactory()
 
+class DefaultXRController extends THREE.Group {
+  readonly target: XRController
+
+  constructor(target: XRController) {
+    super()
+    this.target = target
+    this.add(modelFactory.createControllerModel(target.controller))
+
+    // Send fake connected event (no-op) so model starts loading
+    this.target.controller.dispatchEvent({ type: 'connected', data: this.target.inputSource, fake: true })
+  }
+
+  dispose() {
+    this.target.controller.dispatchEvent({ type: 'disconnected', data: this.target.inputSource, fake: true })
+  }
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      defaultXRController: Object3DNode<DefaultXRController, typeof DefaultXRController>
+    }
+  }
+}
+
 export interface DefaultXRControllersProps {
   /** Optional material props to pass to controllers' ray indicators */
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
@@ -56,7 +77,7 @@ export interface DefaultXRControllersProps {
 }
 export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false }: DefaultXRControllersProps) {
   const controllers = useXR((state) => state.controllers)
-  const [controllerModels, setControllerModels] = React.useState<XRControllerModel[]>([])
+  const isHandTracking = useXR((state) => state.isHandTracking)
   const rayMaterialProps = React.useMemo(
     () =>
       Object.entries(rayMaterial).reduce(
@@ -66,29 +87,14 @@ export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false 
         }),
         {}
       ),
-    [JSON.stringify(rayMaterial)]
+    [JSON.stringify(rayMaterial)] // eslint-disable-line react-hooks/exhaustive-deps
   )
+  React.useMemo(() => extend({ DefaultXRController }), [])
 
-  React.useEffect(() => {
-    const controllerModels = controllers.map((target) => {
-      const controllerModel = modelFactory.createControllerModel(target.controller)
-      setControllerModels((entries) => [...entries, controllerModel])
-      target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
-
-      return () => setControllerModels((entries) => entries.filter((entry) => entry !== controllerModel))
-    })
-
-    return () => controllerModels.forEach((cleanup) => cleanup())
-  }, [controllers])
-
-  return (
-    <>
-      {controllerModels.map(
-        (controllerModel, i) => controllers[i] && createPortal(<primitive object={controllerModel} />, controllers[i].grip)
-      )}
-      {controllers.map((target) =>
-        createPortal(<Ray hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />, target.controller)
-      )}
-    </>
-  )
+  return controllers.map((target, i) => (
+    <React.Fragment key={i}>
+      {createPortal(<defaultXRController args={[target]} />, target.grip)}
+      {createPortal(<Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />, target.controller)}
+    </React.Fragment>
+  ))
 }

@@ -1,7 +1,34 @@
 import * as React from 'react'
-import { createPortal } from '@react-three/fiber'
+import * as THREE from 'three'
+import { Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { OculusHandModel } from 'three-stdlib'
 import { useXR } from './XR'
+import { XRController } from './XRController'
+
+class HandModel extends THREE.Group {
+  readonly target: XRController
+
+  constructor(target: XRController, modelLeft?: string, modelRight?: string) {
+    super()
+    this.target = target
+    this.add(new OculusHandModel(target.hand, modelLeft, modelRight))
+
+    // Send fake connected event (no-op) so model starts loading
+    this.target.hand.dispatchEvent({ type: 'connected', data: this.target.inputSource, fake: true })
+  }
+
+  dispose() {
+    this.target.hand.dispatchEvent({ type: 'disconnected', data: this.target.inputSource, fake: true })
+  }
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      handModel: Object3DNode<HandModel, typeof HandModel>
+    }
+  }
+}
 
 export interface HandsProps {
   modelLeft?: string
@@ -9,20 +36,7 @@ export interface HandsProps {
 }
 export function Hands({ modelLeft, modelRight }: HandsProps) {
   const controllers = useXR((state) => state.controllers)
-  const [handModels, setHandModels] = React.useState<OculusHandModel[]>([])
+  React.useMemo(() => extend({ HandModel }), [])
 
-  // Dispatch fake connected event to start loading models on mount
-  React.useEffect(() => {
-    const hands = controllers.map((controller) => {
-      const handModel = new OculusHandModel(controller.hand, modelLeft, modelRight)
-      setHandModels((entries) => [...entries, handModel])
-      controller.hand.dispatchEvent({ type: 'connected', data: controller.inputSource, fake: true })
-
-      return () => setHandModels((entries) => entries.filter((entry) => entry !== handModel))
-    })
-
-    return () => hands.forEach((cleanup) => cleanup())
-  }, [controllers, modelLeft, modelRight])
-
-  return handModels.map((model, i) => controllers[i] && createPortal(<primitive object={model} />, controllers[i].hand))
+  return controllers.map((target) => createPortal(<handModel args={[target, modelLeft, modelRight]} />, target.hand))
 }
