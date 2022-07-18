@@ -1,17 +1,18 @@
-import { createRoot } from 'react-dom/client'
-import { useState, useRef } from 'react'
+import * as React from 'react'
+import * as THREE from 'three'
+import * as ReactDOM from 'react-dom/client'
 import { VRCanvas, Hands, useXR, Interactive, useHitTest, DefaultXRControllers } from '@react-three/xr'
 import { Box, Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 
-function Button(props) {
-  const [hover, setHover] = useState(false)
-  const [color, setColor] = useState(0x123456)
+function Button(props: JSX.IntrinsicElements['mesh']) {
+  const [hover, setHover] = React.useState(false)
+  const [color, setColor] = React.useState(0x123456)
 
   return (
     <Interactive onSelect={() => setColor((Math.random() * 0xffffff) | 0)} onHover={() => setHover(true)} onBlur={() => setHover(false)}>
-      <Box scale={hover ? [1.5, 1.5, 1.5] : [1, 1, 1]} args={[0.4, 0.1, 0.1]} {...props}>
-        <meshStandardMaterial attach="material" color={color} />
+      <Box {...props} args={[0.4, 0.1, 0.1]} scale={hover ? 1.5 : 1}>
+        <meshStandardMaterial color={color} />
         {false && (
           <Text position={[0, 0, 0.06]} fontSize={0.05} color="#000" anchorX="center" anchorY="middle">
             Hello react-xr!
@@ -30,7 +31,7 @@ function PlayerExample() {
 }
 
 function HitTestExample() {
-  const boxRef = useRef()
+  const boxRef = React.useRef<THREE.Mesh>(null!)
   useHitTest((hitMatrix) => boxRef.current.applyMatrix4(hitMatrix))
 
   return <Box ref={boxRef} args={[0.1, 0.1, 0.1]} />
@@ -53,5 +54,4 @@ function App() {
   )
 }
 
-const root = createRoot(document.querySelector('#root'))
-root.render(<App />)
+ReactDOM.createRoot(document.getElementById('root')!).render(<App />)

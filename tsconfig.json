@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
-    "lib": ["esnext", "dom"],
+    "outDir": "dist",
     "target": "es6",
-    "module": "commonjs",
+    "module": "ESNext",
+    "lib": ["ESNext", "dom"],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "jsx": "react",
@@ -10,14 +11,11 @@
     "strict": true,
     "skipLibCheck": true,
     "declaration": true,
-    "removeComments": true,
     "emitDeclarationOnly": true,
-    "outDir": "dist",
-    "resolveJsonModule": true,
-    "noImplicitThis": false,
-    "baseUrl": "./src",
-    "allowJs": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@react-three/xr": ["./src"]
+    }
   },
-  "include": ["./src"],
-  "exclude": ["./node_modules/**/*"]
+  "include": ["src/**/*"]
 }
