@@ -117,12 +117,12 @@ export interface XRManagerEvent {
 }
 export interface XRProps {
   /**
-   * Enables foveated rendering
-   * 0 = no foveation = full resolution
-   * 1 = maximum foveation = the edges render at lower resolution
+   * Enables foveated rendering. `Default is `0`
+   * 0 = no foveation, full resolution
+   * 1 = maximum foveation, the edges render at lower resolution
    */
   foveation?: number
-  /** Type of WebXR reference space to use */
+  /** Type of WebXR reference space to use. Default is `local-space` */
   referenceSpace?: XRReferenceSpaceType
   /** Called as an XRSession is requested */
   onSessionStart?: (event: XREvent<XRManagerEvent>) => void
@@ -250,9 +250,9 @@ export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButto
    * @see https://immersive-web.github.io/webxr/#feature-dependencies
    */
   sessionInit?: XRSessionInit
-  /** Whether this button should only enter an `XRSession` */
+  /** Whether this button should only enter an `XRSession`. Default is `false` */
   enterOnly?: boolean
-  /** Whether this button should only exit an `XRSession` */
+  /** Whether this button should only exit an `XRSession`. Default is `false` */
   exitOnly?: boolean
   /** React children, can also accept a callback returning an `XRButtonStatus` */
   children?: React.ReactNode | ((status: XRButtonStatus) => React.ReactNode)

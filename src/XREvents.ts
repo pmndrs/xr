@@ -20,8 +20,11 @@ export interface XRControllerEvent {
 }
 
 export type XREventHandler<T extends XREventRepresentation> = (event: XREvent<T>) => void
+export interface XREventOptions {
+  handedness?: XRHandedness
+}
 
-export function useXREvent(event: XRControllerEventType, handler: XREventHandler<XRControllerEvent>, handedness?: XRHandedness) {
+export function useXREvent(event: XRControllerEventType, handler: XREventHandler<XRControllerEvent>, { handedness }: XREventOptions = {}) {
   const handlerRef = React.useRef<XREventHandler<XRControllerEvent>>(handler)
   React.useEffect(() => void (handlerRef.current = handler), [handler])
   const controllers = useXR((state) => state.controllers)

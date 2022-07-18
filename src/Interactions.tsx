@@ -23,7 +23,7 @@ export type XRInteractionType =
   | 'onSqueezeStart'
   | 'onSqueezeMissed'
 
-export type XRInteractionHandler = (event: XRInteractionEvent) => any
+export type XRInteractionHandler = (event: XRInteractionEvent) => void
 
 const tempMatrix = new THREE.Matrix4()
 
