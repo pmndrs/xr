@@ -68,9 +68,9 @@
     "vite": "^2.9.9"
   },
   "peerDependencies": {
-    "@react-three/fiber": ">=6.0.3",
-    "react": ">=17.0",
-    "three": ">=0.137"
+    "@react-three/fiber": ">=6.0.3 <8",
+    "react": ">=17.0 <18",
+    "three": ">=0.137 <0.141"
   },
   "dependencies": {
     "react-merge-refs": "^1.1.0",
