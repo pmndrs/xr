@@ -4,7 +4,7 @@ import create, { EqualityChecker, GetState, SetState, StateSelector } from 'zust
 import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
-import { XREvent } from './XREvents'
+import { XREventHandler } from './XREvents'
 
 export interface XRState {
   set: SetState<XRState>
@@ -125,13 +125,13 @@ export interface XRProps {
   /** Type of WebXR reference space to use. Default is `local-space` */
   referenceSpace?: XRReferenceSpaceType
   /** Called as an XRSession is requested */
-  onSessionStart?: (event: XREvent<XRManagerEvent>) => void
+  onSessionStart?: XREventHandler<XRManagerEvent>
   /** Called after an XRSession is terminated */
-  onSessionEnd?: (event: XREvent<XRManagerEvent>) => void
+  onSessionEnd?: XREventHandler<XRManagerEvent>
   /** Called when an XRSession is hidden or unfocused. */
-  onVisibilityChange?: (event: XREvent<XRSessionEvent>) => void
+  onVisibilityChange?: XREventHandler<XRSessionEvent>
   /** Called when available inputsources change */
-  onInputSourcesChange?: (event: XREvent<XRSessionEvent>) => void
+  onInputSourcesChange?: XREventHandler<XRSessionEvent>
   children: React.ReactNode
 }
 function XR({
