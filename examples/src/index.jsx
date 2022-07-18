@@ -30,13 +30,10 @@ function PlayerExample() {
 }
 
 function HitTestExample() {
-  const ref = useRef()
+  const boxRef = useRef()
+  useHitTest((hitMatrix) => boxRef.current.applyMatrix4(hitMatrix))
 
-  useHitTest((hit) => {
-    hit.decompose(ref.current.position, ref.current.rotation, ref.current.scale)
-  })
-
-  return <Box ref={ref} args={[0.1, 0.1, 0.1]} />
+  return <Box ref={boxRef} args={[0.1, 0.1, 0.1]} />
 }
 
 function App() {

@@ -232,21 +232,12 @@ const leftController = useController('left')
 
 ## useHitTest
 
-[codesandbox](https://codesandbox.io/s/react-xr-usehittest-demo-5iff9?file=/src/App.tsx)
+Use this hook to perform a hit test for an AR environment. Also see [`XRHitTestResult`](https://developer.mozilla.org/en-US/docs/Web/API/XRFrame/getHitTestResults).
 
-Use this hook to perform a hit test for an AR environment
-
-To enable hit testing in your AR app add `sessionInit` prop to `ARCanvas` like this
-
-```jsx
-<ARCanvas sessionInit={{ requiredFeatures: ['hit-test'] }}>
-```
-
-And then in your component handle hit with `useHitTest` hook
-
-```jsx
-useHitTest((hitMatrix, hit) => {
+```tsx
+useHitTest((hitMatrix: Matrix4, hit: XRHitTestResult) => {
   // use hitMatrix to position any object on the real life surface
+  mesh.applyMatrix4(hitMatrix)
 })
 ```
 
