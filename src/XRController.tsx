@@ -6,7 +6,7 @@ export class XRController extends THREE.Group {
   readonly controller: THREE.XRTargetRaySpace
   readonly grip: THREE.XRGripSpace
   readonly hand: THREE.XRHandSpace
-  inputSource!: XRInputSource
+  public inputSource!: XRInputSource
 
   constructor(index: number, gl: THREE.WebGLRenderer) {
     super()

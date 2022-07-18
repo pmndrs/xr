@@ -148,34 +148,31 @@ function XR({
   const player = useXR((state) => state.player)
   const set = useXR((state) => state.set)
   const session = useXR((state) => state.session)
+  const controllers = useXR((state) => state.controllers)
 
   React.useEffect(() => {
     const handlers = [0, 1].map((id) => {
-      const controller = new XRController(id, gl)
-      const onConnected = () => set((state) => ({ controllers: [...state.controllers, controller] }))
-      const onDisconnected = () => set((state) => ({ controllers: state.controllers.filter((it) => it !== controller) }))
+      const target = new XRController(id, gl)
+      const onConnected = () => set((state) => ({ controllers: [...state.controllers, target] }))
+      const onDisconnected = () => set((state) => ({ controllers: state.controllers.filter((it) => it !== target) }))
 
-      controller.addEventListener('connected', onConnected)
-      controller.addEventListener('disconnected', onDisconnected)
-      player.add(controller)
+      target.addEventListener('connected', onConnected)
+      target.addEventListener('disconnected', onDisconnected)
 
       return () => {
-        controller.removeEventListener('connected', onConnected)
-        controller.removeEventListener('disconnected', onDisconnected)
-        player.remove(controller)
+        target.removeEventListener('connected', onConnected)
+        target.removeEventListener('disconnected', onDisconnected)
       }
     })
 
     return () => handlers.forEach((cleanup) => cleanup())
-  }, [gl, set, player])
+  }, [gl, set])
 
   React.useEffect(() => void gl.xr.setSession(session!), [gl.xr, session])
 
   React.useEffect(() => {
-    if (gl.xr.getFoveation() !== foveation) {
-      gl.xr.setFoveation(foveation)
-      set(() => ({ foveation }))
-    }
+    gl.xr.setFoveation(foveation)
+    set(() => ({ foveation }))
   }, [gl, foveation, set])
 
   React.useEffect(() => {
@@ -233,19 +230,16 @@ function XR({
 
   return (
     <>
-      <primitive object={player} dispose={null}>
+      <primitive object={player}>
         <primitive object={camera} />
+        {controllers.map((controller, i) => (
+          <primitive key={i} object={controller} />
+        ))}
       </primitive>
       {children}
     </>
   )
 }
-
-// React currently throws a warning when using useLayoutEffect on the server.
-// To get around it, we can conditionally useEffect on the server (no-op) and
-// useLayoutEffect on the client.
-const isSSR = typeof window === 'undefined' || !window.navigator || /ServerSideRendering|^Deno\//.test(window.navigator.userAgent)
-const useIsomorphicLayoutEffect = isSSR ? React.useEffect : React.useLayoutEffect
 
 export type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
 export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
@@ -284,7 +278,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   const label = status === 'unsupported' ? `${mode} unsupported` : `${status === 'entered' ? 'Exit' : 'Enter'} ${mode}`
   const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
 
-  useIsomorphicLayoutEffect(() => {
+  React.useEffect(() => {
     if (!navigator?.xr) return void setStatus('unsupported')
     navigator.xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
   }, [sessionMode])
@@ -388,7 +382,10 @@ export function useXR<T = XRState>(
 
 export function useController(handedness: XRHandedness) {
   const controllers = useXR((state) => state.controllers)
-  const controller = React.useMemo(() => controllers.find((it) => it.inputSource.handedness === handedness), [handedness, controllers])
+  const controller = React.useMemo(
+    () => controllers.find(({ inputSource }) => inputSource.handedness === handedness),
+    [handedness, controllers]
+  )
 
   return controller
 }

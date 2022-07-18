@@ -143,20 +143,18 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
 export function useInteraction(ref: React.RefObject<THREE.Object3D>, type: XRInteractionType, handler?: XRInteractionHandler) {
   const addInteraction = useXR((state) => state.addInteraction)
   const removeInteraction = useXR((state) => state.removeInteraction)
-
-  const isPresent = handler !== undefined
   const handlerRef = React.useRef(handler)
   React.useEffect(() => void (handlerRef.current = handler), [handler])
 
   React.useEffect(() => {
-    if (!isPresent || !ref.current) return
-
-    const handlerFn = (e: XRInteractionEvent) => handlerRef.current?.(e)
     const target = ref.current
-    addInteraction(target, type, handlerFn)
+    const handler = handlerRef.current
+    if (!target || !handler) return
 
-    return () => removeInteraction(target, type, handlerFn)
-  }, [type, addInteraction, removeInteraction, isPresent, ref])
+    addInteraction(target, type, handler)
+
+    return () => removeInteraction(target, type, handler)
+  }, [ref, type, addInteraction, removeInteraction])
 }
 
 export interface InteractiveProps {
