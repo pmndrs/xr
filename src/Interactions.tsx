@@ -22,6 +22,7 @@ export type XRInteractionType =
   | 'onSqueezeEnd'
   | 'onSqueezeStart'
   | 'onSqueezeMissed'
+  | 'onMove'
 
 export type XRInteractionHandler = (event: XRInteractionEvent) => void
 
@@ -77,6 +78,11 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
             for (const handler of handlers) {
               handler({ target, intersection, intersections })
             }
+          }
+
+          const moveHandlers = getInteraction(eventObject, 'onMove')
+          if (moveHandlers) {
+            moveHandlers?.forEach((handler) => handler({ target, intersection, intersections }))
           }
 
           hovering.set(eventObject, intersection)
@@ -168,6 +174,7 @@ export interface InteractiveProps {
   onSqueezeEnd?: XRInteractionHandler
   onSqueezeMissed?: XRInteractionHandler
   onSqueeze?: XRInteractionHandler
+  onMove?: XRInteractionHandler
   children: React.ReactNode
 }
 export const Interactive = React.forwardRef<THREE.Group, InteractiveProps>(function Interactive(
@@ -182,6 +189,7 @@ export const Interactive = React.forwardRef<THREE.Group, InteractiveProps>(funct
     onSqueezeEnd,
     onSqueezeMissed,
     onSqueeze,
+    onMove,
     children
   }: InteractiveProps,
   passedRef
@@ -199,6 +207,7 @@ export const Interactive = React.forwardRef<THREE.Group, InteractiveProps>(funct
   useInteraction(ref, 'onSqueezeEnd', onSqueezeEnd)
   useInteraction(ref, 'onSqueezeMissed', onSqueezeMissed)
   useInteraction(ref, 'onSqueeze', onSqueeze)
+  useInteraction(ref, 'onMove', onMove)
 
   return <group ref={ref}>{children}</group>
 })
