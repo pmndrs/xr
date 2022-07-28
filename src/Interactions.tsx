@@ -105,14 +105,14 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
   const triggerEvent = React.useCallback(
     (interaction: XRInteractionType) => (e: XREvent<XRControllerEvent>) => {
       const hovering = hoverState[e.target.inputSource.handedness]
-      const intersections = Array.from(hovering.values())
+      const intersections = Array.from(new Set(hovering.values()))
 
       interactions.forEach((handlers, object) => {
         if (hovering.has(object)) {
           if (!handlers[interaction]) return
 
           for (const handler of handlers[interaction]) {
-            handler({ target: e.target, intersections })
+            handler({ target: e.target, intersection: hovering.get(object), intersections })
           }
         } else {
           if (interaction === 'onSelect' && handlers['onSelectMissed']) {
