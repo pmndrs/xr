@@ -95,6 +95,8 @@ To interact with objects using controllers you can use `<Interactive>` component
   onSqueezeMissed={(event: XRInteractionEvent) => ...}
   /* Called when squeezed by a controller */
   onSqueeze={(event: XRInteractionEvent) => ...}
+  /* Called when a controller moves over the object, equivalent to pointermove */
+  onMove={(event: XRInteractionEvent) => ...}
 >
   <Box />
 </Interactive>
@@ -114,7 +116,7 @@ To interact with objects using controllers you can use `<Interactive>` component
 
 `useInteraction` subscribes an existing element to controller events.
 
-The following interaction events are supported: `onHover`, `onBlur`, `onSelect`, `onSelectEnd`, `onSelectStart`, `onSelectMissed`, `onSqueeze`, `onSqueezeEnd`, `onSqueezeStart`, `onSqueezeMissed`.
+The following interaction events are supported: `onHover`, `onBlur`, `onSelect`, `onSelectEnd`, `onSelectStart`, `onSelectMissed`, `onSqueeze`, `onSqueezeEnd`, `onSqueezeStart`, `onSqueezeMissed`, `onMove`.
 
 ```jsx
 const boxRef = useRef()
