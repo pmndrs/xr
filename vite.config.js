@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     https: true
   },
-  plugins: [react()],
+  plugins: [react({ jsxRuntime: 'classic' })],
   publicDir: process.env.NODE_ENV === 'production' ? false : 'public',
   root: 'examples',
   resolve: {
