@@ -1,5 +1,5 @@
 import { render } from 'react-dom'
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { VRCanvas, Hands, useXR, Interactive, useHitTest, DefaultXRControllers } from '@react-three/xr'
 import { Box, Text } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'

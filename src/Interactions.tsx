@@ -1,10 +1,9 @@
-import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef } from 'react'
+import React, { useRef, useEffect, ReactNode, useMemo, useContext, forwardRef, useImperativeHandle } from 'react'
 import { useXR } from './XR'
 import { Object3D, Group, Matrix4, Intersection, XRHandedness } from 'three'
 import { useThree, useFrame } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { ObjectsState } from './ObjectsState'
-import mergeRefs from 'react-merge-refs'
 import { useXREvent, XREvent } from './XREvents'
 
 export interface XRInteractionEvent {
@@ -185,6 +184,7 @@ export const Interactive = forwardRef(
     passedRef
   ) => {
     const ref = useRef<Object3D>()
+    useImperativeHandle(passedRef, () => ref.current)
 
     useInteraction(ref, 'onHover', props.onHover)
     useInteraction(ref, 'onBlur', props.onBlur)
@@ -195,7 +195,7 @@ export const Interactive = forwardRef(
     useInteraction(ref, 'onSqueezeEnd', props.onSqueezeEnd)
     useInteraction(ref, 'onSqueeze', props.onSqueeze)
 
-    return <group ref={mergeRefs([passedRef, ref])}>{props.children}</group>
+    return <group ref={ref}>{props.children}</group>
   }
 )
 

@@ -52,7 +52,6 @@
     "@types/three": "^0.137.0",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
-    "@vitejs/plugin-react": "^1.3.2",
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.4",
@@ -73,7 +72,6 @@
     "three": ">=0.137 <0.141"
   },
   "dependencies": {
-    "react-merge-refs": "^1.1.0",
     "three-stdlib": "^2.8.6",
     "zustand": "^3.7.1"
   }

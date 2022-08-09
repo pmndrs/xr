@@ -1,12 +1,11 @@
 import path from 'path'
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   server: {
     https: true
   },
-  plugins: [react()],
+  plugins: [],
   publicDir: process.env.NODE_ENV === 'production' ? false : 'public',
   root: 'examples',
   resolve: {
