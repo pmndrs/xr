@@ -1,21 +1,18 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "target": "es6",
-    "module": "ESNext",
-    "lib": ["ESNext", "dom"],
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext", "dom"],
     "moduleResolution": "node",
-    "esModuleInterop": true,
     "jsx": "react",
-    "pretty": true,
     "strict": true,
+    "pretty": true,
+    "noEmit": true,
     "skipLibCheck": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "@react-three/xr": ["./src"]
     }
-  },
-  "include": ["src/**/*"]
+  }
 }
