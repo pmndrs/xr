@@ -2,30 +2,41 @@ import path from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig({
-  server: {
-    https: true
-  },
-  plugins: [react({ jsxRuntime: 'classic' })],
-  publicDir: process.env.NODE_ENV === 'production' ? false : 'public',
+const dev = defineConfig({
   root: 'examples',
+  plugins: [react()],
   resolve: {
     alias: {
       '@react-three/xr': path.resolve(process.cwd(), 'src')
     }
-  },
+  }
+})
+
+const build = defineConfig({
   build: {
     minify: false,
-    outDir: path.resolve(process.cwd(), 'dist'),
-    emptyOutDir: true,
+    sourcemap: true,
     target: 'es2018',
     lib: {
       formats: ['es', 'cjs'],
-      entry: path.resolve(process.cwd(), 'src/index.tsx'),
-      fileName: (format) => (format === 'es' ? 'index.mjs' : 'index.js')
+      entry: 'src/index.tsx',
+      fileName: '[name]'
     },
     rollupOptions: {
-      external: (id) => !id.startsWith('.') && !path.isAbsolute(id)
+      external: (id) => !id.startsWith('.') && !path.isAbsolute(id),
+      output: {
+        preserveModules: true,
+        sourcemapExcludeSources: true
+      }
     }
-  }
+  },
+  plugins: [
+    {
+      generateBundle() {
+        this.emitFile({ type: 'asset', fileName: 'index.d.ts', source: `export * from '../src'` })
+      }
+    }
+  ]
 })
+
+export default process.argv[2] ? build : dev
