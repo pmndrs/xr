@@ -1,6 +1,6 @@
 {
   "name": "@react-three/xr",
-  "version": "3.6.2",
+  "version": "3.6.3",
   "description": "React components and hooks for creating VR/AR applications with react-three-fiber",
   "keywords": [
     "xr",
@@ -64,8 +64,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint src/**/*.{ts,tsx} && tsc",
+    "build": "tsc && vite build",
+    "lint": "eslint src/**/*.{ts,tsx}",
     "test": "echo no tests yet"
   }
 }

@@ -29,14 +29,7 @@ const build = defineConfig({
         sourcemapExcludeSources: true
       }
     }
-  },
-  plugins: [
-    {
-      generateBundle() {
-        this.emitFile({ type: 'asset', fileName: 'index.d.ts', source: `export * from '../src'` })
-      }
-    }
-  ]
+  }
 })
 
 export default process.argv[2] ? build : dev

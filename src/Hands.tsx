@@ -1,6 +1,7 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 
+// @ts-ignore
 import { HandModel } from './webxr/HandModel.js'
 import { useXR } from './XR'
 
