@@ -184,12 +184,21 @@ function XR({
   React.useEffect(() => {
     if (!session) return
 
-    const handleSessionStart = (nativeEvent: XRManagerEvent) =>
+    const handleSessionStart = (nativeEvent: XRManagerEvent) => {
+      set(() => ({ isPresenting: true }))
       onSessionStart?.({ nativeEvent: { ...nativeEvent, target: session }, target: session })
-    const handleSessionEnd = (nativeEvent: XRManagerEvent) =>
+    }
+    const handleSessionEnd = (nativeEvent: XRManagerEvent) => {
+      set(() => ({ isPresenting: false, session: null }))
       onSessionEnd?.({ nativeEvent: { ...nativeEvent, target: session }, target: session })
-    const handleVisibilityChange = (nativeEvent: XRSessionEvent) => onVisibilityChange?.({ nativeEvent, target: session })
-    const handleInputSourcesChange = (nativeEvent: XRSessionEvent) => onInputSourcesChange?.({ nativeEvent, target: session })
+    }
+    const handleVisibilityChange = (nativeEvent: XRSessionEvent) => {
+      onVisibilityChange?.({ nativeEvent, target: session })
+    }
+    const handleInputSourcesChange = (nativeEvent: XRSessionEvent) => {
+      set(() => ({ isHandTracking: Object.values(session.inputSources).some((source) => source.hand) }))
+      onInputSourcesChange?.({ nativeEvent, target: session })
+    }
 
     gl.xr.addEventListener('sessionstart', handleSessionStart)
     gl.xr.addEventListener('sessionend', handleSessionEnd)
@@ -202,32 +211,7 @@ function XR({
       session.removeEventListener('visibilitychange', handleVisibilityChange)
       session.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
-  }, [session, gl.xr, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange])
-
-  React.useEffect(() => {
-    const handleSessionChange = () => set(() => ({ isPresenting: gl.xr.isPresenting }))
-
-    gl.xr.addEventListener('sessionstart', handleSessionChange)
-    gl.xr.addEventListener('sessionend', handleSessionChange)
-
-    return () => {
-      gl.xr.removeEventListener('sessionstart', handleSessionChange)
-      gl.xr.removeEventListener('sessionend', handleSessionChange)
-    }
-  }, [set, gl.xr])
-
-  React.useEffect(() => {
-    if (!session) return
-
-    const handleInputSourcesChange = (event: { session: XRSession }) =>
-      set(() => ({
-        isHandTracking: Object.values(event.session.inputSources).some((source) => source.hand)
-      }))
-    session.addEventListener('inputsourceschange', handleInputSourcesChange)
-    handleInputSourcesChange({ session })
-
-    return () => session.removeEventListener('inputsourceschange', handleInputSourcesChange)
-  }, [set, session])
+  }, [session, gl.xr, set, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange])
 
   return (
     <>
@@ -272,6 +256,18 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
     navigator.xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
   }, [sessionMode])
 
+  React.useEffect(
+    () =>
+      XRStore.subscribe((state) => {
+        if (state.session) {
+          setStatus('entered')
+        } else if (status !== 'unsupported') {
+          setStatus('exited')
+        }
+      }),
+    [status]
+  )
+
   const toggleSession = React.useCallback(
     async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onClick?.(event)
@@ -287,10 +283,8 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
       // Exit/enter session
       if (xrState.session) {
         await xrState.session.end()
-        setStatus('exited')
       } else {
         session = await navigator.xr!.requestSession(sessionMode, sessionInit)
-        setStatus('entered')
       }
 
       xrState.set(() => ({ session }))
