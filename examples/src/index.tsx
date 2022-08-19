@@ -1,9 +1,9 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import * as ReactDOM from 'react-dom/client'
-import { VRCanvas, Hands, useXR, Interactive, useHitTest, DefaultXRControllers } from '@react-three/xr'
+import { VRButton, Hands, useXR, Interactive, useHitTest, DefaultXRControllers } from '@react-three/xr'
 import { Box, Text } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, Canvas } from '@react-three/fiber'
 
 function Button(props: JSX.IntrinsicElements['mesh']) {
   const [hover, setHover] = React.useState(false)
@@ -39,18 +39,21 @@ function HitTestExample() {
 
 function App() {
   return (
-    <VRCanvas>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[5, 5, 5]} />
-      <Hands
-      // modelLeft="/hand-left.gltf"
-      // modelRight="/hand-right.gltf"
-      />
-      <Button position={[0, 0.8, -1]} />
-      <DefaultXRControllers />
-      {false && <PlayerExample />}
-      {false && <HitTestExample />}
-    </VRCanvas>
+    <>
+      <VRButton />
+      <Canvas>
+        <ambientLight intensity={0.5} />
+        <pointLight position={[5, 5, 5]} />
+        <Hands
+        // modelLeft="/hand-left.gltf"
+        // modelRight="/hand-right.gltf"
+        />
+        <Button position={[0, 0.8, -1]} />
+        <DefaultXRControllers />
+        {false && <PlayerExample />}
+        {false && <HitTestExample />}
+      </Canvas>
+    </>
   )
 }
 

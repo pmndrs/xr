@@ -23,14 +23,14 @@ export class XRController extends THREE.Group {
     this.visible = false
     this.add(this.controller, this.grip, this.hand)
 
-    this.onConnected = this.onConnected.bind(this)
-    this.onDisconnected = this.onDisconnected.bind(this)
+    this._onConnected = this._onConnected.bind(this)
+    this._onDisconnected = this._onDisconnected.bind(this)
 
-    this.controller.addEventListener('connected', this.onConnected)
-    this.controller.addEventListener('disconnected', this.onDisconnected)
+    this.controller.addEventListener('connected', this._onConnected)
+    this.controller.addEventListener('disconnected', this._onDisconnected)
   }
 
-  onConnected(event: XRControllerEvent) {
+  private _onConnected(event: XRControllerEvent) {
     if (event.fake) return
 
     this.visible = true
@@ -38,7 +38,7 @@ export class XRController extends THREE.Group {
     this.dispatchEvent(event)
   }
 
-  onDisconnected(event: XRControllerEvent) {
+  private _onDisconnected(event: XRControllerEvent) {
     if (event.fake) return
 
     this.visible = false
@@ -46,7 +46,7 @@ export class XRController extends THREE.Group {
   }
 
   dispose() {
-    this.controller.removeEventListener('connected', this.onConnected)
-    this.controller.removeEventListener('disconnected', this.onDisconnected)
+    this.controller.removeEventListener('connected', this._onConnected)
+    this.controller.removeEventListener('disconnected', this._onDisconnected)
   }
 }
