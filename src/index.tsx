@@ -1,4 +1,4 @@
-export * from './DefaultXRControllers'
+export * from './Controllers'
 export * from './Hands'
 export * from './Interactions'
 export * from './XR'

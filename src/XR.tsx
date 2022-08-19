@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import create, { EqualityChecker, GetState, SetState, StateSelector } from 'zustand'
-import { Canvas, useFrame, useThree, Props as ContainerProps } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
 import { XREventHandler } from './XREvents'
@@ -299,28 +299,6 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   )
 })
 
-export interface XRCanvasProps extends ContainerProps, XRProps {}
-/** @deprecated */
-export const XRCanvas = React.forwardRef<HTMLCanvasElement, XRCanvasProps>(function XRCanvas(
-  { foveation, referenceSpace, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange, children, ...rest },
-  forwardedRef
-) {
-  return (
-    <Canvas {...rest} ref={forwardedRef}>
-      <XR
-        foveation={foveation}
-        referenceSpace={referenceSpace}
-        onSessionStart={onSessionStart}
-        onSessionEnd={onSessionEnd}
-        onVisibilityChange={onVisibilityChange}
-        onInputSourcesChange={onInputSourcesChange}
-      >
-        {children}
-      </XR>
-    </Canvas>
-  )
-})
-
 const buttonStyles: any = {
   position: 'absolute',
   bottom: '24px',
@@ -345,49 +323,24 @@ export const ARButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 
         domOverlay: typeof document !== 'undefined' ? { root: document.body } : undefined,
         optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar']
       },
-      children
+      children,
+      ...rest
     },
     ref
   ) => (
-    <XRButton ref={ref} mode="AR" style={buttonStyles} sessionInit={sessionInit}>
+    <XRButton {...rest} ref={ref} mode="AR" style={buttonStyles} sessionInit={sessionInit}>
       {children}
     </XRButton>
   )
 )
 
 export const VRButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 'mode'>>(
-  ({ sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }, children }, ref) => (
-    <XRButton ref={ref} mode="VR" style={buttonStyles} sessionInit={sessionInit}>
+  ({ sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }, children, ...rest }, ref) => (
+    <XRButton {...rest} ref={ref} mode="VR" style={buttonStyles} sessionInit={sessionInit}>
       {children}
     </XRButton>
   )
 )
-
-export interface VRCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-/** @deprecated */
-export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(function VRCanvas({ sessionInit, children, ...rest }, ref) {
-  return (
-    <>
-      <VRButton sessionInit={sessionInit} />
-      <XRCanvas ref={ref} {...rest}>
-        {children}
-      </XRCanvas>
-    </>
-  )
-})
-
-export interface ARCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-/** @deprecated */
-export const ARCanvas = React.forwardRef<HTMLCanvasElement, ARCanvasProps>(function ARCanvas({ sessionInit, children, ...rest }, ref) {
-  return (
-    <>
-      <ARButton sessionInit={sessionInit} />
-      <XRCanvas ref={ref} {...rest}>
-        {children}
-      </XRCanvas>
-    </>
-  )
-})
 
 export function useXR<T = XRState>(
   selector: StateSelector<XRState, T> = (state) => state as unknown as T,
