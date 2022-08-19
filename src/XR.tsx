@@ -135,7 +135,7 @@ export interface XRProps {
   onInputSourcesChange?: XREventHandler<XRSessionEvent>
   children: React.ReactNode
 }
-function XR({
+export function XR({
   foveation = 0,
   referenceSpace = 'local-floor',
   onSessionStart,
@@ -214,7 +214,7 @@ function XR({
   }, [session, gl.xr, set, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange])
 
   return (
-    <>
+    <InteractionManager>
       <primitive object={player}>
         <primitive object={camera} />
         {controllers.map((controller, i) => (
@@ -222,7 +222,7 @@ function XR({
         ))}
       </primitive>
       {children}
-    </>
+    </InteractionManager>
   )
 }
 
@@ -300,6 +300,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
 })
 
 export interface XRCanvasProps extends ContainerProps, XRProps {}
+/** @deprecated */
 export const XRCanvas = React.forwardRef<HTMLCanvasElement, XRCanvasProps>(function XRCanvas(
   { foveation, referenceSpace, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange, children, ...rest },
   forwardedRef
@@ -314,7 +315,7 @@ export const XRCanvas = React.forwardRef<HTMLCanvasElement, XRCanvasProps>(funct
         onVisibilityChange={onVisibilityChange}
         onInputSourcesChange={onInputSourcesChange}
       >
-        <InteractionManager>{children}</InteractionManager>
+        {children}
       </XR>
     </Canvas>
   )
@@ -336,20 +337,38 @@ const buttonStyles: any = {
   cursor: 'pointer'
 }
 
-export interface VRCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(function VRCanvas(
-  {
-    sessionInit = {
-      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+export const ARButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 'mode'>>(
+  (
+    {
+      sessionInit = {
+        // @ts-ignore
+        domOverlay: typeof document !== 'undefined' ? { root: document.body } : undefined,
+        optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar']
+      },
+      children
     },
-    children,
-    ...rest
-  },
-  ref
-) {
+    ref
+  ) => (
+    <XRButton ref={ref} mode="AR" style={buttonStyles} sessionInit={sessionInit}>
+      {children}
+    </XRButton>
+  )
+)
+
+export const VRButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 'mode'>>(
+  ({ sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }, children }, ref) => (
+    <XRButton ref={ref} mode="VR" style={buttonStyles} sessionInit={sessionInit}>
+      {children}
+    </XRButton>
+  )
+)
+
+export interface VRCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
+/** @deprecated */
+export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(function VRCanvas({ sessionInit, children, ...rest }, ref) {
   return (
     <>
-      <XRButton mode="VR" style={buttonStyles} sessionInit={sessionInit} />
+      <VRButton sessionInit={sessionInit} />
       <XRCanvas ref={ref} {...rest}>
         {children}
       </XRCanvas>
@@ -358,21 +377,11 @@ export const VRCanvas = React.forwardRef<HTMLCanvasElement, VRCanvasProps>(funct
 })
 
 export interface ARCanvasProps extends XRCanvasProps, Pick<XRButtonProps, 'sessionInit'> {}
-export const ARCanvas = React.forwardRef<HTMLCanvasElement, ARCanvasProps>(function ARCanvas(
-  {
-    sessionInit = {
-      // @ts-ignore
-      domOverlay: { root: document.body },
-      optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar']
-    },
-    children,
-    ...rest
-  },
-  ref
-) {
+/** @deprecated */
+export const ARCanvas = React.forwardRef<HTMLCanvasElement, ARCanvasProps>(function ARCanvas({ sessionInit, children, ...rest }, ref) {
   return (
     <>
-      <XRButton mode="AR" style={buttonStyles} sessionInit={sessionInit} />
+      <ARButton sessionInit={sessionInit} />
       <XRCanvas ref={ref} {...rest}>
         {children}
       </XRCanvas>
