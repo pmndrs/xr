@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
 import * as ReactDOM from 'react-dom/client'
-import { VRButton, Hands, useXR, Interactive, useHitTest, DefaultXRControllers } from '@react-three/xr'
+import { VRButton, Hands, useXR, Interactive, useHitTest, Controllers } from '@react-three/xr'
 import { Box, Text } from '@react-three/drei'
 import { useFrame, Canvas } from '@react-three/fiber'
 
@@ -49,7 +49,7 @@ function App() {
         // modelRight="/hand-right.gltf"
         />
         <Button position={[0, 0.8, -1]} />
-        <DefaultXRControllers />
+        <Controllers />
         {false && <PlayerExample />}
         {false && <HitTestExample />}
       </Canvas>
