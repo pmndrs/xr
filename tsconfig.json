@@ -8,11 +8,13 @@
     "jsx": "react",
     "strict": true,
     "pretty": true,
-    "noEmit": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "@react-three/xr": ["./src"]
     }
-  }
+  },
+  "include": ["src/**/*"]
 }
