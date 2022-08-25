@@ -81,9 +81,7 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
           }
 
           const moveHandlers = getInteraction(eventObject, 'onMove')
-          if (moveHandlers) {
-            moveHandlers?.forEach((handler) => handler({ target, intersection, intersections }))
-          }
+          moveHandlers?.forEach((handler) => handler({ target, intersection, intersections }))
 
           hovering.set(eventObject, intersection)
           hits.add(eventObject.id)
@@ -254,3 +252,34 @@ export const RayGrab = React.forwardRef<THREE.Group, RayGrabProps>(function RayG
     </Interactive>
   )
 })
+
+export type HitTestCallback = (hitMatrix: THREE.Matrix4, hit: XRHitTestResult) => void
+
+export function useHitTest(hitTestCallback: HitTestCallback) {
+  const session = useXR((state) => state.session)
+  const hitTestSource = React.useRef<XRHitTestSource | undefined>()
+  const hitMatrix = React.useMemo(() => new THREE.Matrix4(), [])
+
+  React.useEffect(() => {
+    if (!session) return void (hitTestSource.current = undefined)
+
+    session.requestReferenceSpace('viewer').then(async (referenceSpace) => {
+      hitTestSource.current = await session?.requestHitTestSource?.({ space: referenceSpace })
+    })
+  }, [session])
+
+  useFrame((state, _, frame: XRFrame) => {
+    if (!frame || !hitTestSource.current) return
+
+    const [hit] = frame.getHitTestResults(hitTestSource.current)
+    if (hit) {
+      const referenceSpace = state.gl.xr.getReferenceSpace()!
+      const pose = hit.getPose(referenceSpace)
+
+      if (pose) {
+        hitMatrix.fromArray(pose.transform.matrix)
+        hitTestCallback(hitMatrix, hit)
+      }
+    }
+  })
+}

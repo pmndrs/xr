@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import create, { EqualityChecker, GetState, SetState, StateSelector } from 'zustand'
-import { useFrame, useThree } from '@react-three/fiber'
+import create, { EqualityChecker, GetState, SetState, StateSelector, UseBoundStore } from 'zustand'
+import { useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
 import { XREventHandler } from './XREvents'
@@ -25,91 +25,14 @@ export interface XRState {
   addInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
   removeInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
 }
-const XRStore = create<XRState>((set, get) => ({
-  set,
-  get,
+const XRContext = React.createContext<UseBoundStore<XRState>>(null!)
 
-  controllers: [],
-  isPresenting: false,
-  isHandTracking: false,
-  player: new THREE.Group(),
-  session: null,
-  foveation: 0,
-  referenceSpace: 'local-floor',
-
-  hoverState: {
-    left: new Map(),
-    right: new Map(),
-    none: new Map()
-  },
-  interactions: new Map(),
-  hasInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
-    return !!get().interactions.get(object)?.[eventType].length
-  },
-  getInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
-    return get().interactions.get(object)?.[eventType]
-  },
-  addInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
-    const interactions = get().interactions
-    if (!interactions.has(object)) {
-      interactions.set(object, {
-        onHover: [],
-        onBlur: [],
-        onSelect: [],
-        onSelectEnd: [],
-        onSelectStart: [],
-        onSelectMissed: [],
-        onSqueeze: [],
-        onSqueezeEnd: [],
-        onSqueezeStart: [],
-        onSqueezeMissed: [],
-        onMove: []
-      })
-    }
-
-    const target = interactions.get(object)!
-    target[eventType].push(handler)
-  },
-  removeInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
-    const target = get().interactions.get(object)
-    if (target) {
-      const interactionIndex = target[eventType].indexOf(handler)
-      if (interactionIndex !== -1) target[eventType].splice(interactionIndex, 1)
-    }
-  }
-}))
-
-const hitMatrix = new THREE.Matrix4()
-
-export type HitTestCallback = (hitMatrix: THREE.Matrix4, hit: XRHitTestResult) => void
-
-export function useHitTest(hitTestCallback: HitTestCallback) {
-  const session = useXR((state) => state.session)
-  const hitTestSource = React.useRef<XRHitTestSource | undefined>()
-
-  React.useEffect(() => {
-    if (!session) return void (hitTestSource.current = undefined)
-
-    session.requestReferenceSpace('viewer').then(async (referenceSpace) => {
-      hitTestSource.current = await session?.requestHitTestSource?.({ space: referenceSpace })
-    })
-  }, [session])
-
-  useFrame((state, _, frame) => {
-    if (!frame || !hitTestSource.current) return
-
-    const [hit] = frame.getHitTestResults(hitTestSource.current)
-    if (hit) {
-      const referenceSpace = state.gl.xr.getReferenceSpace()!
-      const pose = hit.getPose(referenceSpace)
-
-      if (pose) {
-        hitMatrix.fromArray(pose.transform.matrix)
-        hitTestCallback(hitMatrix, hit)
-      }
-    }
-  })
+interface GlobalSessionState {
+  set: SetState<GlobalSessionState>
+  get: GetState<GlobalSessionState>
+  session: XRSession | null
 }
+const globalSessionStore = create<GlobalSessionState>((set, get) => ({ set, get, session: null }))
 
 export type XRManagerEventType = 'sessionstart' | 'sessionend'
 export interface XRManagerEvent {
@@ -135,7 +58,7 @@ export interface XRProps {
   onInputSourcesChange?: XREventHandler<XRSessionEvent>
   children: React.ReactNode
 }
-export function XR({
+function XRManager({
   foveation = 0,
   referenceSpace = 'local-floor',
   onSessionStart,
@@ -169,7 +92,14 @@ export function XR({
     return () => handlers.forEach((cleanup) => cleanup())
   }, [gl, set])
 
-  React.useEffect(() => void gl.xr.setSession(session!), [gl.xr, session])
+  React.useEffect(
+    () =>
+      globalSessionStore.subscribe(({ session }) => {
+        set(() => ({ session }))
+        gl.xr.setSession(session!)
+      }),
+    [gl.xr, set]
+  )
 
   React.useEffect(() => {
     gl.xr.setFoveation(foveation)
@@ -226,6 +156,72 @@ export function XR({
   )
 }
 
+export function XR(props: XRProps) {
+  const store = React.useMemo(
+    () =>
+      create<XRState>((set, get) => ({
+        set,
+        get,
+
+        controllers: [],
+        isPresenting: false,
+        isHandTracking: false,
+        player: new THREE.Group(),
+        session: null,
+        foveation: 0,
+        referenceSpace: 'local-floor',
+
+        hoverState: {
+          left: new Map(),
+          right: new Map(),
+          none: new Map()
+        },
+        interactions: new Map(),
+        hasInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
+          return !!get().interactions.get(object)?.[eventType].length
+        },
+        getInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
+          return get().interactions.get(object)?.[eventType]
+        },
+        addInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+          const interactions = get().interactions
+          if (!interactions.has(object)) {
+            interactions.set(object, {
+              onHover: [],
+              onBlur: [],
+              onSelect: [],
+              onSelectEnd: [],
+              onSelectStart: [],
+              onSelectMissed: [],
+              onSqueeze: [],
+              onSqueezeEnd: [],
+              onSqueezeStart: [],
+              onSqueezeMissed: [],
+              onMove: []
+            })
+          }
+
+          const target = interactions.get(object)!
+          target[eventType].push(handler)
+        },
+        removeInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+          const target = get().interactions.get(object)
+          if (target) {
+            const interactionIndex = target[eventType].indexOf(handler)
+            if (interactionIndex !== -1) target[eventType].splice(interactionIndex, 1)
+          }
+        }
+      })),
+    []
+  )
+
+  return (
+    <XRContext.Provider value={store}>
+      <XRManager {...props} />
+    </XRContext.Provider>
+  )
+}
+
 export type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
 export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   /** The type of `XRSession` to create */
@@ -258,7 +254,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
 
   React.useEffect(
     () =>
-      XRStore.subscribe((state) => {
+      globalSessionStore.subscribe((state) => {
         if (state.session) {
           setStatus('entered')
         } else if (status !== 'unsupported') {
@@ -272,7 +268,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
     async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onClick?.(event)
 
-      const xrState = XRStore.getState()
+      const xrState = globalSessionStore.getState()
 
       // Bail if button only configures exit/enter
       if (xrState.session && enterOnly) return
@@ -346,7 +342,9 @@ export function useXR<T = XRState>(
   selector: StateSelector<XRState, T> = (state) => state as unknown as T,
   equalityFn?: EqualityChecker<T>
 ) {
-  return XRStore(selector, equalityFn)
+  const store = React.useContext(XRContext)
+  if (!store) throw new Error('useXR must be used within an <XR /> component!')
+  return store(selector, equalityFn)
 }
 
 export function useController(handedness: XRHandedness) {
