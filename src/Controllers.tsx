@@ -44,7 +44,7 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
 
 const modelFactory = new XRControllerModelFactory()
 
-class DefaultXRController extends THREE.Group {
+class ControllerModel extends THREE.Group {
   constructor(target: XRController) {
     super()
     this.add(modelFactory.createControllerModel(target.controller))
@@ -54,18 +54,18 @@ class DefaultXRController extends THREE.Group {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      defaultXRController: Object3DNode<DefaultXRController, typeof DefaultXRController>
+      controllerModel: Object3DNode<ControllerModel, typeof ControllerModel>
     }
   }
 }
 
-export interface DefaultXRControllersProps {
+export interface ControllersProps {
   /** Optional material props to pass to controllers' ray indicators */
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
   /** Whether to hide controllers' rays on blur. Default is `false` */
   hideRaysOnBlur?: boolean
 }
-export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false }: DefaultXRControllersProps) {
+export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: ControllersProps) {
   const controllers = useXR((state) => state.controllers)
   const isHandTracking = useXR((state) => state.isHandTracking)
   const rayMaterialProps = React.useMemo(
@@ -79,7 +79,7 @@ export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false 
       ),
     [JSON.stringify(rayMaterial)] // eslint-disable-line react-hooks/exhaustive-deps
   )
-  React.useMemo(() => extend({ DefaultXRController }), [])
+  React.useMemo(() => extend({ ControllerModel }), [])
 
   // Send fake connected event (no-op) so models start loading
   React.useEffect(() => {
@@ -92,7 +92,7 @@ export function DefaultXRControllers({ rayMaterial = {}, hideRaysOnBlur = false 
     <>
       {controllers.map((target, i) => (
         <React.Fragment key={i}>
-          {createPortal(<defaultXRController args={[target]} />, target.grip)}
+          {createPortal(<controllerModel args={[target]} />, target.grip)}
           {createPortal(
             <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
             target.controller
