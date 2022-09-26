@@ -118,9 +118,9 @@ const {
   player,
   // The active `XRSession`
   session,
-  // `XRSession` foveation. This can be configured as `foveation` on ARCanvas or VRCanvas. Default is `0`
+  // `XRSession` foveation. This can be configured as `foveation` on <XR>. Default is `0`
   foveation,
-  // `XRSession` reference-space type. This can be configured as `referenceSpace` on ARCanvas or VRCanvas. Default is `local-floor`
+  // `XRSession` reference-space type. This can be configured as `referenceSpace` on <XR>. Default is `local-floor`
   referenceSpace
 } = useXR()
 ```
