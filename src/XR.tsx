@@ -19,11 +19,11 @@ export interface XRState {
   referenceSpace: XRReferenceSpaceType
 
   hoverState: Record<XRHandedness, Map<THREE.Object3D, THREE.Intersection>>
-  interactions: Map<THREE.Object3D, Record<XRInteractionType, XRInteractionHandler[]>>
+  interactions: Map<THREE.Object3D, Record<XRInteractionType, React.RefObject<XRInteractionHandler>[]>>
   hasInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => boolean
   getInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => XRInteractionHandler[] | undefined
-  addInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
-  removeInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) => void
+  addInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) => void
+  removeInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) => void
 }
 const XRStore = create<XRState>((set, get) => ({
   set,
@@ -44,12 +44,21 @@ const XRStore = create<XRState>((set, get) => ({
   },
   interactions: new Map(),
   hasInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
-    return !!get().interactions.get(object)?.[eventType].length
+    return !!get()
+      .interactions.get(object)
+      ?.[eventType].some((handlerRef) => handlerRef.current)
   },
   getInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
-    return get().interactions.get(object)?.[eventType]
+    return get()
+      .interactions.get(object)
+      ?.[eventType].reduce((result, handlerRef) => {
+        if (handlerRef.current) {
+          result.push(handlerRef.current)
+        }
+        return result
+      }, [] as XRInteractionHandler[])
   },
-  addInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+  addInteraction(object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) {
     const interactions = get().interactions
     if (!interactions.has(object)) {
       interactions.set(object, {
@@ -68,12 +77,12 @@ const XRStore = create<XRState>((set, get) => ({
     }
 
     const target = interactions.get(object)!
-    target[eventType].push(handler)
+    target[eventType].push(handlerRef)
   },
-  removeInteraction(object: THREE.Object3D, eventType: XRInteractionType, handler: XRInteractionHandler) {
+  removeInteraction(object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) {
     const target = get().interactions.get(object)
     if (target) {
-      const interactionIndex = target[eventType].indexOf(handler)
+      const interactionIndex = target[eventType].indexOf(handlerRef)
       if (interactionIndex !== -1) target[eventType].splice(interactionIndex, 1)
     }
   }
