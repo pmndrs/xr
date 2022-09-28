@@ -118,16 +118,16 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
           if (!handlers[interaction]) return
 
           for (const handler of handlers[interaction]) {
-            handler({ target: e.target, intersection: hovering.get(object), intersections })
+            handler.current?.({ target: e.target, intersection: hovering.get(object), intersections })
           }
         } else {
           if (interaction === 'onSelect' && handlers['onSelectMissed']) {
             for (const handler of handlers['onSelectMissed']) {
-              handler({ target: e.target, intersections })
+              handler.current?.({ target: e.target, intersections })
             }
           } else if (interaction === 'onSqueeze' && handlers['onSqueezeMissed']) {
             for (const handler of handlers['onSqueezeMissed']) {
-              handler({ target: e.target, intersections })
+              handler.current?.({ target: e.target, intersections })
             }
           }
         }
@@ -149,17 +149,16 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
 export function useInteraction(ref: React.RefObject<THREE.Object3D>, type: XRInteractionType, handler?: XRInteractionHandler) {
   const addInteraction = useXR((state) => state.addInteraction)
   const removeInteraction = useXR((state) => state.removeInteraction)
-  const handlerRef = React.useRef(handler)
-  React.useEffect(() => void (handlerRef.current = handler), [handler])
+  const handlerRef = React.useRef<XRInteractionHandler | null>(handler ?? null)
+  React.useEffect(() => void (handlerRef.current = handler ?? null), [handler])
 
   React.useEffect(() => {
     const target = ref.current
-    const handler = handlerRef.current
-    if (!target || !handler) return
+    if (!target || !handlerRef.current) return
 
-    addInteraction(target, type, handler)
+    addInteraction(target, type, handlerRef)
 
-    return () => removeInteraction(target, type, handler)
+    return () => removeInteraction(target, type, handlerRef)
   }, [ref, type, addInteraction, removeInteraction])
 }
 
