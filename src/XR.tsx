@@ -120,6 +120,7 @@ function XRManager({
     }
     const handleSessionEnd = (nativeEvent: XRManagerEvent) => {
       set(() => ({ isPresenting: false, session: null }))
+      globalSessionStore.setState(() => ({ session: null }))
       onSessionEnd?.({ nativeEvent: { ...nativeEvent, target: session }, target: session })
     }
     const handleVisibilityChange = (nativeEvent: XRSessionEvent) => {
