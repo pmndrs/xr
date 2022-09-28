@@ -1,6 +1,6 @@
 {
   "name": "@react-three/xr",
-  "version": "4.1.6",
+  "version": "4.1.7",
   "description": "React components and hooks for creating VR/AR applications with react-three-fiber",
   "keywords": [
     "xr",
