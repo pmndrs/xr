@@ -202,6 +202,9 @@ export function XR({
     session.addEventListener('visibilitychange', handleVisibilityChange as any)
     session.addEventListener('inputsourceschange', handleInputSourcesChange as any)
 
+    // Eagerly call sessionstart when late
+    if (gl.xr.isPresenting) handleSessionStart({ type: 'sessionstart', target: session })
+
     return () => {
       gl.xr.removeEventListener('sessionstart', handleSessionStart)
       gl.xr.removeEventListener('sessionend', handleSessionEnd)
