@@ -5,6 +5,7 @@ import { useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
 import { XREventHandler } from './XREvents'
+import { uniq } from './utils'
 
 export interface XRState {
   set: SetState<XRState>
@@ -31,8 +32,9 @@ interface GlobalSessionState {
   set: SetState<GlobalSessionState>
   get: GetState<GlobalSessionState>
   session: XRSession | null
+  referenceSpaceType: XRReferenceSpaceType | null
 }
-const globalSessionStore = create<GlobalSessionState>((set, get) => ({ set, get, session: null }))
+const globalSessionStore = create<GlobalSessionState>((set, get) => ({ set, get, session: null, referenceSpaceType: null }))
 
 export type XRManagerEventType = 'sessionstart' | 'sessionend'
 export interface XRManagerEvent {
@@ -107,8 +109,10 @@ function XRManager({
   }, [gl, foveation, set])
 
   React.useEffect(() => {
+    const globalSessionState = globalSessionStore.getState()
     gl.xr.setReferenceSpaceType(referenceSpace)
     set(() => ({ referenceSpace }))
+    globalSessionState.set({ referenceSpaceType: referenceSpace })
   }, [gl.xr, referenceSpace, set])
 
   React.useEffect(() => {
@@ -252,6 +256,25 @@ export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButto
   children?: React.ReactNode | ((status: XRButtonStatus) => React.ReactNode)
 }
 
+const getSessionOptions = (
+  globalStateReferenceSpaceType: XRReferenceSpaceType | null,
+  sessionInit: XRSessionInit | undefined
+): XRSessionInit | undefined => {
+  if (!globalStateReferenceSpaceType && !sessionInit) {
+    return undefined
+  }
+
+  if (globalStateReferenceSpaceType && !sessionInit) {
+    return { optionalFeatures: [globalStateReferenceSpaceType] }
+  }
+
+  if (globalStateReferenceSpaceType && sessionInit) {
+    return { ...sessionInit, optionalFeatures: uniq([...(sessionInit.optionalFeatures ?? []), globalStateReferenceSpaceType]) }
+  }
+
+  return sessionInit
+}
+
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
   { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, children, ...props },
   ref
@@ -293,7 +316,8 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
       if (xrState.session) {
         await xrState.session.end()
       } else {
-        session = await navigator.xr!.requestSession(sessionMode, sessionInit)
+        const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
+        session = await navigator.xr!.requestSession(sessionMode, options)
       }
 
       xrState.set(() => ({ session }))
