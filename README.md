@@ -86,8 +86,8 @@ function App() {
      * 1 = maximum foveation, the edges render at lower resolution
      */
     foveation={0}
-    /** Type of WebXR reference space to use. Default is `local-space` */
-    referenceSpace="local-space"
+    /** Type of WebXR reference space to use. Default is `local-floor` */
+    referenceSpace="local-floor"
     /** Called as an XRSession is requested */
     onSessionStart={(event: XREvent<XRManagerEvent>) => ...}
     /** Called after an XRSession is terminated */
