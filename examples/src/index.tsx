@@ -32,7 +32,10 @@ function PlayerExample() {
 
 function HitTestExample() {
   const boxRef = React.useRef<THREE.Mesh>(null!)
-  useHitTest((hitMatrix) => boxRef.current.applyMatrix4(hitMatrix))
+  useHitTest((hitMatrix) => {
+    boxRef.current.matrixAutoUpdate = false
+    boxRef.current.matrix = hitMatrix
+  })
 
   return <Box ref={boxRef} args={[0.1, 0.1, 0.1]} />
 }
