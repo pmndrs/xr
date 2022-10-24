@@ -238,7 +238,8 @@ Use this hook to perform a hit test for an AR environment. Also see [`XRHitTestR
 ```tsx
 useHitTest((hitMatrix: Matrix4, hit: XRHitTestResult) => {
   // use hitMatrix to position any object on the real life surface
-  mesh.applyMatrix4(hitMatrix)
+  mesh.matrixAutoUpdate = false
+  mesh.matrix = hitMatrix
 })
 ```
 
