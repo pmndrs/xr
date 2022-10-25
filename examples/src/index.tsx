@@ -33,8 +33,7 @@ function PlayerExample() {
 function HitTestExample() {
   const boxRef = React.useRef<THREE.Mesh>(null!)
   useHitTest((hitMatrix) => {
-    boxRef.current.matrixAutoUpdate = false
-    boxRef.current.matrix = hitMatrix
+    hitMatrix.decompose(boxRef.current.position, boxRef.current.quaternion, boxRef.current.scale)
   })
 
   return <Box ref={boxRef} args={[0.1, 0.1, 0.1]} />
