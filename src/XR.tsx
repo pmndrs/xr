@@ -142,7 +142,8 @@ function XRManager({
 
     // Eagerly call sessionstart when late
     if (gl.xr.isPresenting) handleSessionStart({ type: 'sessionstart', target: session })
-
+    if (Object.values(session?.inputSources).some((source) => source.hand)) handleInputSourcesChange({ type: 'inputsourceschange', target: session })
+    
     return () => {
       gl.xr.removeEventListener('sessionstart', handleSessionStart)
       gl.xr.removeEventListener('sessionend', handleSessionEnd)
