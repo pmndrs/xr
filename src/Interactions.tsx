@@ -4,7 +4,7 @@ import { useThree, useFrame } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
 import { useXREvent, XREvent, XRControllerEvent } from './XREvents'
-import { useMutableCallback, useIsomorphicLayoutEffect } from './utils'
+import { useCallbackRef, useIsomorphicLayoutEffect } from './utils'
 
 export interface XRInteractionEvent {
   intersection?: THREE.Intersection
@@ -148,7 +148,7 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
 export function useInteraction(ref: React.RefObject<THREE.Object3D>, type: XRInteractionType, handler?: XRInteractionHandler) {
   const addInteraction = useXR((state) => state.addInteraction)
   const removeInteraction = useXR((state) => state.removeInteraction)
-  const handlerRef = useMutableCallback(handler)
+  const handlerRef = useCallbackRef(handler)
 
   useIsomorphicLayoutEffect(() => {
     const target = ref.current

@@ -5,7 +5,7 @@ import { useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
 import { XREventHandler } from './XREvents'
-import { uniq, useIsomorphicLayoutEffect, useMutableCallback } from './utils'
+import { uniq, useIsomorphicLayoutEffect, useCallbackRef } from './utils'
 
 export interface XRState {
   set: SetState<XRState>
@@ -76,10 +76,10 @@ function XRManager({
   const session = useXR((state) => state.session)
   const controllers = useXR((state) => state.controllers)
 
-  const onSessionStartRef = useMutableCallback(onSessionStart)
-  const onSessionEndRef = useMutableCallback(onSessionEnd)
-  const onVisibilityChangeRef = useMutableCallback(onVisibilityChange)
-  const onInputSourcesChangeRef = useMutableCallback(onInputSourcesChange)
+  const onSessionStartRef = useCallbackRef(onSessionStart)
+  const onSessionEndRef = useCallbackRef(onSessionEnd)
+  const onVisibilityChangeRef = useCallbackRef(onVisibilityChange)
+  const onInputSourcesChangeRef = useCallbackRef(onInputSourcesChange)
 
   useIsomorphicLayoutEffect(() => {
     const handlers = [0, 1].map((id) => {

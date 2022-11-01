@@ -1,5 +1,8 @@
 import * as React from 'react'
 
+/**
+ * Filters to unique entries of an array.
+ */
 export const uniq = <T>(arr: T[]): T[] => Array.from(new Set<T>(arr))
 
 /**
@@ -16,7 +19,10 @@ export const useIsomorphicLayoutEffect =
     ? React.useLayoutEffect
     : React.useEffect
 
-export function useMutableCallback<T>(fn: T) {
+/**
+ * Returns a mutable callback function for event handlers.
+ */
+export function useCallbackRef<T>(fn: T): React.MutableRefObject<T> {
   const ref = React.useRef<T>(fn)
   useIsomorphicLayoutEffect(() => void (ref.current = fn), [fn])
   return ref

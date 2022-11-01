@@ -1,6 +1,6 @@
 import { XRController } from './XRController'
 import { useXR } from './XR'
-import { useMutableCallback, useIsomorphicLayoutEffect } from './utils'
+import { useCallbackRef, useIsomorphicLayoutEffect } from './utils'
 
 export interface XREventRepresentation {
   type: string
@@ -25,7 +25,7 @@ export interface XREventOptions {
 }
 
 export function useXREvent(event: XRControllerEventType, handler: XREventHandler<XRControllerEvent>, { handedness }: XREventOptions = {}) {
-  const handlerRef = useMutableCallback(handler)
+  const handlerRef = useCallbackRef(handler)
   const controllers = useXR((state) => state.controllers)
 
   useIsomorphicLayoutEffect(() => {
