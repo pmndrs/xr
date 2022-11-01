@@ -1,6 +1,6 @@
-import * as React from 'react'
 import { XRController } from './XRController'
 import { useXR } from './XR'
+import { useCallbackRef, useIsomorphicLayoutEffect } from './utils'
 
 export interface XREventRepresentation {
   type: string
@@ -25,11 +25,10 @@ export interface XREventOptions {
 }
 
 export function useXREvent(event: XRControllerEventType, handler: XREventHandler<XRControllerEvent>, { handedness }: XREventOptions = {}) {
-  const handlerRef = React.useRef<XREventHandler<XRControllerEvent>>(handler)
-  React.useEffect(() => void (handlerRef.current = handler), [handler])
+  const handlerRef = useCallbackRef(handler)
   const controllers = useXR((state) => state.controllers)
 
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const listeners = controllers.map((target) => {
       if (handedness && target.inputSource.handedness !== handedness) return
 
