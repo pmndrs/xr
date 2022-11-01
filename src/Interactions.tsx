@@ -4,6 +4,7 @@ import { useThree, useFrame } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
 import { useXREvent, XREvent, XRControllerEvent } from './XREvents'
+import { useMutableCallback, useIsomorphicLayoutEffect } from './utils'
 
 export interface XRInteractionEvent {
   intersection?: THREE.Intersection
@@ -147,16 +148,15 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
 export function useInteraction(ref: React.RefObject<THREE.Object3D>, type: XRInteractionType, handler?: XRInteractionHandler) {
   const addInteraction = useXR((state) => state.addInteraction)
   const removeInteraction = useXR((state) => state.removeInteraction)
-  const handlerRef = React.useRef<XRInteractionHandler | null>(handler ?? null)
-  React.useEffect(() => void (handlerRef.current = handler ?? null), [handler])
+  const handlerRef = useMutableCallback(handler)
 
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const target = ref.current
     if (!target || !handlerRef.current) return
 
-    addInteraction(target, type, handlerRef)
+    addInteraction(target, type, handlerRef as React.RefObject<XRInteractionHandler>)
 
-    return () => removeInteraction(target, type, handlerRef)
+    return () => removeInteraction(target, type, handlerRef as React.RefObject<XRInteractionHandler>)
   }, [ref, type, addInteraction, removeInteraction])
 }
 
@@ -259,7 +259,7 @@ export function useHitTest(hitTestCallback: HitTestCallback) {
   const hitTestSource = React.useRef<XRHitTestSource | undefined>()
   const hitMatrix = React.useMemo(() => new THREE.Matrix4(), [])
 
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!session) return void (hitTestSource.current = undefined)
 
     session.requestReferenceSpace('viewer').then(async (referenceSpace) => {

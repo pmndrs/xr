@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { OculusHandModel } from 'three-stdlib'
 import { useXR } from './XR'
+import { useIsomorphicLayoutEffect } from './utils'
 
 declare global {
   namespace JSX {
@@ -20,7 +21,7 @@ export function Hands({ modelLeft, modelRight }: HandsProps) {
   React.useMemo(() => extend({ OculusHandModel }), [])
 
   // Send fake connected event (no-op) so models start loading
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     for (const target of controllers) {
       target.hand.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
     }

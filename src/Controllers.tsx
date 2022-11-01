@@ -4,6 +4,7 @@ import { XRControllerModelFactory } from 'three-stdlib'
 import { useFrame, Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
+import { useIsomorphicLayoutEffect } from './utils'
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   /** The XRController to attach the ray to */
@@ -82,7 +83,7 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: Contro
   React.useMemo(() => extend({ ControllerModel }), [])
 
   // Send fake connected event (no-op) so models start loading
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     for (const target of controllers) {
       target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
     }

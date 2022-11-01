@@ -5,7 +5,7 @@ import { useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
 import { XREventHandler } from './XREvents'
-import { uniq } from './utils'
+import { uniq, useIsomorphicLayoutEffect, useMutableCallback } from './utils'
 
 export interface XRState {
   set: SetState<XRState>
@@ -76,7 +76,12 @@ function XRManager({
   const session = useXR((state) => state.session)
   const controllers = useXR((state) => state.controllers)
 
-  React.useEffect(() => {
+  const onSessionStartRef = useMutableCallback(onSessionStart)
+  const onSessionEndRef = useMutableCallback(onSessionEnd)
+  const onVisibilityChangeRef = useMutableCallback(onVisibilityChange)
+  const onInputSourcesChangeRef = useMutableCallback(onInputSourcesChange)
+
+  useIsomorphicLayoutEffect(() => {
     const handlers = [0, 1].map((id) => {
       const target = new XRController(id, gl)
       const onConnected = () => set((state) => ({ controllers: [...state.controllers, target] }))
@@ -94,45 +99,39 @@ function XRManager({
     return () => handlers.forEach((cleanup) => cleanup())
   }, [gl, set])
 
-  React.useEffect(
-    () =>
-      globalSessionStore.subscribe(({ session }) => {
-        set(() => ({ session }))
-        gl.xr.setSession(session!)
-      }),
-    [gl.xr, set]
-  )
+  useIsomorphicLayoutEffect(() => globalSessionStore.subscribe(({ session }) => set(() => ({ session }))), [gl.xr, set])
 
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     gl.xr.setFoveation(foveation)
     set(() => ({ foveation }))
-  }, [gl, foveation, set])
+  }, [gl.xr, foveation, set])
 
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const globalSessionState = globalSessionStore.getState()
     gl.xr.setReferenceSpaceType(referenceSpace)
     set(() => ({ referenceSpace }))
     globalSessionState.set({ referenceSpaceType: referenceSpace })
   }, [gl.xr, referenceSpace, set])
 
-  React.useEffect(() => {
-    if (!session) return
+  useIsomorphicLayoutEffect(() => {
+    if (!session) return void gl.xr.setSession(null!)
 
     const handleSessionStart = (nativeEvent: XRManagerEvent) => {
       set(() => ({ isPresenting: true }))
-      onSessionStart?.({ nativeEvent: { ...nativeEvent, target: session }, target: session })
+      onSessionStartRef.current?.({ nativeEvent: { ...nativeEvent, target: session }, target: session })
     }
     const handleSessionEnd = (nativeEvent: XRManagerEvent) => {
       set(() => ({ isPresenting: false, session: null }))
       globalSessionStore.setState(() => ({ session: null }))
-      onSessionEnd?.({ nativeEvent: { ...nativeEvent, target: session }, target: session })
+      onSessionEndRef.current?.({ nativeEvent: { ...nativeEvent, target: session }, target: session })
     }
     const handleVisibilityChange = (nativeEvent: XRSessionEvent) => {
-      onVisibilityChange?.({ nativeEvent, target: session })
+      onVisibilityChangeRef.current?.({ nativeEvent, target: session })
     }
-    const handleInputSourcesChange = (nativeEvent: XRSessionEvent) => {
-      set(() => ({ isHandTracking: Object.values(session.inputSources).some((source) => source.hand) }))
-      onInputSourcesChange?.({ nativeEvent, target: session })
+    const handleInputSourcesChange = (nativeEvent: XRInputSourceChangeEvent) => {
+      const isHandTracking = Object.values(session.inputSources).some((source) => source.hand)
+      set(() => ({ isHandTracking }))
+      onInputSourcesChangeRef.current?.({ nativeEvent, target: session })
     }
 
     gl.xr.addEventListener('sessionstart', handleSessionStart)
@@ -140,17 +139,15 @@ function XRManager({
     session.addEventListener('visibilitychange', handleVisibilityChange)
     session.addEventListener('inputsourceschange', handleInputSourcesChange)
 
-    // Eagerly call sessionstart when late
-    if (gl.xr.isPresenting) handleSessionStart({ type: 'sessionstart', target: session })
-    if (Object.values(session?.inputSources).some((source) => source.hand)) handleInputSourcesChange({ type: 'inputsourceschange', target: session })
-    
+    gl.xr.setSession(session)
+
     return () => {
       gl.xr.removeEventListener('sessionstart', handleSessionStart)
       gl.xr.removeEventListener('sessionend', handleSessionEnd)
       session.removeEventListener('visibilitychange', handleVisibilityChange)
       session.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
-  }, [session, gl.xr, set, onSessionStart, onSessionEnd, onVisibilityChange, onInputSourcesChange])
+  }, [session, gl.xr, set])
 
   return (
     <InteractionManager>
@@ -284,12 +281,12 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   const label = status === 'unsupported' ? `${mode} unsupported` : `${status === 'entered' ? 'Exit' : 'Enter'} ${mode}`
   const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
 
-  React.useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!navigator?.xr) return void setStatus('unsupported')
     navigator.xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
   }, [sessionMode])
 
-  React.useEffect(
+  useIsomorphicLayoutEffect(
     () =>
       globalSessionStore.subscribe((state) => {
         if (state.session) {
