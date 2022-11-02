@@ -48,7 +48,7 @@ export interface XRProps {
    * 1 = maximum foveation, the edges render at lower resolution
    */
   foveation?: number
-  /** Type of WebXR reference space to use. Default is `local-space` */
+  /** Type of WebXR reference space to use. Default is `local-floor` */
   referenceSpace?: XRReferenceSpaceType
   /** Called as an XRSession is requested */
   onSessionStart?: XREventHandler<XRManagerEvent>
