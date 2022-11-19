@@ -42,7 +42,10 @@ function HitTestExample() {
 function App() {
   return (
     <>
-      <VRButton />
+      <VRButton onInitialisationError={e => {
+        console.error(e);
+        alert(e);
+      }} />
       <Canvas>
         <XR>
           <ambientLight intensity={0.5} />

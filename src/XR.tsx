@@ -250,6 +250,8 @@ export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButto
   enterOnly?: boolean
   /** Whether this button should only exit an `XRSession`. Default is `false` */
   exitOnly?: boolean
+  /** This callback gets fired if XR initialisation fails. */
+  onInitialisationError?: (error: Error) => void
   /** React children, can also accept a callback returning an `XRButtonStatus` */
   children?: React.ReactNode | ((status: XRButtonStatus) => React.ReactNode)
 }
@@ -274,7 +276,7 @@ const getSessionOptions = (
 }
 
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
-  { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, children, ...props },
+  { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, onInitialisationError, children, ...props },
   ref
 ) {
   const [status, setStatus] = React.useState<XRButtonStatus>('exited')
@@ -310,15 +312,24 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
 
       let session: XRSession | null = null
 
-      // Exit/enter session
-      if (xrState.session) {
-        await xrState.session.end()
-      } else {
-        const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
-        session = await navigator.xr!.requestSession(sessionMode, options)
-      }
+      try {
+        // Exit/enter session
+        if (xrState.session) {
+          await xrState.session.end()
+        } else {
+          const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
+          session = await navigator.xr!.requestSession(sessionMode, options)
+        }
 
-      xrState.set(() => ({ session }))
+        xrState.set(() => ({ session }))
+      } catch(e: any) {
+        if(onInitialisationError && e instanceof Error) {
+          onInitialisationError(e);
+          return;
+        }
+
+        throw e;
+      }
     },
     [onClick, enterOnly, exitOnly, sessionMode, sessionInit]
   )
