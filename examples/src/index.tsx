@@ -42,7 +42,7 @@ function HitTestExample() {
 function App() {
   return (
     <>
-      <VRButton onInitialisationError={e => {
+      <VRButton onError={e => {
         console.error(e);
         alert(e);
       }} />
