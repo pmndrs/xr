@@ -250,7 +250,7 @@ export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButto
   enterOnly?: boolean
   /** Whether this button should only exit an `XRSession`. Default is `false` */
   exitOnly?: boolean
-  /** This callback gets fired if XR initialisation fails. */
+  /** This callback gets fired if XR initialization fails. */
   onError?: (error: Error) => void
   /** React children, can also accept a callback returning an `XRButtonStatus` */
   children?: React.ReactNode | ((status: XRButtonStatus) => React.ReactNode)
@@ -322,13 +322,13 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
         }
 
         xrState.set(() => ({ session }))
-      } catch(e: any) {
-        if(onError && e instanceof Error) {
-          onError(e);
-          return;
+      } catch (e: any) {
+        if (onError && e instanceof Error) {
+          onError(e)
+          return
         }
 
-        throw e;
+        throw e
       }
     },
     [onClick, enterOnly, exitOnly, sessionMode, sessionInit]
