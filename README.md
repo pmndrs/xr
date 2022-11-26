@@ -67,6 +67,8 @@ function App() {
   enterOnly={false}
   /** Whether this button should only exit an `XRSession`. Default is `false` */
   exitOnly={false}
+  /** This callback gets fired if XR initialization fails. */
+  onError={(error) => ...}
 >
   {/* Can accept regular DOM children and has an optional callback with the XR button status (unsupported, exited, entered) */}
   {(status) => `WebXR ${status}`}

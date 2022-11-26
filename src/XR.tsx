@@ -238,7 +238,7 @@ export function XR(props: XRProps) {
 }
 
 export type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
-export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onError'> {
   /** The type of `XRSession` to create */
   mode: 'AR' | 'VR' | 'inline'
   /**
@@ -250,6 +250,8 @@ export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButto
   enterOnly?: boolean
   /** Whether this button should only exit an `XRSession`. Default is `false` */
   exitOnly?: boolean
+  /** This callback gets fired if XR initialization fails. */
+  onError?: (error: Error) => void
   /** React children, can also accept a callback returning an `XRButtonStatus` */
   children?: React.ReactNode | ((status: XRButtonStatus) => React.ReactNode)
 }
@@ -274,12 +276,13 @@ const getSessionOptions = (
 }
 
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
-  { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, children, ...props },
+  { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, onError, children, ...props },
   ref
 ) {
   const [status, setStatus] = React.useState<XRButtonStatus>('exited')
   const label = status === 'unsupported' ? `${mode} unsupported` : `${status === 'entered' ? 'Exit' : 'Enter'} ${mode}`
   const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
+  const onErrorRef = useCallbackRef(onError)
 
   useIsomorphicLayoutEffect(() => {
     if (!navigator?.xr) return void setStatus('unsupported')
@@ -310,17 +313,23 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
 
       let session: XRSession | null = null
 
-      // Exit/enter session
-      if (xrState.session) {
-        await xrState.session.end()
-      } else {
-        const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
-        session = await navigator.xr!.requestSession(sessionMode, options)
-      }
+      try {
+        // Exit/enter session
+        if (xrState.session) {
+          await xrState.session.end()
+        } else {
+          const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
+          session = await navigator.xr!.requestSession(sessionMode, options)
+        }
 
-      xrState.set(() => ({ session }))
+        xrState.set(() => ({ session }))
+      } catch (e) {
+        const onError = onErrorRef.current
+        if (onError && e instanceof Error) onError(e)
+        else throw e
+      }
     },
-    [onClick, enterOnly, exitOnly, sessionMode, sessionInit]
+    [onClick, enterOnly, exitOnly, sessionMode, sessionInit, onErrorRef]
   )
 
   return (
