@@ -282,6 +282,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   const [status, setStatus] = React.useState<XRButtonStatus>('exited')
   const label = status === 'unsupported' ? `${mode} unsupported` : `${status === 'entered' ? 'Exit' : 'Enter'} ${mode}`
   const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
+  const onErrorRef = useCallbackRef(onError)
 
   useIsomorphicLayoutEffect(() => {
     if (!navigator?.xr) return void setStatus('unsupported')
@@ -322,16 +323,13 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
         }
 
         xrState.set(() => ({ session }))
-      } catch (e: any) {
-        if (onError && e instanceof Error) {
-          onError(e)
-          return
-        }
-
-        throw e
+      } catch (e) {
+        const onError = onErrorRef.current
+        if (onError && e instanceof Error) onError(e)
+        else throw e
       }
     },
-    [onClick, enterOnly, exitOnly, sessionMode, sessionInit]
+    [onClick, enterOnly, exitOnly, sessionMode, sessionInit, onErrorRef]
   )
 
   return (
