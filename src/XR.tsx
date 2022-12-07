@@ -358,6 +358,7 @@ const buttonStyles: any = {
 export const ARButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 'mode'>>(
   (
     {
+      style = buttonStyles,
       sessionInit = {
         // @ts-ignore
         domOverlay: typeof document !== 'undefined' ? { root: document.body } : undefined,
@@ -368,15 +369,23 @@ export const ARButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 
     },
     ref
   ) => (
-    <XRButton {...rest} ref={ref} mode="AR" style={buttonStyles} sessionInit={sessionInit}>
+    <XRButton {...rest} ref={ref} mode="AR" style={style} sessionInit={sessionInit}>
       {children}
     </XRButton>
   )
 )
 
 export const VRButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 'mode'>>(
-  ({ sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] }, children, ...rest }, ref) => (
-    <XRButton {...rest} ref={ref} mode="VR" style={buttonStyles} sessionInit={sessionInit}>
+  (
+    {
+      style = buttonStyles,
+      sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] },
+      children,
+      ...rest
+    },
+    ref
+  ) => (
+    <XRButton {...rest} ref={ref} mode="VR" style={style} sessionInit={sessionInit}>
       {children}
     </XRButton>
   )
