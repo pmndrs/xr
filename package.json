@@ -55,7 +55,7 @@
     "vite": "^3.0.5"
   },
   "dependencies": {
-    "three-stdlib": "^2.12.1",
+    "three-stdlib": "^2.21.1",
     "zustand": "^3.7.1"
   },
   "peerDependencies": {
