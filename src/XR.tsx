@@ -153,8 +153,8 @@ function XRManager({
     <InteractionManager>
       <primitive object={player}>
         <primitive object={camera} />
-        {controllers.map((controller, i) => (
-          <primitive key={i} object={controller} />
+        {controllers.map((controller) => (
+          <primitive key={controller.index} object={controller} />
         ))}
       </primitive>
       {children}
