@@ -280,6 +280,35 @@ const getSessionOptions = (
   return sessionInit
 }
 
+export const toggleSessionHeadless = async (
+  sessionMode: XRSessionMode,
+  { sessionInit, onError, enterOnly, exitOnly }: Pick<XRButtonProps, 'sessionInit' | 'onError' | 'enterOnly' | 'exitOnly'> = {}
+) => {
+  const xrState = globalSessionStore.getState()
+
+  // Bail if button only configures exit/enter
+  if (xrState.session && enterOnly) return
+  if (!xrState.session && exitOnly) return
+
+  let session: XRSession | null = null
+
+  try {
+    // Exit/enter session
+    if (xrState.session) {
+      await xrState.session.end()
+    } else {
+      const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
+      session = await navigator.xr!.requestSession(sessionMode, options)
+    }
+
+    xrState.set(() => ({ session }))
+    return session
+  } catch (e) {
+    if (onError && e instanceof Error) onError(e)
+    else throw e
+  }
+}
+
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
   { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, onError, children, ...props },
   ref
@@ -309,32 +338,9 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
   const toggleSession = React.useCallback(
     async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onClick?.(event)
-
-      const xrState = globalSessionStore.getState()
-
-      // Bail if button only configures exit/enter
-      if (xrState.session && enterOnly) return
-      if (!xrState.session && exitOnly) return
-
-      let session: XRSession | null = null
-
-      try {
-        // Exit/enter session
-        if (xrState.session) {
-          await xrState.session.end()
-        } else {
-          const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
-          session = await navigator.xr!.requestSession(sessionMode, options)
-        }
-
-        xrState.set(() => ({ session }))
-      } catch (e) {
-        const onError = onErrorRef.current
-        if (onError && e instanceof Error) onError(e)
-        else throw e
-      }
+      toggleSessionHeadless(sessionMode, { sessionInit, onError: onErrorRef.current, enterOnly, exitOnly })
     },
-    [onClick, enterOnly, exitOnly, sessionMode, sessionInit, onErrorRef]
+    [onClick, sessionMode, sessionInit, onErrorRef, enterOnly, exitOnly]
   )
 
   return (
