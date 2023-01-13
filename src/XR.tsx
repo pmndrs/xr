@@ -17,6 +17,7 @@ export interface XRState {
   player: THREE.Group
   session: XRSession | null
   foveation: number
+  frameRate?: number
   referenceSpace: XRReferenceSpaceType
 
   hoverState: Record<XRHandedness, Map<THREE.Object3D, THREE.Intersection>>
@@ -48,6 +49,15 @@ export interface XRProps {
    * 1 = maximum foveation, the edges render at lower resolution
    */
   foveation?: number
+  /**
+   * The target framerate for the XRSystem. Smaller rates give more CPU headroom at the cost of responsiveness.
+   * Recommended range is `72`-`120`. Default is unset and left to the device.
+   * @note If your experience cannot effectively reach the target framerate, it will be subject to frame reprojection
+   * which will halve the effective framerate. Choose a conservative estimate that balances responsiveness and
+   * flexibility based on your experience.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API/Rendering#refresh_rate_and_frame_rate
+   */
+  frameRate?: number
   /** Type of WebXR reference space to use. Default is `local-floor` */
   referenceSpace?: XRReferenceSpaceType
   /** Called as an XRSession is requested */
@@ -62,6 +72,7 @@ export interface XRProps {
 }
 function XRManager({
   foveation = 0,
+  frameRate = undefined,
   referenceSpace = 'local-floor',
   onSessionStart,
   onSessionEnd,
@@ -105,6 +116,15 @@ function XRManager({
     gl.xr.setFoveation(foveation)
     set(() => ({ foveation }))
   }, [gl.xr, foveation, set])
+
+  useIsomorphicLayoutEffect(() => {
+    try {
+      if (frameRate) session?.updateTargetFrameRate?.(frameRate)
+    } catch (_) {
+      // Framerate not supported or configurable
+    }
+    set(() => ({ frameRate }))
+  }, [session, frameRate, set])
 
   useIsomorphicLayoutEffect(() => {
     const globalSessionState = globalSessionStore.getState()
