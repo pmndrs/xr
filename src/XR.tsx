@@ -72,6 +72,7 @@ function XRManager({
   const gl = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
   const player = useXR((state) => state.player)
+  const get = useXR((state) => state.get)
   const set = useXR((state) => state.set)
   const session = useXR((state) => state.session)
   const controllers = useXR((state) => state.controllers)
@@ -139,7 +140,11 @@ function XRManager({
     session.addEventListener('visibilitychange', handleVisibilityChange)
     session.addEventListener('inputsourceschange', handleInputSourcesChange)
 
-    gl.xr.setSession(session)
+    gl.xr.setSession(session).then(() => {
+      // on setSession, three#WebXRManager resets foveation to 1
+      // so foveation set needs to happen after it
+      gl.xr.setFoveation(get().foveation)
+    })
 
     return () => {
       gl.xr.removeEventListener('sessionstart', handleSessionStart)
@@ -147,7 +152,7 @@ function XRManager({
       session.removeEventListener('visibilitychange', handleVisibilityChange)
       session.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
-  }, [session, gl.xr, set])
+  }, [session, gl.xr, set, get])
 
   return (
     <InteractionManager>
