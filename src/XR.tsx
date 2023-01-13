@@ -54,7 +54,7 @@ export interface XRProps {
    * Recommended range is `72`-`120`. Default is unset and left to the device.
    * @note If your experience cannot effectively reach the target framerate, it will be subject to frame reprojection
    * which will halve the effective framerate. Choose a conservative estimate that balances responsiveness and
-   * flexibility based on your experience.
+   * headroom based on your experience.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/WebXR_Device_API/Rendering#refresh_rate_and_frame_rate
    */
   frameRate?: number
