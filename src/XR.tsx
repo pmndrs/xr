@@ -357,11 +357,12 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
       try {
         toggleSession(sessionMode, { sessionInit, enterOnly, exitOnly })
       } catch (e) {
-        if (onError && e instanceof Error) onErrorRef.current?.(e)
+        const onError = onErrorRef.current
+        if (onError && e instanceof Error) onError(e)
         else throw e
       }
     },
-    [onClick, sessionMode, sessionInit, enterOnly, exitOnly, onError, onErrorRef]
+    [onClick, sessionMode, sessionInit, enterOnly, exitOnly, onErrorRef]
   )
 
   return (
