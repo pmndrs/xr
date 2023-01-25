@@ -257,3 +257,25 @@ It supports an optional third parameter with options for filtering by handedness
 ```jsx
 useXREvent('squeeze', (event: XRControllerEvent) => ..., { handedness: 'left' | 'right' | 'none' })
 ```
+
+### Custom XRButton
+
+While you can customize XRButton, there's a way to shave off `react-dom` and customize it even more. For this there's a couple of low-level utilities of a headless xr button: `startSession`, `stopSession` and `toggleSession`.
+
+```jsx
+import { toggleSession } from '@react-three/xr'
+
+const handleClick = async () => {
+  const session = await toggleSession('immersive-vr')
+  if (session) {
+    button.innerText = 'Exit VR'
+  } else {
+    button.innerText = 'Enter VR'
+  }
+}
+
+const button = document.createElement('button')
+button.innerText = 'Enter VR'
+button.addEventListener('click', handleClick)
+document.appendChild(button)
+```
