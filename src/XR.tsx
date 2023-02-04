@@ -280,6 +280,50 @@ const getSessionOptions = (
   return sessionInit
 }
 
+export const startSession = async (sessionMode: XRSessionMode, sessionInit: XRButtonProps['sessionInit']) => {
+  const xrState = globalSessionStore.getState()
+
+  if (xrState.session) {
+    console.warn('@react-three/xr: session already started, please stop it first')
+    return
+  }
+
+  const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
+  const session = await navigator.xr!.requestSession(sessionMode, options)
+  xrState.set(() => ({ session }))
+  return session
+}
+
+export const stopSession = async () => {
+  const xrState = globalSessionStore.getState()
+
+  if (!xrState.session) {
+    console.warn('@react-three/xr: no session to stop, please start it first')
+    return
+  }
+
+  await xrState.session.end()
+  xrState.set({ session: null })
+}
+
+export const toggleSession = async (
+  sessionMode: XRSessionMode,
+  { sessionInit, enterOnly, exitOnly }: Pick<XRButtonProps, 'sessionInit' | 'enterOnly' | 'exitOnly'> = {}
+) => {
+  const xrState = globalSessionStore.getState()
+
+  // Bail if certain toggle way is disabled
+  if (xrState.session && enterOnly) return
+  if (!xrState.session && exitOnly) return
+
+  // Exit/enter session
+  if (xrState.session) {
+    return await stopSession()
+  } else {
+    return await startSession(sessionMode, sessionInit)
+  }
+}
+
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
   { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, onError, children, ...props },
   ref
@@ -306,39 +350,23 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
     [status]
   )
 
-  const toggleSession = React.useCallback(
+  const handleButtonClick = React.useCallback(
     async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onClick?.(event)
 
-      const xrState = globalSessionStore.getState()
-
-      // Bail if button only configures exit/enter
-      if (xrState.session && enterOnly) return
-      if (!xrState.session && exitOnly) return
-
-      let session: XRSession | null = null
-
       try {
-        // Exit/enter session
-        if (xrState.session) {
-          await xrState.session.end()
-        } else {
-          const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
-          session = await navigator.xr!.requestSession(sessionMode, options)
-        }
-
-        xrState.set(() => ({ session }))
+        toggleSession(sessionMode, { sessionInit, enterOnly, exitOnly })
       } catch (e) {
         const onError = onErrorRef.current
         if (onError && e instanceof Error) onError(e)
         else throw e
       }
     },
-    [onClick, enterOnly, exitOnly, sessionMode, sessionInit, onErrorRef]
+    [onClick, sessionMode, sessionInit, enterOnly, exitOnly, onErrorRef]
   )
 
   return (
-    <button {...props} ref={ref} onClick={status === 'unsupported' ? onClick : toggleSession}>
+    <button {...props} ref={ref} onClick={status === 'unsupported' ? onClick : handleButtonClick}>
       {typeof children === 'function' ? children(status) : children ?? label}
     </button>
   )
