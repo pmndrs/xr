@@ -1,6 +1,7 @@
 {
   "name": "@react-three/xr",
   "version": "5.2.0",
+  "packageManager": "yarn@1.22.19",
   "description": "React components and hooks for creating VR/AR applications with react-three-fiber",
   "keywords": [
     "xr",
