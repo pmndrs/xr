@@ -13,13 +13,13 @@ jobs:
       - uses: actions/setup-node@v2
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Check build health
         run: yarn build
 
-      # - name: Run tests
-      #   run: yarn test --silent
+      - name: Run tests
+        run: yarn test --silent
 
       - name: Check for regressions
         run: yarn lint
