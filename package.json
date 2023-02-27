@@ -38,6 +38,7 @@
     "@react-three/fiber": "^8.0.27",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
+    "@types/react-test-renderer": "^18.0.0",
     "@types/three": "^0.141.0",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
@@ -48,12 +49,15 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "happy-dom": "^8.9.0",
     "prettier": "^2.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-test-renderer": "^18.2.0",
     "three": "^0.141.0",
     "typescript": "^4.5.5",
-    "vite": "^3.0.5"
+    "vite": "^3.0.5",
+    "vitest": "^0.29.1"
   },
   "dependencies": {
     "three-stdlib": "^2.21.1",
@@ -68,6 +72,7 @@
     "dev": "vite",
     "build": "vite build && tsc",
     "lint": "eslint src/**/*.{ts,tsx}",
-    "test": "echo no tests yet"
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   }
 }
