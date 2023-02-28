@@ -1,13 +1,14 @@
 import path from 'path'
 import react from '@vitejs/plugin-react'
 import ssl from '@vitejs/plugin-basic-ssl'
+import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import { defineConfig } from 'vite'
 
 const config = {
   serve: {
     root: 'examples',
-    plugins: [react(), ssl()],
-    server: { host: true, https: true },
+    plugins: [react(), ssl(), vanillaExtractPlugin()],
+    server: { host: '0.0.0.0', https: true },
     resolve: {
       alias: {
         '@react-three/xr': path.resolve(process.cwd(), 'src')

@@ -1,61 +1,77 @@
-import * as React from 'react'
-import * as THREE from 'three'
-import { VRButton, XR, Hands, useXR, Interactive, useHitTest, Controllers } from '@react-three/xr'
-import { Box, Text } from '@react-three/drei'
-import { useFrame, Canvas } from '@react-three/fiber'
+// Inspired by react-three-fiber/examples
+// https://github.com/pmndrs/react-three-fiber/blob/master/example/src/App.tsx
+import React from 'react'
+import { demoDots, demoName, demoPanel, dot, error, loadingContainer, loadingMessage, page } from './styles.css'
+import { Link, Redirect, Route, useRoute } from 'wouter'
 
-function Button(props: JSX.IntrinsicElements['mesh']) {
-  const [hover, setHover] = React.useState(false)
-  const [color, setColor] = React.useState(0x123456)
+import * as demos from './demos'
+import useErrorBoundary from 'use-error-boundary'
+
+const DEFAULT_COMPONENT_NAME = 'Interactive'
+const visibleComponents = Object.entries(demos).reduce(
+  (acc, [name, item]) => ({ ...acc, [name]: item }),
+  {} as Record<string, { Component: React.LazyExoticComponent<() => JSX.Element> }>
+)
+
+function ErrorBoundary({ children, fallback, name }: any) {
+  const { ErrorBoundary, didCatch, error } = useErrorBoundary()
+  return didCatch ? fallback(error) : <ErrorBoundary key={name}>{children}</ErrorBoundary>
+}
+
+function Demo() {
+  const [match, params] = useRoute('/demo/:name')
+  const compName = match && params.name && typeof params.name === 'string' ? params.name : DEFAULT_COMPONENT_NAME
+  const Component = compName in visibleComponents ? visibleComponents[compName].Component : null
+
+  if (!Component) {
+    return null
+  }
 
   return (
-    <Interactive onSelect={() => setColor((Math.random() * 0xffffff) | 0)} onHover={() => setHover(true)} onBlur={() => setHover(false)}>
-      <Box {...props} args={[0.4, 0.1, 0.1]} scale={hover ? 1.5 : 1}>
-        <meshStandardMaterial color={color} />
-        {false && (
-          <Text position={[0, 0, 0.06]} fontSize={0.05} color="#000" anchorX="center" anchorY="middle">
-            Hello react-xr!
-          </Text>
-        )}
-      </Box>
-    </Interactive>
+    <ErrorBoundary key={compName} fallback={(e: any) => <div className={error}>{e}</div>}>
+      <Component />
+    </ErrorBoundary>
   )
 }
 
-function PlayerExample() {
-  const player = useXR((state) => state.player)
-  useFrame(() => void (player.rotation.x = player.rotation.y += 0.01))
-
-  return null
+export const Loading = () => {
+  return (
+    <div className={loadingContainer}>
+      <div className={loadingMessage}>Loading.</div>
+    </div>
+  )
 }
 
-function HitTestExample() {
-  const boxRef = React.useRef<THREE.Mesh>(null!)
-  useHitTest((hitMatrix) => {
-    hitMatrix.decompose(boxRef.current.position, boxRef.current.quaternion, boxRef.current.scale)
-  })
+function Dots() {
+  const [match, params] = useRoute('/demo/:name')
+  if (!match) return null
 
-  return <Box ref={boxRef} args={[0.1, 0.1, 0.1]} />
+  return (
+    <div className={demoPanel}>
+      <div className={demoDots}>
+        {Object.entries(visibleComponents).map(function mapper([name, item]) {
+          const background = params.name === name ? 'salmon' : '#fff'
+          return <Link className={dot} key={name} to={`/demo/${name}`} style={{ background }} />
+        })}
+      </div>
+      <div className={demoName}>{params.name}</div>
+    </div>
+  )
 }
 
 export function App() {
+  const dev = new URLSearchParams(location.search).get('dev')
   return (
     <>
-      <VRButton onError={(e) => console.error(e)} />
-      <Canvas>
-        <XR>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[5, 5, 5]} />
-          <Hands
-          // modelLeft="/hand-left.gltf"
-          // modelRight="/hand-right.gltf"
-          />
-          <Button position={[0, 0.8, -1]} />
-          <Controllers />
-          {false && <PlayerExample />}
-          {false && <HitTestExample />}
-        </XR>
-      </Canvas>
+      <div className={page}>
+        <React.Suspense fallback={<Loading />}>
+          <Route path="/" children={<Redirect to={`/demo/${DEFAULT_COMPONENT_NAME}`} />} />
+          <Route path="/demo/:name">
+            <Demo />
+          </Route>
+        </React.Suspense>
+        {dev === null && <Dots />}
+      </div>
     </>
   )
 }
