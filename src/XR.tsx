@@ -243,6 +243,7 @@ export function XR(props: XRProps) {
 }
 
 export type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
+export type XRButtonUnsupportedReason = 'unknown' | 'https' | 'security'
 export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onError'> {
   /** The type of `XRSession` to create */
   mode: 'AR' | 'VR' | 'inline'
@@ -324,18 +325,58 @@ export const toggleSession = async (
   }
 }
 
+const getLabel = (status: XRButtonStatus, mode: XRButtonProps['mode'], reason: XRButtonUnsupportedReason) => {
+  switch (status) {
+    case 'entered':
+      return `Exit ${mode}`
+    case 'exited':
+      return `Enter ${mode}`
+    case 'unsupported':
+    default:
+      switch (reason) {
+        case 'https':
+          return 'HTTPS needed'
+        case 'security':
+          return `${mode} blocked`
+        case 'unknown':
+        default:
+          return `${mode} unsupported`
+      }
+  }
+}
+
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
   { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, onError, children, ...props },
   ref
 ) {
   const [status, setStatus] = React.useState<XRButtonStatus>('exited')
-  const label = status === 'unsupported' ? `${mode} unsupported` : `${status === 'entered' ? 'Exit' : 'Enter'} ${mode}`
+  const [reason, setReason] = React.useState<XRButtonUnsupportedReason>('unknown')
+  const label = getLabel(status, mode, reason)
   const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
   const onErrorRef = useCallbackRef(onError)
 
   useIsomorphicLayoutEffect(() => {
     if (!navigator?.xr) return void setStatus('unsupported')
-    navigator.xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
+    navigator.xr
+      .isSessionSupported(sessionMode)
+      .then((supported) => {
+        if (!supported) {
+          const isHttps = location.protocol === 'https:'
+          setStatus('unsupported')
+          setReason(isHttps ? 'unknown' : 'https')
+        } else {
+          setStatus('exited')
+        }
+      })
+      .catch((error) => {
+        setStatus('unsupported')
+        // https://developer.mozilla.org/en-US/docs/Web/API/XRSystem/isSessionSupported#exceptions
+        if ('name' in error && error.name === 'SecurityError') {
+          setReason('security')
+        } else {
+          setReason('unknown')
+        }
+      })
   }, [sessionMode])
 
   useIsomorphicLayoutEffect(

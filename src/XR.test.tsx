@@ -32,6 +32,7 @@ const renderWithEffects = async (element: React.ReactElement) => {
 describe('XR', () => {
   let xrSystemMock = new XRSystemMock()
   beforeEach(() => {
+    location.href = 'https://example.com'
     navigator.xr = xrSystemMock
   })
 
@@ -58,6 +59,40 @@ describe('XR', () => {
     expect(tree).toMatchInlineSnapshot(`
       <button>
         VR unsupported
+      </button>
+    `)
+  })
+
+  it('should render https needed button if navigator.xr is present but protocol is not https', async () => {
+    location.href = 'http://example.com'
+    xrSystemMock.isSessionSupported.mockResolvedValueOnce(false)
+    const root = await renderWithEffects(<XRButton mode="VR" />)
+    const tree = toJson(root)
+    expect(tree).toMatchInlineSnapshot(`
+      <button>
+        HTTPS needed
+      </button>
+    `)
+  })
+
+  it('should render unsupported button if navigator.xr is present but isSessionSupported rejects with non discernable error', async () => {
+    xrSystemMock.isSessionSupported.mockRejectedValueOnce(new DOMException('', ''))
+    const root = await renderWithEffects(<XRButton mode="VR" />)
+    const tree = toJson(root)
+    expect(tree).toMatchInlineSnapshot(`
+      <button>
+        VR unsupported
+      </button>
+    `)
+  })
+
+  it('should render https needed button if navigator.xr is present but isSessionSupported rejects with SecurityError', async () => {
+    xrSystemMock.isSessionSupported.mockRejectedValueOnce(new DOMException('', 'SecurityError'))
+    const root = await renderWithEffects(<XRButton mode="VR" />)
+    const tree = toJson(root)
+    expect(tree).toMatchInlineSnapshot(`
+      <button>
+        VR blocked
       </button>
     `)
   })
