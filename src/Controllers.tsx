@@ -102,11 +102,13 @@ export const useMotionControllers = () => {
   useFrame(() => {
     const mcs = controllers.map(
       (c) => (getObjectByPredicate(c.grip, (o) => 'xrControllerModel' in o) as any)?.xrControllerModel.motionController as MotionController
-    )
+    ).filter(Boolean)
     if (mcs.length !== motionControllers.length) {
       setMotionControllers(mcs)
     }
   })
+
+  return motionControllers
 }
 
 declare global {
