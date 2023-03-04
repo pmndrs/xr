@@ -42,6 +42,7 @@
     "@types/three": "^0.141.0",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
+    "@vanilla-extract/vite-plugin": "^3.8.0",
     "@vitejs/plugin-basic-ssl": "^0.1.2",
     "@vitejs/plugin-react": "^2.0.0",
     "eslint": "^8.8.0",
