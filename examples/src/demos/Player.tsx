@@ -17,7 +17,7 @@ function PlayerExample() {
 export default function () {
   return (
     <>
-      <VRButton onError={(e) => console.error(e)} />
+      <VRButton />
       <Canvas>
         <XR>
           <ambientLight intensity={0.5} />
