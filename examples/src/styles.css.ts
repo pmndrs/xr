@@ -1,4 +1,4 @@
-import { style, globalStyle } from '@vanilla-extract/css'
+import { style, globalStyle, styleVariants } from '@vanilla-extract/css'
 
 export const page = style({
   position: 'relative',
@@ -120,4 +120,29 @@ export const error = style({
   maxWidth: '380px',
   border: '2px solid #ff5050',
   color: '#ff5050'
+})
+
+const buttonBase = style({
+  border: 0,
+  borderRadius: 6,
+  padding: 12,
+  display: 'flex',
+  color: 'black',
+  background: 'white',
+  ':hover': { cursor: 'pointer', filter: 'drop-shadow(0 0 12px hotpink)' }
+})
+
+export const selectableButton = styleVariants({
+  default: [buttonBase],
+  selected: [buttonBase, { background: 'salmon' }]
+})
+
+export const controls = style({
+  zIndex: 1000,
+  position: 'absolute',
+  gap: '6px',
+  bottom: '120px',
+  left: '50%',
+  transform: 'translate(-50%, 0)',
+  display: 'flex'
 })
