@@ -83,6 +83,7 @@ function XRManager({
   const gl = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
   const player = useXR((state) => state.player)
+  const get = useXR((state) => state.get)
   const set = useXR((state) => state.set)
   const session = useXR((state) => state.session)
   const controllers = useXR((state) => state.controllers)
@@ -159,7 +160,11 @@ function XRManager({
     session.addEventListener('visibilitychange', handleVisibilityChange)
     session.addEventListener('inputsourceschange', handleInputSourcesChange)
 
-    gl.xr.setSession(session)
+    gl.xr.setSession(session).then(() => {
+      // on setSession, three#WebXRManager resets foveation to 1
+      // so foveation set needs to happen after it
+      gl.xr.setFoveation(get().foveation)
+    })
 
     return () => {
       gl.xr.removeEventListener('sessionstart', handleSessionStart)
@@ -167,7 +172,7 @@ function XRManager({
       session.removeEventListener('visibilitychange', handleVisibilityChange)
       session.removeEventListener('inputsourceschange', handleInputSourcesChange)
     }
-  }, [session, gl.xr, set])
+  }, [session, gl.xr, set, get])
 
   return (
     <InteractionManager>
@@ -258,6 +263,7 @@ export function XR(props: XRProps) {
 }
 
 export type XRButtonStatus = 'unsupported' | 'exited' | 'entered'
+export type XRButtonUnsupportedReason = 'unknown' | 'https' | 'security'
 export interface XRButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onError'> {
   /** The type of `XRSession` to create */
   mode: 'AR' | 'VR' | 'inline'
@@ -295,18 +301,102 @@ const getSessionOptions = (
   return sessionInit
 }
 
+export const startSession = async (sessionMode: XRSessionMode, sessionInit: XRButtonProps['sessionInit']) => {
+  const xrState = globalSessionStore.getState()
+
+  if (xrState.session) {
+    console.warn('@react-three/xr: session already started, please stop it first')
+    return
+  }
+
+  const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
+  const session = await navigator.xr!.requestSession(sessionMode, options)
+  xrState.set(() => ({ session }))
+  return session
+}
+
+export const stopSession = async () => {
+  const xrState = globalSessionStore.getState()
+
+  if (!xrState.session) {
+    console.warn('@react-three/xr: no session to stop, please start it first')
+    return
+  }
+
+  await xrState.session.end()
+  xrState.set({ session: null })
+}
+
+export const toggleSession = async (
+  sessionMode: XRSessionMode,
+  { sessionInit, enterOnly, exitOnly }: Pick<XRButtonProps, 'sessionInit' | 'enterOnly' | 'exitOnly'> = {}
+) => {
+  const xrState = globalSessionStore.getState()
+
+  // Bail if certain toggle way is disabled
+  if (xrState.session && enterOnly) return
+  if (!xrState.session && exitOnly) return
+
+  // Exit/enter session
+  if (xrState.session) {
+    return await stopSession()
+  } else {
+    return await startSession(sessionMode, sessionInit)
+  }
+}
+
+const getLabel = (status: XRButtonStatus, mode: XRButtonProps['mode'], reason: XRButtonUnsupportedReason) => {
+  switch (status) {
+    case 'entered':
+      return `Exit ${mode}`
+    case 'exited':
+      return `Enter ${mode}`
+    case 'unsupported':
+    default:
+      switch (reason) {
+        case 'https':
+          return 'HTTPS needed'
+        case 'security':
+          return `${mode} blocked`
+        case 'unknown':
+        default:
+          return `${mode} unsupported`
+      }
+  }
+}
+
 export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(function XRButton(
   { mode, sessionInit, enterOnly = false, exitOnly = false, onClick, onError, children, ...props },
   ref
 ) {
   const [status, setStatus] = React.useState<XRButtonStatus>('exited')
-  const label = status === 'unsupported' ? `${mode} unsupported` : `${status === 'entered' ? 'Exit' : 'Enter'} ${mode}`
+  const [reason, setReason] = React.useState<XRButtonUnsupportedReason>('unknown')
+  const label = getLabel(status, mode, reason)
   const sessionMode = (mode === 'inline' ? mode : `immersive-${mode.toLowerCase()}`) as XRSessionMode
   const onErrorRef = useCallbackRef(onError)
 
   useIsomorphicLayoutEffect(() => {
     if (!navigator?.xr) return void setStatus('unsupported')
-    navigator.xr!.isSessionSupported(sessionMode).then((supported) => setStatus(supported ? 'exited' : 'unsupported'))
+    navigator.xr
+      .isSessionSupported(sessionMode)
+      .then((supported) => {
+        if (!supported) {
+          const isHttps = location.protocol === 'https:'
+          setStatus('unsupported')
+          setReason(isHttps ? 'unknown' : 'https')
+        } else {
+          setStatus('exited')
+        }
+      })
+      .catch((error) => {
+        setStatus('unsupported')
+        // https://developer.mozilla.org/en-US/docs/Web/API/XRSystem/isSessionSupported#exceptions
+        if ('name' in error && error.name === 'SecurityError') {
+          setReason('security')
+        } else {
+          setReason('unknown')
+        }
+      })
   }, [sessionMode])
 
   useIsomorphicLayoutEffect(
@@ -321,39 +411,23 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
     [status]
   )
 
-  const toggleSession = React.useCallback(
+  const handleButtonClick = React.useCallback(
     async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onClick?.(event)
 
-      const xrState = globalSessionStore.getState()
-
-      // Bail if button only configures exit/enter
-      if (xrState.session && enterOnly) return
-      if (!xrState.session && exitOnly) return
-
-      let session: XRSession | null = null
-
       try {
-        // Exit/enter session
-        if (xrState.session) {
-          await xrState.session.end()
-        } else {
-          const options = getSessionOptions(xrState.referenceSpaceType, sessionInit)
-          session = await navigator.xr!.requestSession(sessionMode, options)
-        }
-
-        xrState.set(() => ({ session }))
+        toggleSession(sessionMode, { sessionInit, enterOnly, exitOnly })
       } catch (e) {
         const onError = onErrorRef.current
         if (onError && e instanceof Error) onError(e)
         else throw e
       }
     },
-    [onClick, enterOnly, exitOnly, sessionMode, sessionInit, onErrorRef]
+    [onClick, sessionMode, sessionInit, enterOnly, exitOnly, onErrorRef]
   )
 
   return (
-    <button {...props} ref={ref} onClick={status === 'unsupported' ? onClick : toggleSession}>
+    <button {...props} ref={ref} onClick={status === 'unsupported' ? onClick : handleButtonClick}>
       {typeof children === 'function' ? children(status) : children ?? label}
     </button>
   )
