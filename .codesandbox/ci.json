@@ -1,4 +1,6 @@
 {
   "sandboxes": ["/examples"],
-  "node": "14"
+  "node": "16",
+  "installCommand": "install",
+  "buildCommand": "build"
 }
