@@ -1,0 +1,16 @@
+{
+  "setupTasks": [
+    {
+      "name": "Installing Dependencies",
+      "command": "yarn install"
+    },
+    {
+      "name": "Start Dev Server",
+      "command": "yarn dev",
+      "preview": {
+        "port": 5173,
+        "prLink": "direct"
+      }
+    }
+  ]
+}
