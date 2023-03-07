@@ -1,6 +1,4 @@
 {
   "sandboxes": ["/examples"],
-  "node": "16",
-  "installCommand": "yarn install",
-  "buildCommand": "build"
+  "node": "16"
 }
