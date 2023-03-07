@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "sandbox": "yarn install && yarn dev"
   },
   "dependencies": {
     "@react-three/drei": "^9.53.0",
