@@ -16,6 +16,5 @@
       "@react-three/xr": ["./src"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["src/**/*.test.*", "src/mocks/**"]
+  "include": ["src/**/*"]
 }
