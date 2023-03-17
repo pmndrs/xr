@@ -29,9 +29,10 @@
     "dist/*",
     "src/*"
   ],
+  "type": "module",
   "types": "dist/index.d.ts",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "sideEffects": false,
   "devDependencies": {
     "@react-three/drei": "^9.13.2",
