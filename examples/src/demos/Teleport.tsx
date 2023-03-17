@@ -11,15 +11,15 @@ export default function () {
           <Controllers />
           <TeleportationPlane leftHand />
           <mesh position={[1, 0, 0]}>
-            <boxBufferGeometry args={[0.1, 0.1, 0.1]} />
+            <boxGeometry args={[0.1, 0.1, 0.1]} />
             <meshBasicMaterial color="red" />
           </mesh>
           <mesh position={[0, 1, 0]}>
-            <boxBufferGeometry args={[0.1, 0.1, 0.1]} />
+            <boxGeometry args={[0.1, 0.1, 0.1]} />
             <meshBasicMaterial color="green" />
           </mesh>
           <mesh position={[0, 0, 1]}>
-            <boxBufferGeometry args={[0.1, 0.1, 0.1]} />
+            <boxGeometry args={[0.1, 0.1, 0.1]} />
             <meshBasicMaterial color="blue" />
           </mesh>
           <ambientLight intensity={0.5} />
