@@ -288,3 +288,7 @@ button.innerText = 'Enter VR'
 button.addEventListener('click', handleClick)
 document.appendChild(button)
 ```
+
+## Built with react-xr
+
+* <a href="https://github.com/richardanaya/avatar-poser"><img src="https://raw.githubusercontent.com/richardanaya/avatar-poser/main/public/avatar-poser.png" alt="Avatar Poser github link" width="100"/></a>
