@@ -51,9 +51,7 @@ export function useTeleportation() {
     [baseReferenceSpace, xrManager, session]
   )
 
-  return {
-    teleportTo
-  }
+  return teleportTo
 }
 
 export type TeleportationPlaneProps = {
@@ -65,7 +63,7 @@ export type TeleportationPlaneProps = {
 const MARKER_SIZE = 0.25
 
 export function TeleportationPlane(props: TeleportationPlaneProps) {
-  const { teleportTo } = useTeleportation()
+  const teleportTo = useTeleportation()
   const [intersection, setIntersection] = useState<Vector3 | null>(null)
   const [size, setSize] = useState(MARKER_SIZE)
   const maxDistanceTeleport = props.maxDistance || 10
