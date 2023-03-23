@@ -1,33 +1,12 @@
 import * as React from 'react'
 import * as THREE from 'three'
-import create, { EqualityChecker, GetState, SetState, StateSelector, UseBoundStore } from 'zustand'
+import create, { EqualityChecker, GetState, SetState, StateSelector } from 'zustand'
 import { useThree } from '@react-three/fiber'
 import { XRController } from './XRController'
 import { InteractionManager, XRInteractionHandler, XRInteractionType } from './Interactions'
 import { XREventHandler } from './XREvents'
 import { uniq, useIsomorphicLayoutEffect, useCallbackRef } from './utils'
-
-export interface XRState {
-  set: SetState<XRState>
-  get: GetState<XRState>
-
-  controllers: XRController[]
-  isPresenting: boolean
-  isHandTracking: boolean
-  player: THREE.Group
-  session: XRSession | null
-  foveation: number
-  frameRate?: number
-  referenceSpace: XRReferenceSpaceType
-
-  hoverState: Record<XRHandedness, Map<THREE.Object3D, THREE.Intersection>>
-  interactions: Map<THREE.Object3D, Record<XRInteractionType, React.RefObject<XRInteractionHandler>[]>>
-  hasInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => boolean
-  getInteraction: (object: THREE.Object3D, eventType: XRInteractionType) => XRInteractionHandler[] | undefined
-  addInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) => void
-  removeInteraction: (object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) => void
-}
-const XRContext = React.createContext<UseBoundStore<XRState>>(null!)
+import { XRContext, XRState } from './context'
 
 interface GlobalSessionState {
   set: SetState<GlobalSessionState>
