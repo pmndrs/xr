@@ -1,9 +1,9 @@
 import { Box } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Controllers, Interactive, VRButton, XR } from '@react-three/xr'
-import React from 'react'
+import React, { ComponentProps } from 'react'
 
-export function Button(props: JSX.IntrinsicElements['mesh']) {
+export function Button(props: ComponentProps<typeof Box>) {
   const [hover, setHover] = React.useState(false)
   const [color, setColor] = React.useState(0x123456)
 
@@ -19,7 +19,7 @@ export function Button(props: JSX.IntrinsicElements['mesh']) {
 export default function () {
   return (
     <>
-      <VRButton onError={(e) => console.error(e)} />
+      <VRButton />
       <Canvas>
         <XR>
           <ambientLight intensity={0.5} />

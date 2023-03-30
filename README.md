@@ -299,7 +299,6 @@ A teleportation plane with a marker that will teleport on interaction.
 
 ```jsx
 import { TeleportationPlane } from '@react-three/xr'
-
 ;<TeleportationPlane
   /** Whether to allow teleportation from left controller. Default is `false` */
   leftHand={false}
@@ -324,3 +323,7 @@ const teleport = useTeleportation()
 teleport([x, y, z])
 teleport(new THREE.Vector3(x, y, z))
 ```
+
+## Built with react-xr
+
+- <a href="https://github.com/richardanaya/avatar-poser"><img src="https://raw.githubusercontent.com/richardanaya/avatar-poser/main/public/avatar-poser.png" alt="Avatar Poser github link" width="100"/></a>
