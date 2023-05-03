@@ -11,7 +11,10 @@ const config = {
     server: { host: '0.0.0.0', https: true },
     resolve: {
       alias: {
-        // react: path.resolve(process.cwd(), 'node_modules/react'),
+        react: path.resolve(process.cwd(), 'node_modules/react'),
+        'react-dom': path.resolve(process.cwd(), 'node_modules/react-dom'),
+        '@react-three/fiber': path.resolve(process.cwd(), 'node_modules/@react-three/fiber'),
+        '@react-three/drei': path.resolve(process.cwd(), 'node_modules/@react-three/drei'),
         '@react-three/xr': path.resolve(process.cwd(), 'src')
       }
     }
