@@ -11,6 +11,7 @@ const config = {
     server: { host: '0.0.0.0', https: true },
     resolve: {
       alias: {
+        // react: path.resolve(process.cwd(), 'node_modules/react'),
         '@react-three/xr': path.resolve(process.cwd(), 'src')
       }
     }
