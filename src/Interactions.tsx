@@ -278,7 +278,11 @@ export function useHitTest(hitTestCallback: HitTestCallback) {
       if (pose) {
         hitMatrix.fromArray(pose.transform.matrix)
         hitTestCallback(hitMatrix, hit)
+      } else {
+        hitTestCallback(undefined, hit)
       }
+    } else {
+      hitTestCallback(undefined, undefined)
     }
   })
 }
