@@ -252,7 +252,7 @@ export const RayGrab = React.forwardRef<THREE.Group, RayGrabProps>(function RayG
   )
 })
 
-export type HitTestCallback = (hitMatrix: THREE.Matrix4, hit: XRHitTestResult) => void
+export type HitTestCallback = (hitMatrix: THREE.Matrix4 | null, hit: XRHitTestResult | null) => void
 
 export function useHitTest(hitTestCallback: HitTestCallback) {
   const session = useXR((state) => state.session)
