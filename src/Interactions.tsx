@@ -279,10 +279,10 @@ export function useHitTest(hitTestCallback: HitTestCallback) {
         hitMatrix.fromArray(pose.transform.matrix)
         hitTestCallback(hitMatrix, hit)
       } else {
-        hitTestCallback(undefined, hit)
+        hitTestCallback(null, hit)
       }
     } else {
-      hitTestCallback(undefined, undefined)
+      hitTestCallback(null, null)
     }
   })
 }
