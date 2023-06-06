@@ -63,6 +63,8 @@
   },
   "dependencies": {
     "three-stdlib": "^2.21.1",
+    "use-error-boundary": "^2.0.6",
+    "wouter": "^2.11.0",
     "zustand": "^3.7.1"
   },
   "peerDependencies": {
