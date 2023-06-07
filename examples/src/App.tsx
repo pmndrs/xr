@@ -5,7 +5,7 @@ import { demoDots, demoName, demoPanel, dot, error, loadingContainer, loadingMes
 import { Link, Redirect, Route, useRoute } from 'wouter'
 
 import * as demos from './demos'
-import useErrorBoundary from 'use-error-boundary'
+import { useErrorBoundary } from 'use-error-boundary'
 
 const DEFAULT_COMPONENT_NAME = 'Interactive'
 const visibleComponents = Object.entries(demos).reduce(
@@ -49,7 +49,7 @@ function Dots() {
   return (
     <div className={demoPanel}>
       <div className={demoDots}>
-        {Object.entries(visibleComponents).map(function mapper([name, item]) {
+        {Object.entries(visibleComponents).map(function mapper([name, _item]) {
           const background = params.name === name ? 'salmon' : '#fff'
           return <Link className={dot} key={name} to={`/demo/${name}`} style={{ background }} />
         })}
