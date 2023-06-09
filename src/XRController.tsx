@@ -1,5 +1,40 @@
 import * as THREE from 'three'
 import { XRControllerEvent } from './XREvents'
+import {XRControllerModel, XRControllerModelFactory} from "./XRControllerModelFactory";
+
+
+export class ControllerModel extends THREE.Group {
+  readonly target: XRController
+  readonly xrControllerModel: XRControllerModel
+  private modelFactory: XRControllerModelFactory;
+
+  constructor(target: XRController, modelFactory: XRControllerModelFactory) {
+    super()
+    this.xrControllerModel = new XRControllerModel()
+    this.target = target
+    this.modelFactory = modelFactory
+    this.add(this.xrControllerModel)
+
+    this._onConnected = this._onConnected.bind(this)
+    this._onDisconnected = this._onDisconnected.bind(this)
+
+    this.target.controller.addEventListener('connected', this._onConnected)
+    this.target.controller.addEventListener('disconnected', this._onDisconnected)
+  }
+
+  private _onConnected(event: XRControllerEvent) {
+    this.modelFactory.initializeControllerModel(this.xrControllerModel, event)
+  }
+
+  private _onDisconnected(_event: XRControllerEvent) {
+    this.xrControllerModel.disconnect()
+  }
+
+  dispose() {
+    this.target.controller.removeEventListener('connected', this._onConnected)
+    this.target.controller.removeEventListener('disconnected', this._onDisconnected)
+  }
+}
 
 export class XRController extends THREE.Group {
   readonly index: number
@@ -7,6 +42,7 @@ export class XRController extends THREE.Group {
   readonly grip: THREE.XRGripSpace
   readonly hand: THREE.XRHandSpace
   public inputSource!: XRInputSource
+  public controllerModel: ControllerModel | null = null;
 
   constructor(index: number, gl: THREE.WebGLRenderer) {
     super()

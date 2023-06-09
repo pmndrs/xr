@@ -2,10 +2,11 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { useFrame, Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
-import { XRController } from './XRController'
+import { ControllerModel, XRController } from './XRController'
 import { useIsomorphicLayoutEffect } from './utils'
-import { XRControllerModel, XRControllerModelFactory } from './XRControllerModelFactory'
-import { XRControllerEvent } from './XREvents'
+import { XRControllerModelFactory } from './XRControllerModelFactory'
+import { useCallback, useEffect } from 'react'
+import { Texture } from 'three'
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   /** The XRController to attach the ray to */
@@ -13,6 +14,7 @@ export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   /** Whether to hide the ray on controller blur. Default is `false` */
   hideOnBlur?: boolean
 }
+
 export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target, hideOnBlur = false, ...props }, forwardedRef) {
   const hoverState = useXR((state) => state.hoverState)
   const ray = React.useRef<THREE.Line>(null!)
@@ -46,37 +48,6 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
 
 const modelFactory = new XRControllerModelFactory()
 
-class ControllerModel extends THREE.Group {
-  readonly target: XRController
-  readonly xrControllerModel: XRControllerModel
-
-  constructor(target: XRController) {
-    super()
-    this.xrControllerModel = new XRControllerModel()
-    this.target = target
-    this.add(this.xrControllerModel)
-
-    this._onConnected = this._onConnected.bind(this)
-    this._onDisconnected = this._onDisconnected.bind(this)
-
-    this.target.controller.addEventListener('connected', this._onConnected)
-    this.target.controller.addEventListener('disconnected', this._onDisconnected)
-  }
-
-  private _onConnected(event: XRControllerEvent) {
-    modelFactory.initializeControllerModel(this.xrControllerModel, event)
-  }
-
-  private _onDisconnected(_event: XRControllerEvent) {
-    this.xrControllerModel.disconnect()
-  }
-
-  dispose() {
-    this.target.controller.removeEventListener('connected', this._onConnected)
-    this.target.controller.removeEventListener('disconnected', this._onDisconnected)
-  }
-}
-
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -90,8 +61,11 @@ export interface ControllersProps {
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
   /** Whether to hide controllers' rays on blur. Default is `false` */
   hideRaysOnBlur?: boolean
+  envMap?: Texture
+  envMapIntensity?: number
 }
-export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: ControllersProps) {
+
+export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, envMapIntensity }: ControllersProps) {
   const controllers = useXR((state) => state.controllers)
   const isHandTracking = useXR((state) => state.isHandTracking)
   const rayMaterialProps = React.useMemo(
@@ -114,11 +88,27 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: Contro
     }
   }, [controllers])
 
+  const handleControllerModel = useCallback((r: ControllerModel | null, target: XRController) => {
+    target.controllerModel = r
+  }, [])
+
+  useEffect(() => {
+    if (!envMap) {
+      return
+    }
+    for (const target of controllers) {
+      if (target.controllerModel) {
+        target.controllerModel.xrControllerModel.setEnvironmentMap(envMap, envMapIntensity)
+        console.log('updated environment map')
+      }
+    }
+  }, [envMap, envMapIntensity, controllers])
+
   return (
     <>
       {controllers.map((target, i) => (
         <React.Fragment key={i}>
-          {createPortal(<controllerModel args={[target]} />, target.grip)}
+          {createPortal(<controllerModel ref={(r) => handleControllerModel(r, target)} args={[target, modelFactory]} />, target.grip)}
           {createPortal(
             <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
             target.controller

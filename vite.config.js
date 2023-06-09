@@ -6,6 +6,7 @@ import { defineConfig } from 'vite'
 
 const config = {
   serve: defineConfig({
+    assetsInclude: ['**/*.hdr', '**/*.gltf'],
     root: 'examples',
     plugins: [react(), ssl(), vanillaExtractPlugin()],
     server: { host: '0.0.0.0', https: true },

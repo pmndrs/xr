@@ -249,7 +249,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.19.0"
 
-"@babel/runtime@^7.11.2", "@babel/runtime@^7.16.7", "@babel/runtime@^7.17.8":
+"@babel/runtime@^7.11.2", "@babel/runtime@^7.17.8":
   version "7.20.13"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.20.13.tgz#7055ab8a7cff2b8f6058bf6ae45ff84ad2aded4b"
   integrity sha512-gt3PKXs0DBoL9xCvOIIZ2NEqAGZqHjAnmVbfQtB620V0uReIQutpel14KcneZuer7UioY8ALKZ7iocavvzTNFA==
@@ -504,6 +504,11 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
+"@mediapipe/tasks-vision@^0.10.0":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@mediapipe/tasks-vision/-/tasks-vision-0.10.1.tgz#68047459352019cc141dc9c1d15c05b8ab689423"
+  integrity sha512-/zIKjOAIABx+KVfqe8hA6X2pxBGsBYlEtvD7/gpXecvzKefo/JQO6XaggmJul7+noaqiPYM0CVGZxmFJ2oTdSQ==
+
 "@react-spring/animated@~9.6.1":
   version "9.6.1"
   resolved "https://registry.yarnpkg.com/@react-spring/animated/-/animated-9.6.1.tgz#ccc626d847cbe346f5f8815d0928183c647eb425"
@@ -535,7 +540,7 @@
     "@react-spring/rafz" "~9.6.1"
     "@react-spring/types" "~9.6.1"
 
-"@react-spring/three@^9.3.1":
+"@react-spring/three@~9.6.1":
   version "9.6.1"
   resolved "https://registry.yarnpkg.com/@react-spring/three/-/three-9.6.1.tgz#095fcd1dc6509127c33c14486d88289b89baeb9d"
   integrity sha512-Tyw2YhZPKJAX3t2FcqvpLRb71CyTe1GvT3V+i+xJzfALgpk10uPGdGaQQ5Xrzmok1340DAeg2pR/MCfaW7b8AA==
@@ -550,16 +555,17 @@
   resolved "https://registry.yarnpkg.com/@react-spring/types/-/types-9.6.1.tgz#913d3a68c5cbc1124fdb18eff919432f7b6abdde"
   integrity sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==
 
-"@react-three/drei@^9.53.0":
-  version "9.56.19"
-  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.56.19.tgz#cc52febde5ca35de7218bb54c97439edc823a529"
-  integrity sha512-vbBEbxDrC1VZ16QFtJQoC0QK1d3HSFV0WxPL5wxXZcL1zI0GN9RvoWj9CF9z2ImsaAQYzCnEurPJbsKJopxwzQ==
+"@react-three/drei@^9.74.7":
+  version "9.74.7"
+  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.74.7.tgz#0b6d8316baa43307fd43a48c3d1812d126710695"
+  integrity sha512-rGl1WHEbVk83KDtRzpuQZkrOLGSmvpuu9uGEZpZzy1csxlVjOA8EWWwSCSKwmY/spWwcLnSIQ30haUMmL8ZSCw==
   dependencies:
     "@babel/runtime" "^7.11.2"
-    "@react-spring/three" "^9.3.1"
+    "@mediapipe/tasks-vision" "^0.10.0"
+    "@react-spring/three" "~9.6.1"
     "@use-gesture/react" "^10.2.24"
-    camera-controls "^2.0.1"
-    detect-gpu "^5.0.9"
+    camera-controls "^2.3.1"
+    detect-gpu "^5.0.14"
     glsl-noise "^0.0.0"
     lodash.clamp "^4.0.3"
     lodash.omit "^4.5.0"
@@ -571,15 +577,15 @@
     stats.js "^0.17.0"
     suspend-react "^0.0.8"
     three-mesh-bvh "^0.5.23"
-    three-stdlib "^2.21.8"
+    three-stdlib "^2.23.5"
     troika-three-text "^0.47.1"
     utility-types "^3.10.0"
     zustand "^3.5.13"
 
-"@react-three/fiber@^8.10.0":
-  version "8.11.0"
-  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-8.11.0.tgz#3ed67cc3a7951c2aed00fe02ee694a95744c50a5"
-  integrity sha512-n9eM7hVsHbecexKK0isvUOPq1SYMHcLhUTZsMZQSYo5RT1yjbgQbbrVtF9bXN9rQgrD9l3V3Ho3ckPp0cNNs1w==
+"@react-three/fiber@^8.13.0":
+  version "8.13.0"
+  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-8.13.0.tgz#c9eabe60f2276a66d7ce9a3b927083894f4202f9"
+  integrity sha512-hPFzFNgikEMyEbL+NpSA7q+UWZxInrrkJldWaCR2w34Fwf20x9p68bsyN0/yn9oM2VlWoJcJjR8hw1tN9AxHuA==
   dependencies:
     "@babel/runtime" "^7.17.8"
     "@types/react-reconciler" "^0.26.7"
@@ -606,6 +612,11 @@
     "@types/estree" "^1.0.0"
     estree-walker "^2.0.2"
     picomatch "^2.3.1"
+
+"@types/draco3d@^1.4.0":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@types/draco3d/-/draco3d-1.4.2.tgz#7faccb809db2a5e19b9efb97c5f2eb9d64d527ea"
+  integrity sha512-goh23EGr6CLV6aKPwN1p8kBD/7tT5V/bLpToSbarKrwVejqNrspVrv8DhliteYkkhZYrlq/fwKZRRUzH4XN88w==
 
 "@types/estree@^1.0.0":
   version "1.0.0"
@@ -668,6 +679,11 @@
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.0.tgz#aae1cef3210d88fd4204f8c33385a0bbc4da07c9"
   integrity sha512-IUMDPSXnYIbEO2IereEFcgcqfDREOgmbGqtrMpVPpACTU6pltYLwHgVkrnYv0XhWEcjio9sYEfIEzgn3c7nDqA==
+
+"@types/webxr@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.2.tgz#5d9627b0ffe223aa3b166de7112ac8a9460dc54f"
+  integrity sha512-szL74BnIcok9m7QwYtVmQ+EdIKwbjPANudfuvDrAF8Cljg9MKUlIoc1w5tjj9PMpeSH3U1Xnx//czQybJ0EfSw==
 
 "@use-gesture/core@10.2.24":
   version "10.2.24"
@@ -748,11 +764,6 @@
     magic-string "^0.27.0"
     react-refresh "^0.14.0"
 
-"@webgpu/glslang@^0.0.15":
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/@webgpu/glslang/-/glslang-0.0.15.tgz#f5ccaf6015241e6175f4b90906b053f88483d1f2"
-  integrity sha512-niT+Prh3Aff8Uf1MVBVUsaNjFj9rJAKDXuoHIKiQbB+6IUP/3J3JIhBNyZ7lDhytvXxw6ppgnwKZdDJ08UMj4Q==
-
 acorn@^8.8.2:
   version "8.8.2"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.2.tgz#1b2f25db02af965399b9776b0c2c391276d37c4a"
@@ -794,10 +805,10 @@ browserslist@^4.21.3:
     node-releases "^2.0.8"
     update-browserslist-db "^1.0.10"
 
-camera-controls@^2.0.1:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/camera-controls/-/camera-controls-2.1.0.tgz#75edd73935270af76b4202dc794cf022afcee4b0"
-  integrity sha512-9b2dpUZp+3Rfkh/E8dU9O9/rBbPDzyB5DBINktedRAF4I5ldZUgBiSYtFac7wF3yXNf4UH2pjP3uRcoAtXTh4A==
+camera-controls@^2.3.1:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/camera-controls/-/camera-controls-2.4.2.tgz#815aa5d7c4c43054fc55fb8b6cc685a56540fea2"
+  integrity sha512-blYDPECYFT/4egDMNWqKc2lBrpOfIAjPPRUNVswQELPi8naGBXUvZM3sDJSNuIRaHqid+JKPtlcoZk+Cb+X5qg==
 
 caniuse-lite@^1.0.30001449:
   version "1.0.30001451"
@@ -899,10 +910,10 @@ deepmerge@^4.2.2:
   resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-4.3.0.tgz#65491893ec47756d44719ae520e0e2609233b59b"
   integrity sha512-z2wJZXrmeHdvYJp/Ux55wIjqo81G5Bp4c+oELTW+7ar6SogWHajt5a9gO3s3IDaGSAXjDk0vlQKN3rms8ab3og==
 
-detect-gpu@^5.0.9:
-  version "5.0.10"
-  resolved "https://registry.yarnpkg.com/detect-gpu/-/detect-gpu-5.0.10.tgz#4010b89a7f91a24ed8d2a136ee6ac816b39d0801"
-  integrity sha512-V0g0RhtlItrhgBM4/T/lTpjephr9b/xDAOtJZztGTvQxaPSMQ4EAiV9tdHL+4GcT1ATvYmMCm4QbrhyjdEH6Fw==
+detect-gpu@^5.0.14:
+  version "5.0.27"
+  resolved "https://registry.yarnpkg.com/detect-gpu/-/detect-gpu-5.0.27.tgz#821d9331c87e32568c483d85e12a9adee43d7bb2"
+  integrity sha512-IDjjqTkS+f0xm/ntbD21IPYiF0srzpePC/hhUMmctEsoklZwJwStJiMi/KN0pnH0LjSsgjwbP+QwW7y+Qf4/SQ==
   dependencies:
     webgl-constants "^1.1.1"
 
@@ -1413,14 +1424,14 @@ three-mesh-bvh@^0.5.23:
   resolved "https://registry.yarnpkg.com/three-mesh-bvh/-/three-mesh-bvh-0.5.23.tgz#08e5b629144b48b11acbd433519680e457d398ed"
   integrity sha512-nyk+MskdyDgECqkxdv57UjazqqhrMi+Al9PxJN6yFtx1CTW4r0eCQ27FtyYKY5gCIWhxjtNfWYDPVy8lzx6LkA==
 
-three-stdlib@^2.21.8:
-  version "2.21.8"
-  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.21.8.tgz#37b11b7f62d07b10742c212153b14db21433b3c6"
-  integrity sha512-kqisiKvO4mSy59v5vWqBQSH8famLxp7Z51LxpMJI9GwDxqODaW02rhIwmjYDEzZWNFpjZpoDHVGbdpeHf8h3SA==
+three-stdlib@^2.23.5:
+  version "2.23.9"
+  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.23.9.tgz#09c74fc6acced3d124e4f9d695156136c587a355"
+  integrity sha512-fYBClVGQptD7UZcoRZGNlR3sKcUW37hVPoEW1v68E4XuiwD0Ml/VqDUJ0yEMVE2DlooDvqgqv/rIcHC/B4N5pg==
   dependencies:
-    "@babel/runtime" "^7.16.7"
+    "@types/draco3d" "^1.4.0"
     "@types/offscreencanvas" "^2019.6.4"
-    "@webgpu/glslang" "^0.0.15"
+    "@types/webxr" "^0.5.2"
     chevrotain "^10.1.2"
     draco3d "^1.4.1"
     fflate "^0.6.9"
