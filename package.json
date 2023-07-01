@@ -1,6 +1,6 @@
 {
   "name": "@react-three/xr",
-  "version": "5.4.1",
+  "version": "5.5.0",
   "packageManager": "yarn@1.22.19",
   "description": "React components and hooks for creating VR/AR applications with react-three-fiber",
   "keywords": [
@@ -74,7 +74,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc",
-    "lint": "eslint src/**/*.{ts,tsx}",
+    "lint": "eslint src/**/*.{ts,tsx} && eslint examples/src/**/*.{ts,tsx}",
     "test": "vitest",
     "coverage": "vitest run --coverage"
   }

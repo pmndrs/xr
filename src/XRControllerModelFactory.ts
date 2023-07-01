@@ -5,10 +5,11 @@ import { fetchProfile, GLTFLoader, MotionController, MotionControllerConstants }
 const DEFAULT_PROFILES_PATH = 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles'
 const DEFAULT_PROFILE = 'generic-trigger'
 
-const applyEnvironmentMap = (envMap: Texture, obj: Object3D): void => {
+const applyEnvironmentMap = (envMap: Texture, envMapIntensity: number, obj: Object3D): void => {
   obj.traverse((child) => {
     if (child instanceof Mesh && 'envMap' in child.material) {
       child.material.envMap = envMap
+      child.material.envMapIntensity = envMapIntensity
       child.material.needsUpdate = true
     }
   })
@@ -16,6 +17,7 @@ const applyEnvironmentMap = (envMap: Texture, obj: Object3D): void => {
 
 export class XRControllerModel extends Object3D {
   envMap: Texture | null
+  envMapIntensity: number
   motionController: MotionController | null
   scene: Object3D | null
 
@@ -24,16 +26,18 @@ export class XRControllerModel extends Object3D {
 
     this.motionController = null
     this.envMap = null
+    this.envMapIntensity = 1
     this.scene = null
   }
 
-  setEnvironmentMap(envMap: Texture): XRControllerModel {
-    if (this.envMap == envMap) {
+  setEnvironmentMap(envMap: Texture, envMapIntensity = 1): XRControllerModel {
+    if (this.envMap === envMap && this.envMapIntensity === envMapIntensity) {
       return this
     }
 
     this.envMap = envMap
-    applyEnvironmentMap(this.envMap, this)
+    this.envMapIntensity = envMapIntensity
+    applyEnvironmentMap(this.envMap, envMapIntensity, this)
 
     return this
   }
@@ -179,7 +183,7 @@ function addAssetSceneToControllerModel(controllerModel: XRControllerModel, scen
 
   // Apply any environment map that the mesh already has set.
   if (controllerModel.envMap) {
-    applyEnvironmentMap(controllerModel.envMap, scene)
+    applyEnvironmentMap(controllerModel.envMap, controllerModel.envMapIntensity, scene)
   }
 
   // Add the glTF scene to the controllerModel.

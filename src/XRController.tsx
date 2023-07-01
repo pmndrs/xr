@@ -30,7 +30,7 @@ export class XRController extends THREE.Group {
     this.controller.addEventListener('disconnected', this._onDisconnected)
   }
 
-  private _onConnected(event: XRControllerEvent) {
+  _onConnected(event: XRControllerEvent) {
     if (event.fake) return
 
     this.visible = true
@@ -38,7 +38,7 @@ export class XRController extends THREE.Group {
     this.dispatchEvent(event)
   }
 
-  private _onDisconnected(event: XRControllerEvent) {
+  _onDisconnected(event: XRControllerEvent) {
     if (event.fake) return
 
     this.visible = false

@@ -37,7 +37,7 @@
       "parserOptions": {
         "ecmaFeatures": { "jsx": true },
         "ecmaVersion": 2018,
-        "project": "./tsconfig.json",
+        "project": ["./tsconfig.json", "./examples/tsconfig.json"],
         "sourceType": "module"
       },
       "extends": ["plugin:@typescript-eslint/recommended", "plugin:@typescript-eslint/eslint-recommended", "prettier"],
