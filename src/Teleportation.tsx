@@ -80,8 +80,8 @@ export const TeleportationPlane = React.forwardRef<THREE.Group, TeleportationPla
   )
 
   return (
-    <group ref={ref} rotation-x={-Math.PI / 2} {...props}>
-      <mesh ref={marker} visible={false}>
+    <group ref={ref} {...props}>
+      <mesh ref={marker} visible={false} rotation-x={-Math.PI / 2}>
         <circleGeometry args={[size, 32]} />
         <meshBasicMaterial color="white" />
       </mesh>
@@ -126,7 +126,7 @@ export const TeleportationPlane = React.forwardRef<THREE.Group, TeleportationPla
           }
         }}
       >
-        <mesh visible={false} scale={1000}>
+        <mesh rotation-x={-Math.PI / 2} visible={false} scale={1000}>
           <planeGeometry />
         </mesh>
       </Interactive>
