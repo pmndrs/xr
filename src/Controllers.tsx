@@ -99,7 +99,6 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, 
     for (const target of controllers) {
       if (target.controllerModel) {
         target.controllerModel.xrControllerModel.setEnvironmentMap(envMap, envMapIntensity)
-        console.log('updated environment map')
       }
     }
   }, [envMap, envMapIntensity, controllers])
