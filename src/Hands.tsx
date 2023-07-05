@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Object3DNode, extend, createPortal } from '@react-three/fiber'
-import { OculusHandModel } from 'three-stdlib'
+import { OculusHandModel } from './OculusHandModel'
 import { useXR } from './XR'
 import { useIsomorphicLayoutEffect } from './utils'
 

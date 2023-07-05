@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { Hands, XR, VRButton, TeleportationPlane, Controllers } from '@react-three/xr'
+import { XR, VRButton, TeleportationPlane, Controllers } from '@react-three/xr'
 
 export default function () {
   return (
