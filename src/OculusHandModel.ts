@@ -53,6 +53,13 @@ class OculusHandModel extends Object3D {
   }
 
   private _onDisconnected: EventListener<Event, 'disconnected', Object3D<Event>> = () => {
+    if (!this.xrInputSource?.hand) {
+      return;
+    }
+    this.motionControllerCleanup()
+  }
+
+  private motionControllerCleanup(): void {
     this.clear()
     this.motionController?.dispose()
     this.motionController = null
@@ -100,9 +107,7 @@ class OculusHandModel extends Object3D {
   }
 
   dispose(): void {
-    this.clear()
-    this.motionController?.dispose()
-    this.motionController = null
+    this.motionControllerCleanup()
 
     this.controller.removeEventListener('connected', this._onConnected)
     this.controller.removeEventListener('disconnected', this._onDisconnected)

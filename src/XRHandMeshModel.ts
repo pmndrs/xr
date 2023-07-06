@@ -95,6 +95,7 @@ class XRHandMeshModel {
       }
     }
 
+    // Hide hand mesh if all joints are invisible in case hand loses tracking
     if (allInvisible && this.scene) {
       this.scene.visible = false
     } else if (this.scene) {
