@@ -12,7 +12,7 @@
 
 ## Run locally
 
-* Run `yarn dev` to be able to run examples
+* Run `yarn dev` in repo root (not in `examples` folder) to be able to run examples
 
 ## PR checklist
 
