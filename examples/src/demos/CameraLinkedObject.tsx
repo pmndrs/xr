@@ -13,7 +13,7 @@ function Object(props: ComponentProps<typeof Box>) {
 
 function CameraLinkedObject() {
   const camera = useThree((state) => state.camera)
-  return createPortal(<Object position={[0, 0.8, -1]} />, camera)
+  return createPortal(<Object position={[0, 0.6, -1]} />, camera)
 }
 
 export default function () {
