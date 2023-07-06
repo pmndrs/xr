@@ -64,10 +64,16 @@ class ControllerModel extends THREE.Group {
   }
 
   private _onConnected(event: XRControllerEvent) {
+    if (event.data?.hand) {
+      return
+    }
     modelFactory.initializeControllerModel(this.xrControllerModel, event)
   }
 
-  private _onDisconnected(_event: XRControllerEvent) {
+  private _onDisconnected(event: XRControllerEvent) {
+    if (event.data?.hand) {
+      return
+    }
     this.xrControllerModel.disconnect()
   }
 
