@@ -476,7 +476,7 @@ export function useXR<T = XRState>(
 export function useController(handedness: XRHandedness) {
   const controllers = useXR((state) => state.controllers)
   const controller = React.useMemo(
-    () => controllers.find(({ inputSource }) => inputSource.handedness === handedness),
+    () => controllers.find(({ inputSource }) => inputSource?.handedness && inputSource.handedness === handedness),
     [handedness, controllers]
   )
 

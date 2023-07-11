@@ -1,4 +1,4 @@
-import { XRController, XRControllerEvent } from '@react-three/xr'
+import { XRController, XRControllerEvent, XRControllerModel } from '@react-three/xr'
 import { Group, XRTargetRaySpace, XRGripSpace, XRHandSpace, Vector3, XRHandInputState, XRHandJoints } from 'three'
 
 export class XRTargetRaySpaceMock extends Group implements XRTargetRaySpace {
@@ -29,6 +29,9 @@ export class XRControllerMock extends Group implements XRController {
   // TODO Implement mocks for inputSource
   // @ts-ignore
   inputSource: XRInputSource
+  // TODO Implement mocks for xrControllerModel
+  // @ts-ignore
+  public xrControllerModel: XRControllerModel | null
 
   constructor(index: number) {
     super()

@@ -49,6 +49,7 @@ export class XRController extends THREE.Group {
     if (event.fake) return
 
     this.visible = false
+    this.inputSource = null
     this.dispatchEvent(event)
   }
 

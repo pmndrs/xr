@@ -73,7 +73,7 @@ export const TeleportationPlane = React.forwardRef<THREE.Group, TeleportationPla
 
   const isInteractive = React.useCallback(
     (e: XRInteractionEvent): boolean => {
-      const { handedness } = e.target.inputSource
+      const handedness = e.target.inputSource?.handedness
       return !!((handedness !== 'left' || leftHand) && (handedness !== 'right' || rightHand))
     },
     [leftHand, rightHand]
