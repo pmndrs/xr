@@ -1,48 +1,17 @@
 import * as THREE from 'three'
 import { XRControllerEvent } from './XREvents'
-import {XRControllerModel, XRControllerModelFactory} from "./XRControllerModelFactory";
+import { XRControllerModel } from './XRControllerModelFactory'
 
-
-export class ControllerModel extends THREE.Group {
-  readonly target: XRController
-  readonly xrControllerModel: XRControllerModel
-  private modelFactory: XRControllerModelFactory;
-
-  constructor(target: XRController, modelFactory: XRControllerModelFactory) {
-    super()
-    this.xrControllerModel = new XRControllerModel()
-    this.target = target
-    this.modelFactory = modelFactory
-    this.add(this.xrControllerModel)
-
-    this._onConnected = this._onConnected.bind(this)
-    this._onDisconnected = this._onDisconnected.bind(this)
-
-    this.target.controller.addEventListener('connected', this._onConnected)
-    this.target.controller.addEventListener('disconnected', this._onDisconnected)
-  }
-
-  private _onConnected(event: XRControllerEvent) {
-    this.modelFactory.initializeControllerModel(this.xrControllerModel, event)
-  }
-
-  private _onDisconnected(_event: XRControllerEvent) {
-    this.xrControllerModel.disconnect()
-  }
-
-  dispose() {
-    this.target.controller.removeEventListener('connected', this._onConnected)
-    this.target.controller.removeEventListener('disconnected', this._onDisconnected)
-  }
-}
-
+/** Counterpart of WebXRController from three ks
+ * in a sense that it's long living */
 export class XRController extends THREE.Group {
   readonly index: number
+  // TODO rename it?
   readonly controller: THREE.XRTargetRaySpace
   readonly grip: THREE.XRGripSpace
   readonly hand: THREE.XRHandSpace
-  public inputSource!: XRInputSource
-  public controllerModel: ControllerModel | null = null;
+  public inputSource: XRInputSource | null = null
+  public xrControllerModel: XRControllerModel | null = null
 
   constructor(index: number, gl: THREE.WebGLRenderer) {
     super()
@@ -57,6 +26,7 @@ export class XRController extends THREE.Group {
     this.hand.userData.name = 'hand'
 
     this.visible = false
+    // TODO is this needed?
     this.add(this.controller, this.grip, this.hand)
 
     this._onConnected = this._onConnected.bind(this)
@@ -68,9 +38,10 @@ export class XRController extends THREE.Group {
 
   _onConnected(event: XRControllerEvent) {
     if (event.fake) return
+    if (!event.data) return
 
     this.visible = true
-    this.inputSource = event.data!
+    this.inputSource = event.data
     this.dispatchEvent(event)
   }
 

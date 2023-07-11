@@ -2,9 +2,8 @@ import * as React from 'react'
 import * as THREE from 'three'
 import { useFrame, Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
-import { ControllerModel, XRController } from './XRController'
-import { useIsomorphicLayoutEffect } from './utils'
-import { XRControllerModelFactory } from './XRControllerModelFactory'
+import { XRController } from './XRController'
+import { XRControllerModel, XRControllerModelFactory } from './XRControllerModelFactory'
 import { useCallback, useEffect } from 'react'
 import { Texture } from 'three'
 
@@ -26,6 +25,10 @@ export const Ray = React.forwardRef<THREE.Line, RayProps>(function Ray({ target,
 
   // Show ray line when hovering objects
   useFrame(() => {
+    if (!target.inputSource) {
+      return
+    }
+
     let rayLength = 1
 
     const intersection: THREE.Intersection = hoverState[target.inputSource.handedness].values().next().value
@@ -51,7 +54,7 @@ const modelFactory = new XRControllerModelFactory()
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      controllerModel: Object3DNode<ControllerModel, typeof ControllerModel>
+      xRControllerModel: Object3DNode<XRControllerModel, typeof XRControllerModel>
     }
   }
 }
@@ -79,17 +82,20 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, 
       ),
     [JSON.stringify(rayMaterial)] // eslint-disable-line react-hooks/exhaustive-deps
   )
-  React.useMemo(() => extend({ ControllerModel }), [])
+  React.useMemo(() => extend({ XRControllerModel }), [])
 
-  // Send fake connected event (no-op) so models start loading
-  useIsomorphicLayoutEffect(() => {
-    for (const target of controllers) {
-      target.controller.dispatchEvent({ type: 'connected', data: target.inputSource, fake: true })
+  const handleControllerModel = useCallback((xrControllerModel: XRControllerModel | null, target: XRController) => {
+    if (xrControllerModel) {
+      target.xrControllerModel = xrControllerModel
+      if (target.inputSource) {
+        modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
+      } else {
+        console.warn('no input source on XRController when handleControllerModel')
+      }
+    } else {
+      target.xrControllerModel?.disconnect()
+      target.xrControllerModel = null
     }
-  }, [controllers])
-
-  const handleControllerModel = useCallback((r: ControllerModel | null, target: XRController) => {
-    target.controllerModel = r
   }, [])
 
   useEffect(() => {
@@ -97,8 +103,8 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, 
       return
     }
     for (const target of controllers) {
-      if (target.controllerModel) {
-        target.controllerModel.xrControllerModel.setEnvironmentMap(envMap, envMapIntensity)
+      if (target.xrControllerModel) {
+        target.xrControllerModel.setEnvironmentMap(envMap, envMapIntensity)
       }
     }
   }, [envMap, envMapIntensity, controllers])
@@ -107,7 +113,7 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, 
     <>
       {controllers.map((target, i) => (
         <React.Fragment key={i}>
-          {createPortal(<controllerModel ref={(r) => handleControllerModel(r, target)} args={[target, modelFactory]} />, target.grip)}
+          {createPortal(<xRControllerModel ref={(r) => handleControllerModel(r, target)} args={[]} />, target.grip)}
           {createPortal(
             <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
             target.controller

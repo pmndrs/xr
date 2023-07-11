@@ -1,12 +1,4 @@
-import {
-  Mesh,
-  Object3D,
-  SphereGeometry,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  MeshPhongMaterial,
-  MeshLambertMaterial
-} from 'three'
+import { Mesh, Object3D, SphereGeometry, MeshBasicMaterial, MeshStandardMaterial, MeshPhongMaterial, MeshLambertMaterial, Group } from 'three'
 import type { Texture } from 'three'
 import { fetchProfile, GLTFLoader, MotionController, MotionControllerConstants } from 'three-stdlib'
 
@@ -27,7 +19,7 @@ const applyEnvironmentMap = (envMap: Texture, envMapIntensity: number, obj: Obje
   })
 }
 
-export class XRControllerModel extends Object3D {
+export class XRControllerModel extends Group {
   envMap: Texture | null
   envMapIntensity: number
   motionController: MotionController | null
@@ -60,16 +52,12 @@ export class XRControllerModel extends Object3D {
       return
     }
 
-
-
     this.scene = scene
     addAssetSceneToControllerModel(this, scene)
     this.dispatchEvent({
       type: 'modelconnected',
       data: scene
     })
-
-    console.log('model connected')
   }
 
   connectMotionController(motionController: MotionController): void {
@@ -217,9 +205,8 @@ export class XRControllerModelFactory {
     this._assetCache = {}
   }
 
-  initializeControllerModel(controllerModel: XRControllerModel, event: any): void {
-    const xrInputSource = event.data
-
+  initializeControllerModel(controllerModel: XRControllerModel, xrInputSource: XRInputSource): void {
+    // TODO check gamepad in other condition
     if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) return
 
     fetchProfile(xrInputSource, this.path, DEFAULT_PROFILE)
