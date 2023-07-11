@@ -289,6 +289,41 @@ button.addEventListener('click', handleClick)
 document.appendChild(button)
 ```
 
+## Teleportation
+
+To facilitate instant or accessible movement, react-xr provides teleportation helpers.
+
+### TeleportationPlane
+
+A teleportation plane with a marker that will teleport on interaction.
+
+```jsx
+import { TeleportationPlane } from '@react-three/xr'
+;<TeleportationPlane
+  /** Whether to allow teleportation from left controller. Default is `false` */
+  leftHand={false}
+  /** Whether to allow teleportation from right controller. Default is `false` */
+  rightHand={false}
+  /** The maximum distance from the camera to the teleportation point. Default is `10` */
+  maxDistance={10}
+  /** The radial size of the teleportation marker. Default is `0.25` */
+  size={0.25}
+/>
+```
+
+### useTeleportation
+
+Returns a `TeleportCallback` to teleport the player to a position.
+
+```jsx
+import { useTeleportation } from '@react-three/xr'
+
+const teleport = useTeleportation()
+
+teleport([x, y, z])
+teleport(new THREE.Vector3(x, y, z))
+```
+
 ## Built with react-xr
 
-* <a href="https://github.com/richardanaya/avatar-poser"><img src="https://raw.githubusercontent.com/richardanaya/avatar-poser/main/public/avatar-poser.png" alt="Avatar Poser github link" width="100"/></a>
+- <a href="https://github.com/richardanaya/avatar-poser"><img src="https://raw.githubusercontent.com/richardanaya/avatar-poser/main/public/avatar-poser.png" alt="Avatar Poser github link" width="100"/></a>

@@ -87,7 +87,7 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, 
   const handleControllerModel = useCallback((xrControllerModel: XRControllerModel | null, target: XRController) => {
     if (xrControllerModel) {
       target.xrControllerModel = xrControllerModel
-      if (target.inputSource) {
+      if (target.inputSource && !!target.inputSource.hand) {
         modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
       } else {
         console.warn('no input source on XRController when handleControllerModel')
