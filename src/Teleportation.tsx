@@ -19,13 +19,13 @@ export function useTeleportation(): TeleportCallback {
   const teleportReferenceSpace = React.useRef<XRReferenceSpace | null>(null)
 
   useFrame((state, _, xrFrame) => {
-    frame.current = xrFrame
-
-    const referenceSpace = state.gl.xr.getReferenceSpace()
-    baseReferenceSpace.current ??= referenceSpace
+    if (frame.current !== xrFrame) {
+      frame.current = xrFrame
+      baseReferenceSpace.current = state.gl.xr.getReferenceSpace()
+    }
 
     const teleportOffset = teleportReferenceSpace.current
-    if (teleportOffset && referenceSpace !== teleportOffset) {
+    if (teleportOffset && baseReferenceSpace.current !== teleportOffset) {
       state.gl.xr.setReferenceSpace(teleportOffset)
     }
   })
