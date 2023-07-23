@@ -25,7 +25,7 @@ describe('XRControllerModelFactory', () => {
     expect(warnSpy).toBeCalled()
   })
 
-  it.skip('should not do anything if gamepad is missing', async () => {
+  it('should not do anything if gamepad is missing', async () => {
     const xrControllerModelMock = new XRControllerModelMock()
     const xrInputSourceMock = new XRInputSourceMock()
     xrInputSourceMock.gamepad = undefined
@@ -37,7 +37,7 @@ describe('XRControllerModelFactory', () => {
     expect(fetchProfile).not.toBeCalled()
   })
 
-  it.skip('should not do anything if target ray mode is not tracked-pointer', async () => {
+  it('should not do anything if target ray mode is not tracked-pointer', async () => {
     const xrControllerModelMock = new XRControllerModelMock()
     const xrInputSourceMock = new XRInputSourceMock({ targetRayMode: 'gaze' })
     const modelFactory = new XRControllerModelFactory()
