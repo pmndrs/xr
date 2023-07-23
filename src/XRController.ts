@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { XRControllerEvent } from './XREvents'
 import { XRControllerModel } from './XRControllerModel'
 
-/** Counterpart of WebXRController from three ks
+/** Counterpart of WebXRController from three js
  * in a sense that it's long living */
 export class XRController extends THREE.Group {
   readonly index: number
