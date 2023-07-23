@@ -1,11 +1,9 @@
 import { GLTFLoader } from 'three-stdlib'
 import { XRControllerModelFactory } from '../XRControllerModelFactory'
-import { vi, afterEach } from 'vitest'
+import { vi, afterAll } from 'vitest'
 import { XRControllerModel } from '../XRControllerModel'
 
-afterEach(() => {
-
-    console.log(3)
+afterAll(() => {
   XRControllerModelFactoryMock.instance = undefined
 })
 
@@ -13,9 +11,7 @@ afterEach(() => {
 export class XRControllerModelFactoryMock implements XRControllerModelFactory {
   static instance: XRControllerModelFactoryMock | undefined
   constructor() {
-    console.log(1)
     XRControllerModelFactoryMock.instance = this
-    console.log(1.5)
   }
   // @ts-ignore
   gltfLoader: GLTFLoader

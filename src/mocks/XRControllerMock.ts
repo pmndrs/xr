@@ -28,12 +28,8 @@ export class XRControllerMock extends Group implements XRController {
   readonly hand: XRHandSpace
   readonly index: number
 
-  // TODO Implement mocks for inputSource
-  // @ts-ignore
-  inputSource: XRInputSource
-  // TODO Implement mocks for xrControllerModel
-  // @ts-ignore
-  public xrControllerModel: XRControllerModel | null
+  inputSource: XRInputSource | null = null
+  public xrControllerModel: XRControllerModel | null = null
 
   constructor(index: number) {
     super()
