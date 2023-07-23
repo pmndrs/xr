@@ -1,6 +1,7 @@
 import { Event, Group, Object3D, Texture } from 'three'
 import { XRControllerModel } from '../XRControllerModel'
 import { MotionController } from 'three-stdlib'
+import { vi } from 'vitest'
 
 export class XRControllerModelMock extends Group implements XRControllerModel {
   envMap: Texture | null = null
@@ -10,12 +11,8 @@ export class XRControllerModelMock extends Group implements XRControllerModel {
   setEnvironmentMap(_envMap: Texture, _envMapIntensity?: number): XRControllerModel {
     throw new Error('Method not implemented.')
   }
-  connectModel(_scene: Object3D<Event>): void {
-    throw new Error('Method not implemented.')
-  }
-  connectMotionController(_motionController: MotionController): void {
-    throw new Error('Method not implemented.')
-  }
+  connectModel = vi.fn<[scene: Object3D<Event>], void>()
+  connectMotionController = vi.fn<[motionController: MotionController], void>()
   disconnect(): void {
     throw new Error('Method not implemented.')
   }

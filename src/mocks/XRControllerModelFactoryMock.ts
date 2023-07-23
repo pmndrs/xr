@@ -17,5 +17,5 @@ export class XRControllerModelFactoryMock implements XRControllerModelFactory {
   gltfLoader: GLTFLoader
   // @ts-ignore
   path: string
-  initializeControllerModel = vi.fn<[controllerModel: XRControllerModel, xrInputSource: XRInputSource], void>()
+  initializeControllerModel = vi.fn<[controllerModel: XRControllerModel, xrInputSource: XRInputSource], Promise<void>>(() => Promise.resolve())
 }

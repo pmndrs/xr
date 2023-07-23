@@ -16,11 +16,13 @@ export class XRControllerModelFactory {
     this._assetCache = {}
   }
 
-  initializeControllerModel(controllerModel: XRControllerModel, xrInputSource: XRInputSource): void {
+   initializeControllerModel(controllerModel: XRControllerModel, xrInputSource: XRInputSource): Promise<void> {
     // TODO check gamepad in other condition
-    if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) return
+    if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) {
+      return Promise.resolve()
+    }
 
-    fetchProfile(xrInputSource, this.path, DEFAULT_PROFILE)
+    return fetchProfile(xrInputSource, this.path, DEFAULT_PROFILE)
       .then(({ profile, assetPath }) => {
         if (!assetPath) {
           throw new Error('no asset path')
