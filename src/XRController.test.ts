@@ -1,24 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { XRController } from './XRController'
-import { WebGLRenderer, WebXRManager, XRGripSpace, XRHandSpace, XRTargetRaySpace } from 'three'
-import { XRGripSpaceMock, XRHandSpaceMock, XRTargetRaySpaceMock } from './mocks/XRSpaceMock'
+import { WebGLRenderer } from 'three'
 import { XRInputSourceMock } from './mocks/XRInputSourceMock'
-
-// @ts-ignore
-class WebXRManagerMock implements WebXRManager {
-  getController = vi.fn<[index: number], XRTargetRaySpace>().mockImplementation(() => new XRTargetRaySpaceMock())
-  getControllerGrip = vi.fn<[index: number], XRGripSpace>().mockImplementation(() => new XRGripSpaceMock())
-  getHand = vi.fn<[index: number], XRHandSpace>().mockImplementation(() => new XRHandSpaceMock())
-}
-
-// @ts-ignore
-class WebGLRendererMock implements WebGLRenderer {
-  xr: WebXRManager
-  constructor() {
-    // @ts-ignore
-    this.xr = new WebXRManagerMock()
-  }
-}
+import { WebGLRendererMock } from './mocks/WebGLRendererMock'
 
 describe('XRController', () => {
   it('should initialize controller correctly', () => {
