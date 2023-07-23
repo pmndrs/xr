@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { XRButton } from './XR'
 import * as React from 'react'
 import { XRSystemMock } from './mocks/XRSystemMock'
-import { render } from './testUtils'
+import { render } from './testUtils/testUtilsDom'
 
 describe('XR', () => {
   let xrSystemMock = new XRSystemMock()

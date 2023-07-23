@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { renderHook } from './testUtils'
+import { renderHook } from './testUtils/testUtilsDom'
 import { useXREvent } from './XREvents'
 import { createStoreMock, createStoreProvider } from './mocks/storeMock'
 import { XRControllerMock } from './mocks/XRControllerMock'

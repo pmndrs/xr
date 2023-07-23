@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { createStoreMock, createStoreProvider } from './mocks/storeMock'
-import { render } from './testUtilsThree'
+import { render } from './testUtils/testUtilsThree'
 import { Controllers } from './Controllers'
 import { XRControllerMock } from './mocks/XRControllerMock'
 import { XRControllerModel } from './XRControllerModel'
