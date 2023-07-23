@@ -1,4 +1,4 @@
-export class XRSpaceMock extends EventTarget implements XRSpace {}
+import { XRSpaceMock } from './XRSpaceMock'
 
 export class XRInputSourceMock implements XRInputSource {
   constructor(handedness: XRHandedness = 'left', targetRayMode: XRTargetRayMode = 'tracked-pointer', profiles = ['oculus-touch-v3']) {
