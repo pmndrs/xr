@@ -1,21 +1,34 @@
-import { Mesh, Object3D, SphereGeometry, MeshBasicMaterial } from 'three'
+import {
+  Mesh,
+  Object3D,
+  SphereGeometry,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  MeshPhongMaterial,
+  MeshLambertMaterial,
+  Group
+} from 'three'
 import type { Texture } from 'three'
 import { fetchProfile, GLTFLoader, MotionController, MotionControllerConstants } from 'three-stdlib'
 
 const DEFAULT_PROFILES_PATH = 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles'
 const DEFAULT_PROFILE = 'generic-trigger'
 
+const isEnvMapApplicable = (
+  material: any
+): material is MeshBasicMaterial | MeshStandardMaterial | MeshPhongMaterial | MeshLambertMaterial => 'envMap' in material
+
 const applyEnvironmentMap = (envMap: Texture, envMapIntensity: number, obj: Object3D): void => {
   obj.traverse((child) => {
-    if (child instanceof Mesh && 'envMap' in child.material) {
+    if (child instanceof Mesh && isEnvMapApplicable(child.material)) {
       child.material.envMap = envMap
-      child.material.envMapIntensity = envMapIntensity
+      if ('envMapIntensity' in child.material) child.material.envMapIntensity = envMapIntensity
       child.material.needsUpdate = true
     }
   })
 }
 
-export class XRControllerModel extends Object3D {
+export class XRControllerModel extends Group {
   envMap: Texture | null
   envMapIntensity: number
   motionController: MotionController | null
@@ -37,7 +50,7 @@ export class XRControllerModel extends Object3D {
 
     this.envMap = envMap
     this.envMapIntensity = envMapIntensity
-    applyEnvironmentMap(this.envMap, envMapIntensity, this)
+    applyEnvironmentMap(envMap, envMapIntensity, this)
 
     return this
   }
@@ -194,15 +207,15 @@ export class XRControllerModelFactory {
   gltfLoader: GLTFLoader
   path: string
   private _assetCache: Record<string, { scene: Object3D } | undefined>
+
   constructor(gltfLoader: GLTFLoader | null = null, path = DEFAULT_PROFILES_PATH) {
     this.gltfLoader = gltfLoader ?? new GLTFLoader()
     this.path = path
     this._assetCache = {}
   }
 
-  initializeControllerModel(controllerModel: XRControllerModel, event: any): void {
-    const xrInputSource = event.data
-
+  initializeControllerModel(controllerModel: XRControllerModel, xrInputSource: XRInputSource): void {
+    // TODO check gamepad in other condition
     if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) return
 
     fetchProfile(xrInputSource, this.path, DEFAULT_PROFILE)

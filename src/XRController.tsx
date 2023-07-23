@@ -1,12 +1,17 @@
 import * as THREE from 'three'
 import { XRControllerEvent } from './XREvents'
+import { XRControllerModel } from './XRControllerModelFactory'
 
+/** Counterpart of WebXRController from three ks
+ * in a sense that it's long living */
 export class XRController extends THREE.Group {
   readonly index: number
+  // TODO rename it?
   readonly controller: THREE.XRTargetRaySpace
   readonly grip: THREE.XRGripSpace
   readonly hand: THREE.XRHandSpace
-  public inputSource!: XRInputSource
+  public inputSource: XRInputSource | null = null
+  public xrControllerModel: XRControllerModel | null = null
 
   constructor(index: number, gl: THREE.WebGLRenderer) {
     super()
@@ -21,6 +26,7 @@ export class XRController extends THREE.Group {
     this.hand.userData.name = 'hand'
 
     this.visible = false
+    // TODO is this needed?
     this.add(this.controller, this.grip, this.hand)
 
     this._onConnected = this._onConnected.bind(this)
@@ -32,9 +38,10 @@ export class XRController extends THREE.Group {
 
   _onConnected(event: XRControllerEvent) {
     if (event.fake) return
+    if (!event.data) return
 
     this.visible = true
-    this.inputSource = event.data!
+    this.inputSource = event.data
     this.dispatchEvent(event)
   }
 
@@ -42,6 +49,7 @@ export class XRController extends THREE.Group {
     if (event.fake) return
 
     this.visible = false
+    this.inputSource = null
     this.dispatchEvent(event)
   }
 

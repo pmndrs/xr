@@ -56,6 +56,9 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
     if (interactions.size === 0) return
 
     for (const target of controllers) {
+      if (!target.inputSource?.handedness) {
+        return
+      }
       const hovering = hoverState[target.inputSource.handedness]
       const hits = new Set()
       let intersections = intersect(target.controller)
@@ -109,6 +112,9 @@ export function InteractionManager({ children }: { children: React.ReactNode }) 
 
   const triggerEvent = React.useCallback(
     (interaction: XRInteractionType) => (e: XREvent<XRControllerEvent>) => {
+      if (!e.target.inputSource?.handedness) {
+        return
+      }
       const hovering = hoverState[e.target.inputSource.handedness]
       const intersections = Array.from(new Set(hovering.values()))
 
