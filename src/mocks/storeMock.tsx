@@ -24,14 +24,49 @@ export const createStoreMock = () =>
       none: new Map()
     },
     interactions: new Map(),
-    hasInteraction(_object: THREE.Object3D, _eventType: XRInteractionType) {
-      return false
+    hasInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
+      return !!get()
+        .interactions.get(object)
+        ?.[eventType].some((handlerRef) => handlerRef.current)
     },
-    getInteraction(_object: THREE.Object3D, _eventType: XRInteractionType) {
-      return []
+    getInteraction(object: THREE.Object3D, eventType: XRInteractionType) {
+      return get()
+        .interactions.get(object)
+        ?.[eventType].reduce((result, handlerRef) => {
+          if (handlerRef.current) {
+            result.push(handlerRef.current)
+          }
+          return result
+        }, [] as XRInteractionHandler[])
     },
-    addInteraction(_object: THREE.Object3D, _eventType: XRInteractionType, _handlerRef: React.RefObject<XRInteractionHandler>) {},
-    removeInteraction(_object: THREE.Object3D, _eventType: XRInteractionType, _handlerRef: React.RefObject<XRInteractionHandler>) {}
+    addInteraction(object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) {
+      const interactions = get().interactions
+      if (!interactions.has(object)) {
+        interactions.set(object, {
+          onHover: [],
+          onBlur: [],
+          onSelect: [],
+          onSelectEnd: [],
+          onSelectStart: [],
+          onSelectMissed: [],
+          onSqueeze: [],
+          onSqueezeEnd: [],
+          onSqueezeStart: [],
+          onSqueezeMissed: [],
+          onMove: []
+        })
+      }
+
+      const target = interactions.get(object)!
+      target[eventType].push(handlerRef)
+    },
+    removeInteraction(object: THREE.Object3D, eventType: XRInteractionType, handlerRef: React.RefObject<XRInteractionHandler>) {
+      const target = get().interactions.get(object)
+      if (target) {
+        const interactionIndex = target[eventType].indexOf(handlerRef)
+        if (interactionIndex !== -1) target[eventType].splice(interactionIndex, 1)
+      }
+    }
   }))
 
 export const createStoreProvider =
