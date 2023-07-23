@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { XRControllerEvent } from './XREvents'
-import { XRControllerModel } from './XRControllerModelFactory'
+import { XRControllerModel } from './XRControllerModel'
 
 /** Counterpart of WebXRController from three ks
  * in a sense that it's long living */

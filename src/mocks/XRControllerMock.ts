@@ -1,7 +1,7 @@
 import { Group, XRTargetRaySpace, XRGripSpace, XRHandSpace, Vector3, XRHandInputState, XRHandJoints } from 'three'
 import { XRController } from '../XRController'
 import { XRControllerEvent } from '../XREvents'
-import { XRControllerModel } from '../XRControllerModelFactory'
+import { XRControllerModel } from '../XRControllerModel'
 
 export class XRTargetRaySpaceMock extends Group implements XRTargetRaySpace {
   readonly angularVelocity: Vector3 = new Vector3()

@@ -3,8 +3,9 @@ import * as THREE from 'three'
 import { useFrame, Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
-import { XRControllerModel, XRControllerModelFactory } from './XRControllerModelFactory'
+import { XRControllerModelFactory } from './XRControllerModelFactory'
 import { useCallback } from 'react'
+import { XRControllerModel } from './XRControllerModel'
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   /** The XRController to attach the ray to */

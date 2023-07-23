@@ -1,17 +1,8 @@
-import * as React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { XRContext, XRState } from './context'
 import { renderHook } from './testUtils'
 import { useXREvent } from './XREvents'
-import { createStoreMock } from './mocks/storeMock'
+import { createStoreMock, createStoreProvider } from './mocks/storeMock'
 import { XRControllerMock } from './mocks/XRControllerMock'
-import { PropsWithChildren } from 'react'
-import { StoreApi, UseBoundStore } from 'zustand'
-
-const createStoreProvider =
-  (store: UseBoundStore<XRState, StoreApi<XRState>>) =>
-  ({ children }: PropsWithChildren) =>
-    <XRContext.Provider value={store} children={children} />
 
 describe('XREvents', () => {
   it('should not call callback if no events happened', async () => {

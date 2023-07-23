@@ -1,7 +1,7 @@
-import create from 'zustand'
+import create, { StoreApi, UseBoundStore } from 'zustand'
 import * as React from 'react'
 import * as THREE from 'three'
-import { XRState } from '../context'
+import { XRContext, XRState } from '../context'
 import { Group } from 'three'
 import { XRInteractionHandler, XRInteractionType } from '@react-three/xr'
 
@@ -33,3 +33,8 @@ export const createStoreMock = () =>
     addInteraction(_object: THREE.Object3D, _eventType: XRInteractionType, _handlerRef: React.RefObject<XRInteractionHandler>) {},
     removeInteraction(_object: THREE.Object3D, _eventType: XRInteractionType, _handlerRef: React.RefObject<XRInteractionHandler>) {}
   }))
+
+export const createStoreProvider =
+  (store: UseBoundStore<XRState, StoreApi<XRState>>) =>
+  ({ children }: React.PropsWithChildren) =>
+    <XRContext.Provider value={store} children={children} />
