@@ -66,6 +66,33 @@ export interface ControllersProps {
   hideRaysOnBlur?: boolean
 }
 
+const ControllerModel = ({ target }: { target: XRController }) => {
+  const handleControllerModel = useCallback(
+    (xrControllerModel: XRControllerModel | null) => {
+      if (xrControllerModel) {
+        target.xrControllerModel = xrControllerModel
+        if (target.inputSource?.hand) {
+          return
+        }
+        if (target.inputSource) {
+          modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
+        } else {
+          console.warn('no input source on XRController when handleControllerModel')
+        }
+      } else {
+        if (target.inputSource?.hand) {
+          return
+        }
+        target.xrControllerModel?.disconnect()
+        target.xrControllerModel = null
+      }
+    },
+    [target]
+  )
+
+  return <xRControllerModel ref={handleControllerModel} />
+}
+
 export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: ControllersProps) {
   const controllers = useXR((state) => state.controllers)
   const isHandTracking = useXR((state) => state.isHandTracking)
@@ -82,31 +109,11 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: Contro
   )
   React.useMemo(() => extend({ XRControllerModel }), [])
 
-  const handleControllerModel = useCallback((xrControllerModel: XRControllerModel | null, target: XRController) => {
-    if (xrControllerModel) {
-      target.xrControllerModel = xrControllerModel
-      if (target.inputSource?.hand) {
-        return
-      }
-      if (target.inputSource) {
-        modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
-      } else {
-        console.warn('no input source on XRController when handleControllerModel')
-      }
-    } else {
-      if (target.inputSource?.hand) {
-        return
-      }
-      target.xrControllerModel?.disconnect()
-      target.xrControllerModel = null
-    }
-  }, [])
-
   return (
     <>
       {controllers.map((target, i) => (
         <React.Fragment key={i}>
-          {createPortal(<xRControllerModel ref={(r) => handleControllerModel(r, target)} args={[]} />, target.grip)}
+          {createPortal(<ControllerModel target={target} />, target.grip)}
           {createPortal(
             <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
             target.controller

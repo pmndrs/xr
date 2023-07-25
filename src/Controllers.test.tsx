@@ -121,4 +121,24 @@ describe('Controllers', () => {
     expect(xrControllerMock.xrControllerModel).toBeNull()
     expect(disconnectSpy).toBeCalled()
   })
+
+  it('should not reconnect when component is rerendered', async () => {
+    const store = createStoreMock()
+    const xrControllerMock = new XRControllerMock(0)
+    xrControllerMock.inputSource = new XRInputSourceMock()
+    store.setState({ controllers: [xrControllerMock] })
+
+    const { rerender } = await render(<Controllers />, { wrapper: createStoreProvider(store) })
+
+    const xrControllerModel = xrControllerMock.xrControllerModel
+    const disconnectSpy = vi.spyOn(xrControllerModel!, 'disconnect')
+
+    await rerender(<Controllers />)
+
+    const xrControllerModelFactory = XRControllerModelFactoryMock.instance
+    expect(xrControllerModelFactory).toBeDefined()
+    expect(xrControllerMock.xrControllerModel).not.toBeNull()
+    expect(disconnectSpy).not.toBeCalled()
+    expect(xrControllerModelFactory?.initializeControllerModel).toBeCalledTimes(1)
+  })
 })
