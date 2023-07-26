@@ -30,7 +30,7 @@ export function useXREvent(event: XRControllerEventType, handler: XREventHandler
 
   useIsomorphicLayoutEffect(() => {
     const listeners = controllers.map((target) => {
-      if (handedness && target.inputSource.handedness !== handedness) return
+      if (handedness && target.inputSource && target.inputSource.handedness !== handedness) return
 
       const listener = (nativeEvent: XRControllerEvent) => handlerRef.current({ nativeEvent, target })
       target.controller.addEventListener(event, listener)

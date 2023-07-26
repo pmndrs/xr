@@ -37,6 +37,7 @@
   "devDependencies": {
     "@react-three/drei": "^9.13.2",
     "@react-three/fiber": "^8.0.27",
+    "@react-three/test-renderer": "^8.2.0",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
     "@types/react-test-renderer": "^18.0.0",
