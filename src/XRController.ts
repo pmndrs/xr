@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { XRControllerEvent } from './XREvents'
 import { XRControllerModel } from './XRControllerModel'
+import { XRHandModel } from './XRHandModel'
 
 /** Counterpart of WebXRController from three js
  * in a sense that it's long living */
@@ -11,6 +12,7 @@ export class XRController extends THREE.Group {
   readonly hand: THREE.XRHandSpace
   public inputSource: XRInputSource | null = null
   public xrControllerModel: XRControllerModel | null = null
+  public xrHandModel: XRHandModel | null = null
 
   constructor(index: number, gl: THREE.WebGLRenderer) {
     super()

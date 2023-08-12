@@ -91,7 +91,16 @@ function addAssetSceneToControllerModel(controllerModel: XRControllerModel, scen
   controllerModel.add(scene)
 }
 
-export class XRControllerModel extends Group {
+export interface XRInputSourceModel extends Object3D {
+  connected: boolean
+  // motionController: MotionController | null
+  setEnvironmentMap(envMap: Texture, envMapIntensity?: number): XRInputSourceModel
+  connectModel(scene: Object3D): void
+  connectMotionController(motionController: MotionController): void
+}
+
+export class XRControllerModel extends Group implements XRInputSourceModel {
+  connected: boolean
   envMap: Texture | null
   envMapIntensity: number
   motionController: MotionController | null
@@ -104,6 +113,7 @@ export class XRControllerModel extends Group {
     this.envMap = null
     this.envMapIntensity = 1
     this.scene = null
+    this.connected = false
   }
 
   setEnvironmentMap(envMap: Texture, envMapIntensity = 1): XRControllerModel {
@@ -134,6 +144,7 @@ export class XRControllerModel extends Group {
 
   connectMotionController(motionController: MotionController): void {
     this.motionController = motionController
+    this.connected = true
     this.dispatchEvent({
       type: 'motionconnected',
       data: motionController
@@ -189,6 +200,7 @@ export class XRControllerModel extends Group {
       data: this.scene
     })
     this.motionController = null
+    this.connected = false
     if (this.scene) {
       this.remove(this.scene)
     }

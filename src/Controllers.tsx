@@ -94,8 +94,7 @@ const ControllerModel = ({ target }: { target: XRController }) => {
 }
 
 export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: ControllersProps) {
-  const controllers = useXR((state) => state.controllers)
-  const isHandTracking = useXR((state) => state.isHandTracking)
+  const controllers = useXR((state) => state.controllers.filter((c) => c.inputSource && !c.inputSource?.hand))
   const rayMaterialProps = React.useMemo(
     () =>
       Object.entries(rayMaterial).reduce(
@@ -114,10 +113,7 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: Contro
       {controllers.map((target, i) => (
         <React.Fragment key={i}>
           {createPortal(<ControllerModel target={target} />, target.grip)}
-          {createPortal(
-            <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
-            target.controller
-          )}
+          {createPortal(<Ray hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />, target.controller)}
         </React.Fragment>
       ))}
     </>

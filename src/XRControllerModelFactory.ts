@@ -1,6 +1,6 @@
 import { Object3D } from 'three'
 import { fetchProfile, GLTFLoader, MotionController } from 'three-stdlib'
-import { XRControllerModel } from './XRControllerModel'
+import { XRInputSourceModel } from './XRControllerModel'
 
 const DEFAULT_PROFILES_PATH = 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles'
 const DEFAULT_PROFILE = 'generic-trigger'
@@ -16,7 +16,7 @@ export class XRControllerModelFactory {
     this._assetCache = {}
   }
 
-   initializeControllerModel(controllerModel: XRControllerModel, xrInputSource: XRInputSource): Promise<void> {
+   initializeControllerModel(controllerModel: XRInputSourceModel, xrInputSource: XRInputSource): Promise<void> {
     // TODO check gamepad in other condition
     if (xrInputSource.targetRayMode !== 'tracked-pointer' || !xrInputSource.gamepad) {
       return Promise.resolve()
