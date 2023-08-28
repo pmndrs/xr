@@ -3,9 +3,8 @@ import * as THREE from 'three'
 import { useFrame, Object3DNode, extend, createPortal } from '@react-three/fiber'
 import { useXR } from './XR'
 import { XRController } from './XRController'
-import { XRControllerModel, XRControllerModelFactory } from './XRControllerModelFactory'
-import { useCallback, useEffect } from 'react'
-import { Texture } from 'three'
+import { XRControllerModelFactory } from './XRControllerModelFactory'
+import { XRControllerModel } from './XRControllerModel'
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   /** The XRController to attach the ray to */
@@ -64,8 +63,58 @@ export interface ControllersProps {
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
   /** Whether to hide controllers' rays on blur. Default is `false` */
   hideRaysOnBlur?: boolean
-  envMap?: Texture
+  envMap?: THREE.Texture
   envMapIntensity?: number
+}
+
+const ControllerModel = ({
+  target,
+  envMap,
+  envMapIntensity
+}: {
+  target: XRController
+  envMap?: THREE.Texture
+  envMapIntensity?: number
+}) => {
+  const xrControllerModelRef = React.useRef<XRControllerModel | null>(null)
+  
+  const handleControllerModel = React.useCallback(
+    (xrControllerModel: XRControllerModel | null) => {
+      xrControllerModelRef.current = xrControllerModel
+      if (xrControllerModel) {
+        target.xrControllerModel = xrControllerModel
+        if (target.inputSource?.hand) {
+          return
+        }
+        if (target.inputSource) {
+          modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
+        } else {
+          console.warn('no input source on XRController when handleControllerModel')
+        }
+      } else {
+        if (target.inputSource?.hand) {
+          return
+        }
+        target.xrControllerModel?.disconnect()
+        target.xrControllerModel = null
+      }
+    },
+    [target]
+  )
+
+  React.useLayoutEffect(() => {
+    if (xrControllerModelRef.current) {
+      xrControllerModelRef.current.setEnvironmentMap(envMap ?? null)
+    }
+  }, [envMap])
+
+  React.useLayoutEffect(() => {
+    if (xrControllerModelRef.current && envMapIntensity != null) {
+      xrControllerModelRef.current.setEnvironmentMapIntensity(envMapIntensity)
+    }
+  }, [envMapIntensity])
+
+  return <xRControllerModel ref={handleControllerModel} />
 }
 
 export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, envMapIntensity }: ControllersProps) {
@@ -84,42 +133,11 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, 
   )
   React.useMemo(() => extend({ XRControllerModel }), [])
 
-  const handleControllerModel = useCallback((xrControllerModel: XRControllerModel | null, target: XRController) => {
-    if (xrControllerModel) {
-      target.xrControllerModel = xrControllerModel
-      if (target.inputSource?.hand) {
-        return
-      }
-      if (target.inputSource) {
-        modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
-      } else {
-        console.warn('no input source on XRController when handleControllerModel')
-      }
-    } else {
-      if (target.inputSource?.hand) {
-        return
-      }
-      target.xrControllerModel?.disconnect()
-      target.xrControllerModel = null
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!envMap) {
-      return
-    }
-    for (const target of controllers) {
-      if (target.xrControllerModel) {
-        target.xrControllerModel.setEnvironmentMap(envMap, envMapIntensity)
-      }
-    }
-  }, [envMap, envMapIntensity, controllers])
-
   return (
     <>
       {controllers.map((target, i) => (
         <React.Fragment key={i}>
-          {createPortal(<xRControllerModel ref={(r) => handleControllerModel(r, target)} args={[]} />, target.grip)}
+          {createPortal(<ControllerModel target={target} envMap={envMap} envMapIntensity={envMapIntensity} />, target.grip)}
           {createPortal(
             <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
             target.controller

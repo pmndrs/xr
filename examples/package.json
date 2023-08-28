@@ -8,8 +8,8 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@react-three/drei": "^9.74.7",
-    "@react-three/fiber": "^8.13.0",
+    "@react-three/drei": "^9.78.2",
+    "@react-three/fiber": "^8.10.0",
     "@vanilla-extract/css": "^1.9.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

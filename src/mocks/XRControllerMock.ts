@@ -1,24 +1,9 @@
-import { XRController, XRControllerEvent, XRControllerModel } from '@react-three/xr'
-import { Group, XRTargetRaySpace, XRGripSpace, XRHandSpace, Vector3, XRHandInputState, XRHandJoints } from 'three'
-
-export class XRTargetRaySpaceMock extends Group implements XRTargetRaySpace {
-  readonly angularVelocity: Vector3 = new Vector3()
-  hasAngularVelocity = false
-  hasLinearVelocity = false
-  readonly linearVelocity: Vector3 = new Vector3()
-}
-
-export class XRGripSpaceMock extends Group implements XRGripSpace {
-  readonly angularVelocity: Vector3 = new Vector3()
-  hasAngularVelocity = false
-  hasLinearVelocity = false
-  readonly linearVelocity: Vector3 = new Vector3()
-}
-
-export class XRHandSpaceMock extends Group implements XRHandSpace {
-  readonly inputState: XRHandInputState = { pinching: false }
-  readonly joints: Partial<XRHandJoints> = {}
-}
+import { Group, XRTargetRaySpace, XRGripSpace, XRHandSpace } from 'three'
+import { XRController } from '../XRController'
+import { XRControllerEvent } from '../XREvents'
+import { XRControllerModel } from '../XRControllerModel'
+import { XRTargetRaySpaceMock, XRGripSpaceMock, XRHandSpaceMock } from './XRSpaceMock'
+import { XRInputSourceMock } from './XRInputSourceMock'
 
 export class XRControllerMock extends Group implements XRController {
   readonly controller: XRTargetRaySpace
@@ -26,12 +11,8 @@ export class XRControllerMock extends Group implements XRController {
   readonly hand: XRHandSpace
   readonly index: number
 
-  // TODO Implement mocks for inputSource
-  // @ts-ignore
-  inputSource: XRInputSource
-  // TODO Implement mocks for xrControllerModel
-  // @ts-ignore
-  public xrControllerModel: XRControllerModel | null
+  inputSource: XRInputSource | null = null
+  public xrControllerModel: XRControllerModel | null = null
 
   constructor(index: number) {
     super()
@@ -39,6 +20,7 @@ export class XRControllerMock extends Group implements XRController {
     this.controller = new XRTargetRaySpaceMock()
     this.grip = new XRGripSpaceMock()
     this.hand = new XRHandSpaceMock()
+    this.inputSource = new XRInputSourceMock()
   }
 
   _onConnected(_event: XRControllerEvent): void {
