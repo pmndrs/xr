@@ -64,7 +64,16 @@ export interface ControllersProps {
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
   /** Whether to hide controllers' rays on blur. Default is `false` */
   hideRaysOnBlur?: boolean
+  /**
+   * Optional environment map to apply to controllers' models
+   * Useful for make controllers look more realistic
+   * if you don't want to apply env map globally on a scene
+   */
   envMap?: THREE.Texture
+  /**
+   * Optional environment map intensity to apply to controllers' models
+   * Useful for tweaking the env map intensity if they look too bright or too dark
+   */
   envMapIntensity?: number
 }
 
