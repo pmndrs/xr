@@ -6,7 +6,6 @@ import { XRControllerModel } from './XRControllerModel'
  * in a sense that it's long living */
 export class XRController extends THREE.Group {
   readonly index: number
-  // TODO rename it?
   readonly controller: THREE.XRTargetRaySpace
   readonly grip: THREE.XRGripSpace
   readonly hand: THREE.XRHandSpace
@@ -26,7 +25,6 @@ export class XRController extends THREE.Group {
     this.hand.userData.name = 'hand'
 
     this.visible = false
-    // TODO is this needed?
     this.add(this.controller, this.grip, this.hand)
 
     this._onConnected = this._onConnected.bind(this)
