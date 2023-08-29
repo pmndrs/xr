@@ -184,7 +184,7 @@ controller: THREE.XRTargetRaySpace
 grip: THREE.XRGripSpace
 hand: THREE.XRHandSpace
 inputSource: XRInputSource | null
-xrControllerModel: XRControllerModel
+xrControllerModel: XRControllerModel | null
 ```
 
 ## Interactions
