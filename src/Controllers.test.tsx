@@ -184,6 +184,19 @@ describe('Controllers', () => {
       expect(xrControllerModel!.envMapIntensity).toBe(0.5)
     })
 
+    it("should change env map intensity if it's provided in props then updated to a different value", async () => {
+      const store = createStoreMock()
+      const xrControllerMock = new XRControllerMock(0)
+      store.setState({ controllers: [xrControllerMock] })
+
+      const { rerender } = await render(<Controllers envMapIntensity={0.5} />, { wrapper: createStoreProvider(store) })
+      const xrControllerModel = xrControllerMock.xrControllerModel
+      await rerender(<Controllers envMapIntensity={0.6} />)
+
+      expect(xrControllerModel!.envMap).toBeNull()
+      expect(xrControllerModel!.envMapIntensity).toBe(0.6)
+    })
+
     it("should remove env map if it's provided in props first, and then removed", async () => {
       const store = createStoreMock()
       const xrControllerMock = new XRControllerMock(0)
