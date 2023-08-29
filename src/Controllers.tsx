@@ -5,6 +5,7 @@ import { useXR } from './XR'
 import { XRController } from './XRController'
 import { XRControllerModelFactory } from './XRControllerModelFactory'
 import { XRControllerModel } from './XRControllerModel'
+import { useCallbackRef } from './utils'
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   /** The XRController to attach the ray to */
@@ -77,12 +78,19 @@ const ControllerModel = ({
   envMapIntensity?: number
 }) => {
   const xrControllerModelRef = React.useRef<XRControllerModel | null>(null)
-  
+  const setEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => xrControllerModel.setEnvironmentMap(envMap ?? null))
+  const setEnvironmentMapIntensityRef = useCallbackRef((xrControllerModel: XRControllerModel) => {
+    if (envMapIntensity == null) return
+    xrControllerModel.setEnvironmentMapIntensity(envMapIntensity)
+  })
+
   const handleControllerModel = React.useCallback(
     (xrControllerModel: XRControllerModel | null) => {
       xrControllerModelRef.current = xrControllerModel
       if (xrControllerModel) {
         target.xrControllerModel = xrControllerModel
+        setEnvironmentMapRef.current(xrControllerModel)
+        setEnvironmentMapIntensityRef.current(xrControllerModel)
         if (target.inputSource?.hand) {
           return
         }
@@ -99,20 +107,20 @@ const ControllerModel = ({
         target.xrControllerModel = null
       }
     },
-    [target]
+    [setEnvironmentMapIntensityRef, setEnvironmentMapRef, target]
   )
 
   React.useLayoutEffect(() => {
     if (xrControllerModelRef.current) {
-      xrControllerModelRef.current.setEnvironmentMap(envMap ?? null)
+      setEnvironmentMapRef.current(xrControllerModelRef.current)
     }
-  }, [envMap])
+  }, [envMap, setEnvironmentMapRef])
 
   React.useLayoutEffect(() => {
-    if (xrControllerModelRef.current && envMapIntensity != null) {
-      xrControllerModelRef.current.setEnvironmentMapIntensity(envMapIntensity)
+    if (xrControllerModelRef.current) {
+      setEnvironmentMapIntensityRef.current(xrControllerModelRef.current)
     }
-  }, [envMapIntensity])
+  }, [envMapIntensity, setEnvironmentMapIntensityRef])
 
   return <xRControllerModel ref={handleControllerModel} />
 }

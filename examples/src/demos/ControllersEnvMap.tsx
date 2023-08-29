@@ -8,8 +8,9 @@ import EnvMap from '../assets/brown_photostudio_04_256.hdr'
 function ControllersWithEnvMap() {
   const renderer = useThree(({ gl }) => gl)
   const [envMap, setEnvMap] = useState<Texture>()
+
   useEffect(() => {
-    const foo = async () => {
+    const generateEnvMap = async () => {
       const rgbeLoader = new RGBELoader()
       const dataTexture = await rgbeLoader.loadAsync(EnvMap)
       const pmremGenerator = new PMREMGenerator(renderer)
@@ -19,7 +20,8 @@ function ControllersWithEnvMap() {
       setEnvMap(radianceMap)
       pmremGenerator.dispose()
     }
-    foo()
+
+    generateEnvMap()
   }, [renderer])
 
   return <Controllers envMap={envMap} envMapIntensity={1} />
@@ -31,8 +33,6 @@ export default function () {
       <VRButton onError={(e) => console.error(e)} />
       <Canvas>
         <XR>
-          {/*<ambientLight intensity={0.5} />*/}
-          {/*<pointLight position={[5, 5, 5]} />*/}
           <ControllersWithEnvMap />
         </XR>
       </Canvas>
