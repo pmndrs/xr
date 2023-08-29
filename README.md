@@ -160,6 +160,10 @@ Controllers can be added with `<Controllers />` for [motion-controllers](https:/
 />
 ```
 
+### Environment map
+
+You can set environment map and/or it's intensity on controller models via props on `<Controllers />`. See [ControllerEnvMap](./examples/src/demos/ControllersEnvMap.tsx) to find out how to do it.
+
 ### useController
 
 `useController` references an `XRController` by handedness, exposing position and orientation info.
@@ -172,14 +176,15 @@ const gazeController = useController('none')
 
 ### XRController
 
-`XRController` is an `Object3D` that represents an [`XRInputSource`](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource) with the following properties:
+`XRController` is an long-living `Object3D` that represents an [`XRInputSource`](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource) with the following properties:
 
 ```jsx
 index: number
 controller: THREE.XRTargetRaySpace
 grip: THREE.XRGripSpace
 hand: THREE.XRHandSpace
-inputSource: XRInputSource
+inputSource: XRInputSource | null
+xrControllerModel: XRControllerModel
 ```
 
 ## Interactions
