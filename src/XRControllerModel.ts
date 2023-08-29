@@ -93,9 +93,10 @@ function addAssetSceneToControllerModel(controllerModel: XRControllerModel, scen
   // Apply any environment map that the mesh already has set.
   if (controllerModel.envMap) {
     applyEnvironmentMap(controllerModel.envMap, scene)
-    if (controllerModel.envMapIntensity != null) {
-      applyEnvironmentMapIntensity(controllerModel.envMapIntensity, scene)
-    }
+  }
+
+  if (controllerModel.envMapIntensity != null) {
+    applyEnvironmentMapIntensity(controllerModel.envMapIntensity, scene)
   }
 
   // Add the glTF scene to the controllerModel.

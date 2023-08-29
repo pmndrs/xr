@@ -8,7 +8,10 @@ export class XRControllerModelMock extends Group implements XRControllerModel {
   envMapIntensity = 1
   motionController: MotionController | null = null
   scene: Object3D<Event> | null = null
-  setEnvironmentMap(_envMap: Texture, _envMapIntensity?: number): XRControllerModel {
+  setEnvironmentMap(_envMap: Texture): XRControllerModel {
+    throw new Error('Method not implemented.')
+  }
+  setEnvironmentMapIntensity( _envMapIntensity?: number): XRControllerModel {
     throw new Error('Method not implemented.')
   }
   connectModel = vi.fn<[scene: Object3D<Event>], void>()
