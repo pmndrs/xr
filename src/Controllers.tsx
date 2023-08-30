@@ -87,7 +87,12 @@ const ControllerModel = ({
   envMapIntensity?: number
 }) => {
   const xrControllerModelRef = React.useRef<XRControllerModel | null>(null)
-  const setEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => xrControllerModel.setEnvironmentMap(envMap ?? null))
+  const setEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => {
+    if (envMap == null) return
+    xrControllerModel.setEnvironmentMap(envMap ?? null)
+  })
+  const clearEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => xrControllerModel.setEnvironmentMap(null))
+  
   const setEnvironmentMapIntensityRef = useCallbackRef((xrControllerModel: XRControllerModel) => {
     if (envMapIntensity == null) return
     xrControllerModel.setEnvironmentMapIntensity(envMapIntensity)
@@ -98,11 +103,12 @@ const ControllerModel = ({
       xrControllerModelRef.current = xrControllerModel
       if (xrControllerModel) {
         target.xrControllerModel = xrControllerModel
-        setEnvironmentMapRef.current(xrControllerModel)
-        setEnvironmentMapIntensityRef.current(xrControllerModel)
         if (target.inputSource?.hand) {
           return
         }
+
+        setEnvironmentMapRef.current(xrControllerModel)
+        setEnvironmentMapIntensityRef.current(xrControllerModel)
         if (target.inputSource) {
           modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
         } else {
@@ -116,14 +122,18 @@ const ControllerModel = ({
         target.xrControllerModel = null
       }
     },
-    [setEnvironmentMapIntensityRef, setEnvironmentMapRef, target]
+    [target, setEnvironmentMapIntensityRef, setEnvironmentMapRef]
   )
 
   React.useLayoutEffect(() => {
     if (xrControllerModelRef.current) {
-      setEnvironmentMapRef.current(xrControllerModelRef.current)
+      if (envMap) {
+        setEnvironmentMapRef.current(xrControllerModelRef.current)
+      } else {
+        clearEnvironmentMapRef.current(xrControllerModelRef.current)
+      }
     }
-  }, [envMap, setEnvironmentMapRef])
+  }, [envMap, setEnvironmentMapRef, clearEnvironmentMapRef])
 
   React.useLayoutEffect(() => {
     if (xrControllerModelRef.current) {
