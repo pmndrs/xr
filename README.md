@@ -152,6 +152,17 @@ Controllers can be added with `<Controllers />` for [motion-controllers](https:/
   rayMaterial={{ color: 'blue' }}
   /** Whether to hide controllers' rays on blur. Default is `false` */
   hideRaysOnBlur={false}
+  /**
+   * Optional environment map to apply to controller models.
+   * Useful for make controllers look more realistic
+   * if you don't want to apply an env map globally on a scene
+   */
+  envMap={Texture}
+  /**
+   * Optional environment map intensity to apply to controller models.
+   * Useful for tweaking the env map intensity if they look too bright or dark
+   */
+  envMapIntensity={1}
 />
 <Hands
   // Optional custom models per hand. Default is the Oculus hand model
@@ -162,7 +173,7 @@ Controllers can be added with `<Controllers />` for [motion-controllers](https:/
 
 ### Environment map
 
-You can set environment map and/or it's intensity on controller models via props on `<Controllers />`. See [ControllerEnvMap](./examples/src/demos/ControllersEnvMap.tsx) to find out how to do it.
+You can set an environment map and/or its intensity on controller models via the `envMap` and `envMapIntensity` props of `<Controllers />`. See [ControllerEnvMap](./examples/src/demos/ControllersEnvMap.tsx) for reference.
 
 ### useController
 
@@ -176,7 +187,7 @@ const gazeController = useController('none')
 
 ### XRController
 
-`XRController` is an long-living `Object3D` that represents an [`XRInputSource`](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource) with the following properties:
+`XRController` is a long-living `Object3D` that represents an [`XRInputSource`](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSource) with the following properties:
 
 ```jsx
 index: number

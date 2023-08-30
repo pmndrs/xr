@@ -65,14 +65,14 @@ export interface ControllersProps {
   /** Whether to hide controllers' rays on blur. Default is `false` */
   hideRaysOnBlur?: boolean
   /**
-   * Optional environment map to apply to controllers' models
+   * Optional environment map to apply to controller models.
    * Useful for make controllers look more realistic
-   * if you don't want to apply env map globally on a scene
+   * if you don't want to apply an env map globally on a scene
    */
   envMap?: THREE.Texture
   /**
-   * Optional environment map intensity to apply to controllers' models
-   * Useful for tweaking the env map intensity if they look too bright or too dark
+   * Optional environment map intensity to apply to controller models.
+   * Useful for tweaking the env map intensity if they look too bright or dark
    */
   envMapIntensity?: number
 }
@@ -89,10 +89,10 @@ const ControllerModel = ({
   const xrControllerModelRef = React.useRef<XRControllerModel | null>(null)
   const setEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => {
     if (envMap == null) return
-    xrControllerModel.setEnvironmentMap(envMap ?? null)
+    xrControllerModel.setEnvironmentMap(envMap)
   })
   const clearEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => xrControllerModel.setEnvironmentMap(null))
-  
+
   const setEnvironmentMapIntensityRef = useCallbackRef((xrControllerModel: XRControllerModel) => {
     if (envMapIntensity == null) return
     xrControllerModel.setEnvironmentMapIntensity(envMapIntensity)
