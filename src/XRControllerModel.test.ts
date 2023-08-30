@@ -169,7 +169,7 @@ describe('XRControllerModel', () => {
       xrControllerModel.connectMotionController(motionControllerMock)
       xrControllerModel.connectModel(sceneMock)
       xrControllerModel.setEnvironmentMap(envMapMock)
-      expect.soft(xrControllerModel).toBe(envMapMock)
+      expect.soft(xrControllerModel.envMap).toBe(envMapMock)
 
       xrControllerModel.setEnvironmentMap(null)
 
