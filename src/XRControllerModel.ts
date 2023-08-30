@@ -7,22 +7,47 @@ import {
   MeshLambertMaterial,
   MeshPhongMaterial,
   MeshStandardMaterial,
-  SphereGeometry
+  SphereGeometry,
+  Material
 } from 'three'
 import { MotionController, MotionControllerConstants } from 'three-stdlib'
 
-const isEnvMapApplicable = (
-  material: any
-): material is MeshBasicMaterial | MeshStandardMaterial | MeshPhongMaterial | MeshLambertMaterial => 'envMap' in material
+type MaterialsWithEnvMap = MeshBasicMaterial | MeshStandardMaterial | MeshPhongMaterial | MeshLambertMaterial
 
-const applyEnvironmentMap = (envMap: Texture, envMapIntensity: number, obj: Object3D): void => {
-  obj.traverse((child) => {
-    if (child instanceof Mesh && isEnvMapApplicable(child.material)) {
-      child.material.envMap = envMap
-      if ('envMapIntensity' in child.material) child.material.envMapIntensity = envMapIntensity
-      child.material.needsUpdate = true
+const isEnvMapApplicable = (material: Material): material is MaterialsWithEnvMap => 'envMap' in material
+
+const updateEnvMap = (material: MaterialsWithEnvMap, envMap: Texture | null) => {
+  material.envMap = envMap
+  material.needsUpdate = true
+}
+
+const applyEnvironmentMap = (envMap: Texture | null, obj: Object3D): void => {
+  if (obj instanceof Mesh) {
+    if (Array.isArray(obj.material)) {
+      obj.material.forEach((m) => (isEnvMapApplicable(m) ? updateEnvMap(m, envMap) : undefined))
+    } else if (isEnvMapApplicable(obj.material)) {
+      updateEnvMap(obj.material, envMap)
     }
-  })
+  }
+}
+
+type MaterialsWithEnvMapIntensity = Material & { envMapIntensity: any }
+
+const isEnvMapIntensityApplicable = (material: Material): material is MaterialsWithEnvMapIntensity => 'envMapIntensity' in material
+
+const updateEnvMapIntensity = (material: MaterialsWithEnvMapIntensity, envMapIntensity: number) => {
+  material.envMapIntensity = envMapIntensity
+  material.needsUpdate = true
+}
+
+const applyEnvironmentMapIntensity = (envMapIntensity: number, obj: Object3D): void => {
+  if (obj instanceof Mesh) {
+    if (Array.isArray(obj.material)) {
+      obj.material.forEach((m) => (isEnvMapIntensityApplicable(m) ? updateEnvMapIntensity(m, envMapIntensity) : undefined))
+    } else if (isEnvMapIntensityApplicable(obj.material)) {
+      updateEnvMapIntensity(obj.material, envMapIntensity)
+    }
+  }
 }
 
 /**
@@ -83,8 +108,11 @@ function addAssetSceneToControllerModel(controllerModel: XRControllerModel, scen
   findNodes(controllerModel.motionController!, scene)
 
   // Apply any environment map that the mesh already has set.
-  if (controllerModel.envMap) {
-    applyEnvironmentMap(controllerModel.envMap, controllerModel.envMapIntensity, scene)
+  if (controllerModel.envMap || controllerModel.envMapIntensity != null) {
+    scene.traverse((c) => {
+      if (controllerModel.envMap) applyEnvironmentMap(controllerModel.envMap, c)
+      if (controllerModel.envMapIntensity != null) applyEnvironmentMapIntensity(controllerModel.envMapIntensity, c)
+    })
   }
 
   // Add the glTF scene to the controllerModel.
@@ -106,14 +134,28 @@ export class XRControllerModel extends Group {
     this.scene = null
   }
 
-  setEnvironmentMap(envMap: Texture, envMapIntensity = 1): XRControllerModel {
+  setEnvironmentMap(envMap: Texture | null, envMapIntensity = 1): XRControllerModel {
     if (this.envMap === envMap && this.envMapIntensity === envMapIntensity) {
       return this
     }
 
     this.envMap = envMap
     this.envMapIntensity = envMapIntensity
-    applyEnvironmentMap(envMap, envMapIntensity, this)
+    this.scene?.traverse((c) => {
+      applyEnvironmentMap(envMap, c)
+      applyEnvironmentMapIntensity(envMapIntensity, c)
+    })
+
+    return this
+  }
+
+  setEnvironmentMapIntensity(envMapIntensity: number): XRControllerModel {
+    if (this.envMapIntensity === envMapIntensity) {
+      return this
+    }
+
+    this.envMapIntensity = envMapIntensity
+    this.scene?.traverse((c) => applyEnvironmentMapIntensity(envMapIntensity, c))
 
     return this
   }

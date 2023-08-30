@@ -4,8 +4,8 @@ import { useFrame, Object3DNode, extend, createPortal } from '@react-three/fiber
 import { useXR } from './XR'
 import { XRController } from './XRController'
 import { XRControllerModelFactory } from './XRControllerModelFactory'
-import { useCallback } from 'react'
 import { XRControllerModel } from './XRControllerModel'
+import { useCallbackRef } from './utils'
 
 export interface RayProps extends Partial<JSX.IntrinsicElements['object3D']> {
   /** The XRController to attach the ray to */
@@ -64,16 +64,51 @@ export interface ControllersProps {
   rayMaterial?: JSX.IntrinsicElements['meshBasicMaterial']
   /** Whether to hide controllers' rays on blur. Default is `false` */
   hideRaysOnBlur?: boolean
+  /**
+   * Optional environment map to apply to controllers' models
+   * Useful for make controllers look more realistic
+   * if you don't want to apply env map globally on a scene
+   */
+  envMap?: THREE.Texture
+  /**
+   * Optional environment map intensity to apply to controllers' models
+   * Useful for tweaking the env map intensity if they look too bright or too dark
+   */
+  envMapIntensity?: number
 }
 
-const ControllerModel = ({ target }: { target: XRController }) => {
-  const handleControllerModel = useCallback(
+const ControllerModel = ({
+  target,
+  envMap,
+  envMapIntensity
+}: {
+  target: XRController
+  envMap?: THREE.Texture
+  envMapIntensity?: number
+}) => {
+  const xrControllerModelRef = React.useRef<XRControllerModel | null>(null)
+  const setEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => {
+    if (envMap == null) return
+    xrControllerModel.setEnvironmentMap(envMap ?? null)
+  })
+  const clearEnvironmentMapRef = useCallbackRef((xrControllerModel: XRControllerModel) => xrControllerModel.setEnvironmentMap(null))
+  
+  const setEnvironmentMapIntensityRef = useCallbackRef((xrControllerModel: XRControllerModel) => {
+    if (envMapIntensity == null) return
+    xrControllerModel.setEnvironmentMapIntensity(envMapIntensity)
+  })
+
+  const handleControllerModel = React.useCallback(
     (xrControllerModel: XRControllerModel | null) => {
+      xrControllerModelRef.current = xrControllerModel
       if (xrControllerModel) {
         target.xrControllerModel = xrControllerModel
         if (target.inputSource?.hand) {
           return
         }
+
+        setEnvironmentMapRef.current(xrControllerModel)
+        setEnvironmentMapIntensityRef.current(xrControllerModel)
         if (target.inputSource) {
           modelFactory.initializeControllerModel(xrControllerModel, target.inputSource)
         } else {
@@ -87,13 +122,29 @@ const ControllerModel = ({ target }: { target: XRController }) => {
         target.xrControllerModel = null
       }
     },
-    [target]
+    [target, setEnvironmentMapIntensityRef, setEnvironmentMapRef]
   )
+
+  React.useLayoutEffect(() => {
+    if (xrControllerModelRef.current) {
+      if (envMap) {
+        setEnvironmentMapRef.current(xrControllerModelRef.current)
+      } else {
+        clearEnvironmentMapRef.current(xrControllerModelRef.current)
+      }
+    }
+  }, [envMap, setEnvironmentMapRef, clearEnvironmentMapRef])
+
+  React.useLayoutEffect(() => {
+    if (xrControllerModelRef.current) {
+      setEnvironmentMapIntensityRef.current(xrControllerModelRef.current)
+    }
+  }, [envMapIntensity, setEnvironmentMapIntensityRef])
 
   return <xRControllerModel ref={handleControllerModel} />
 }
 
-export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: ControllersProps) {
+export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false, envMap, envMapIntensity }: ControllersProps) {
   const controllers = useXR((state) => state.controllers)
   const isHandTracking = useXR((state) => state.isHandTracking)
   const rayMaterialProps = React.useMemo(
@@ -113,7 +164,7 @@ export function Controllers({ rayMaterial = {}, hideRaysOnBlur = false }: Contro
     <>
       {controllers.map((target, i) => (
         <React.Fragment key={i}>
-          {createPortal(<ControllerModel target={target} />, target.grip)}
+          {createPortal(<ControllerModel target={target} envMap={envMap} envMapIntensity={envMapIntensity} />, target.grip)}
           {createPortal(
             <Ray visible={!isHandTracking} hideOnBlur={hideRaysOnBlur} target={target} {...rayMaterialProps} />,
             target.controller

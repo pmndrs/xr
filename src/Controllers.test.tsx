@@ -8,6 +8,7 @@ import { XRControllerModel } from './XRControllerModel'
 import { XRControllerModelFactoryMock } from './mocks/XRControllerModelFactoryMock'
 import { XRInputSourceMock } from './mocks/XRInputSourceMock'
 import { act } from '@react-three/test-renderer'
+import { Texture } from 'three'
 
 vi.mock('./XRControllerModelFactory', async () => {
   const { XRControllerModelFactoryMock } = await vi.importActual<typeof import('./mocks/XRControllerModelFactoryMock')>(
@@ -140,5 +141,87 @@ describe('Controllers', () => {
     expect(xrControllerMock.xrControllerModel).not.toBeNull()
     expect(disconnectSpy).not.toBeCalled()
     expect(xrControllerModelFactory?.initializeControllerModel).toBeCalledTimes(1)
+  })
+
+  describe('envMap', () => {
+    it("should not set env map if it's not provided in props", async () => {
+      const store = createStoreMock()
+      const xrControllerMock = new XRControllerMock(0)
+      store.setState({ controllers: [xrControllerMock] })
+
+      await render(<Controllers />, { wrapper: createStoreProvider(store) })
+
+      const xrControllerModel = xrControllerMock.xrControllerModel
+
+      expect(xrControllerModel!.envMap).toBeNull()
+      expect(xrControllerModel!.envMapIntensity).toBe(1)
+    })
+
+    it("should set env map if it's provided in props", async () => {
+      const store = createStoreMock()
+      const xrControllerMock = new XRControllerMock(0)
+      store.setState({ controllers: [xrControllerMock] })
+      const envMap = new Texture()
+
+      await render(<Controllers envMap={envMap} />, { wrapper: createStoreProvider(store) })
+
+      const xrControllerModel = xrControllerMock.xrControllerModel
+
+      expect(xrControllerModel!.envMap).toBe(envMap)
+      expect(xrControllerModel!.envMapIntensity).toBe(1)
+    })
+
+    it("should only set env map intensity if it's provided in props", async () => {
+      const store = createStoreMock()
+      const xrControllerMock = new XRControllerMock(0)
+      store.setState({ controllers: [xrControllerMock] })
+
+      await render(<Controllers envMapIntensity={0.5} />, { wrapper: createStoreProvider(store) })
+
+      const xrControllerModel = xrControllerMock.xrControllerModel
+
+      expect(xrControllerModel!.envMap).toBeNull()
+      expect(xrControllerModel!.envMapIntensity).toBe(0.5)
+    })
+
+    it("should change env map intensity if it's provided in props then updated to a different value", async () => {
+      const store = createStoreMock()
+      const xrControllerMock = new XRControllerMock(0)
+      store.setState({ controllers: [xrControllerMock] })
+
+      const { rerender } = await render(<Controllers envMapIntensity={0.5} />, { wrapper: createStoreProvider(store) })
+      const xrControllerModel = xrControllerMock.xrControllerModel
+      await rerender(<Controllers envMapIntensity={0.6} />)
+
+      expect(xrControllerModel!.envMap).toBeNull()
+      expect(xrControllerModel!.envMapIntensity).toBe(0.6)
+    })
+
+    it("should remove env map if it's provided in props first, and then removed", async () => {
+      const store = createStoreMock()
+      const xrControllerMock = new XRControllerMock(0)
+      store.setState({ controllers: [xrControllerMock] })
+      const envMap = new Texture()
+
+      const { rerender } = await render(<Controllers envMap={envMap} />, { wrapper: createStoreProvider(store) })
+      const xrControllerModel = xrControllerMock.xrControllerModel
+      await rerender(<Controllers />)
+
+      expect(xrControllerModel!.envMap).toBeNull()
+    })
+
+    it("should change env map intensity if it's provided in props then updated to a different value but envMap stays the same", async () => {
+      const store = createStoreMock()
+      const xrControllerMock = new XRControllerMock(0)
+      store.setState({ controllers: [xrControllerMock] })
+      const envMap = new Texture()
+
+      const { rerender } = await render(<Controllers envMap={envMap} envMapIntensity={0.5} />, { wrapper: createStoreProvider(store) })
+      const xrControllerModel = xrControllerMock.xrControllerModel
+      await rerender(<Controllers envMap={envMap} envMapIntensity={0.6} />)
+
+      expect(xrControllerModel!.envMap).toBe(envMap)
+      expect(xrControllerModel!.envMapIntensity).toBe(0.6)
+    })
   })
 })
