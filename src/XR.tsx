@@ -407,7 +407,7 @@ export const XRButton = React.forwardRef<HTMLButtonElement, XRButtonProps>(funct
 
   return (
     <button {...props} ref={ref} onClick={status === 'unsupported' ? onClick : handleButtonClick}>
-      {typeof children === 'function' ? children(status) : children ?? label}
+      {(typeof children === 'function' ? children(status) : children) ?? label}
     </button>
   )
 })
