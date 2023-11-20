@@ -435,7 +435,7 @@ export const ARButton = React.forwardRef<HTMLButtonElement, Omit<XRButtonProps, 
       sessionInit = {
         // @ts-ignore
         domOverlay: typeof document !== 'undefined' ? { root: document.body } : undefined,
-        optionalFeatures: ['hit-test', 'dom-overlay', 'dom-overlay-for-handheld-ar']
+        optionalFeatures: ['hit-test', 'local-floor', 'bounded-floor', 'dom-overlay']
       },
       children,
       ...rest
