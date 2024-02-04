@@ -71,11 +71,18 @@ function XRManager({
   const onSessionEndRef = useCallbackRef(onSessionEnd)
   const onVisibilityChangeRef = useCallbackRef(onVisibilityChange)
   const onInputSourcesChangeRef = useCallbackRef(onInputSourcesChange)
-
   useIsomorphicLayoutEffect(() => {
     const handlers = [0, 1].map((id) => {
       const target = new XRController(id, gl)
-      const onConnected = () => set((state) => ({ controllers: [...state.controllers, target] }))
+      const inputSource = session?.inputSources[id]
+      // If the input source is already connected, add it to the controllers list
+      if (inputSource) {
+        target.visible = true
+        target.inputSource = inputSource
+        set((state) => ({ controllers: [...state.controllers, target] }))
+      }
+
+      const onConnected = () => set((state) => ({ controllers: [...state.controllers.filter((it) => it !== target), target] }))
       const onDisconnected = () => set((state) => ({ controllers: state.controllers.filter((it) => it !== target) }))
 
       target.addEventListener('connected', onConnected)
