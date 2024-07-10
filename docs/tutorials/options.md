@@ -1,7 +1,7 @@
 ---
 title: Options
 description: Explore the extensible options for configuring your xr app
-nav: 6
+nav: 7
 ---
 
 @react-three/xr offers a large set of options that can be provided when executing `createXRStore`. Some of these options must be provided before starting xr session, while others can be changed at any time. For instance, the controller options and implementation can always be configured using `store.setController(...)`.

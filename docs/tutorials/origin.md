@@ -1,7 +1,7 @@
 ---
 title: Origin
 description: Control the user's transformation by setting the XR session origin
-nav: 7
+nav: 8
 ---
 
 The origin of an XR session is a 3D transformation that represents the position of the feet when the user recenters the session. Therefore, we recommend treating the session origin as the position of the feet. @react-three/xr provides the `XROrigin` component to control this transformation and place it anywhere inside the scene.

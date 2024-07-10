@@ -1,7 +1,7 @@
 ---
 title: All Components
 description: Overview of all components offered by @react-three/xr.
-nav: 3
+nav: 4
 ---
 
 ### `XR`

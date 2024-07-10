@@ -1,14 +1,14 @@
 ---
 title: Convert to XR
 description: How to convert an existing react-three-fiber app into an interactive immersive experience.
-nav: 0
+nav: 1
 ---
 
 In case your app is already an R3F app build with natuerlich or @react-three/xr v5. Check out the migration guides for [natuerlich](../migration/from-natuerlich.md) and [@react-three/xr v5](../migration/from-react-three-xr-5.md).
 
 The first step is to install the latest version of react-three/xr.
 
-```
+```bash
 npm install @react-three/xr@latest
 ```
 
@@ -35,7 +35,6 @@ Using the `store`, we can set up a way for the user to enter the XR experience. 
 Lastly, use the `store` to setup the `XR` component to wrap your scene. 
 
 ```tsx
-
 <>
     <button onClick={() => store.enterVR()}>Enter VR</button>
     <button onClick={() => store.enterAR()}>Enter AR</button>

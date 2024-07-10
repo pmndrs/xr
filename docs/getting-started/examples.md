@@ -1,7 +1,7 @@
 ---
 title: Examples
 description: Examples made with @react-three/xr
-nav: 1
+nav: 2
 ---
 
 <Grid cols={2}>
