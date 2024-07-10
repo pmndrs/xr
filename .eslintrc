@@ -1,0 +1,29 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "extends": [
+    "prettier",
+    "plugin:prettier/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:import/recommended",
+    "plugin:@react-three/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "react", "react-hooks", "import", "prettier", "@react-three"],
+  "rules": {
+    "import/no-unresolved": "off",
+    "import/named": "off",
+    "import/namespace": "off",
+    "import/no-named-as-default-member": "off",
+    "import/extensions": ["error", "ignorePackages"]
+  }
+}

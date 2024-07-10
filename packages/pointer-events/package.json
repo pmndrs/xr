@@ -1,0 +1,25 @@
+{
+  "name": "@pmndrs/pointer-events",
+  "description": "framework agnostic pointer-events implementation for threejs",
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p build.tsconfig.json",
+    "test": "vitest run",
+    "bench": "vitest bench",
+    "example": "vite example --host",
+    "example:build": "vite build example"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.12.11",
+    "@types/three": "^0.164.0",
+    "three": "^0.164.1",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0"
+  }
+}

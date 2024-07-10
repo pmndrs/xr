@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@react-three/cannon": "^6.6.0",
+    "@react-three/drei": "^9.108.3",
+    "@react-three/xr": "workspace:^"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host"
+  }
+}

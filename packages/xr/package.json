@@ -1,0 +1,28 @@
+{
+  "name": "@pmndrs/xr",
+  "author": "Bela Bohlender",
+  "type": "module",
+  "description": "",
+  "version": "0.0.0",
+  "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "build": "tsc",
+    "check:prettier": "prettier --check src",
+    "check:eslint": "eslint 'src/**/*.ts'",
+    "fix:prettier": "prettier --write src",
+    "fix:eslint": "eslint 'src/**/*.ts' --fix"
+  },
+  "dependencies": {
+    "@pmndrs/pointer-events": "workspace:^",
+    "meshline": "^3.3.1",
+    "zustand": "^4.5.2"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./internals": "./dist/internals.js"
+  }
+}

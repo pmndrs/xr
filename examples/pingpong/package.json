@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@react-three/drei": "^9.108.3",
+    "@react-three/rapier": "^1.4.0",
+    "@react-three/xr": "workspace:^",
+    "valtio": "^1.13.2"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host"
+  }
+}

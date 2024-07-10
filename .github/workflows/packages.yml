@@ -1,0 +1,63 @@
+name: Deploy Packages
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  deploy-packages:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: false
+
+      - uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: "5.x"
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Check
+        run: |
+          pnpm -r check:prettier
+          pnpm -r check:eslint
+
+      - name: Test
+        run: |
+          pnpm exec playwright install chromium
+          pnpm -r test
+
+      - name: Gitversion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0
+
+      - name: Build
+        run: |
+          pnpm -F './packages/**/*' build
+      
+      - name: Set Version
+        run: pnpm -F './packages/**/*' exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
+
+# TBD: push to npm
+
+
+      
+      
+      

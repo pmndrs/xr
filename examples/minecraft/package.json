@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.13.1",
+    "@react-three/drei": "^9.108.3",
+    "@react-three/rapier": "^1.4.0",
+    "@react-three/xr": "workspace:^",
+    "zustand": "^4.5.2"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host"
+  }
+}
