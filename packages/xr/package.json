@@ -2,8 +2,22 @@
   "name": "@pmndrs/xr",
   "author": "Bela Bohlender",
   "type": "module",
-  "description": "",
+  "description": "VR/AR for threejs",
+  "homepage": "https://github.com/pmndrs/xr",
   "version": "0.0.0",
+  "keywords": [
+    "r3f",
+    "xr",
+    "ar",
+    "vr",
+    "three.js",
+    "react",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/xr.git"
+  },
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "build": "tsc",

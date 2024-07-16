@@ -9,7 +9,7 @@ jobs:
   deploy-packages:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,7 +29,7 @@ jobs:
 
       - uses: gittools/actions/gitversion/setup@v0
         with:
-          versionSpec: "5.x"
+          versionSpec: '5.x'
 
       - name: Install Dependencies
         run: pnpm install
@@ -39,10 +39,10 @@ jobs:
           pnpm -r check:prettier
           pnpm -r check:eslint
 
-#      - name: Test
-#        run: |
-#          pnpm exec playwright install chromium
-#          pnpm -r test
+      #      - name: Test
+      #        run: |
+      #          pnpm exec playwright install chromium
+      #          pnpm -r test
 
       - name: Gitversion
         id: gitversion
@@ -51,13 +51,39 @@ jobs:
       - name: Build
         run: |
           pnpm -F './packages/**/*' build
-      
+
       - name: Set Version
         run: pnpm -F './packages/**/*' exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
 
-# TBD: push to npm
+      - name: Set publishing config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
 
+      - id: check-pointer-events
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./packages/pointer-events/
 
-      
-      
-      
+      - name: Deploy pointer events Package
+        if: steps.check-pointer-events.outputs.is-new-version == 'true'
+        working-directory: ./packages/pointer-events
+        run: pnpm publish --access public --no-git-checks --tag latest
+
+      - id: check-xr-vanilla
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./packages/xr/
+
+      - name: Deploy XR Vanilla Package
+        if: steps.check-xr-vanilla.outputs.is-new-version == 'true'
+        working-directory: ./packages/xr
+        run: pnpm publish --access public --no-git-checks --tag latest
+
+      - id: check-xr-react
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./packages/react/xr/
+
+      - name: Deploy XR React Package
+        if: steps.check-xr-react.outputs.is-new-version == 'true'
+        working-directory: ./packages/react/xr
+        run: pnpm publish --access public --no-git-checks --tag latest

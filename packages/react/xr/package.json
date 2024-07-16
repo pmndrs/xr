@@ -1,6 +1,23 @@
 {
     "name": "@react-three/xr",
-    "description": "XR for react-three-fiber",
+    "description": "VR/AR for react-three-fiber",
+    "author": "Bela Bohlender",
+    "license": "SEE LICENSE IN LICENSE",
+    "homepage": "https://github.com/pmndrs/xr",
+    "type": "module",
+    "keywords": [
+      "r3f",
+      "xr",
+      "ar",
+      "vr",
+      "three.js",
+      "react",
+      "typescript"
+    ],
+    "repository": {
+      "type": "git",
+      "url": "git@github.com:pmndrs/xr.git"
+    },
     "files": [
         "dist"
     ],

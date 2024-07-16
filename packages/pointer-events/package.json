@@ -1,8 +1,23 @@
 {
   "name": "@pmndrs/pointer-events",
   "description": "framework agnostic pointer-events implementation for threejs",
+  "license": "SEE LICENSE IN LICENSE",
   "version": "0.0.0",
+  "homepage": "https://github.com/pmndrs/xr",
+  "author": "Bela Bohlender",
   "type": "module",
+  "keywords": [
+    "r3f",
+    "events",
+    "pointer",
+    "three.js",
+    "userinterface",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/xr.git"
+  },
   "files": [
     "dist"
   ],
