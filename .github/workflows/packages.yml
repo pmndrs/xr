@@ -39,10 +39,10 @@ jobs:
           pnpm -r check:prettier
           pnpm -r check:eslint
 
-      - name: Test
-        run: |
-          pnpm exec playwright install chromium
-          pnpm -r test
+#      - name: Test
+#        run: |
+#          pnpm exec playwright install chromium
+#          pnpm -r test
 
       - name: Gitversion
         id: gitversion

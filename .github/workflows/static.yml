@@ -1,0 +1,57 @@
+name: Deploy Static Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-static-files:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
+
+      # Examples
+      - name: Building Examples
+        run: |
+          pnpm -r build
+
+      - name: Copy Examples
+        run: |
+          mkdir -p public/examples/minecraft
+          mkdir -p public/examples/pingpong
+          mkdir -p public/examples/rag-doll
+          mkdir -p public/examples/stage
+          mkdir -p public/examples/watch
+          mkdir -p public/examples/room-with-shadows
+          cp -r ./examples/minecraft/dist/* ./public/examples/minecraft
+          cp -r ./examples/pingpong/dist/* ./public/examples/pingpong
+          cp -r ./examples/rag-doll/dist/* ./public/examples/rag-doll
+          cp -r ./examples/stage/dist/* ./public/examples/stage
+          cp -r ./examples/watch/dist/* ./public/examples/watch
+          cp -r ./examples/room-with-shadows/dist/* ./public/examples/room-with-shadows
+
+      # Deploy to GH Pages
+      - name: Add no jekyll
+        run: touch public/.nojekyll
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: public

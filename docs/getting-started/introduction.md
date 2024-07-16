@@ -58,6 +58,7 @@ export function App() {
 ## Roadmap
 
 - 🤳 XR Gestures
+- ➕ Multimodal
 - ⚓️ Anchors
 - 📺 Layers
 - 📱 Dom Overlays
