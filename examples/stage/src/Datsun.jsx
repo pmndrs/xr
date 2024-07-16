@@ -9,7 +9,7 @@ title: (FREE) 1972 Datsun 240k GT
 import { useGLTF } from '@react-three/drei'
 
 export function Model({ color, ...props }) {
-  const { nodes, materials } = useGLTF('/datsun-transformed.glb')
+  const { nodes, materials } = useGLTF('datsun-transformed.glb')
   return (
     <group {...props} dispose={null}>
       <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_1.geometry} material={materials.alloy} />
@@ -19,7 +19,12 @@ export function Model({ color, ...props }) {
       <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_5.geometry} material={materials.black_matte} />
       <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_6.geometry} material={materials.chrome} />
       <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_7.geometry} material={materials.license} />
-      <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_8.geometry} material={materials.orange_glass} />
+      <mesh
+        castShadow
+        receiveShadow
+        geometry={nodes.Cylinder007_alloy_0_8.geometry}
+        material={materials.orange_glass}
+      />
       <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_9.geometry} material={materials.glass} />
       <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_10.geometry} material={materials.paint} />
       <mesh castShadow receiveShadow geometry={nodes.Cylinder007_alloy_0_11.geometry} material={materials.red_glass} />
@@ -28,4 +33,4 @@ export function Model({ color, ...props }) {
   )
 }
 
-useGLTF.preload('/datsun-transformed.glb')
+useGLTF.preload('datsun-transformed.glb')

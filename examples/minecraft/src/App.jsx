@@ -15,7 +15,27 @@ const store = createXRStore()
 export function App() {
   return (
     <>
-      <button onClick={() => store.enterVR()}>Enter VR</button>
+      <button
+        style={{
+          position: 'absolute',
+          zIndex: 10000,
+          background: 'black',
+          borderRadius: '0.5rem',
+          border: 'none',
+          fontWeight: 'bold',
+          color: 'white',
+          padding: '1rem 2rem',
+          cursor: 'pointer',
+          fontSize: '1.5rem',
+          bottom: '1rem',
+          left: '50%',
+          boxShadow: '0px 0px 20px rgba(0,0,0,1)',
+          transform: 'translate(-50%, 0)',
+        }}
+        onClick={() => store.enterVR()}
+      >
+        Enter VR
+      </button>
       <KeyboardControls
         map={[
           { name: 'forward', keys: ['ArrowUp', 'w', 'W'] },

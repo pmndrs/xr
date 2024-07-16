@@ -40,7 +40,7 @@ export function Chair(props) {
 }
 
 export function Mug(props) {
-  const { nodes, materials } = useGLTF('/cup.glb')
+  const { nodes, materials } = useGLTF('cup.glb')
   const [cup] = useCylinder(() => ({
     mass: 1,
     args: [0.62, 0.62, 1.2, 16],

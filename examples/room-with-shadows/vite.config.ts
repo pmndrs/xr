@@ -6,6 +6,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), basicSsl()],
+  base: '/xr/examples/room-with-shadows/',
   resolve: {
     alias: [{ find: '@react-three/xr', replacement: path.resolve(__dirname, '../../packages/react/xr/src/index.ts') }],
     dedupe: ['@react-three/fiber', 'three'],

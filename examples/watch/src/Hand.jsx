@@ -16,7 +16,7 @@ export function HandWithWatch() {
 }
 
 function Watch(props) {
-  const { nodes, materials } = useGLTF('/watch-v1.glb')
+  const { nodes, materials } = useGLTF('watch-v1.glb')
   return (
     <group {...props} dispose={null}>
       <mesh geometry={nodes.Object005_glass_0.geometry} material={materials.glass}></mesh>

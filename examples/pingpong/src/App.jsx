@@ -13,7 +13,27 @@ const store = createXRStore({ hand: Hand })
 export function App() {
   return (
     <>
-      <button onClick={() => store.enterAR()}>Enter AR</button>
+      <button
+        style={{
+          position: 'absolute',
+          zIndex: 10000,
+          background: 'black',
+          borderRadius: '0.5rem',
+          border: 'none',
+          fontWeight: 'bold',
+          color: 'white',
+          padding: '1rem 2rem',
+          cursor: 'pointer',
+          fontSize: '1.5rem',
+          bottom: '1rem',
+          left: '50%',
+          boxShadow: '0px 0px 20px rgba(0,0,0,1)',
+          transform: 'translate(-50%, 0)',
+        }}
+        onClick={() => store.enterAR()}
+      >
+        Enter AR
+      </button>
       <Canvas shadows dpr={[1, 1.5]}>
         <Physics maxCcdSubsteps={10} gravity={[0, -5, 0]} timeStep="vary">
           <XR store={store}>
