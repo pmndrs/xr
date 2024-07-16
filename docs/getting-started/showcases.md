@@ -7,8 +7,8 @@ nav: 3
 
 <Grid cols={2}>
   <li>
-    [volu.dev](./showcases/volu-dev.gif)
-    [Spatial development hub](volu.dev)
+    ![volu.dev](./showcases/volu-dev.gif)
+    [Spatial development hub](https://volu.dev)
   </li>
 </Grid>
 
