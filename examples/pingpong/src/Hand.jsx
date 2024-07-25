@@ -32,7 +32,7 @@ function Paddle({ handedness }) {
   const ref = useRef()
   const model = useRef()
   const { count } = useSnapshot(state)
-  const { nodes, materials } = useGLTF('/pingpong.glb')
+  const { nodes, materials } = useGLTF('pingpong.glb')
   const contactForce = useCallback((payload) => {
     state.api.pong(payload.totalForceMagnitude * 1300)
   }, [])
