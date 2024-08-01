@@ -10,7 +10,7 @@ import {
   Plane,
 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
-import { computeIntersectionWorldPlane, getDominantIntersection, traversePointerEventTargets } from './utils.js'
+import { computeIntersectionWorldPlane, getDominantIntersectionIndex, traversePointerEventTargets } from './utils.js'
 import type { PointerCapture } from '../pointer.js'
 
 const collisionSphere = new Sphere()
@@ -31,12 +31,23 @@ export function intersectSphere(
     return intersectSpherePointerCapture(fromPosition, fromQuaternion, pointerCapture)
   }
   let intersection: ThreeIntersection | undefined
+  let pointerEventsOrder: number | undefined
   collisionSphere.center.copy(fromPosition)
   collisionSphere.radius = radius
 
-  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object) => {
+  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object, objectPointerEventsOrder) => {
     intersectSphereWithObject(collisionSphere, object, intersectsHelper)
-    intersection = getDominantIntersection(intersection, intersectsHelper, options)
+    const index = getDominantIntersectionIndex(
+      intersection,
+      pointerEventsOrder,
+      intersectsHelper,
+      objectPointerEventsOrder,
+      options,
+    )
+    if (index != null) {
+      intersection = intersectsHelper[index]
+      pointerEventsOrder = objectPointerEventsOrder
+    }
     intersectsHelper.length = 0
   })
 

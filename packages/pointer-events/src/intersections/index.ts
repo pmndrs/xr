@@ -38,7 +38,12 @@ export type IntersectionOptions = {
    * for sorting by distance use i1.distance - i2.distance
    * => if i1 has a smaller distance the value is negative and i1 is returned as intersection
    */
-  customSort?: (i1: ThreeIntersection, i2: ThreeIntersection) => number
+  customSort?: (
+    i1: ThreeIntersection,
+    pointerEventsOrder1: number | undefined,
+    i2: ThreeIntersection,
+    pointerEventsOrder2: number | undefined,
+  ) => number
 }
 
 export * from './lines.js'

@@ -14,6 +14,7 @@ export type AllowedPointerEventsType =
   | ((poinerId: number, pointerType: string, pointerState: unknown) => boolean)
   | { allow: string | Array<string> }
   | { deny: string | Array<string> }
+
 declare module 'three' {
   interface Object3D {
     _listeners?: Record<string, Array<(event: unknown) => void> | undefined>

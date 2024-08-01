@@ -12,7 +12,7 @@ import {
 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import type { PointerCapture } from '../pointer.js'
-import { computeIntersectionWorldPlane, getDominantIntersection, traversePointerEventTargets } from './utils.js'
+import { computeIntersectionWorldPlane, getDominantIntersectionIndex, traversePointerEventTargets } from './utils.js'
 
 const raycaster = new Raycaster()
 const directionHelper = new Vector3()
@@ -34,12 +34,23 @@ export function intersectRay(
   if (pointerCapture != null) {
     return intersectRayPointerCapture(fromPosition, fromQuaternion, direction, pointerCapture)
   }
-  let intersection: ThreeIntersection | undefined
+  let intersection: (ThreeIntersection & { pointerEventsOrder?: number }) | undefined
+  let pointerEventsOrder: number | undefined
   raycaster.ray.origin.copy(fromPosition)
   raycaster.ray.direction.copy(direction).applyQuaternion(fromQuaternion)
-  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object) => {
+  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object, objectPointerEventsOrder) => {
     object.raycast(raycaster, intersectsHelper)
-    intersection = getDominantIntersection(intersection, intersectsHelper, options)
+    const index = getDominantIntersectionIndex(
+      intersection,
+      pointerEventsOrder,
+      intersectsHelper,
+      objectPointerEventsOrder,
+      options,
+    )
+    if (index != null) {
+      intersection = intersectsHelper[index]
+      pointerEventsOrder = objectPointerEventsOrder
+    }
     intersectsHelper.length = 0
   })
   if (intersection == null) {
@@ -99,14 +110,25 @@ export function intersectRayFromCamera(
     return intersectRayFromCameraPointerCapture(from, coords, fromPosition, fromQuaternion, pointerCapture)
   }
   let intersection: ThreeIntersection | undefined
+  let pointerEventsOrder: number | undefined
 
   raycaster.setFromCamera(coords, from)
 
   planeHelper.setFromNormalAndCoplanarPoint(from.getWorldDirection(directionHelper), raycaster.ray.origin)
 
-  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object) => {
+  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object, objectPointerEventsOrder) => {
     object.raycast(raycaster, intersectsHelper)
-    intersection = getDominantIntersection(intersection, intersectsHelper, options)
+    const index = getDominantIntersectionIndex(
+      intersection,
+      pointerEventsOrder,
+      intersectsHelper,
+      objectPointerEventsOrder,
+      options,
+    )
+    if (index != null) {
+      intersection = intersectsHelper[index]
+      pointerEventsOrder = objectPointerEventsOrder
+    }
     intersectsHelper.length = 0
   })
 

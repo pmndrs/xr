@@ -6,6 +6,7 @@ import { generateUniquePointerId } from './index.js'
 export type RayPointerOptions = {
   /**
    * @default 0
+   * distance to intersection in local space
    */
   minDistance?: number
   /**
@@ -20,6 +21,7 @@ export type RayPointerOptions = {
   IntersectionOptions
 
 const NegZAxis = new Vector3(0, 0, -1)
+const vectorHelper = new Vector3()
 
 export const defaultRayPointerOptions = {
   direction: NegZAxis,
@@ -77,7 +79,8 @@ export function createRayPointer(
       if (intersection == null) {
         return undefined
       }
-      if (intersection.distance < (options.minDistance ?? defaultRayPointerOptions.minDistance)) {
+      const localDistance = intersection.distance * spaceObject.getWorldScale(vectorHelper).x
+      if (localDistance < (options.minDistance ?? defaultRayPointerOptions.minDistance)) {
         return undefined
       }
       return intersection

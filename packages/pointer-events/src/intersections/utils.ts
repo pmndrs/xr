@@ -56,26 +56,28 @@ export function traversePointerEventTargets(
   pointerId: number,
   pointerType: string,
   pointerState: unknown,
-  callback: (object: Object3D) => void,
+  callback: (object: Object3D, pointerEventsOrder: number | undefined) => void,
   parentHasListener: boolean = false,
   parentPointerEvents?: AllowedPointerEvents,
   parentPointerEventsType?: AllowedPointerEventsType,
+  parentPointerEventsOrder?: number,
 ): void {
   const hasListener = parentHasListener || hasObjectListeners(object)
-  const allowedPointerEvents = object.pointerEvents ?? parentPointerEvents ?? 'listener'
-  const allowedPointerEventsType = object.pointerEventsType ?? parentPointerEventsType ?? 'all'
+  const pointerEvents = object.pointerEvents ?? parentPointerEvents
+  const pointerEventsType = object.pointerEventsType ?? parentPointerEventsType
+  const pointerEventsOrder = object.pointerEventsOrder ?? parentPointerEventsOrder
 
   const isAllowed = isPointerEventsAllowed(
     hasListener,
-    allowedPointerEvents,
-    allowedPointerEventsType,
+    pointerEvents ?? 'listener',
+    pointerEventsType ?? 'all',
     pointerId,
     pointerType,
     pointerState,
   )
 
   if (isAllowed) {
-    callback(object)
+    callback(object, pointerEventsOrder)
   }
 
   const length = object.children.length
@@ -87,39 +89,50 @@ export function traversePointerEventTargets(
       pointerState,
       callback,
       hasListener,
-      allowedPointerEvents,
-      allowedPointerEventsType,
+      pointerEvents,
+      pointerEventsType,
+      pointerEventsOrder,
     )
   }
 }
 
-export function getDominantIntersection<T extends ThreeIntersection>(
-  target: T | undefined,
-  current: Array<T>,
+/**
+ * @returns undefined if `i1` is the dominant intersection
+ */
+export function getDominantIntersectionIndex<T extends ThreeIntersection>(
+  i1: T | undefined,
+  pointerEventsOrder1: number | undefined,
+  i2: Array<T>,
+  pointerEventsOrder2: number | undefined,
   { customFilter, customSort: compare = defaultSort }: IntersectionOptions = {},
-): T | undefined {
-  const length = current.length
+): number | undefined {
+  let index = undefined
+  const length = i2.length
   for (let i = 0; i < length; i++) {
-    const intersection = current[i]
+    const intersection = i2[i]
     if (!(customFilter?.(intersection) ?? true)) {
       continue
     }
-    if (target == null || compare(target, intersection) > 0) {
-      target = intersection
+    if (i1 == null || compare(i1, pointerEventsOrder1, intersection, pointerEventsOrder2) > 0) {
+      i1 = intersection
+      index = i
     }
   }
-  return target
+  return index
 }
 
 /**
  * @returns a negative number if i1 should be sorted before i2
  */
-function defaultSort(i1: ThreeIntersection, i2: ThreeIntersection): number {
-  const { pointerEventsOrder: o1 = 0 } = i1.object
-  const { pointerEventsOrder: o2 = 0 } = i2.object
-  if (o1 != o2) {
+function defaultSort(
+  i1: ThreeIntersection,
+  pointerEventsOrder1: number = 0,
+  i2: ThreeIntersection,
+  pointerEventsOrder2: number = 0,
+): number {
+  if (pointerEventsOrder1 != pointerEventsOrder2) {
     //inverted order because order is sorted highest first
-    return o2 - o1
+    return pointerEventsOrder2 - pointerEventsOrder1
   }
   //i1 - i2 because negative values mean the sorting i1 before i2 is correct
   return i1.distance - i2.distance

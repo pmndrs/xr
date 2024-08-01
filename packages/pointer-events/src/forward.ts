@@ -64,7 +64,6 @@ function portalEventToCoords(e: unknown, target: Vector2): Vector2 {
     return target.set(0, 0)
   }
   target.copy(e.uv).multiplyScalar(2).addScalar(-1)
-  target.y *= -1
   return target
 }
 

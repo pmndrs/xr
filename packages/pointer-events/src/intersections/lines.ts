@@ -10,7 +10,7 @@ import {
   Object3D,
 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
-import { computeIntersectionWorldPlane, getDominantIntersection, traversePointerEventTargets } from './utils.js'
+import { computeIntersectionWorldPlane, getDominantIntersectionIndex, traversePointerEventTargets } from './utils.js'
 import type { PointerCapture } from '../pointer.js'
 
 const raycaster = new Raycaster()
@@ -31,8 +31,9 @@ export function intersectLines(
     return intersectLinesPointerCapture(fromMatrixWorld, linePoints, pointerCapture)
   }
   let intersection: (ThreeIntersection & { details: { distanceOnLine: number; lineIndex: number } }) | undefined
+  let pointerEventsOrder: number | undefined
 
-  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object) => {
+  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object, objectPointerEventsOrder) => {
     let prevAccLineLength = 0
     const length = (intersection?.details.lineIndex ?? linePoints.length - 2) + 2
     for (let i = 1; i < length; i++) {
@@ -64,7 +65,17 @@ export function intersectLines(
           },
         })
       }
-      intersection = getDominantIntersection(intersection, intersectsHelper, options)
+      const index = getDominantIntersectionIndex(
+        intersection,
+        pointerEventsOrder,
+        intersectsHelper,
+        objectPointerEventsOrder,
+        options,
+      )
+      if (index != null) {
+        intersection = intersectsHelper[index]
+        pointerEventsOrder = objectPointerEventsOrder
+      }
       intersectsHelper.length = 0
       prevAccLineLength += lineLength
     }
