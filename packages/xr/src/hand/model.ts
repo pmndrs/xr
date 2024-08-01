@@ -8,7 +8,15 @@ import { clone as cloneSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.j
 const DefaultDefaultXRHandProfileId = 'generic-hand'
 
 export type XRHandLoaderOptions = {
+  /**
+   * where to load the hand models from
+   * @default 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles/'
+   */
   baseAssetPath?: string
+  /**
+   * profile id that is used if no matching profile id is found
+   * @default 'generic-hand'
+   */
   defaultXRHandProfileId?: string
 }
 

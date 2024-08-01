@@ -1,13 +1,18 @@
 import { Object3D } from 'three'
-import { GetXRSpace, createGetXRSpaceMatrix } from '../space.js'
-import { onXRFrame, setupConsumeReferenceSpace, setupProvideReferenceSpace } from './utils.js'
+import { createGetXRSpaceMatrix, getSpaceFromAncestors } from '../space.js'
+import { onXRFrame } from './utils.js'
+import { XRSpaceType } from './types.js'
 
 export class XRSpace extends Object3D {
-  constructor(public readonly space: GetXRSpace) {
+  constructor(
+    public readonly xrSpace: XRSpaceType,
+    origin?: Object3D,
+    originReferenceSpace?: XRReferenceSpace,
+  ) {
     super()
-    setupProvideReferenceSpace(this, space)
-    const referenceSpace = setupConsumeReferenceSpace(this)
-    const getSpaceMatrix = createGetXRSpaceMatrix(space, referenceSpace)
+    const getSpaceMatrix = createGetXRSpaceMatrix(xrSpace, () =>
+      getSpaceFromAncestors(this, origin, originReferenceSpace),
+    )
     this.matrixAutoUpdate = false
     this.visible = false
     onXRFrame((frame) => {

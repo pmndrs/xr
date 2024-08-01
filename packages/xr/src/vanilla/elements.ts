@@ -1,5 +1,4 @@
 import { Group, Object3D } from 'three'
-import { GetXRSpace } from '../space.js'
 import { XRElementImplementations, XRUpdatesList } from './xr.js'
 import { XRInputSourceStateMap } from '../input.js'
 import { WithRecord, XRStore, resolveDetectedImplementation, resolveInputSourceImplementation } from '../store.js'
@@ -11,6 +10,7 @@ import {
   createDefaultXRScreenInput,
   createDefaultXRTransientPointer,
 } from './default.js'
+import { XRSpaceType } from './types.js'
 
 export function setupSyncXRElements(
   scene: Object3D,
@@ -79,7 +79,7 @@ export function setupSyncXRElements(
 
 function setupSyncDetectedElements<S extends XRMesh | XRPlane>(
   store: XRStore<XRElementImplementations>,
-  getSpace: (state: S) => GetXRSpace,
+  getSpace: (state: S) => XRSpaceType,
   target: Object3D,
   updatesList: XRUpdatesList,
 ) {
@@ -181,16 +181,16 @@ function cleanup(map: Map<unknown, (() => void) | undefined>) {
   map.clear()
 }
 
-function getSpace(type: keyof XRInputSourceStateMap, inputSource: XRInputSource): GetXRSpace {
+function getSpace(type: keyof XRInputSourceStateMap, inputSource: XRInputSource): XRSpaceType {
   switch (type) {
     case 'controller':
       return inputSource.gripSpace!
     case 'hand':
-      return () => inputSource.hand?.get('wrist')
+      return inputSource.hand!.get('wrist')!
     case 'gaze':
     case 'screenInput':
     case 'transientPointer':
-      return () => inputSource.targetRaySpace
+      return inputSource.targetRaySpace
   }
 }
 

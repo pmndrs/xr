@@ -1,13 +1,11 @@
 import { Group, Object3D } from 'three'
-import { XRHandState } from '../hand/index.js'
 import {
-  bindPointerXRSessionEvent,
+  bindPointerXRInputSourceEvent,
   defaultGrabPointerOpacity,
   defaultRayPointerOpacity,
   defaultTouchPointerOpacity,
 } from '../pointer/index.js'
 import { PointerRayModel, PointerCursorModel } from './pointer.js'
-import { GetXRSpace } from '../space.js'
 import { XRSpace } from './space.js'
 import { XRHandModel } from './hand.js'
 import {
@@ -17,10 +15,11 @@ import {
   syncTeleportPointerRayGroup,
   TeleportPointerRayModel,
   XRControllerState,
+  XRHandState,
+  XRInputSourceState,
   XRStore,
 } from '../internals.js'
 import { XRControllerModel } from './controller.js'
-import { XRInputSourceState, XRTransientPointerState } from '../input.js'
 import { XRElementImplementations } from './xr.js'
 import { setupSyncIsVisible } from '../visible.js'
 import {
@@ -41,6 +40,7 @@ import {
   createTouchPointer,
 } from '@pmndrs/pointer-events'
 import { onXRFrame } from './utils.js'
+import { XRSpaceType } from './types.js'
 
 export function createDefaultXRInputSourceRayPointer(
   scene: Object3D,
@@ -53,10 +53,10 @@ export function createDefaultXRInputSourceRayPointer(
   makeDefault?: boolean,
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
-  const raySpace = new XRSpace(() => state.inputSource.targetRaySpace)
+  const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
   const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
-  const unbind = bindPointerXRSessionEvent(pointer, session, state.inputSource, 'select')
+  const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   let undoAddRayModel: (() => void) | undefined
   const { rayModel: rayModelOptions = true, cursorModel: cursorModelOptions = true } = options ?? {}
@@ -95,7 +95,7 @@ export function createDefaultXRInputSourceTeleportPointer(
   makeDefault?: boolean,
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
-  const raySpace = new XRSpace(() => state.inputSource.targetRaySpace)
+  const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   space.add(raySpace)
 
   const teleportPointerRayGroup = new Group()
@@ -110,7 +110,7 @@ export function createDefaultXRInputSourceTeleportPointer(
     'teleport',
   )
   const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
-  const unbind = bindPointerXRSessionEvent(pointer, session, state.inputSource, 'select')
+  const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   let undoAddRayModel: (() => void) | undefined
   const { rayModel: rayModelOptions = true, cursorModel: cursorModelOptions = true } = options ?? {}
   if (rayModelOptions !== false) {
@@ -159,8 +159,8 @@ export function createDefaultXRInputSourceGrabPointer(
   scene: Object3D,
   store: XRStore<XRElementImplementations>,
   space: Object3D,
-  state: { inputSource: XRInputSource },
-  gripSpace: GetXRSpace,
+  state: XRInputSourceState,
+  gripSpace: XRSpaceType,
   session: XRSession,
   event: 'select' | 'squeeze',
   options?: DefaultXRInputSourceGrabPointerOptions,
@@ -171,7 +171,7 @@ export function createDefaultXRInputSourceGrabPointer(
   const gripSpaceObject = new XRSpace(gripSpace)
   const pointer = createGrabPointer({ current: gripSpaceObject }, state, options)
   const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
-  const unbind = bindPointerXRSessionEvent(pointer, session, state.inputSource, event)
+  const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, event, state.events)
   space.add(gripSpaceObject)
 
   let undoAddCursorModel: (() => void) | undefined
@@ -201,7 +201,7 @@ export function createDefaultXRHandTouchPointer(
   makeDefault?: boolean,
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
-  const touchSpaceObject = new XRSpace(() => state.inputSource.hand.get('index-finger-tip'))
+  const touchSpaceObject = new XRSpace(state.inputSource.hand.get('index-finger-tip')!)
   const pointer = createTouchPointer({ current: touchSpaceObject }, state, options)
   const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
   space.add(touchSpaceObject)
@@ -285,7 +285,7 @@ export function createDefaultXRHand(
           store,
           space,
           state,
-          () => state.inputSource.hand.get('index-finger-tip'),
+          state.inputSource.hand.get('index-finger-tip')!,
           session,
           'select',
           spreadable(grabPointerOptions),
@@ -318,8 +318,8 @@ export function createDefaultXRController(
   session: XRSession,
   {
     rayPointer: rayPointerOptions = true,
-    teleportPointer: teleportPointerOptions = true,
     grabPointer: grabPointerOptions = true,
+    teleportPointer: teleportPointerOptions = false,
     model: modelOptions = true,
   }: DefaultXRControllerOptions = {},
 ): () => void {
@@ -360,7 +360,7 @@ export function createDefaultXRController(
           store,
           space,
           state,
-          () => state.inputSource.gripSpace,
+          state.inputSource.gripSpace!,
           session,
           'squeeze',
           spreadable(grabPointerOptions),
@@ -385,17 +385,17 @@ export function createDefaultXRTransientPointer(
   scene: Object3D,
   store: XRStore<XRElementImplementations>,
   space: Object3D,
-  state: XRTransientPointerState,
+  state: XRInputSourceState,
   session: XRSession,
   options?: DefaultXRTransientPointerOptions,
   combined?: CombinedPointer,
   makeDefault?: boolean,
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
-  const raySpace = new XRSpace(() => state.inputSource.targetRaySpace)
+  const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
   const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
-  const unbind = bindPointerXRSessionEvent(pointer, session, state.inputSource, 'select')
+  const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   let undoAddCursorModel: (() => void) | undefined
   const { cursorModel: cursorModelOptions = true } = options ?? {}
@@ -425,10 +425,10 @@ export function createDefaultXRGaze(
   options?: DefaultXRGazeOptions,
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
-  const raySpace = new XRSpace(() => state.inputSource.targetRaySpace)
+  const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
   const cleanupPointer = setupPointer(scene, store, pointer, undefined, undefined)
-  const unbind = bindPointerXRSessionEvent(pointer, session, state.inputSource, 'select')
+  const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   let undoAddCursorModel: (() => void) | undefined
   const { cursorModel: cursorModelOptions = true } = options ?? {}
@@ -458,10 +458,10 @@ export function createDefaultXRScreenInput(
   options?: DefaultXRScreenInputOptions,
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
-  const raySpace = new XRSpace(() => state.inputSource.targetRaySpace)
+  const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
   const cleanupPointer = setupPointer(scene, store, pointer, undefined, undefined)
-  const unbind = bindPointerXRSessionEvent(pointer, session, state.inputSource, 'select')
+  const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   return () => {
     cleanupPointer()

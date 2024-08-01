@@ -1,22 +1,19 @@
-import { Matrix4 } from 'three'
-
-export type GetXRSpace = XRSpace | (() => XRSpace | undefined | null)
+import { Matrix4, Object3D } from 'three'
 
 export function createGetXRSpaceMatrix(
-  space: GetXRSpace,
-  referenceSpace: GetXRSpace,
+  space: XRSpace,
+  referenceSpace: XRSpace | (() => XRSpace | undefined),
 ): (target: Matrix4, frame: XRFrame | undefined) => void {
   return (target, frame) => {
-    const resolvedReferenceSpace = resolveGetXRSpace(referenceSpace)
-    const resolvedSpace = resolveGetXRSpace(space)
-    if (resolvedSpace === resolvedReferenceSpace) {
+    if (space === referenceSpace) {
       target.identity()
       return true
     }
-    if (frame == null || resolvedSpace == null || resolvedReferenceSpace == null) {
+    const resolvedReferenceSpace = typeof referenceSpace === 'function' ? referenceSpace() : referenceSpace
+    if (resolvedReferenceSpace == null) {
       return false
     }
-    const pose = frame.getPose(resolvedSpace, resolvedReferenceSpace)
+    const pose = frame?.getPose(space, resolvedReferenceSpace)
     if (pose == null) {
       return false
     }
@@ -25,9 +22,44 @@ export function createGetXRSpaceMatrix(
   }
 }
 
-function resolveGetXRSpace(space: GetXRSpace) {
-  if (typeof space === 'function') {
-    return space()
+export function computeOriginReferenceSpaceOffset(
+  object: Object3D,
+  origin: Object3D | undefined,
+  target: Matrix4,
+): void {
+  if (origin == null) {
+    target.copy(object.matrixWorld)
+    return
   }
-  return space
+  target.copy(origin.matrixWorld).invert().multiply(object.matrixWorld)
+}
+
+export function getSpaceFromAncestors(
+  object: Object3D,
+  origin?: Object3D,
+  originReferenceSpace?: XRReferenceSpace,
+  targetOffsetMatrix?: Matrix4,
+) {
+  targetOffsetMatrix?.copy(object.matrix)
+  const result = getXRSpaceFromAncestorsRec(object, targetOffsetMatrix)
+  if (result != null || origin == null || originReferenceSpace == null) {
+    return result
+  }
+  if (targetOffsetMatrix != null) {
+    computeOriginReferenceSpaceOffset(object, origin, targetOffsetMatrix)
+  }
+  return originReferenceSpace
+}
+
+function getXRSpaceFromAncestorsRec(
+  { parent }: Object3D,
+  targetOffsetMatrix: Matrix4 | undefined,
+): XRSpace | undefined {
+  if (parent == null) {
+    return undefined
+  }
+  if (targetOffsetMatrix != null) {
+    targetOffsetMatrix.premultiply(parent.matrix)
+  }
+  return parent.xrSpace ?? getXRSpaceFromAncestorsRec(parent, targetOffsetMatrix)
 }

@@ -143,13 +143,5 @@ export class TeleportPointerRayModel extends Mesh<BufferGeometry, MeshLineMateri
     } else {
       this.material.color.set(resolvedColor)
     }
-    console.log(
-      this.material.visibility,
-      this.multiplier,
-      lineIndex,
-      lineLength,
-      distanceOnLine,
-      this.lineLengths.length,
-    )
   }
 }

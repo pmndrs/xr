@@ -1,10 +1,17 @@
+import { Object3D } from 'three'
 import {
   XRControllerLayoutLoader,
-  XRControllerLayoutLoaderOptions,
-  XRControllerState,
   createXRControllerState,
+  type XRControllerGamepadState,
+  type XRControllerLayout,
+  type XRControllerLayoutLoaderOptions,
 } from './controller/index.js'
-import { XRHandLoaderOptions, XRHandState, createXRHandState } from './hand/index.js'
+import {
+  type XRHandInputSource,
+  type XRHandLoaderOptions,
+  type XRHandPoseState,
+  createXRHandState,
+} from './hand/index.js'
 
 type Mutable<T> = {
   [P in keyof T]: T[P] extends ReadonlyArray<infer K> ? Array<K> : never
@@ -16,20 +23,36 @@ export function isXRInputSourceState(val: unknown): val is XRInputSourceState {
   return val != null && typeof val === 'object' && 'type' in val
 }
 
+export type XRHandState = {
+  type: 'hand'
+  inputSource: XRHandInputSource
+  events: ReadonlyArray<XRInputSourceEvent>
+  pose: XRHandPoseState
+  assetPath: string
+  object?: Object3D
+}
+
+export type XRControllerState = {
+  type: 'controller'
+  inputSource: XRInputSource
+  events: ReadonlyArray<XRInputSourceEvent>
+  gamepad: XRControllerGamepadState
+  layout: XRControllerLayout
+  object?: Object3D
+}
+
 export type XRTransientPointerState = {
   type: 'transientPointer'
   inputSource: XRInputSource
   events: ReadonlyArray<XRInputSourceEvent>
 }
 
-export type XRGazeState = {
-  type: 'gaze'
-  inputSource: XRInputSource
-}
+export type XRGazeState = { type: 'gaze'; inputSource: XRInputSource; events: ReadonlyArray<XRInputSourceEvent> }
 
 export type XRScreenInputState = {
   type: 'screenInput'
   inputSource: XRInputSource
+  events: ReadonlyArray<XRInputSourceEvent>
 }
 
 export type XRInputSourceStates = {
@@ -44,47 +67,17 @@ export type XRInputSourceStateMap = {
   screenInput: XRScreenInputState
 }
 
-function setupXRTransientPointer(
-  inputSource: XRInputSource,
-  session: XRSession,
-): ReturnType<SetupXRInputSource<XRTransientPointerState>> {
-  //for the transient pointer we are recording all events to make sure we don't miss events emitted on XRInputSource creation
-  const events: Array<XRInputSourceEvent> = []
-  const listener = (e: XRInputSourceEvent) => events.push(e)
-  session.addEventListener('selectstart', listener)
-  session.addEventListener('selectend', listener)
-  session.addEventListener('select', listener)
-  session.addEventListener('squeeze', listener)
-  session.addEventListener('squeezestart', listener)
-  session.addEventListener('squeezeend', listener)
-  return {
-    cleanup() {
-      session.removeEventListener('selectstart', listener)
-      session.removeEventListener('selectend', listener)
-      session.removeEventListener('select', listener)
-      session.removeEventListener('squeeze', listener)
-      session.removeEventListener('squeezestart', listener)
-      session.removeEventListener('squeezeend', listener)
-    },
-    state: {
-      type: 'transientPointer',
-      inputSource,
-      events,
-    },
-  }
-}
-
 type SetupXRInputSource<State> = (
   session: XRSession,
   inputSource: XRInputSource,
 ) =>
   | {
       state: State
-      cleanup?: () => void
+      cleanup: () => void
     }
   | Promise<{
       state: State
-      cleanup?: () => void
+      cleanup: () => void
     }>
 
 function getXRInputSourceType(inputSource: XRInputSource): keyof XRInputSourceStateMap {
@@ -103,16 +96,55 @@ function getXRInputSourceType(inputSource: XRInputSource): keyof XRInputSourceSt
   }
 }
 
+function setupEvents(session: XRSession, events: Array<XRInputSourceEvent>): () => void {
+  const listener = (e: XRInputSourceEvent) => events.push(e)
+  session.addEventListener('selectstart', listener)
+  session.addEventListener('selectend', listener)
+  session.addEventListener('select', listener)
+  session.addEventListener('squeeze', listener)
+  session.addEventListener('squeezestart', listener)
+  session.addEventListener('squeezeend', listener)
+  return () => {
+    session.removeEventListener('selectstart', listener)
+    session.removeEventListener('selectend', listener)
+    session.removeEventListener('select', listener)
+    session.removeEventListener('squeeze', listener)
+    session.removeEventListener('squeezestart', listener)
+    session.removeEventListener('squeezeend', listener)
+  }
+}
+
 function createXRInputSourceSetupMap(options: (XRControllerLayoutLoaderOptions & XRHandLoaderOptions) | undefined): {
   [Key in keyof XRInputSourceStateMap]: SetupXRInputSource<XRInputSourceStateMap[Key]>
 } {
   const layoutLoader = new XRControllerLayoutLoader(options)
+
   return {
-    controller: async (_session, inputSource) => ({ state: await createXRControllerState(inputSource, layoutLoader) }),
-    hand: (_session, inputSource) => ({ state: createXRHandState(inputSource, options) }),
-    gaze: (_session, inputSource) => ({ state: { type: 'gaze', inputSource } }),
-    screenInput: (_session, inputSource) => ({ state: { type: 'screenInput', inputSource } }),
-    transientPointer: (session, inputSource) => setupXRTransientPointer(inputSource, session),
+    controller: async (session, inputSource) => {
+      const events: Array<XRInputSourceEvent> = []
+      const cleanup = setupEvents(session, events)
+      return { state: await createXRControllerState(inputSource, layoutLoader, events), cleanup }
+    },
+    hand: (session, inputSource) => {
+      const events: Array<XRInputSourceEvent> = []
+      const cleanup = setupEvents(session, events)
+      return { state: createXRHandState(inputSource, options, events), cleanup }
+    },
+    gaze: (session, inputSource) => {
+      const events: Array<XRInputSourceEvent> = []
+      const cleanup = setupEvents(session, events)
+      return { state: { type: 'gaze', inputSource, events }, cleanup }
+    },
+    screenInput: (session, inputSource) => {
+      const events: Array<XRInputSourceEvent> = []
+      const cleanup = setupEvents(session, events)
+      return { state: { type: 'screenInput', inputSource, events }, cleanup }
+    },
+    transientPointer: (session, inputSource) => {
+      const events: Array<XRInputSourceEvent> = []
+      const cleanup = setupEvents(session, events)
+      return { state: { type: 'transientPointer', inputSource, events }, cleanup }
+    },
   }
 }
 
@@ -162,10 +194,7 @@ export function createSyncXRInputSourceStates(
       added.forEach(async (inputSource) => {
         const type = getXRInputSourceType(inputSource)
         let setupResult = setupMap[type](session, inputSource)
-        let resolvedSetupResult: {
-          state: any
-          cleanup?: (() => void) | undefined
-        }
+        let resolvedSetupResult: Awaited<typeof setupResult>
         if (setupResult instanceof Promise) {
           resolvedSetupResult = await setupResult
           //test if the input source is still part of the session (can happen since the state is loaded asynchrounously)
@@ -175,11 +204,11 @@ export function createSyncXRInputSourceStates(
           addAsyncMap[type]!(resolvedSetupResult.state as any)
         } else {
           resolvedSetupResult = setupResult
-          getOrCreate(`${type}States` as 'controllerStates', result, currentStates).push(resolvedSetupResult.state)
+          getOrCreate(`${type}States` as 'controllerStates', result, currentStates).push(
+            resolvedSetupResult.state as any,
+          )
         }
-        if (resolvedSetupResult.cleanup != null) {
-          cleanupMap.set(inputSource, resolvedSetupResult.cleanup)
-        }
+        cleanupMap.set(inputSource, resolvedSetupResult.cleanup)
       })
     }
     return result

@@ -1,5 +1,4 @@
 import { Object3D } from 'three'
-import { GetXRSpace } from '../space.js'
 
 const joints: Array<XRHandJoint> = [
   'wrist',
@@ -32,7 +31,7 @@ const joints: Array<XRHandJoint> = [
 export function createUpdateXRHandVisuals(
   hand: XRHand,
   handModel: Object3D,
-  referenceSpace: GetXRSpace,
+  referenceSpace: XRSpace | (() => XRSpace | undefined),
 ): (frame: XRFrame | undefined) => void {
   const buffer = new Float32Array(hand.size * 16)
   const jointObjects = joints.map((joint) => {
@@ -44,11 +43,8 @@ export function createUpdateXRHandVisuals(
     return jointObject
   })
   return (frame) => {
-    if (frame == null) {
-      return
-    }
     const resolvedReferenceSpace = typeof referenceSpace === 'function' ? referenceSpace() : referenceSpace
-    if (resolvedReferenceSpace == null) {
+    if (frame == null || resolvedReferenceSpace == null) {
       return
     }
     frame.fillPoses(hand.values(), resolvedReferenceSpace, buffer)

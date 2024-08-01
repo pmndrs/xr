@@ -1,11 +1,27 @@
 import { Pointer } from '@pmndrs/pointer-events'
 
-export function bindPointerXRSessionEvent(
+export function bindXRInputSourceEvent(
+  session: XRSession,
+  inputSource: XRInputSource,
+  event: 'select' | 'selectstart' | 'selectend' | 'squeeze' | 'squeezestart' | 'squeezeend',
+  fn: (event: XRInputSourceEvent) => void,
+) {
+  const filterFn = (event: XRInputSourceEvent) => {
+    if (event.inputSource != inputSource) {
+      return
+    }
+    fn(event)
+  }
+  session.addEventListener(event, filterFn)
+  return () => session.removeEventListener(event, filterFn)
+}
+
+export function bindPointerXRInputSourceEvent(
   pointer: Pointer,
   session: XRSession,
   inputSource: XRInputSource,
   event: 'select' | 'squeeze',
-  missingEvents?: ReadonlyArray<XRInputSourceEvent>,
+  missingEvents: ReadonlyArray<XRInputSourceEvent>,
   options: { button?: number } = {},
 ) {
   const downListener = (e: XRInputSourceEvent) => {
@@ -22,18 +38,16 @@ export function bindPointerXRSessionEvent(
   const upEventName = `${event}end` as const
   //missing events are required for transient pointers when the input source is registered asynchrounously
   //so that events directly emitted on initialization are still processed once the input source is created
-  if (missingEvents != null) {
-    const length = missingEvents.length
-    for (let i = 0; i < length; i++) {
-      const event = missingEvents[i]
-      switch (event.type) {
-        case downEventName:
-          downListener(event)
-          break
-        case upEventName:
-          upListener(event)
-          break
-      }
+  const length = missingEvents.length
+  for (let i = 0; i < length; i++) {
+    const event = missingEvents[i]
+    switch (event.type) {
+      case downEventName:
+        downListener(event)
+        break
+      case upEventName:
+        upListener(event)
+        break
     }
   }
 

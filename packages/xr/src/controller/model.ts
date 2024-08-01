@@ -9,7 +9,15 @@ export async function loadXRControllerModel(layout: XRControllerLayout, loader: 
 }
 
 export type XRControllerModelOptions = {
+  /**
+   * allows to configure whether the controller is rendered to the color buffer
+   * can be used to show the real controller in AR passthrough mode
+   */
   colorWrite?: boolean
+  /**
+   * allows to configure the render order of the controller model
+   * @default undefined
+   */
   renderOrder?: number
 }
 

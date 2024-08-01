@@ -11,17 +11,12 @@ export type {
   XRControllerLayout,
   XRControllerLayoutLoader,
   XRControllerLayoutLoaderOptions,
-  XRControllerState,
   XRControllerVisualResponse,
 } from './controller/index.js'
-export type {
-  XRHandInputSource,
-  XRHandLoaderOptions,
-  XRHandPoseState,
-  XRHandPoseUrls,
-  XRHandState,
-} from './hand/index.js'
+export type { XRHandInputSource, XRHandLoaderOptions, XRHandPoseState, XRHandPoseUrls } from './hand/index.js'
 export {
+  type XRControllerState,
+  type XRHandState,
   type XRGazeState,
   type XRInputSourceState,
   type XRScreenInputState,
@@ -29,10 +24,11 @@ export {
   isXRInputSourceState,
 } from './input.js'
 export type { WithRecord, XRElementImplementations, XRState, XRStore, XRStoreOptions } from './store.js'
-export type { GetXRSpace } from './space.js'
 export * from './visible.js'
 export * from './pointer/index.js'
 export type * from './default.js'
 export * from './vanilla/index.js'
 export * from './misc.js'
 export * from './teleport.js'
+export * from './hit-test.js'
+export * from './anchor.js'

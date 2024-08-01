@@ -1,21 +1,54 @@
 import { StoreApi, createStore } from 'zustand/vanilla'
-import type { Camera, Object3D, Scene, WebXRManager } from 'three'
+import type { Camera, Object3D, WebXRManager } from 'three'
 import { updateXRHandState } from './hand/state.js'
 import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './controller/index.js'
-import { XRHandPoseUrls } from './hand/pose.js'
 import { XRHandLoaderOptions } from './hand/index.js'
 import { XRInputSourceStateMap, XRInputSourceStates, createSyncXRInputSourceStates } from './input.js'
 import { XRSessionInitOptions, buildXRSessionInit } from './init.js'
+import type { EmulatorType } from './emulate.js'
 
 export type XRState<T extends XRElementImplementations> = Readonly<
   {
+    /**
+     * current `XRSession`
+     */
     session?: XRSession
-    visibilityState?: XRVisibilityState
-    frameRate?: number
-    mode: XRSessionMode | null
-    detectedPlanes: ReadonlyArray<XRPlane>
-    detectedMeshes: ReadonlyArray<XRMesh>
+    /**
+     * `XRReferenceSpace` of the origin in the current session
+     * (this references to the session origin at the floor level)
+     */
+    originReferenceSpace?: XRReferenceSpace
+    /**
+     * the 3D object representing the session origin
+     * if the origin is undefined it is implicitly at world position 0,0,0
+     */
     origin?: Object3D
+    /**
+     * the HTML element for doing dom overlays in handheld AR experiences
+     */
+    domOverlayRoot: Element
+    /**
+     * the session visibility state
+     * e.g. `"visible-blurred"` typically occurs when the user sees an OS overlay
+     */
+    visibilityState?: XRVisibilityState
+    /**
+     * the configured xr framerate
+     * caution: the actual framerate of the experience may be lower if it cannot keep up
+     */
+    frameRate?: number
+    /**
+     * the xr session mode
+     */
+    mode: XRSessionMode | null
+    /**
+     * the detected `XRPlane`s
+     */
+    detectedPlanes: ReadonlyArray<XRPlane>
+    /**
+     * the detected `XRMesh`es
+     */
+    detectedMeshes: ReadonlyArray<XRMesh>
   } & WithRecord<T> &
     XRInputSourceStates
 >
@@ -28,16 +61,61 @@ export type XRElementImplementations = {
 }
 
 export type WithRecord<T extends XRElementImplementations> = {
+  /**
+   * options for configuring the <DefaultXRController/> or provide your own controller implementation
+   * options and implementations can be provided for each handedness individually `{ left: false, right: { ... } }`
+   * @example { rayPointer: false, grabPointer: { cursorModel: { color: "red" } } }
+   * `false` prevents these controllers from beeing used
+   * @default true
+   */
   controller: T['controller'] | ({ [Key in XRHandedness]?: T['controller'] } & { default?: T['controller'] })
+  /**
+   * options for configuring the <DefaultXRTransientPointer/> or provide your own transient pointer implementation
+   * options and implementations can be provided for each handedness individually `{ left: false, right: { ... } }`
+   * `false` prevents these transient pointers from beeing used
+   * @example { rayPointer: { cursorModel: { color: "red" } } }
+   * @default true
+   */
   transientPointer:
     | T['transientPointer']
     | ({ [Key in XRHandedness]?: T['transientPointer'] } & { default?: T['transientPointer'] })
+  /**
+   * options for configuring the <DefaultXRHand/> or provide your own hand implementation
+   * options and implementations can be provided for each handedness individually `{ left: false, right: { ... } }`
+   * `false` prevents these hands from beeing used
+   * @example { rayPointer: false, grabPointer: { cursorModel: { color: "red" } } }
+   * @default true
+   */
   hand: T['hand'] | ({ [Key in XRHandedness]?: T['hand'] } & { default?: T['hand'] })
+  /**
+   * options for configuring the <DefaultXRGaze/> or provide your own gaze implementation
+   * @example { rayPointer: { cursorModel: { color: "red" } } }
+   * `false` prevents these controllers from beeing used
+   * @default true
+   */
   gaze: T['gaze']
+  /**
+   * options for configuring the <DefaultXRScreenInput/> or provide your own screen input implementation
+   * @example { rayPointer: { cursorModel: { color: "red" } } }
+   * `false` prevents these controllers from beeing used
+   * @default true
+   */
   screenInput: T['screenInput']
+  /**
+   * allows to provide your own plane implementation
+   * implementations can be provided for each typeof of plane individually `{ default: false, couch: { ... } }`
+   * `false` prevents these planes from beeing used
+   * @default false
+   */
   detectedPlane:
     | T['detectedPlane']
     | ({ [Key in XRSemanticLabel]?: T['detectedPlane'] } & { default?: T['detectedPlane'] })
+  /**
+   * allows to provide your own mesh implementation
+   * implementations can be provided for each typeof of plane individually `{ default: false, couch: { ... } }`
+   * `false` prevents these mesh from beeing used
+   * @default false
+   */
   detectedMesh: T['detectedMesh'] | ({ [Key in XRSemanticLabel]?: T['detectedMesh'] } & { default?: T['detectedMesh'] })
 }
 
@@ -107,14 +185,24 @@ export type FrameRateOption =
 
 export type XRStoreOptions<T extends XRElementImplementations> = {
   /**
+   * emulates a device if WebXR not supported and on localhost
+   * @default "metaQuest3"
+   */
+  emulate?: EmulatorType | boolean
+  /**
+   * sets the WebXR foveation between 0 and 1
+   * undefined refers to the default foveation provided by the device/browser
    * @default undefined
    */
   foveation?: number
   /**
+   * sets the framerate of the session
    * @default "high"
    */
   frameRate?: FrameRateOption
   /**
+   * sets the framebuffer scaling of the session
+   * undefined refers to the default framebuffer scaling provided by the device/browser (e.g. 1)
    * @default undefined
    */
   frameBufferScaling?: FrameBufferScalingOption
@@ -129,26 +217,72 @@ export type XRStoreOptions<T extends XRElementImplementations> = {
   XRSessionInitOptions
 
 export type XRStore<T extends XRElementImplementations> = Omit<StoreApi<XRState<T>>, 'destroy'> & {
+  /**
+   * internal function
+   */
   setWebXRManager(xr: WebXRManager): void
-  destroy(): void
-  enterXR(mode: XRSessionMode, options?: XRSessionInitOptions): Promise<XRSession>
-  enterAR(options?: XRSessionInitOptions): Promise<XRSession>
-  enterVR(options?: XRSessionInitOptions): Promise<XRSession>
+  /**
+   * internal function
+   */
   onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined): void
+  /**
+   * destroys the store unrepairably (for exiting XR use store.getState().session?.end())
+   */
+  destroy(): void
+  enterXR(mode: XRSessionMode): Promise<XRSession | undefined>
+  enterAR(): Promise<XRSession | undefined>
+  enterVR(): Promise<XRSession | undefined>
+  /**
+   * update the hand configuration or implementation for both or only one hand
+   */
   setHand(implementation: T['hand'], handedness?: XRHandedness): void
+  /**
+   * update the controller configuration or implementation for both or only one controller
+   */
   setController(implementation: T['controller'], handedness?: XRHandedness): void
+  /**
+   * update the gaze configuration or implementation
+   */
   setGaze(implementation: T['gaze']): void
+  /**
+   * update the screen input configuration or implementation
+   */
   setScreenInput(implementation: T['screenInput']): void
+  /**
+   * update the transient pointer configuration or implementation for both or only one hand
+   */
   setTransientPointer(implementation: T['transientPointer'], handedness?: XRHandedness): void
   setDetectedPlane(implementation: T['detectedPlane'], semanticLabel?: XRSemanticLabel): void
   setDetectedMesh(implementation: T['detectedMesh'], semanticLabel?: XRSemanticLabel): void
   setFrameRate(value: FrameRateOption): void
+  /**
+   * returns a promise that resolves on the next render with the xr frame
+   */
+  requestFrame(): Promise<XRFrame>
+}
+
+declare module 'three' {
+  interface Object3D {
+    xrSpace?: XRSpace
+  }
 }
 
 const baseInitialState: Omit<
   XRState<XRElementImplementations>,
-  'hand' | 'controller' | 'gaze' | 'transientPointer' | 'screenInput' | 'detectedMesh' | 'detectedPlane'
+  | 'hand'
+  | 'controller'
+  | 'gaze'
+  | 'transientPointer'
+  | 'screenInput'
+  | 'detectedMesh'
+  | 'detectedPlane'
+  | 'domOverlayRoot'
 > = {
+  session: undefined,
+  originReferenceSpace: undefined,
+  visibilityState: undefined,
+  mode: null,
+  frameRate: undefined,
   handStates: [],
   controllerStates: [],
   transientPointerStates: [],
@@ -156,12 +290,35 @@ const baseInitialState: Omit<
   screenInputStates: [],
   detectedMeshes: [],
   detectedPlanes: [],
-  mode: null,
+}
+
+function startEmulate(emulate: EmulatorType | true, alert: boolean) {
+  Promise.all([navigator.xr?.isSessionSupported('immersive-vr'), navigator.xr?.isSessionSupported('immersive-ar')])
+    .then(([vr, ar]) => (!ar && !vr ? import('./emulate.js') : undefined))
+    .then((pkg) => {
+      if (alert) {
+        window.alert(`emulator started`)
+      }
+      pkg?.emulate(emulate === true ? 'metaQuest3' : emulate)
+    })
 }
 
 export function createXRStore<T extends XRElementImplementations>(options?: XRStoreOptions<T>): XRStore<T> {
-  //TODO nextFrameCallbacks for anchors
-
+  const emulate = options?.emulate ?? 'metaQuest3'
+  let cleanupEmulate: (() => void) | undefined
+  if (emulate != false) {
+    if (window.location.hostname === 'localhost') {
+      startEmulate(emulate, false)
+    }
+    const keydownListener = (e: KeyboardEvent) => {
+      if (e.altKey && e.metaKey && e.code === 'KeyE') {
+        startEmulate(emulate, true)
+      }
+    }
+    window.addEventListener('keydown', keydownListener)
+    cleanupEmulate = () => window.removeEventListener('keydown', keydownListener)
+  }
+  const domOverlayRoot = options?.domOverlay instanceof HTMLElement ? options.domOverlay : document.createElement('div')
   const store = createStore<XRState<XRElementImplementations>>(() => ({
     ...baseInitialState,
     controller: options?.controller,
@@ -171,7 +328,23 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     transientPointer: options?.transientPointer,
     detectedMesh: options?.detectedMesh,
     detectedPlane: options?.detectedPlane,
+    domOverlayRoot,
   }))
+
+  let cleanupDomOverlayRoot: (() => void) | undefined
+  if (domOverlayRoot.parentNode == null) {
+    const setupDisplay = (state: XRState<any>) => {
+      domOverlayRoot.style.display = state.session != null ? 'block' : 'none'
+    }
+    const unsubscribe = store.subscribe(setupDisplay)
+    setupDisplay(store.getState())
+    document.body.appendChild(domOverlayRoot)
+    cleanupDomOverlayRoot = () => {
+      domOverlayRoot.remove()
+      unsubscribe()
+    }
+  }
+  document.body.append(domOverlayRoot)
 
   const syncXRInputSourceStates = createSyncXRInputSourceStates(
     {
@@ -181,29 +354,29 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   )
   const bindToSession = createBindToSession(store, syncXRInputSourceStates)
   const cleanupSessionGrantedListener = setupSessionGrantedListener(options?.enterGrantedSession, (mode) =>
-    enterXR(mode, options, undefined, webxrManager),
+    enterXR(domOverlayRoot, mode, options, xrManager),
   )
   let cleanupSessionStartListener: (() => void) | undefined
 
-  let webxrManager: WebXRManager | undefined
+  const frameRequests: Array<(frame: XRFrame) => void> = []
+  let xrManager: WebXRManager | undefined
 
   return Object.assign(store, {
-    setWebXRManager(manager: WebXRManager) {
-      if (webxrManager === manager) {
+    requestFrame(): Promise<XRFrame> {
+      return new Promise((resolve) => frameRequests.push(resolve))
+    },
+    setWebXRManager(newXrManager: WebXRManager) {
+      if (xrManager === newXrManager) {
         return
       }
-      webxrManager = manager
-      const { referenceSpaceType = 'local-floor', foveation } = options ?? {}
-      webxrManager.setReferenceSpaceType(referenceSpaceType)
+      xrManager = newXrManager
+      const { foveation, originReferenceSpace = 'local-floor' } = options ?? {}
+      newXrManager.setReferenceSpaceType(originReferenceSpace)
       if (foveation != null) {
-        webxrManager.setFoveation(foveation)
-      }
-      const { session } = store.getState()
-      if (session != null) {
-        setupXRManager(webxrManager, session, options)
+        newXrManager.setFoveation(foveation)
       }
       cleanupSessionStartListener?.()
-      cleanupSessionStartListener = setupSessionStartListener(manager, bindToSession)
+      cleanupSessionStartListener = setupSessionStartListener(newXrManager, bindToSession)
     },
     setFrameRate(value: FrameRateOption) {
       const { session } = store.getState()
@@ -309,26 +482,45 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       })
     },
     destroy() {
+      cleanupEmulate?.()
+      cleanupDomOverlayRoot?.()
       cleanupSessionStartListener?.()
       cleanupSessionGrantedListener?.()
       //unbinding the session
       bindToSession(undefined, undefined)
     },
-    enterXR: (mode: XRSessionMode, enterOptions?: XRSessionInitOptions) =>
-      enterXR(mode, options, enterOptions, webxrManager),
-    enterAR: (enterOptions?: XRSessionInitOptions) => enterXR('immersive-ar', options, enterOptions, webxrManager),
-    enterVR: (enterOptions?: XRSessionInitOptions) => enterXR('immersive-vr', options, enterOptions, webxrManager),
+    enterXR: (mode: XRSessionMode) => enterXR(domOverlayRoot, mode, options, xrManager),
+    enterAR: () => enterXR(domOverlayRoot, 'immersive-ar', options, xrManager),
+    enterVR: () => enterXR(domOverlayRoot, 'immersive-vr', options, xrManager),
     onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined) {
       //update origin
       const { origin: oldOrigin } = store.getState()
       const origin = camera.parent ?? scene
+      const referenceSpace = xrManager?.getReferenceSpace() ?? undefined
       if (oldOrigin != origin) {
+        origin.xrSpace = referenceSpace
         store.setState({ origin })
       }
 
-      if (webxrManager != null) {
-        updateSession(store, frame, webxrManager)
+      //update reference space
+      const { originReferenceSpace: oldReferenceSpace } = store.getState()
+      if (referenceSpace != oldReferenceSpace) {
+        origin.xrSpace = referenceSpace
+        store.setState({ originReferenceSpace: referenceSpace })
       }
+
+      if (frame == null) {
+        return
+      }
+
+      if (xrManager != null) {
+        updateSession(store, frame, xrManager)
+      }
+      const length = frameRequests.length
+      for (let i = 0; i < length; i++) {
+        frameRequests[i](frame)
+      }
+      frameRequests.length = 0
     },
   })
 }
@@ -353,22 +545,25 @@ async function setFrameRate(session: XRSession, frameRate: FrameRateOption): Pro
 }
 
 async function enterXR(
+  domOverlayRoot: Element,
   mode: XRSessionMode,
   options: XRStoreOptions<XRElementImplementations> | undefined,
-  initOptions: XRSessionInitOptions | undefined,
-  xr: WebXRManager | undefined,
-): Promise<XRSession> {
+  xrManager: WebXRManager | undefined,
+): Promise<XRSession | undefined> {
   if (navigator.xr == null) {
-    throw new Error(`xr not supported`)
+    return Promise.reject(new Error(`WebXR not supported`))
   }
-  const session = await navigator.xr.requestSession(mode, buildXRSessionInit(Object.assign({}, options, initOptions)))
+  if (xrManager == null) {
+    return Promise.reject(new Error(`not connected to three.js. Missing are <XR> component?`))
+  }
+  const session = await navigator.xr.requestSession(mode, buildXRSessionInit(domOverlayRoot, options))
   setFrameRate(session, options?.frameRate ?? 'high')
-  setupXRManager(xr, session, options)
+  setupXRManager(xrManager, session, options)
   return session
 }
 
 function setupXRManager(
-  xr: WebXRManager | undefined,
+  xr: WebXRManager,
   session: XRSession,
   options: XRStoreOptions<XRElementImplementations> | undefined,
 ) {
@@ -470,11 +665,7 @@ function createBindToSession(
   }
 }
 
-function updateSession(
-  store: StoreApi<XRState<XRElementImplementations>>,
-  frame: XRFrame | undefined,
-  manager: WebXRManager,
-) {
+function updateSession(store: StoreApi<XRState<XRElementImplementations>>, frame: XRFrame, manager: WebXRManager) {
   const referenceSpace = manager.getReferenceSpace()
   const {
     detectedMeshes: prevMeshes,
@@ -483,7 +674,7 @@ function updateSession(
     controllerStates: controllers,
     handStates: hands,
   } = store.getState()
-  if (frame == null || referenceSpace == null || session == null) {
+  if (referenceSpace == null || session == null) {
     //not in a XR session
     return
   }

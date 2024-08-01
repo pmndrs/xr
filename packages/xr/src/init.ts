@@ -2,9 +2,10 @@ export type XRSessionFeatureRequest = 'required' | true | false
 
 export type XRSessionInitOptions = {
   /**
+   * reference space type for the origin
    * @default "local-floor"
    */
-  referenceSpaceType?: XRReferenceSpaceType
+  originReferenceSpace?: Extract<XRReferenceSpaceType, 'bounded-floor' | 'local-floor'>
   /**
    * @default true
    */
@@ -30,26 +31,50 @@ export type XRSessionInitOptions = {
    */
   depthSensing?: XRSessionFeatureRequest
   /**
+   * overrides the session init object
+   * use with caution
    * @default undefined
    */
   customSessionInit?: XRSessionInit
+  /**
+   * @default true
+   */
+  hitTest?: XRSessionFeatureRequest
+  /**
+   * @default true
+   */
+  domOverlay?: XRSessionFeatureRequest | Element
+  /**
+   * @default true
+   */
+  unbounded?: XRSessionFeatureRequest
 }
 
-export function buildXRSessionInit({
-  anchors = true,
-  handTracking = true,
-  layers = true,
-  meshDetection = true,
-  planeDetection = true,
-  referenceSpaceType = 'local-floor',
-  customSessionInit,
-  depthSensing = false,
-}: XRSessionInitOptions = {}): XRSessionInit {
+export function buildXRSessionInit(
+  domOverlayRoot: Element,
+  {
+    anchors = true,
+    handTracking = true,
+    layers = true,
+    meshDetection = true,
+    planeDetection = true,
+    originReferenceSpace = 'local-floor',
+    customSessionInit,
+    depthSensing = false,
+    hitTest = true,
+    unbounded = true,
+    domOverlay = true,
+  }: XRSessionInitOptions = {},
+) {
   if (customSessionInit != null) {
     return customSessionInit
   }
-  const requiredFeatures: Array<string> = [referenceSpaceType]
+  const requiredFeatures: Array<string> = [originReferenceSpace]
   const optionalFeatures: Array<string> = []
+
+  if (domOverlay instanceof Element) {
+    domOverlay = true
+  }
 
   addXRSessionFeature(anchors, 'anchors', requiredFeatures, optionalFeatures)
   addXRSessionFeature(handTracking, 'hand-tracking', requiredFeatures, optionalFeatures)
@@ -57,11 +82,15 @@ export function buildXRSessionInit({
   addXRSessionFeature(meshDetection, 'mesh-detection', requiredFeatures, optionalFeatures)
   addXRSessionFeature(planeDetection, 'plane-detection', requiredFeatures, optionalFeatures)
   addXRSessionFeature(depthSensing, 'depth-sensing', requiredFeatures, optionalFeatures)
+  addXRSessionFeature(domOverlay, 'dom-overlay', requiredFeatures, optionalFeatures)
+  addXRSessionFeature(hitTest, 'hit-test', requiredFeatures, optionalFeatures)
+  addXRSessionFeature(unbounded, 'unbounded', requiredFeatures, optionalFeatures)
 
   return {
     requiredFeatures,
     optionalFeatures,
-  }
+    domOverlay: { root: domOverlayRoot },
+  } satisfies XRSessionInit
 }
 
 function addXRSessionFeature(

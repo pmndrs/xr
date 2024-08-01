@@ -50,7 +50,15 @@ type XRControllerProfilesList = Record<string, { path: string }>
 const DefaultDefaultControllerProfileId = 'generic-trigger'
 
 export type XRControllerLayoutLoaderOptions = {
+  /**
+   * where to load the controller profiles and models from
+   * @default 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles/'
+   */
   baseAssetPath?: string
+  /**
+   * profile id that is used if no matching profile id is found
+   * @default 'generic-trigger'
+   */
   defaultControllerProfileId?: string
 }
 

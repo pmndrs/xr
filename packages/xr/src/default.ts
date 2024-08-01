@@ -22,9 +22,29 @@ export type DefaultXRHandTouchPointerOptions = TouchPointerOptions & {
 }
 
 export type DefaultXRControllerOptions = {
+  /**
+   * provide options to the <XRControllerModel/>
+   * `false` disables the model
+   * @default true
+   */
   model?: boolean | XRControllerModelOptions
+  /**
+   * provide options to the <DefaultXRInputSourceGrabPointer/>
+   * `false` disables the grab pointer
+   * @default true
+   */
   grabPointer?: boolean | DefaultXRInputSourceGrabPointerOptions
+  /**
+   * provide options to the <DefaultXRInputSourceRayPointer/>
+   * `false` disables the ray pointer
+   * @default true
+   */
   rayPointer?: boolean | DefaultXRInputSourceRayPointerOptions
+  /**
+   * provide options to the <DefaultXRInputSourceTeleportPointer/>
+   * `false` disables the teleport pointer
+   * @default false
+   */
   teleportPointer?: boolean | DefaultXRInputSourceTeleportPointerOptions
 }
 

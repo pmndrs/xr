@@ -1,9 +1,13 @@
-import { Camera, Group, Object3D, WebXRManager } from 'three'
+import { Camera, Object3D, WebXRManager } from 'three'
 import { XRStore, XRStoreOptions, createXRStore as createXRStoreImpl } from '../store.js'
 import { setupSyncXRElements } from './elements.js'
-import { XRHandState } from '../hand/state.js'
-import { XRControllerState } from '../controller/state.js'
-import { XRGazeState, XRScreenInputState, XRTransientPointerState } from '../input.js'
+import type {
+  XRControllerState,
+  XRGazeState,
+  XRHandState,
+  XRScreenInputState,
+  XRTransientPointerState,
+} from '../input.js'
 import { ForwardEventsOptions, forwardHtmlEvents } from '@pmndrs/pointer-events'
 import {
   DefaultXRControllerOptions,
@@ -12,7 +16,6 @@ import {
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
 } from '../default.js'
-import { setupProvideReferenceSpace } from './utils.js'
 
 export type XRElementImplementationCleanup = (() => void) | void
 
@@ -94,23 +97,20 @@ export function createXRStore(
   const updatesList: XRUpdatesList = []
   const store = createXRStoreImpl<XRElementImplementations>(options)
   store.setWebXRManager(xr)
-  const internalOrigin = new Group()
-  internalOrigin.matrixAutoUpdate = false
-  setupProvideReferenceSpace(internalOrigin, () => xr.getReferenceSpace())
-  const cleanupSyncElements = setupSyncXRElements(scene, store, internalOrigin, updatesList)
+  let cleanupSyncElements: (() => void) | undefined
   const unsubscribeOrigin = store.subscribe((state, prevState) => {
     if (state.origin === prevState.origin) {
       return
     }
-    prevState.origin?.remove(internalOrigin)
-    state.origin?.add(internalOrigin)
+    cleanupSyncElements?.()
+    cleanupSyncElements =
+      state.origin != null ? setupSyncXRElements(scene, store, state.origin, updatesList) : undefined
   })
   return Object.assign(store, {
     destroy() {
-      store.getState().origin?.remove(internalOrigin)
       unsubscribeOrigin()
       cleanupHtmlEventForward?.()
-      cleanupSyncElements()
+      cleanupSyncElements?.()
       store.destroy()
     },
     update(frame: XRFrame | undefined, delta: number) {

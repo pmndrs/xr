@@ -26,8 +26,13 @@
     "fix:prettier": "prettier --write src",
     "fix:eslint": "eslint 'src/**/*.ts' --fix"
   },
+  "peerDependencies": {
+    "three": "*"
+  },
   "dependencies": {
+    "@iwer/devui": "^0.1.0",
     "@pmndrs/pointer-events": "workspace:^",
+    "iwer": "^1.0.3",
     "meshline": "^3.3.1",
     "zustand": "^4.5.2"
   },
