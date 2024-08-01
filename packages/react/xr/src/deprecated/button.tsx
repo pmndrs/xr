@@ -2,7 +2,6 @@ import { ButtonHTMLAttributes, forwardRef, ComponentPropsWithoutRef } from 'reac
 import { XRStore } from '../xr.js'
 import { useSessionSupported } from '../hooks.js'
 import { useStore } from 'zustand'
-import { XRSessionInitOptions } from '@pmndrs/xr/internals'
 
 /**
  * @deprecated use <button onClick={() => store.enterXR()}> instead
@@ -12,19 +11,14 @@ export const XRButton = forwardRef<
   {
     store: XRStore
     mode: XRSessionMode
-    options?: XRSessionInitOptions
     onError?: (error: any) => void
     children?: React.ReactNode | ((status: 'unsupported' | 'exited' | 'entered') => React.ReactNode)
   } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onError'>
->(({ store, mode, onError, options, children, ...props }, ref) => {
+>(({ store, mode, onError, children, ...props }, ref) => {
   const session = useStore(store, (xr) => xr.session)
   const supported = useSessionSupported(mode, onError)
   return (
-    <button
-      ref={ref}
-      {...props}
-      onClick={() => (session != null ? session.end() : store.enterXR(mode, options).catch(onError))}
-    >
+    <button ref={ref} {...props} onClick={() => (session != null ? session.end() : store.enterXR(mode).catch(onError))}>
       {typeof children === 'function'
         ? children(supported ? (session != null ? 'entered' : 'exited') : 'unsupported')
         : children}
