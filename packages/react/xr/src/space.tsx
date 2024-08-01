@@ -1,8 +1,9 @@
-import { GetXRSpace, createGetXRSpaceMatrix } from '@pmndrs/xr/internals'
+import { createGetXRSpaceMatrix } from '@pmndrs/xr/internals'
 import { RootState, useFrame } from '@react-three/fiber'
 import { ReactNode, RefObject, forwardRef, useContext, useImperativeHandle, useMemo, useRef } from 'react'
 import { Group, Object3D } from 'three'
 import { xrReferenceSpaceContext } from './contexts.js'
+import { useXR } from './xr.js'
 
 /**
  * component that puts its children at the provided space
@@ -10,7 +11,7 @@ import { xrReferenceSpaceContext } from './contexts.js'
 export const XRSpace = forwardRef<
   Object3D,
   {
-    space: GetXRSpace
+    space: XRSpace
     children?: ReactNode
   }
 >(({ space, children }, ref) => {
@@ -23,7 +24,7 @@ export const XRSpace = forwardRef<
     internalRef.current.visible = frame != null
   })
   return (
-    <group visible={false} matrixAutoUpdate={false} ref={internalRef}>
+    <group xrSpace={space} visible={false} matrixAutoUpdate={false} ref={internalRef}>
       <xrReferenceSpaceContext.Provider value={space}>{children}</xrReferenceSpaceContext.Provider>
     </group>
   )
@@ -43,9 +44,13 @@ export function useXRReferenceSpace() {
 /**
  * hook that returns a function to compute a matrix that contains the transformation of the provided xr space
  */
-export function useGetXRSpaceMatrix(space: GetXRSpace) {
-  const referenceSpace = useXRReferenceSpace()
-  return useMemo(() => createGetXRSpaceMatrix(space, referenceSpace), [space, referenceSpace])
+export function useGetXRSpaceMatrix(space: XRSpace) {
+  const localReferenceSpace = useContext(xrReferenceSpaceContext)
+  const referenceSpace = useXR((xr) => localReferenceSpace ?? xr.originReferenceSpace)
+  return useMemo(
+    () => (referenceSpace == null ? undefined : createGetXRSpaceMatrix(space, referenceSpace)),
+    [space, referenceSpace],
+  )
 }
 
 /**
@@ -55,12 +60,12 @@ export function useGetXRSpaceMatrix(space: GetXRSpace) {
  */
 export function useApplyXRSpaceMatrix(
   ref: RefObject<Object3D>,
-  space: GetXRSpace,
+  space: XRSpace,
   onFrame?: (state: RootState, delta: number, frame: XRFrame | undefined) => void,
 ): void {
   const getXRSpaceMatrix = useGetXRSpaceMatrix(space)
   useFrame((state, delta, frame: XRFrame | undefined) => {
-    if (ref.current == null) {
+    if (ref.current == null || getXRSpaceMatrix == null) {
       return
     }
     getXRSpaceMatrix(ref.current.matrix, frame)

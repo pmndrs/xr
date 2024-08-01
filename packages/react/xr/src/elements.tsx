@@ -15,9 +15,8 @@ import {
 } from './default.js'
 
 export function XRElements({ children }: { children?: ReactNode }) {
-  const xr = useThree((s) => s.gl.xr)
+  const referenceSpace = useXR((xr) => xr.originReferenceSpace)
   const origin = useXR((xr) => xr.origin)
-  const referenceSpace = useCallback(() => xr.getReferenceSpace(), [xr])
   const visible = useXRSessionVisibilityState() === 'visible'
   const store = useStore()
   const storeWithOriginAsScene = useMemo(
@@ -29,7 +28,7 @@ export function XRElements({ children }: { children?: ReactNode }) {
       }),
     [origin, store],
   )
-  if (origin == null) {
+  if (origin == null || referenceSpace == null) {
     return null
   }
   return (
@@ -97,7 +96,7 @@ function XRHands() {
           return null
         }
         return (
-          <XRSpace key={objectToKey(state)} space={() => state.inputSource.hand.get('wrist')}>
+          <XRSpace key={objectToKey(state)} space={state.inputSource.hand.get('wrist')!}>
             <xrInputSourceStateContext.Provider value={state}>
               <Suspense>
                 {typeof ResolvedImpl === 'function' ? <ResolvedImpl /> : <DefaultXRHand {...ResolvedImpl} />}
@@ -124,7 +123,7 @@ function XRTransientPointers() {
           return null
         }
         return (
-          <XRSpace key={objectToKey(state)} space={() => state.inputSource.targetRaySpace}>
+          <XRSpace key={objectToKey(state)} space={state.inputSource.targetRaySpace}>
             <xrInputSourceStateContext.Provider value={state}>
               <Suspense>
                 {typeof ResolvedImpl === 'function' ? (
@@ -151,7 +150,7 @@ function XRGazes() {
     <>
       {gazeStates.map((state) => {
         return (
-          <XRSpace key={objectToKey(state)} space={() => state.inputSource.targetRaySpace}>
+          <XRSpace key={objectToKey(state)} space={state.inputSource.targetRaySpace}>
             <xrInputSourceStateContext.Provider value={state}>
               <Suspense>
                 {typeof Implementation === 'function' ? (
@@ -178,7 +177,7 @@ function XRScreenInputs() {
     <>
       {screenInputStates.map((state) => {
         return (
-          <XRSpace key={objectToKey(state)} space={() => state.inputSource.targetRaySpace}>
+          <XRSpace key={objectToKey(state)} space={state.inputSource.targetRaySpace}>
             <xrInputSourceStateContext.Provider value={state}>
               <Suspense>
                 {typeof Implementation === 'function' ? (

@@ -1,42 +1,49 @@
 {
-    "name": "@react-three/xr",
-    "description": "VR/AR for react-three-fiber",
-    "author": "Bela Bohlender",
-    "license": "SEE LICENSE IN LICENSE",
-    "homepage": "https://github.com/pmndrs/xr",
-    "type": "module",
-    "keywords": [
-      "r3f",
-      "xr",
-      "ar",
-      "vr",
-      "three.js",
-      "react",
-      "typescript"
-    ],
-    "repository": {
-      "type": "git",
-      "url": "git@github.com:pmndrs/xr.git"
-    },
-    "files": [
-        "dist"
-    ],
-    "main": "dist/index.js",
-    "dependencies": {
-        "@pmndrs/xr": "workspace:^",
-        "suspend-react": "^0.1.3",
-        "zustand": "^4.5.2",
-        "@pmndrs/pointer-events": "workspace:^"
-    },
-    "scripts": {
-        "build": "tsc",
-        "check:prettier": "prettier --check src",
-        "check:eslint": "eslint 'src/**/*.ts'",
-        "fix:prettier": "prettier --write src",
-        "fix:eslint": "eslint 'src/**/*.ts' --fix"
-    },
-    "devDependencies": {
-        "@vitejs/plugin-react": "^4.3.0",
-        "vite": "^5.2.11"
-    }
+  "name": "@react-three/xr",
+  "description": "VR/AR for react-three-fiber",
+  "author": "Bela Bohlender",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/pmndrs/xr",
+  "type": "module",
+  "keywords": [
+    "r3f",
+    "xr",
+    "ar",
+    "vr",
+    "three.js",
+    "react",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/xr.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "peerDependencies": {
+    "@react-three/fiber": ">=8",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "three": "*"
+  },
+  "dependencies": {
+    "@pmndrs/pointer-events": "workspace:^",
+    "@pmndrs/xr": "workspace:^",
+    "suspend-react": "^0.1.3",
+    "tunnel-rat": "^0.1.2",
+    "zustand": "^4.5.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "check:prettier": "prettier --check src",
+    "check:eslint": "eslint 'src/**/*.ts'",
+    "fix:prettier": "prettier --write src",
+    "fix:eslint": "eslint 'src/**/*.ts' --fix"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.0",
+    "vite": "^5.2.11"
+  }
 }

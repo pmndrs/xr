@@ -1,6 +1,5 @@
 import { Pointer } from '@pmndrs/pointer-events'
 import {
-  createTeleportRayLine,
   makeTeleportTarget,
   TeleportPointerRayModel as TeleportPointerRayModelImpl,
   TeleportPointerRayModelOptions,

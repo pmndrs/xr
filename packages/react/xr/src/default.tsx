@@ -1,5 +1,4 @@
 import {
-  GetXRSpace,
   defaultGrabPointerOpacity,
   defaultRayPointerOpacity,
   defaultTouchPointerOpacity,
@@ -25,11 +24,11 @@ import {
   PointerCursorModel,
   PointerRayModel,
   useGrabPointer,
-  usePointerXRSessionEvent,
+  usePointerXRInputSourceEvents,
   useRayPointer,
   useTouchPointer,
 } from './pointer.js'
-import { XRSpace } from './space.js'
+import { XRSpace as XRSpaceImpl } from './space.js'
 import { xrInputSourceStateContext } from './contexts.js'
 import { TeleportPointerRayModel } from './teleport.js'
 import { createPortal, useFrame, useThree } from '@react-three/fiber'
@@ -50,7 +49,7 @@ export {
 
 function DefaultXRInputSourceGrabPointer(
   event: 'select' | 'squeeze',
-  getSpace: (source: XRInputSource) => GetXRSpace,
+  getSpace: (source: XRInputSource) => XRSpace,
   options: DefaultXRInputSourceGrabPointerOptions,
 ) {
   const state = useContext(xrInputSourceStateContext)
@@ -59,14 +58,14 @@ function DefaultXRInputSourceGrabPointer(
   }
   const ref = useRef<Object3D>(null)
   const pointer = useGrabPointer(ref, state, options)
-  usePointerXRSessionEvent(pointer, state.inputSource, event)
+  usePointerXRInputSourceEvents(pointer, state.inputSource, event, state.events)
   const cursorModelOptions = options.cursorModel
   return (
-    <XRSpace ref={ref} space={getSpace(state.inputSource)}>
+    <XRSpaceImpl ref={ref} space={getSpace(state.inputSource)}>
       {cursorModelOptions !== false && (
         <PointerCursorModel pointer={pointer} opacity={defaultGrabPointerOpacity} {...spreadable(cursorModelOptions)} />
       )}
-    </XRSpace>
+    </XRSpaceImpl>
   )
 }
 
@@ -84,7 +83,7 @@ function DefaultXRInputSourceGrabPointer(
 export const DefaultXRHandGrabPointer = DefaultXRInputSourceGrabPointer.bind(
   null,
   'select',
-  (inputSource) => () => inputSource.hand!.get('index-finger-tip'),
+  (inputSource) => inputSource.hand!.get('index-finger-tip')!,
 )
 
 /**
@@ -126,18 +125,18 @@ export function DefaultXRInputSourceRayPointer(options: DefaultXRInputSourceRayP
   }
   const ref = useRef<Object3D>(null)
   const pointer = useRayPointer(ref, state, options)
-  usePointerXRSessionEvent(pointer, state.inputSource, 'select')
+  usePointerXRInputSourceEvents(pointer, state.inputSource, 'select', state.events)
   const rayModelOptions = options.rayModel
   const cursorModelOptions = options.cursorModel
   return (
-    <XRSpace ref={ref} space={state.inputSource.targetRaySpace}>
+    <XRSpaceImpl ref={ref} space={state.inputSource.targetRaySpace}>
       {rayModelOptions !== false && (
         <PointerRayModel pointer={pointer} opacity={defaultRayPointerOpacity} {...spreadable(rayModelOptions)} />
       )}
       {cursorModelOptions !== false && (
         <PointerCursorModel pointer={pointer} opacity={defaultRayPointerOpacity} {...spreadable(cursorModelOptions)} />
       )}
-    </XRSpace>
+    </XRSpaceImpl>
   )
 }
 
@@ -160,7 +159,7 @@ export function DefaultXRHandTouchPointer(options: DefaultXRHandTouchPointerOpti
   const pointer = useTouchPointer(ref, state, options)
   const cursorModelOptions = options.cursorModel
   return (
-    <XRSpace ref={ref} space={() => state.inputSource.hand.get('index-finger-tip')}>
+    <XRSpaceImpl ref={ref} space={state.inputSource.hand.get('index-finger-tip')!}>
       {cursorModelOptions !== false && (
         <PointerCursorModel
           pointer={pointer}
@@ -168,7 +167,7 @@ export function DefaultXRHandTouchPointer(options: DefaultXRHandTouchPointerOpti
           {...spreadable(cursorModelOptions)}
         />
       )}
-    </XRSpace>
+    </XRSpaceImpl>
   )
 }
 
@@ -329,7 +328,7 @@ export function DefaultXRInputSourceTeleportPointer(options: DefaultXRInputSourc
     },
     'teleport',
   )
-  usePointerXRSessionEvent(pointer, state.inputSource, 'select')
+  usePointerXRInputSourceEvents(pointer, state.inputSource, 'select', state.events)
   const rayModelOptions = options.rayModel
   const cursorModelOptions = options.cursorModel
   const scene = useThree((state) => state.scene)
@@ -347,7 +346,7 @@ export function DefaultXRInputSourceTeleportPointer(options: DefaultXRInputSourc
   })
   return (
     <>
-      <XRSpace ref={ref} space={state.inputSource.targetRaySpace} />
+      <XRSpaceImpl ref={ref} space={state.inputSource.targetRaySpace} />
       {createPortal(
         <group ref={groupRef}>
           {rayModelOptions !== false && (

@@ -74,7 +74,7 @@ export const XRHandJoint = forwardRef<Object3D, { joint: XRHandJoint; children?:
   ({ joint, children }, ref) => {
     const state = useXRHandState()
     return (
-      <XRSpace ref={ref} space={() => state.inputSource.hand.get(joint)}>
+      <XRSpace ref={ref} space={state.inputSource.hand.get(joint)!}>
         {children}
       </XRSpace>
     )

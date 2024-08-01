@@ -1,9 +1,28 @@
-import { XRGazeState, XRScreenInputState, XRTransientPointerState } from '@pmndrs/xr/internals'
+import { bindXRInputSourceEvent, XRGazeState, XRScreenInputState, XRTransientPointerState } from '@pmndrs/xr/internals'
 import { useXR } from './xr.js'
 import { xrInputSourceStateContext } from './contexts.js'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 
 export type { XRTransientPointerState, XRScreenInputState, XRGazeState }
+
+/**
+ * hook for listening to xr input source events
+ */
+export function useXRInputSourceEvent(
+  inputSource: XRInputSource | undefined,
+  event: Parameters<typeof bindXRInputSourceEvent>[2],
+  fn: () => void,
+  deps: Array<any>,
+) {
+  const session = useXR((xr) => xr.session)
+  useEffect(() => {
+    if (session == null || inputSource == null) {
+      return
+    }
+    return bindXRInputSourceEvent(session, inputSource, event, fn)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event, inputSource, session, ...deps])
+}
 
 /**
  * hook for getting the transient-pointer state

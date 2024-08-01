@@ -19,7 +19,7 @@ import {
   PointerCursorModelOptions,
   PointerRayMaterial,
   PointerRayModelOptions,
-  bindPointerXRSessionEvent,
+  bindPointerXRInputSourceEvent,
   updatePointerCursorModel,
   updatePointerRayModel,
 } from '@pmndrs/xr/internals'
@@ -136,18 +136,18 @@ export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & {
 /**
  * hook for binding the xr session events such as `selectstart` to the provided pointer down/up events
  */
-export function usePointerXRSessionEvent(
+export function usePointerXRInputSourceEvents(
   pointer: Pointer,
   inputSource: XRInputSource,
   event: 'select' | 'squeeze',
-  missingEvents?: ReadonlyArray<XRInputSourceEvent>,
+  missingEvents: ReadonlyArray<XRInputSourceEvent>,
 ) {
   const session = useXR((xr) => xr.session)
   useEffect(() => {
     if (session == null) {
       return
     }
-    return bindPointerXRSessionEvent(pointer, session, inputSource, event, missingEvents)
+    return bindPointerXRInputSourceEvent(pointer, session, inputSource, event, missingEvents)
   }, [event, inputSource, pointer, session, missingEvents])
 }
 
