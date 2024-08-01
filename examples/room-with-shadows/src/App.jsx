@@ -52,7 +52,6 @@ export default function App() {
       </button>
       <Canvas shadows camera={{ position: [5, 2, 10], fov: 50 }}>
         <XR store={store}>
-          <PerformanceMonitor onDecline={() => set(true)} />
           <SoftShadows />
           <CameraControls makeDefault />
           <color attach="background" args={['#d0d0d0']} />
