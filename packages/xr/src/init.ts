@@ -51,6 +51,7 @@ export type XRSessionInitOptions = {
 }
 
 export function buildXRSessionInit(
+  mode: XRSessionMode,
   domOverlayRoot: Element,
   {
     anchors = true,
@@ -84,7 +85,9 @@ export function buildXRSessionInit(
   addXRSessionFeature(depthSensing, 'depth-sensing', requiredFeatures, optionalFeatures)
   addXRSessionFeature(domOverlay, 'dom-overlay', requiredFeatures, optionalFeatures)
   addXRSessionFeature(hitTest, 'hit-test', requiredFeatures, optionalFeatures)
-  addXRSessionFeature(unbounded, 'unbounded', requiredFeatures, optionalFeatures)
+  if (mode != 'immersive-vr') {
+    addXRSessionFeature(unbounded, 'unbounded', requiredFeatures, optionalFeatures)
+  }
 
   return {
     requiredFeatures,

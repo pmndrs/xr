@@ -556,7 +556,7 @@ async function enterXR(
   if (xrManager == null) {
     return Promise.reject(new Error(`not connected to three.js. Missing are <XR> component?`))
   }
-  const session = await navigator.xr.requestSession(mode, buildXRSessionInit(domOverlayRoot, options))
+  const session = await navigator.xr.requestSession(mode, buildXRSessionInit(mode, domOverlayRoot, options))
   setFrameRate(session, options?.frameRate ?? 'high')
   setupXRManager(xrManager, session, options)
   return session
