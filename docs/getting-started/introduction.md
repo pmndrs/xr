@@ -46,6 +46,7 @@ export function App() {
 
 ## Tutorials
 
+- 💾 [Store](../tutorials/store.md)
 - 👌 [Interactions](../tutorials/interactions.md)
 - 🔧 [Options](../tutorials/options.md)
 - 🧊 [Object Detection](../tutorials/object-detection.md)
@@ -53,17 +54,17 @@ export function App() {
 - 🪄 [Teleport](../tutorials/teleport.md)
 - 🕹️ [Gamepad](../tutorials/gamepad.md)
 - 🎮 [Custom Controller/Hands/...](../tutorials/custom-inputs.md)
+- ⚓️ [Anchors](../tutorials/anchors.md)
+- 📱 [Dom Overlay](../tutorials/dom-overlay.md)
+- 🎯 [Hit Test](../tutorials/hit-test.md)
 - ⛨ [Guards](../tutorials/guards.md)
 
 ## Roadmap
 
 - 🤳 XR Gestures
 - ➕ Multimodal
-- ⚓️ Anchors
 - 📺 Layers
-- 📱 Dom Overlays
 - 🕺 Tracked Body
-- 🎯 Hit Test
 - ↕ react-three/controls
 
 ## Migration guides

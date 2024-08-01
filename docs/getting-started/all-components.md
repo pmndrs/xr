@@ -60,6 +60,10 @@ Component that positions its children in the provided space.
 
 Component that allows to declare its children as teleport targets.
 
+### `XRHitTest`
+
+Component that allows to emit hit tests from its position in the scene graph.
+
 ## Pointer
 
 The core interaction concept is based on (touch/grab/ray) pointers.

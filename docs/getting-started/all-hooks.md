@@ -26,6 +26,27 @@ Hook for checking if a session mode is supported.
 
 Hook for getting the session visibility state.
 
+### `useXRHitTestSource`
+
+Hook for creating a hit test source originating from the provided object or xr space.
+
+### `useXRHitTest`
+
+Hook that allows to set up a continous hit test originating from the provided object or xr space.
+
+### `useXRRequestHitTest`
+
+Hook that returns a function to request a single hit test.
+
+
+### `useRequestXRAnchor`
+
+Hook that returns a function that allows to request a xr anchor.
+
+### `useXRAnchor`
+
+Hook for requesting and storing a single xr anchor.
+
 ## Space
 
 @react-three/xr provides several hooks to synchronize the space provided by WebXR with the scene.
@@ -59,9 +80,13 @@ Hook for creating a grab pointer.
 
 Hook for creating a ray pointer.
 
-### `usePointerXRSessionEvent`
+### `usePointerXRInputSourceEvents`
 
 Hook for binding the XR session events such as `selectstart` to the provided pointer down/up events.
+
+### `useXRInputSourceEvent`
+
+Hook for listening to xr input source events.
 
 ## Inputs
 
