@@ -1,7 +1,7 @@
 ---
 title: All Hooks
 description: Overview of all hooks offered by @react-three/xr.
-nav: 5
+nav: 6
 ---
 
 ### `useXR`

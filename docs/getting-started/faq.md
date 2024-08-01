@@ -1,7 +1,7 @@
 ---
 title: FAQ
 description: Frequently asked questions about react-three/xr.
-nav: 5
+nav: 7
 ---
 
 ## How can I exit an XR session?

@@ -1,7 +1,7 @@
 ---
 title: Interactions
 description: Build interactions that work across XR and non-XR web applications
-nav: 6
+nav: 9
 ---
 
 @react-three/xr uses the same pointer events as @react-three/fiber, which allows building interactions that work on non-XR devices as well as XR devices. So, just like you'd expect from @react-three/fiber and everywhere else in react, interactions are built using

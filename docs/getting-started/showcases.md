@@ -1,7 +1,7 @@
 ---
 title: Showcases
 description: Public products build with @react-three/xr
-nav: 3
+nav: 4
 ---
 
 

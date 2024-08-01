@@ -48,7 +48,6 @@ export function App() {
 
 - 💾 [Store](../tutorials/store.md)
 - 👌 [Interactions](../tutorials/interactions.md)
-- 🔧 [Options](../tutorials/options.md)
 - 🧊 [Object Detection](../tutorials/object-detection.md)
 - ✴ [Origin](../tutorials/origin.md)
 - 🪄 [Teleport](../tutorials/teleport.md)

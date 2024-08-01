@@ -1,7 +1,7 @@
 ---
 title: Object Detection
 description: Use detected objects such as meshes and planes for rendering, scene understanding, physics, and more
-nav: 11
+nav: 10
 ---
 
 @react-three/xr allows to use the devices mesh and plane detection functionality to detect the meshes and planes in the environment to modify the rendering, allow physics interactions with the environment, and more.
