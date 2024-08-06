@@ -48,7 +48,7 @@ const store = createXRStore({
   },
   controller: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const state = useXRHandState()
+    const state = useXRControllerState()
     return (
       <>
         <XRControllerModel />
