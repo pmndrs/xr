@@ -37,6 +37,6 @@ Another supported alternative is the Apple Vision Pro Simulator.
 
 ### 3. ADB
 
-Sometimes, a WebXR experience works floorless in the emulator but fails on the actual device. In this case we recommend using Android Device Bridge (ADB) to debug your experience from another device. For example, to remotely debug a WebXR experience on a Meta Quest 3, the Meta Quest 3 must be in developer mode, and remote debugging must be enabled. Then, the Meta Quest 3 must be connected to a PC via a USB cable with ADB installed. With this setup, the Chrome browser can now be used to access `chrome://inspect` to inspect specific tabs on the device remotely.
+Sometimes, a WebXR experience works flawlessly in the emulator but fails on the actual device. In this case we recommend using Android Device Bridge (ADB) to debug your experience from another device. For example, to remotely debug a WebXR experience on a Meta Quest 3, the Meta Quest 3 must be in developer mode, and remote debugging must be enabled. Then, the Meta Quest 3 must be connected to a PC via a USB cable with ADB installed. With this setup, the Chrome browser can now be used to access `chrome://inspect` to inspect specific tabs on the device remotely.
 
 If you are using the Apple Vision Pro, there are similar features to remotely debug a WebXR experience on the Apple Vision Pro from a Safari browser on another device. 
