@@ -5,8 +5,8 @@ export {
   type NativeWheelEvent,
   type PointerEventsHandlers,
   type PointerEventsMap,
-  type WheelEvent,
   type NativeEvent,
+  WheelEvent,
   PointerEvent,
 } from './event.js'
 export * from './intersections/index.js'

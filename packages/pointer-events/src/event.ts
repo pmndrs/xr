@@ -135,8 +135,8 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
     public readonly type: keyof PointerEventsMap,
     public readonly bubbles: boolean,
     public readonly nativeEvent: E,
-    private pointer: Pointer,
-    private readonly intersection: Intersection,
+    protected pointer: Pointer,
+    protected readonly intersection: Intersection,
     public readonly currentObject: Object3D = intersection.object,
     public readonly object: Object3D = currentObject,
   ) {}
@@ -169,8 +169,22 @@ export class WheelEvent extends PointerEvent<NativeWheelEvent> {
     return this.nativeEvent.deltaZ
   }
 
-  constructor(nativeEvent: NativeWheelEvent, pointer: Pointer, intersection: Intersection) {
-    super('wheel', true, nativeEvent, pointer, intersection)
+  constructor(
+    nativeEvent: NativeWheelEvent,
+    pointer: Pointer,
+    intersection: Intersection,
+    currentObject?: Object3D,
+    object?: Object3D,
+  ) {
+    super('wheel', true, nativeEvent, pointer, intersection, currentObject, object)
+  }
+
+  /**
+   * for internal use
+   */
+  retarget(currentObject: Object3D) {
+    const { type, bubbles, nativeEvent, pointer, intersection, target } = this
+    return new WheelEvent(nativeEvent, pointer, intersection, currentObject, target)
   }
 }
 
