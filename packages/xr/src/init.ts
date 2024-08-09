@@ -89,11 +89,19 @@ export function buildXRSessionInit(
     addXRSessionFeature(unbounded, 'unbounded', requiredFeatures, optionalFeatures)
   }
 
-  return {
+  const init: XRSessionInit = {
     requiredFeatures,
     optionalFeatures,
     domOverlay: { root: domOverlayRoot },
-  } satisfies XRSessionInit
+  }
+
+  if (depthSensing) {
+    Object.assign(init, { depthSensing: { usagePreference: ['gpu-optimized'], dataFormatPreference: [] } })
+  }
+
+  console.log(init)
+
+  return init
 }
 
 function addXRSessionFeature(

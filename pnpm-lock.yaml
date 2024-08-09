@@ -13,7 +13,7 @@ importers:
         version: 0.1.1
       '@react-three/fiber':
         specifier: ^8.16.6
-        version: 8.16.8(react-dom@18.3.1)(react@18.3.1)(three@0.164.1)
+        version: 8.16.8(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
       '@types/eslint':
         specifier: ^8.56.10
         version: 8.56.10
@@ -72,8 +72,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       three:
-        specifier: ^0.164.1
-        version: 0.164.1
+        specifier: ^0.167.1
+        version: 0.167.1
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
@@ -1264,6 +1264,48 @@ packages:
       suspend-react: 0.1.3(react@18.3.1)
       three: 0.164.1
       zustand: 3.7.2(react@18.3.1)
+    dev: false
+
+  /@react-three/fiber@8.16.8(react-dom@18.3.1)(react@18.3.1)(three@0.167.1):
+    resolution: {integrity: sha512-Lc8fjATtvQEfSd8d5iKdbpHtRm/aPMeFj7jQvp6TNHfpo8IQTW3wwcE1ZMrGGoUH+w2mnyS+0MK1NLPLnuzGkQ==}
+    peerDependencies:
+      expo: '>=43.0'
+      expo-asset: '>=8.4'
+      expo-file-system: '>=11.0'
+      expo-gl: '>=11.0'
+      react: '>=18.0'
+      react-dom: '>=18.0'
+      react-native: '>=0.64'
+      three: '>=0.133'
+    peerDependenciesMeta:
+      expo:
+        optional: true
+      expo-asset:
+        optional: true
+      expo-file-system:
+        optional: true
+      expo-gl:
+        optional: true
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.24.7
+      '@types/react-reconciler': 0.26.7
+      '@types/webxr': 0.5.16
+      base64-js: 1.5.1
+      buffer: 6.0.3
+      its-fine: 1.2.5(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-reconciler: 0.27.0(react@18.3.1)
+      react-use-measure: 2.1.1(react-dom@18.3.1)(react@18.3.1)
+      scheduler: 0.21.0
+      suspend-react: 0.1.3(react@18.3.1)
+      three: 0.167.1
+      zustand: 3.7.2(react@18.3.1)
+    dev: true
 
   /@react-three/rapier@1.4.0(@react-three/fiber@8.16.8)(react@18.3.1)(three@0.164.1):
     resolution: {integrity: sha512-mQryvEx9mW6u0bHo3KDc7G6gURjKSOA1I+W9EVNDJmI8hC+HoS9WyDzc8QnXyMYmvUAMEqOQImECNXAtoLacHw==}
@@ -4769,6 +4811,10 @@ packages:
   /three@0.166.1:
     resolution: {integrity: sha512-LtuafkKHHzm61AQA1be2MAYIw1IjmhOUxhBa0prrLpEMWbV7ijvxCRHjSgHPGp2493wLBzwKV46tA9nivLEgKg==}
     dev: false
+
+  /three@0.167.1:
+    resolution: {integrity: sha512-gYTLJA/UQip6J/tJvl91YYqlZF47+D/kxiWrbTon35ZHlXEN0VOo+Qke2walF1/x92v55H6enomymg4Dak52kw==}
+    dev: true
 
   /tiny-inflate@1.0.3:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
