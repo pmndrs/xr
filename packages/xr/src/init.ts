@@ -2,10 +2,13 @@ export type XRSessionFeatureRequest = 'required' | true | false
 
 export type XRSessionInitOptions = {
   /**
-   * reference space type for the origin
-   * @default "local-floor"
+   * whether the session has bounds
+   * false means unbounded (only available in AR)
+   * true means bounded (allows to reference the bounding space)
+   * undefined means bounded but no access to bounding space
+   * @default undefined
    */
-  originReferenceSpace?: Extract<XRReferenceSpaceType, 'bounded-floor' | 'local-floor'>
+  bounded?: boolean | undefined
   /**
    * @default true
    */
@@ -44,10 +47,6 @@ export type XRSessionInitOptions = {
    * @default true
    */
   domOverlay?: XRSessionFeatureRequest | Element
-  /**
-   * @default true
-   */
-  unbounded?: XRSessionFeatureRequest
 }
 
 export function buildXRSessionInit(
@@ -59,18 +58,20 @@ export function buildXRSessionInit(
     layers = true,
     meshDetection = true,
     planeDetection = true,
-    originReferenceSpace = 'local-floor',
     customSessionInit,
     depthSensing = false,
     hitTest = true,
-    unbounded = true,
     domOverlay = true,
+    bounded,
   }: XRSessionInitOptions = {},
 ) {
   if (customSessionInit != null) {
     return customSessionInit
   }
-  const requiredFeatures: Array<string> = [originReferenceSpace]
+
+  const requiredFeatures: Array<XRReferenceSpaceType> =
+    bounded === null ? ['local-floor'] : bounded ? ['bounded-floor'] : ['unbounded', 'local-floor']
+
   const optionalFeatures: Array<string> = []
 
   if (domOverlay instanceof Element) {
@@ -85,9 +86,6 @@ export function buildXRSessionInit(
   addXRSessionFeature(depthSensing, 'depth-sensing', requiredFeatures, optionalFeatures)
   addXRSessionFeature(domOverlay, 'dom-overlay', requiredFeatures, optionalFeatures)
   addXRSessionFeature(hitTest, 'hit-test', requiredFeatures, optionalFeatures)
-  if (mode != 'immersive-vr') {
-    addXRSessionFeature(unbounded, 'unbounded', requiredFeatures, optionalFeatures)
-  }
 
   const init: XRSessionInit = {
     requiredFeatures,
@@ -98,8 +96,6 @@ export function buildXRSessionInit(
   if (depthSensing) {
     Object.assign(init, { depthSensing: { usagePreference: ['gpu-optimized'], dataFormatPreference: [] } })
   }
-
-  console.log(init)
 
   return init
 }
