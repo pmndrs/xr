@@ -23,19 +23,19 @@ export default defineConfig({
 })
 ```
 
-## 2. emulator: [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/tree/main/devui)
+## 2. emulator: [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md)
 
 Developing WebXR experiences often requires testing WebXR-specific features, which either require an actual device or an emulator. An emulator allows testing without a specific device and without continuously switching a headset on and off.
 
-`react-three/xr` includes the [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/tree/main/devui) emulator out of the box. The emulator builds on [IWER by meta](https://github.com/meta-quest/immersive-web-emulation-runtime/) and adds a easy to use overlay on top of your application. The emulator is activated if no WebXR support is detected on `localhost` or by pressing `Window/Command + Alt/Option + E`.
+`react-three/xr` includes the [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md) emulator out of the box, which is in its 0.x status and very much experimental in its current stage. The emulator builds on [IWER by meta](https://github.com/meta-quest/immersive-web-emulation-runtime/) and adds a easy to use overlay on top of your application. The emulator is activated if no WebXR support is detected on `localhost` or by pressing `Window/Command + Alt/Option + E`.
 
 ![iwer/devui](./emulator.gif)
 
-The existing [Immersive Web Emulator](https://chromewebstore.google.com/detail/immersive-web-emulator/cgffilbpcibhmcfbgggfhfolhkfbhmik) and the previous [WebXR API Emulator](https://chromewebstore.google.com/detail/webxr-api-emulator/mjddjgeghkdijejnciaefnkjmkafnnje?hl=de) are not supported because they do not comply to the WebXR spec. If you have one of those installed and active, please turn them off, as they will prevent activiting the built-in emulator. 
+The existing [Immersive Web Emulator](https://chromewebstore.google.com/detail/immersive-web-emulator/cgffilbpcibhmcfbgggfhfolhkfbhmik) is a extension that provides similar emulation but its current version (1.x) is not supported because it does not comply to the WebXR spec. Starting with IWE 2.0, [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md) will be integrated into IWE, making it compatible with react-three/xr. If you have IWE 1.x installed and active, please turn them off, as it will prevent activiting the integrated [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md). 
 
 Another supported alternative is the Apple Vision Pro Simulator.
 
-### 3. ADB
+## 3. ADB
 
 Sometimes, a WebXR experience works flawlessly in the emulator but fails on the actual device. In this case we recommend using Android Device Bridge (ADB) to debug your experience from another device. For example, to remotely debug a WebXR experience on a Meta Quest 3, the Meta Quest 3 must be in developer mode, and remote debugging must be enabled. Then, the Meta Quest 3 must be connected to a PC via a USB cable with ADB installed. With this setup, the Chrome browser can now be used to access `chrome://inspect` to inspect specific tabs on the device remotely.
 

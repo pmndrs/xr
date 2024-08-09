@@ -52,6 +52,9 @@ jobs:
         run: |
           pnpm -F './packages/**/*' build
 
+      - name: Copy README
+        run: cp ./README.md packages/react/xr
+
       - name: Set Version
         run: pnpm -F './packages/**/*' exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
 
