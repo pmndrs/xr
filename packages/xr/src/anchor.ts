@@ -2,15 +2,14 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 import { XRStore } from './store.js'
 
 const OneVector = new Vector3(1, 1, 1)
-const ZeroVector = new Vector3(1, 1, 1)
+const ZeroVector = new Vector3(0, 0, 0)
 const NeutralQuaternion = new Quaternion()
 
 const matrixHelper1 = new Matrix4()
 const matrixHelper2 = new Matrix4()
 const quaternionHelper = new Quaternion()
 const positionHelper = new Vector3()
-
-const directionHelper = new Vector3()
+const vectorHelper = new Vector3()
 
 /*
 export async function loadXRPersistentAnchor(session: XRSession, id: string): Promise<XRAnchor | undefined> {
@@ -84,12 +83,11 @@ export type XRAnchorSpaceOptions = {
 
 export async function requestXRAnchor(store: XRStore<any>, options: XRAnchorOptions): Promise<XRAnchor | undefined> {
   if (options.relativeTo === 'hit-test-result') {
-    directionHelper.set(0, 0, 1)
-    if (options.offsetQuaternion != null) {
-      directionHelper.applyQuaternion(options.offsetQuaternion)
-    }
     return options.hitTestResult.createAnchor?.(
-      new XRRigidTransform({ ...options.offsetPosition }, { ...directionHelper }),
+      new XRRigidTransform(
+        options.offsetPosition == null ? undefined : { ...options.offsetPosition, w: 1 },
+        options.offsetQuaternion == null ? undefined : { ...options.offsetQuaternion },
+      ),
     )
   }
   let frame: XRFrame
@@ -106,7 +104,7 @@ export async function requestXRAnchor(store: XRStore<any>, options: XRAnchorOpti
       //compute vectorHelper and quaternionHelper in the local space of the origin
       matrixHelper1.copy(origin.matrixWorld).invert()
       matrixHelper2.compose(worldPosition, worldQuaternion, OneVector).multiply(matrixHelper1)
-      matrixHelper2.decompose(positionHelper, quaternionHelper, directionHelper)
+      matrixHelper2.decompose(positionHelper, quaternionHelper, vectorHelper)
 
       quaternionHelper.setFromRotationMatrix(matrixHelper2)
     } else {
@@ -117,10 +115,9 @@ export async function requestXRAnchor(store: XRStore<any>, options: XRAnchorOpti
     frame = options.frame ?? (await store.requestFrame())
     space = options.space
     const { offsetPosition, offsetQuaternion } = options
+    console.log(offsetPosition, offsetQuaternion)
     positionHelper.copy(offsetPosition ?? ZeroVector)
     quaternionHelper.copy(offsetQuaternion ?? NeutralQuaternion)
   }
-  directionHelper.set(0, 0, 1)
-  directionHelper.applyQuaternion(quaternionHelper)
-  return frame.createAnchor?.(new XRRigidTransform({ ...positionHelper }, { ...directionHelper }), space)
+  return frame.createAnchor?.(new XRRigidTransform({ ...positionHelper, w: 1 }, { ...quaternionHelper }), space)
 }
