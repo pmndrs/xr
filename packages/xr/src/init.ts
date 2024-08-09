@@ -70,7 +70,7 @@ export function buildXRSessionInit(
   }
 
   const requiredFeatures: Array<XRReferenceSpaceType> =
-    bounded === null ? ['local-floor'] : bounded ? ['bounded-floor'] : ['unbounded', 'local-floor']
+    bounded == null ? ['local-floor'] : bounded ? ['bounded-floor'] : ['unbounded', 'local-floor']
 
   const optionalFeatures: Array<string> = []
 
@@ -93,6 +93,7 @@ export function buildXRSessionInit(
     domOverlay: { root: domOverlayRoot },
   }
 
+  //TODO: replace with call to isSupportedFeature (unbounded, ...)
   if (depthSensing) {
     Object.assign(init, { depthSensing: { usagePreference: ['gpu-optimized'], dataFormatPreference: [] } })
   }
