@@ -4,7 +4,7 @@ import { Model } from './Datsun.jsx'
 import { XROrigin, XR, createXRStore } from '@react-three/xr'
 import { Suspense } from 'react'
 
-const store = createXRStore()
+const store = createXRStore({ depthSensing: true, hand: false })
 
 export default function App() {
   return (
@@ -49,7 +49,9 @@ export default function App() {
             </group>
           </group>
           <OrbitControls />
-          <Environment preset="dawn" blur={1} />
+          <Suspense>
+            <Environment preset="dawn" blur={1} />
+          </Suspense>
         </XR>
       </Canvas>
     </>
