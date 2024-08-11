@@ -277,7 +277,7 @@ function startEmulate(emulate: EmulatorType | true, alert: boolean) {
 export function createXRStore<T extends XRElementImplementations>(options?: XRStoreOptions<T>): XRStore<T> {
   const emulate = options?.emulate ?? 'metaQuest3'
   let cleanupEmulate: (() => void) | undefined
-  if (emulate != false) {
+  if (typeof window !== 'undefined' && emulate != false) {
     if (window.location.hostname === 'localhost') {
       startEmulate(emulate, false)
     }
