@@ -1,7 +1,7 @@
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useHover, createXRStore, XR } from '@react-three/xr'
 import { Environment } from '@react-three/drei'
-import { Container, Text, Image, Root, setPreferredColorScheme } from '@react-three/uikit'
+import { Container, Text, Image, Root, setPreferredColorScheme, Fullscreen } from '@react-three/uikit'
 import { Button, Slider } from '@react-three/uikit-default'
 import {
   ArrowLeftIcon,
@@ -11,8 +11,8 @@ import {
   MenuIcon,
   PlayIcon,
 } from '@react-three/uikit-lucide'
-import { useRef } from 'react'
-import { Mesh } from 'three'
+import { useEffect, useRef, useState } from 'react'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
 const store = createXRStore({
   hand: {
@@ -26,14 +26,16 @@ const store = createXRStore({
 setPreferredColorScheme('light')
 
 export function App() {
+  const [counter, setCounter] = useState(0)
   return (
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas style={{ width: '100%', flexGrow: 1 }}>
+      <Canvas events={() => ({ enabled: false, priority: 0 })} style={{ width: '100%', flexGrow: 1 }}>
+        <SwitchToXRPointerEvents />
         <XR store={store}>
           <Environment preset="city" />
-          <group pointerEventsType={{ deny: 'grab' }} pointerEvents="auto" position={[0, 1.5, -0.5]}>
-            <Root pixelSize={0.001}>
+          <group position={[0, 1.5, -0.5]}>
+            <Root pointerEventsType={{ deny: 'grab' }} pixelSize={0.001}>
               <Container width="100%" display="flex" alignItems="center" justifyContent="center">
                 <Container
                   dark={{ backgroundColor: 'rgb(31,41,55)' }}
@@ -94,7 +96,7 @@ export function App() {
                           dark={{ color: 'rgb(156,163,175)' }}
                           flexDirection="column"
                         >
-                          Bob Dylan
+                          Bob Dylan {counter.toString()}
                         </Text>
                       </Container>
                     </Container>
@@ -103,7 +105,7 @@ export function App() {
                       <Button size="icon" variant="ghost">
                         <ArrowLeftIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
                       </Button>
-                      <Button size="icon" variant="ghost" padding={8}>
+                      <Button onClick={() => setCounter((c) => c + 1)} size="icon" variant="ghost" padding={8}>
                         <PlayIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
                       </Button>
                       <Button size="icon" variant="ghost">
@@ -172,13 +174,10 @@ export function App() {
   )
 }
 
-function Cube() {
-  const ref = useRef<Mesh>(null)
-  const hover = useHover(ref)
-  return (
-    <mesh position={[0, 2, 0]} pointerEventsType={{ deny: 'grab' }} ref={ref}>
-      <boxGeometry />
-      <meshBasicMaterial color={hover ? 'red' : 'blue'} />
-    </mesh>
-  )
+export function SwitchToXRPointerEvents() {
+  const domElement = useThree((s) => s.gl.domElement)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  return null
 }

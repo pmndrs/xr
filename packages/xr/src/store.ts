@@ -370,8 +370,8 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
         return
       }
       xrManager = newXrManager
-      const { foveation, originReferenceSpace = 'local-floor' } = options ?? {}
-      newXrManager.setReferenceSpaceType(originReferenceSpace)
+      const { foveation, bounded } = options ?? {}
+      newXrManager.setReferenceSpaceType(bounded ? 'bounded-floor' : 'local-floor')
       if (foveation != null) {
         newXrManager.setFoveation(foveation)
       }
