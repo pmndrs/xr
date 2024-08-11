@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { MeshReflectorMaterial, OrbitControls } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import { Physics, usePlane } from '@react-three/cannon'
 import { Cursor } from './helpers/Drag.js'
 import { Guy } from './components/Guy.jsx'
@@ -9,6 +9,7 @@ import { Suspense } from 'react'
 
 const store = createXRStore({
   hand: { touchPointer: false },
+  secondaryInputSources: true,
 })
 
 export function App() {

@@ -47,11 +47,35 @@ Hook that returns a function that allows to request a xr anchor.
 
 Hook for requesting and storing a single xr anchor.
 
+## Inputs
+
+Inputs are a key aspect of react-three/fiber. The following hooks provide access to inputs, xr input source events, their state, and more.
+
+
+### `useXRInputSourceEvent`
+
+Hook for listening to xr input source events.
+
+### `useXRInputSourceState`
+
+Hook for getting the XR controller state.
+
+- `type`: the type that the input source state should have (e.g. `"hand"`)
+- `handedness`: (optional) the handedness that the XR input source state should have.
+
+### `useXRControllerButtonEvent`
+
+Hook for subscribing to a button state change event on the controller.
+
+- `controller`: the xr controller state.
+- `id`: ID of the button.
+- `onChange`: callback that gets executed when the state of the button changes.
+
 ## Space
 
 @react-three/xr provides several hooks to synchronize the space provided by WebXR with the scene.
 
-### `useXRReferenceSpace`
+### `useXRSpace`
 
 Hook for retrieving the XR reference space from the context.
 
@@ -84,55 +108,10 @@ Hook for creating a ray pointer.
 
 Hook for binding the XR session events such as `selectstart` to the provided pointer down/up events.
 
-### `useXRInputSourceEvent`
-
-Hook for listening to xr input source events.
-
-## Inputs
-
-Building custom inputs requires access and bindings to the events. The following hook allow to access the inputs state and bind function to events.
-
-### `useXRControllerButtonEvent`
-
-Hook for subscribing to a button state change event on the controller.
-
-- `id`: ID of the button.
-- `onChange`: callback that gets executed when the state of the button changes.
-- `handedness`: handedness of the controller.
-
-### `useXRControllerState`
-
-Hook for getting the XR controller state.
-
-- `handedness`: (optional) the handedness that the XR controller state should have.
-
-### `useXRGazeState`
-
-Hook for getting the gaze state.
-
-### `useXRHandState`
-
-Hook for getting the XR hand state.
-
-- `handedness`: (optional) the handedness that the XR hand state should have.
-
-### `useXRTransientPointerState`
-
-Hook for getting the transient-pointer state.
-
-- `handedness`: (optional) the handedness that the XR transient pointer state should have.
-
-### `useXRScreenInputState`
-
-Hook for getting the screen-input state.
 
 ## Object Detection
 
 @react-three/xr exposes WebXR's object detection capabilities for meshes and planes. The following functions allow to access these WebXR primitives inside of the components responsible for rendering these detected object and retrieving their geometry.
-
-### `useXRMesh`
-
-Hook for getting the detected mesh in the current context.
 
 ### `useXRMeshGeometry`
 
@@ -144,10 +123,6 @@ Hook for getting the geometry from the detected mesh.
 ### `useXRMeshes`
 
 Hook for getting all detected meshes with the provided semantic label.
-
-### `useXRPlane`
-
-Hook for getting the detected plane in the current context.
 
 ### `useXRPlaneGeometry`
 

@@ -2,12 +2,12 @@ import { Pointer } from '@pmndrs/pointer-events'
 
 export function bindXRInputSourceEvent(
   session: XRSession,
-  inputSource: XRInputSource,
+  inputSource: XRInputSource | 'all',
   event: 'select' | 'selectstart' | 'selectend' | 'squeeze' | 'squeezestart' | 'squeezeend',
   fn: (event: XRInputSourceEvent) => void,
 ) {
   const filterFn = (event: XRInputSourceEvent) => {
-    if (event.inputSource != inputSource) {
+    if (inputSource != 'all' && event.inputSource != inputSource) {
       return
     }
     fn(event)

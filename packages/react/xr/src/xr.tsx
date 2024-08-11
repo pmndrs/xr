@@ -118,6 +118,9 @@ export function useXRStore() {
 /**
  * hook for reading the state from the xr store
  */
-export function useXR<T = XRState>(selector: (s: XRState) => T = (state) => state as unknown as T) {
-  return useStore(useXRStore(), selector)
+export function useXR<T = XRState>(
+  selector: (s: XRState) => T = (state) => state as unknown as T,
+  equalityFn?: (a: T, b: T) => boolean,
+) {
+  return useStore(useXRStore(), selector, equalityFn)
 }

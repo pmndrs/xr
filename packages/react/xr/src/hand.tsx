@@ -1,43 +1,15 @@
 import {
   XRHandModelOptions,
-  XRHandState,
+  cloneXRHandGltf,
   configureXRHandModel,
   createUpdateXRHandVisuals,
-  loadXRHandModel,
 } from '@pmndrs/xr/internals'
-import { ReactNode, forwardRef, useContext, useImperativeHandle, useMemo } from 'react'
-import { XRSpace, useXRReferenceSpace } from './space.js'
-import { useXR } from './xr.js'
-import { suspend } from 'suspend-react'
-import { useFrame } from '@react-three/fiber'
-import { xrInputSourceStateContext } from './contexts.js'
+import { ReactNode, forwardRef, useImperativeHandle, useMemo } from 'react'
+import { XRSpace, useXRSpace } from './space.js'
+import { useFrame, useLoader } from '@react-three/fiber'
 import { Object3D } from 'three'
-
-/**
- * hook for getting the XRHandState
- * @param handedness the handedness that the XRHandState should have
- */
-export function useXRHandState(handedness: XRHandedness): XRHandState | undefined
-
-/**
- * hook for getting the XRHandState
- */
-export function useXRHandState(): XRHandState
-
-export function useXRHandState(handedness?: XRHandedness): XRHandState | undefined {
-  if (handedness != null) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useXR((s) => s.handStates.find((state) => state.inputSource.handedness === handedness))
-  }
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const state = useContext(xrInputSourceStateContext)
-  if (state == null || state.type != 'hand') {
-    throw new Error(`useXRHandState() can only be used inside a <XRHand> or with using useXRHandState("left")`)
-  }
-  return state
-}
-
-const LoadXRHandModelSymbol = Symbol('loadXRHandModel')
+import { useXRInputSourceStateContext } from './input.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export type { XRHandModelOptions }
 
@@ -49,11 +21,12 @@ export type { XRHandModelOptions }
  * - `renderOrder`
  */
 export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, ref) => {
-  const state = useXRHandState()
-  const model = suspend(loadXRHandModel, [state.assetPath, undefined, LoadXRHandModelSymbol])
+  const state = useXRInputSourceStateContext('hand')
+  const gltf = useLoader(GLTFLoader, state.assetPath)
+  const model = useMemo(() => cloneXRHandGltf(gltf), [gltf])
   configureXRHandModel(model, options)
   useImperativeHandle(ref, () => model, [model])
-  const referenceSpace = useXRReferenceSpace()
+  const referenceSpace = useXRSpace()
   const update = useMemo(
     () => createUpdateXRHandVisuals(state.inputSource.hand, model, referenceSpace),
     [state.inputSource, model, referenceSpace],
@@ -72,7 +45,7 @@ export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, re
  */
 export const XRHandJoint = forwardRef<Object3D, { joint: XRHandJoint; children?: ReactNode }>(
   ({ joint, children }, ref) => {
-    const state = useXRHandState()
+    const state = useXRInputSourceStateContext('hand')
     return (
       <XRSpace ref={ref} space={state.inputSource.hand.get(joint)!}>
         {children}

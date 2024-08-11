@@ -4,15 +4,14 @@ import {
   createXRStore,
   XR,
   XRHitTest,
-  useXRControllerState,
   XRControllerModel,
   XRHandModel,
-  useXRHandState,
   GetWorldMatrixFromXRHitTest,
-  useXRScreenInputState,
   useXRInputSourceEvent,
   useXRRequestHitTest,
   useXRAnchor,
+  useXRInputSourceStateContext,
+  useXRInputSourceState,
 } from '@react-three/xr'
 import { useEffect, useRef } from 'react'
 import { Matrix4, Mesh, Vector3 } from 'three'
@@ -36,7 +35,7 @@ function onResults(handedness: XRHandedness, results: XRHitTestResult[], getWorl
 const store = createXRStore({
   hand: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const state = useXRHandState()
+    const state = useXRInputSourceStateContext()
     return (
       <>
         <XRHandModel />
@@ -48,25 +47,25 @@ const store = createXRStore({
   },
   controller: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const state = useXRControllerState()
+    const state = useXRInputSourceStateContext()
     return (
       <>
         <XRControllerModel />
-        <XRSpace space={state.inputSource.targetRaySpace}>
-          <XRHitTest onResults={onResults.bind(null, state.inputSource.handedness)} />
-        </XRSpace>
+        <XRHitTest
+          space={state.inputSource.targetRaySpace}
+          onResults={onResults.bind(null, state.inputSource.handedness)}
+        />
       </>
     )
   },
   screenInput: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const state = useXRScreenInputState()
+    const state = useXRInputSourceStateContext()
     return (
-      <>
-        <XRSpace space={state.inputSource.targetRaySpace}>
-          <XRHitTest onResults={onResults.bind(null, state.inputSource.handedness)} />
-        </XRSpace>
-      </>
+      <XRHitTest
+        space={state.inputSource.targetRaySpace}
+        onResults={onResults.bind(null, state.inputSource.handedness)}
+      />
     )
   },
 })
@@ -99,23 +98,17 @@ export function App() {
 function Anchors() {
   const [anchor, requestAnchor] = useXRAnchor()
   const requestHitTest = useXRRequestHitTest()
-  const controllerState = useXRControllerState('right')
-  const handState = useXRHandState('right')
-  const inputSource = controllerState?.inputSource ?? handState?.inputSource
   useXRInputSourceEvent(
-    inputSource,
+    'all',
     'select',
-    async () => {
-      if (inputSource == null) {
-        return
-      }
-      const result = await requestHitTest(inputSource.targetRaySpace)
+    async (e) => {
+      const result = await requestHitTest(e.inputSource.targetRaySpace)
       if (result == null || result.results.length === 0) {
         return
       }
       requestAnchor({ relativeTo: 'hit-test-result', hitTestResult: result.results[0] })
     },
-    [requestHitTest, requestAnchor, inputSource],
+    [requestHitTest, requestAnchor],
   )
   if (anchor == null) {
     return null

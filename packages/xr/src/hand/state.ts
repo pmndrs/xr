@@ -10,11 +10,15 @@ export function isXRHandInputSource(inputSource: XRInputSource): inputSource is 
 }
 
 export function createXRHandState(
+  id: string,
   inputSource: XRInputSource,
   options: XRHandLoaderOptions | undefined,
   events: ReadonlyArray<XRInputSourceEvent>,
+  isPrimary: boolean,
 ): XRHandState {
   return {
+    id,
+    isPrimary,
     type: 'hand',
     inputSource: inputSource as XRHandInputSource,
     pose: createHandPoseState(inputSource.hand!),

@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef, useContext, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { ReactNode, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { suspend } from 'suspend-react'
 import {
   XRControllerGamepadComponentId,
@@ -10,9 +10,8 @@ import {
   loadXRControllerModel,
 } from '@pmndrs/xr/internals'
 import { createPortal, useFrame } from '@react-three/fiber'
-import { useXR } from './xr.js'
 import { Object3D } from 'three'
-import { xrInputSourceStateContext } from './contexts.js'
+import { useXRInputSourceState, useXRInputSourceStateContext } from './input.js'
 
 /**
  * component for placing content in the controller anchored at a specific component such as the Thumbstick
@@ -33,10 +32,10 @@ export const XRControllerComponent = forwardRef<
     children?: ReactNode
   }
 >(({ id, children, onPress, onRelease }, ref) => {
-  const state = useXRControllerState()
+  const state = useXRInputSourceStateContext('controller')
   const [object, setObject] = useState<Object3D | undefined>(undefined)
   useImperativeHandle(ref, () => object, [object])
-  useXRControllerButtonEvent(id, (state) => (state === 'pressed' ? onPress?.() : onRelease?.()))
+  useXRControllerButtonEvent(state, id, (state) => (state === 'pressed' ? onPress?.() : onRelease?.()))
   useFrame(() => setObject(state.gamepad[id]?.object))
   if (object == null) {
     return
@@ -51,13 +50,10 @@ export const XRControllerComponent = forwardRef<
  * @param handedness of the controller
  */
 export function useXRControllerButtonEvent(
+  controller: XRControllerState,
   id: XRControllerGamepadComponentId,
   onChange: (state: XRControllerGamepadComponentState['state']) => void,
-  handedness?: XRHandedness,
 ): void {
-  //making typescript happy (seems anti recreate but thats okay since its them same function)
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const controller = handedness == null ? useXRControllerState() : useXRControllerState(handedness)
   const state = useRef<XRControllerGamepadComponentState['state']>()
   useFrame(() => {
     const currentState = controller?.gamepad[id]?.state
@@ -68,38 +64,9 @@ export function useXRControllerButtonEvent(
   })
 }
 
-export type { XRControllerState }
-
-/**
- * hook for getting the XRControllerState
- * @param handedness the handedness that the XRControllerState should have
- */
-export function useXRControllerState(handedness: XRHandedness): XRControllerState | undefined
-
-/**
- * hook for getting the XRControllerState
- */
-export function useXRControllerState(): XRControllerState
-
-export function useXRControllerState(handedness?: XRHandedness): XRControllerState | undefined {
-  if (handedness != null) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useXR((s) => s.controllerStates.find((state) => state.inputSource.handedness === handedness))
-  }
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const context = useContext(xrInputSourceStateContext)
-  if (context == null || context.type != 'controller') {
-    throw new Error(
-      `useXRControllerState() can only be used inside a <XRController> or using useXRControllerState("left")`,
-    )
-  }
-  return context
-}
+export type { XRControllerState, XRControllerModelOptions }
 
 const LoadXRControllerModelSymbol = Symbol('loadXRControllerModel')
-
-export type { XRControllerModelOptions }
-
 /**
  * component for rendering a 3D model for the XRController
  *
@@ -108,7 +75,7 @@ export type { XRControllerModelOptions }
  * - `renderOrder`
  */
 export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>((options, ref) => {
-  const state = useXRControllerState()
+  const state = useXRInputSourceStateContext('controller')
   const model = suspend(loadXRControllerModel, [state.layout, undefined, LoadXRControllerModelSymbol])
   configureXRControllerModel(model, options)
   state.object = model

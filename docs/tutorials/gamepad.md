@@ -32,7 +32,7 @@ export function App() {
 }
 
 function Locomotion() {
-  const controller = useXRControllerState('right')
+  const controller = useXRInputSourceState('controller', 'right')
   const ref = useRef<Group>(null)
   useFrame((_, delta) => {
     if (ref.current == null || controller == null) {

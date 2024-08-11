@@ -18,17 +18,16 @@ const store = createXRStore({
       return (
         <>
           <XRHandModel />
-          <XRSpace space={state.inputSource.targetRaySpace}>
-            <XRHitTest
-              onResults={(results, getWorldMatrix) => {
-                if (results.length === 0) {
-                  return
-                }
-                getWorldMatrix(matrixHelper, results[0])
-                hitTestPosition.setFromMatrixPosition(matrixHelper)
-              }}
-            />
-          </XRSpace>
+          <XRHitTest
+            space={state.inputSource.targetRaySpace}
+            onResults={(results, getWorldMatrix) => {
+              if (results.length === 0) {
+                return
+              }
+              getWorldMatrix(matrixHelper, results[0])
+              hitTestPosition.setFromMatrixPosition(matrixHelper)
+            }}
+          />
         </>
       )
     },

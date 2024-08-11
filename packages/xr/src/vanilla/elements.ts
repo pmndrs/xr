@@ -1,7 +1,7 @@
 import { Group, Object3D } from 'three'
 import { XRElementImplementations, XRUpdatesList } from './xr.js'
-import { XRInputSourceStateMap } from '../input.js'
-import { WithRecord, XRStore, resolveDetectedImplementation, resolveInputSourceImplementation } from '../store.js'
+import { XRInputSourceState, XRInputSourceStateMap } from '../input.js'
+import { WithRecord, XRStore, resolveInputSourceImplementation } from '../store.js'
 import { XRSpace } from './space.js'
 import {
   createDefaultXRController,
@@ -19,8 +19,6 @@ export function setupSyncXRElements(
   updatesList: XRUpdatesList,
 ): () => void {
   const inputGroup = new Group()
-  const syncDetectedPlanes = setupSyncDetectedElements<XRPlane>(store, (state) => state.planeSpace, target, updatesList)
-  const syncDetectedMeshes = setupSyncDetectedElements<XRMesh>(store, (state) => state.meshSpace, target, updatesList)
   const syncControllers = setupSyncInputSourceElements(
     createDefaultXRController,
     scene,
@@ -49,16 +47,14 @@ export function setupSyncXRElements(
   )
   const unsubscribe = store.subscribe((s, prev) => {
     inputGroup.visible = s.visibilityState === 'visible'
-    syncDetectedPlanes(s.session, s.detectedPlanes, prev.detectedPlanes, s.detectedPlane, prev.detectedPlane)
-    syncDetectedMeshes(s.session, s.detectedMeshes, prev.detectedMeshes, s.detectedMesh, prev.detectedMesh)
-    syncControllers(s.session, s.controllerStates, prev.controllerStates, s.controller, prev.controller)
-    syncGazes(s.session, s.gazeStates, prev.gazeStates, s.gaze, prev.gaze)
-    syncHands(s.session, s.handStates, prev.handStates, s.hand, prev.hand)
-    syncScreenInputs(s.session, s.screenInputStates, prev.screenInputStates, s.screenInput, prev.screenInput)
+    syncControllers(s.session, s.inputSourceStates, prev.inputSourceStates, s.controller, prev.controller)
+    syncGazes(s.session, s.inputSourceStates, prev.inputSourceStates, s.gaze, prev.gaze)
+    syncHands(s.session, s.inputSourceStates, prev.inputSourceStates, s.hand, prev.hand)
+    syncScreenInputs(s.session, s.inputSourceStates, prev.inputSourceStates, s.screenInput, prev.screenInput)
     syncTransientPointers(
       s.session,
-      s.transientPointerStates,
-      prev.transientPointerStates,
+      s.inputSourceStates,
+      prev.inputSourceStates,
       s.transientPointer,
       prev.transientPointer,
     )
@@ -67,38 +63,12 @@ export function setupSyncXRElements(
   return () => {
     target.remove(inputGroup)
     unsubscribe()
-    syncDetectedPlanes(undefined, [], [], false, false)
-    syncDetectedMeshes(undefined, [], [], false, false)
     syncControllers(undefined, [], [], false, false)
     syncGazes(undefined, [], [], false, false)
     syncHands(undefined, [], [], false, false)
     syncScreenInputs(undefined, [], [], false, false)
     syncTransientPointers(undefined, [], [], false, false)
   }
-}
-
-function setupSyncDetectedElements<S extends XRMesh | XRPlane>(
-  store: XRStore<XRElementImplementations>,
-  getSpace: (state: S) => XRSpaceType,
-  target: Object3D,
-  updatesList: XRUpdatesList,
-) {
-  return setupSync<S, WithRecord<XRElementImplementations>['detectedMesh' | 'detectedPlane']>(
-    (session, state, implementationInfo) =>
-      runInXRUpdatesListContext(updatesList, () => {
-        const implementation = resolveDetectedImplementation(implementationInfo, state.semanticLabel, false)
-        if (implementation === false) {
-          return
-        }
-        const spaceObject = new XRSpace(getSpace(state))
-        target.add(spaceObject)
-        const customCleanup = implementation?.(store, spaceObject, state as any, session)
-        return () => {
-          target.remove(spaceObject)
-          customCleanup?.()
-        }
-      }),
-  )
 }
 
 function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
@@ -116,37 +86,39 @@ function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
   target: Object3D,
   updatesList: XRUpdatesList,
 ) {
-  return setupSync<XRInputSourceStateMap[K], WithRecord<XRElementImplementations>[K]>(
-    (session, state, implementationInfo) =>
-      runInXRUpdatesListContext(updatesList, () => {
-        const implementation = resolveInputSourceImplementation(
-          implementationInfo as WithRecord<XRElementImplementations>['controller'],
-          state.inputSource.handedness,
-          {},
-        )
-        if (implementation === false) {
-          return
-        }
-        const spaceObject = new XRSpace(getSpace(key, state.inputSource))
-        target.add(spaceObject)
-        const customCleanup =
-          typeof implementation === 'object'
-            ? defaultCreate(scene, store, spaceObject, state, session, implementation)
-            : implementation?.(store, spaceObject, state as any, session)
-        return () => {
-          target.remove(spaceObject)
-          customCleanup?.()
-        }
-      }),
+  return setupSync<K, WithRecord<XRElementImplementations>[K]>(key, (session, state, implementationInfo) =>
+    runInXRUpdatesListContext(updatesList, () => {
+      const implementation = resolveInputSourceImplementation(
+        implementationInfo as WithRecord<XRElementImplementations>['controller'],
+        state.inputSource.handedness,
+        {},
+      )
+      if (implementation === false) {
+        return
+      }
+      const spaceObject = new XRSpace(getSpace(key, state.inputSource))
+      target.add(spaceObject)
+      const customCleanup =
+        typeof implementation === 'object'
+          ? defaultCreate(scene, store, spaceObject, state, session, implementation)
+          : implementation?.(store, spaceObject, state as any, session)
+      return () => {
+        target.remove(spaceObject)
+        customCleanup?.()
+      }
+    }),
   )
 }
 
-function setupSync<T, I>(create: (session: XRSession, value: T, impl: I) => () => void) {
-  let cleanupMap = new Map<T, (() => void) | undefined>()
+function setupSync<K extends keyof XRInputSourceStateMap, I>(
+  key: K,
+  create: (session: XRSession, value: XRInputSourceStateMap[K], impl: I) => () => void,
+) {
+  let cleanupMap = new Map<XRInputSourceStateMap[K], (() => void) | undefined>()
   return (
     session: XRSession | undefined,
-    values: ReadonlyArray<T>,
-    prevValues: ReadonlyArray<T>,
+    values: ReadonlyArray<XRInputSourceState>,
+    prevValues: ReadonlyArray<XRInputSourceState>,
     impl: I,
     prevImpl: I,
   ) => {
@@ -156,17 +128,20 @@ function setupSync<T, I>(create: (session: XRSession, value: T, impl: I) => () =
     if (impl != prevImpl) {
       cleanup(cleanupMap)
     }
-    const newCleanupMap = new Map<T, (() => void) | undefined>()
+    const newCleanupMap = new Map<XRInputSourceStateMap[K], (() => void) | undefined>()
     const valuesLength = values.length
     if (session != null) {
       for (let i = 0; i < valuesLength; i++) {
         const value = values[i]
-        let cleanup = cleanupMap.get(value)
-        const wasCreated = cleanupMap.delete(value)
-        if (!wasCreated) {
-          cleanup = create(session, value, impl)
+        if (value.type != key) {
+          continue
         }
-        newCleanupMap.set(value, cleanup)
+        let cleanup = cleanupMap.get(value as XRInputSourceStateMap[K])
+        const wasCreated = cleanupMap.delete(value as XRInputSourceStateMap[K])
+        if (!wasCreated) {
+          cleanup = create(session, value as XRInputSourceStateMap[K], impl)
+        }
+        newCleanupMap.set(value as XRInputSourceStateMap[K], cleanup)
       }
     }
     cleanup(cleanupMap)
