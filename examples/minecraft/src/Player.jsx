@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useKeyboardControls } from '@react-three/drei'
 import { CapsuleCollider, RigidBody, useRapier } from '@react-three/rapier'
@@ -20,7 +20,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
   const axe = useRef()
   const ref = useRef()
   const { rapier, world } = useRapier()
-  const [subscribeKeys, getKeys] = useKeyboardControls()
+  const [, getKeys] = useKeyboardControls()
 
   const playerMove = ({ forward, backward, left, right, rotation, velocity }) => {
     if (!velocity) {
@@ -40,8 +40,8 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     if (grounded) ref.current.setLinvel({ x: 0, y: 7.5, z: 0 })
   }
 
-  useFrame((state) => {
-    const { forward, backward, left, right } = getKeys()
+  useFrame(state => {
+    const { forward, backward, left, right, jump } = getKeys()
     const velocity = ref.current.linvel()
 
     vectorHelper.set(velocity.x, velocity.y, velocity.z)
@@ -68,22 +68,12 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
         rotation: state.camera.rotation,
         velocity
       })
+
+      if (jump) {
+        playerJump()
+      }
     }
   })
-
-  useEffect(() => {
-    const cleanupSubscription = subscribeKeys(
-      state => state.jump,
-
-      value => {
-        if (value) {
-          playerJump()
-        }
-      }
-    )
-
-    return () => cleanupSubscription()
-  }, [])
 
   return <>
     <RigidBody
