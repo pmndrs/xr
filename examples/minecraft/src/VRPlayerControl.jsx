@@ -47,8 +47,8 @@ export function VRPlayerControl({ playerJump, playerMove }) {
   }, [controller_left, controller_right])
 
   useFrame((state, delta) => {
-    if (playerJump && gamepad_info.connected_right) {
-      if (gamepad_info.a_button.state === 'pressed') {
+    if (gamepad_info.connected_right) {
+      if (playerJump && gamepad_info.a_button.state === 'pressed') {
         playerJump()
       }
 
@@ -79,6 +79,6 @@ export function VRPlayerControl({ playerJump, playerMove }) {
 
   return <XROrigin
     ref={ref_xr}
-    position={[0, -1.75, 0]}
+    position={[0, -1.25, 0]}
   />
 }
