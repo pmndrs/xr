@@ -7,14 +7,16 @@ title: Minecraft Diamond Axe
 */
 
 import { useGLTF } from '@react-three/drei'
+import { GroupProps } from '@react-three/fiber'
+import { Mesh } from 'three'
 
-export function Axe(props) {
+export function Axe(props: GroupProps) {
   const { nodes, materials } = useGLTF('axe.glb')
   return (
     <group dispose={null} {...props}>
       <group rotation={[0, Math.PI / 1.8, -0.3]} scale={0.5}>
-        <mesh geometry={nodes.Mesh_1001_1.geometry} material={materials.material_2} />
-        <mesh geometry={nodes.Mesh_1001_2.geometry} material={materials.material_3} />
+        <mesh geometry={(nodes.Mesh_1001_1 as Mesh).geometry} material={materials.material_2} />
+        <mesh geometry={(nodes.Mesh_1001_2 as Mesh).geometry} material={materials.material_3} />
       </group>
     </group>
   )

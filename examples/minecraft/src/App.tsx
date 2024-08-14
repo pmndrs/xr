@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { Sky, PointerLockControls, KeyboardControls } from '@react-three/drei'
-import { Physics } from '@react-three/rapier'
+import { interactionGroups, Physics } from '@react-three/rapier'
 import { Ground } from './Ground.jsx'
 import { Player } from './Player.jsx'
 import { Cube, Cubes } from './Cube.jsx'
@@ -51,9 +51,9 @@ export function App() {
             <ambientLight intensity={0.8} />
             <directionalLight intensity={5} position={[100, 60, 100]} />
             <Physics gravity={[0, -30, 0]}>
-              <Ground />
+              <Ground collisionGroups={interactionGroups([0, 1], [0])} />
               <Player />
-              <Cube position={[0, 0.5, -10]} />
+              <Cube collisionGroups={interactionGroups([0, 1], [0])} position={[0, 0.5, -10]} />
               <Cubes />
             </Physics>
             <PointerLockControls />
