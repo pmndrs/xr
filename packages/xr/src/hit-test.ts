@@ -35,10 +35,6 @@ export async function createXRHitTestSource(
     space =
       getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper) ??
       state.originReferenceSpace
-
-    if (space === state.originReferenceSpace) {
-      computeOriginReferenceSpaceOffset(relativeTo, state.origin, matrixHelper)
-    }
     vectorHelper.setFromMatrixPosition(matrixHelper)
     const point: DOMPointInit = { ...vectorHelper }
     quaternionHelper.setFromRotationMatrix(matrixHelper)

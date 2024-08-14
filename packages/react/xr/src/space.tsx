@@ -64,10 +64,9 @@ export function useXRSpace(type?: XRReferenceSpaceType): XRSpace | XRReferenceSp
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [referenceSpace, setReferenceSpace] = useState<XRReferenceSpace | undefined>(undefined)
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const store = useXRStore()
+  const session = useXR((xr) => xr.session)
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    const { session } = store.getState()
     if (session == null) {
       return
     }
@@ -79,7 +78,7 @@ export function useXRSpace(type?: XRReferenceSpaceType): XRSpace | XRReferenceSp
       setReferenceSpace(space)
     })
     return () => void (aborted = true)
-  }, [store, type])
+  }, [session, type])
   return referenceSpace
 }
 

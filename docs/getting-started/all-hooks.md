@@ -16,7 +16,7 @@ Hook for getting the XR store from the context.
 
 Hook for getting the function to initialize the room capture for scanning the room.
 
-### `useSessionSupported`
+### `useSessionModeSupported`
 
 Hook for checking if a session mode is supported.
 

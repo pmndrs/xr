@@ -41,8 +41,8 @@ export function getSpaceFromAncestors(
   targetOffsetMatrix?: Matrix4,
 ) {
   targetOffsetMatrix?.copy(object.matrix)
-  const result = getXRSpaceFromAncestorsRec(object, targetOffsetMatrix)
-  if (result != null || origin == null || originReferenceSpace == null) {
+  const result = getXRSpaceFromAncestorsRec(object.parent, targetOffsetMatrix)
+  if (result != null) {
     return result
   }
   if (targetOffsetMatrix != null) {
@@ -52,14 +52,15 @@ export function getSpaceFromAncestors(
 }
 
 function getXRSpaceFromAncestorsRec(
-  { parent }: Object3D,
+  object: Object3D | null,
   targetOffsetMatrix: Matrix4 | undefined,
 ): XRSpace | undefined {
-  if (parent == null) {
+  if (object == null) {
     return undefined
   }
-  if (targetOffsetMatrix != null) {
-    targetOffsetMatrix.premultiply(parent.matrix)
+  if (object.xrSpace != null) {
+    return object.xrSpace
   }
-  return parent.xrSpace ?? getXRSpaceFromAncestorsRec(parent, targetOffsetMatrix)
+  targetOffsetMatrix?.premultiply(object.matrix)
+  return getXRSpaceFromAncestorsRec(object.parent, targetOffsetMatrix)
 }

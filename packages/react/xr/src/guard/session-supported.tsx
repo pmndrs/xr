@@ -1,19 +1,19 @@
 import { ReactNode } from 'react'
-import { useSessionSupported } from '../index.js'
+import { useSessionModeSupported } from '../index.js'
 
 /**
  * guard that only show its children if the session mode is supported
  */
-export function ShowIfSessionSupported({ children, mode }: { children?: ReactNode; mode: XRSessionMode }) {
-  const supported = useSessionSupported(mode)
+export function ShowIfSessionModeSupported({ children, mode }: { children?: ReactNode; mode: XRSessionMode }) {
+  const supported = useSessionModeSupported(mode)
   return <group visible={supported}>{children}</group>
 }
 
 /**
  * guard that only renders its visible if the session mode is supported
  */
-export function IfSessionSupported({ children, mode }: { children?: ReactNode; mode: XRSessionMode }) {
-  const supported = useSessionSupported(mode)
+export function IfSessionModeSupported({ children, mode }: { children?: ReactNode; mode: XRSessionMode }) {
+  const supported = useSessionModeSupported(mode)
   if (!supported) {
     return null
   }

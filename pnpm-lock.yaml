@@ -99,6 +99,12 @@ importers:
         specifier: ^4.5.2
         version: 4.5.2(@types/react@18.3.3)(react@18.3.1)
 
+  examples/layers:
+    dependencies:
+      '@react-three/xr':
+        specifier: workspace:^
+        version: link:../../packages/react/xr
+
   examples/minecraft:
     dependencies:
       '@dimforge/rapier3d-compat':

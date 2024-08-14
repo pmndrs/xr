@@ -6,6 +6,7 @@ import { XRHandLoaderOptions } from './hand/index.js'
 import { XRInputSourceState, XRInputSourceStateMap, createSyncXRInputSourceStates } from './input.js'
 import { XRSessionInitOptions, buildXRSessionInit } from './init.js'
 import type { EmulatorType } from './emulate.js'
+import { XRLayerEntry } from './layer.js'
 
 declare global {
   export interface XRSessionEventMap {
@@ -22,6 +23,7 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      * current `XRSession`
      */
     session?: XRSession
+    mediaBinding?: XRMediaBinding
     /**
      * `XRReferenceSpace` of the origin in the current session
      * (this references to the session origin at the floor level)
@@ -62,6 +64,10 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      * the detected `XRMesh`es
      */
     detectedMeshes: ReadonlyArray<XRMesh>
+    /**
+     * active additional webxr layers
+     */
+    layerEntries: ReadonlyArray<XRLayerEntry>
   } & WithRecord<T>
 >
 
@@ -195,6 +201,14 @@ export type XRStoreOptions<T extends XRElementImplementations> = {
 
 export type XRStore<T extends XRElementImplementations> = Omit<StoreApi<XRState<T>>, 'destroy'> & {
   /**
+   * add webxr layer entry
+   */
+  addLayerEntry(entry: XRLayerEntry): void
+  /**
+   * remove webxr layer entry
+   */
+  removeLayerEntry(entry: XRLayerEntry): void
+  /**
    * internal function
    */
   setWebXRManager(xr: WebXRManager): void
@@ -202,6 +216,10 @@ export type XRStore<T extends XRElementImplementations> = Omit<StoreApi<XRState<
    * internal function
    */
   onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined): void
+  /**
+   * internal function
+   */
+  onBeforeRender(): void
   /**
    * destroys the store unrepairably (for exiting XR use store.getState().session?.end())
    */
@@ -254,6 +272,7 @@ const baseInitialState: Omit<
   | 'domOverlayRoot'
 > = {
   session: undefined,
+  mediaBinding: undefined,
   originReferenceSpace: undefined,
   visibilityState: undefined,
   mode: null,
@@ -261,6 +280,7 @@ const baseInitialState: Omit<
   inputSourceStates: [],
   detectedMeshes: [],
   detectedPlanes: [],
+  layerEntries: [],
 }
 
 function startEmulate(emulate: EmulatorType | true, alert: boolean) {
@@ -329,6 +349,18 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   let xrManager: WebXRManager | undefined
 
   return Object.assign(store, {
+    addLayerEntry(layerEntry: XRLayerEntry): void {
+      if (store.getState().session == null) {
+        return
+      }
+      store.setState({ layerEntries: [...store.getState().layerEntries, layerEntry] })
+    },
+    removeLayerEntry(layerEntry: XRLayerEntry): void {
+      if (store.getState().session == null) {
+        return
+      }
+      store.setState({ layerEntries: store.getState().layerEntries.filter((entry) => entry != layerEntry) })
+    },
     requestFrame(): Promise<XRFrame> {
       return new Promise((resolve) => frameRequests.push(resolve))
     },
@@ -342,8 +374,6 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (foveation != null) {
         newXrManager.setFoveation(foveation)
       }
-      cleanupSessionStartListener?.()
-      cleanupSessionStartListener = setupSessionStartListener(newXrManager, bindToSession)
     },
     setFrameRate(value: FrameRateOption) {
       const { session } = store.getState()
@@ -418,40 +448,77 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       cleanupSessionStartListener?.()
       cleanupSessionGrantedListener?.()
       //unbinding the session
-      bindToSession(undefined, undefined)
+      bindToSession(undefined)
     },
     enterXR: (mode: XRSessionMode) => enterXR(domOverlayRoot, mode, options, xrManager),
     enterAR: () => enterXR(domOverlayRoot, 'immersive-ar', options, xrManager),
     enterVR: () => enterXR(domOverlayRoot, 'immersive-vr', options, xrManager),
     onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined) {
-      //update origin
-      const { origin: oldOrigin } = store.getState()
-      const origin = camera.parent ?? scene
+      let update: Partial<Mutable<XRState<T>>> | undefined
       const referenceSpace = xrManager?.getReferenceSpace() ?? undefined
-      if (oldOrigin != origin) {
+      const state = store.getState()
+
+      //update origin
+      const origin = camera.parent ?? scene
+      if (state.origin != origin) {
         origin.xrSpace = referenceSpace
-        store.setState({ origin })
+        update ??= {}
+        update.origin = origin
       }
 
       //update reference space
-      const { originReferenceSpace: oldReferenceSpace } = store.getState()
-      if (referenceSpace != oldReferenceSpace) {
+      if (referenceSpace != state.originReferenceSpace) {
         origin.xrSpace = referenceSpace
-        store.setState({ originReferenceSpace: referenceSpace })
+        update ??= {}
+        update.originReferenceSpace = referenceSpace
       }
 
-      if (frame == null) {
+      if (frame != null) {
+        if (xrManager != null) {
+          updateSession(store, frame, xrManager)
+        }
+        if (state.session == null && referenceSpace != null && frame.session != null) {
+          bindToSession(frame.session)
+        }
+      }
+
+      if (update != null) {
+        store.setState(update)
+      }
+
+      if (frame != null) {
+        const length = frameRequests.length
+        for (let i = 0; i < length; i++) {
+          frameRequests[i](frame)
+        }
+        frameRequests.length = 0
+      }
+    },
+    onBeforeRender() {
+      const { session, layerEntries } = store.getState()
+      if (session == null || xrManager == null) {
         return
       }
-
-      if (xrManager != null) {
-        updateSession(store, frame, xrManager)
+      const currentLayers = session?.renderState.layers
+      if (currentLayers == null) {
+        return
       }
-      const length = frameRequests.length
-      for (let i = 0; i < length; i++) {
-        frameRequests[i](frame)
+      //TODO: sort by distance to camera
+      ;(layerEntries as Array<(typeof layerEntries)[number]>).sort((l1, l2) => l1.renderOrder - l2.renderOrder)
+      let changed = false
+      const layers = layerEntries.map<XRLayer>(({ layer }, i) => {
+        if (layer != currentLayers[i]) {
+          changed = true
+        }
+        return layer
+      })
+      if (!changed) {
+        return
       }
-      frameRequests.length = 0
+      layers.push(xrManager.getBaseLayer())
+      session.updateRenderState({
+        layers,
+      })
     },
   })
 }
@@ -518,15 +585,6 @@ function setupXRManager(
 
 const allSessionModes: Array<XRSessionMode> = ['immersive-ar', 'immersive-vr', 'inline']
 
-function setupSessionStartListener(xr: WebXRManager, bindToSession: ReturnType<typeof createBindToSession>) {
-  const sessionStartListener = () => {
-    const session = xr.getSession()!
-    bindToSession(session, session.environmentBlendMode === 'opaque' ? 'immersive-vr' : 'immersive-ar')
-  }
-  xr.addEventListener('sessionstart', sessionStartListener)
-  return () => xr.removeEventListener('sessionstart', sessionStartListener)
-}
-
 function setupSessionGrantedListener(
   enterGrantedSession: XRStoreOptions<XRElementImplementations>['enterGrantedSession'] = allSessionModes,
   enterXR: (mode: XRSessionMode) => void,
@@ -556,9 +614,9 @@ function createBindToSession(
   secondayInputSources: boolean,
 ) {
   let cleanupSession: (() => void) | undefined
-  return (session: XRSession | undefined, mode: XRSessionMode | undefined) => {
+  return (session: XRSession | undefined) => {
     cleanupSession?.()
-    if (session == null || mode == null) {
+    if (session == null) {
       return
     }
 
@@ -622,8 +680,9 @@ function createBindToSession(
       visibilityState: session.visibilityState,
       detectedMeshes: [],
       detectedPlanes: [],
-      mode,
+      mode: session.environmentBlendMode === 'opaque' ? 'immersive-vr' : 'immersive-ar',
       session,
+      mediaBinding: typeof XRMediaBinding == 'undefined' ? undefined : new XRMediaBinding(session),
     })
     cleanupSession = () => {
       //cleanup
@@ -636,6 +695,10 @@ function createBindToSession(
       session.removeEventListener('inputsourceschange', onInputSourcesChange)
     }
   }
+}
+
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P]
 }
 
 function updateSession(store: StoreApi<XRState<XRElementImplementations>>, frame: XRFrame, manager: WebXRManager) {
