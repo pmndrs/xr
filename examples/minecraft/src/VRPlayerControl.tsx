@@ -26,30 +26,28 @@ export function VRPlayerControl({
 }) {
   const originRef = useRef<THREE.Group>(null)
 
-  const controllerLeft = useXRControllerState('right')
-  const controllerRight = useXRControllerState('left')
+  const controllerLeft = useXRControllerState('left')
+  const controllerRight = useXRControllerState('right')
 
   useFrame((state, delta) => {
-    if (controllerRight != null) {
-      const thumbstick = controllerRight.gamepad?.['xr-standard-thumbstick']
-      if (originRef.current != null && thumbstick?.xAxis != null && thumbstick.xAxis != 0) {
-        originRef.current.rotateY((thumbstick.xAxis < 0 ? 1 : -1) * TURN_SPEED * delta)
-      }
+    const thumbstickLeft = controllerLeft?.gamepad?.['xr-standard-thumbstick']
+    if (originRef.current != null && thumbstickLeft?.xAxis != null && thumbstickLeft.xAxis != 0) {
+      originRef.current.rotateY((thumbstickLeft.xAxis < 0 ? 1 : -1) * TURN_SPEED * delta)
     }
 
     if (controllerLeft?.gamepad?.['a-button']?.state === 'pressed') {
       playerJump?.()
     }
 
-    const thumbstick = controllerLeft?.gamepad['xr-standard-thumbstick']
-    if (thumbstick?.xAxis != null && thumbstick.yAxis != null) {
+    const thumbstickRight = controllerRight?.gamepad['xr-standard-thumbstick']
+    if (thumbstickRight?.xAxis != null && thumbstickRight.yAxis != null) {
       state.camera.getWorldQuaternion(helpers.quaternion)
 
       playerMove?.({
-        forward: thumbstick.yAxis < 0,
-        backward: thumbstick.yAxis > 0,
-        left: thumbstick.xAxis < -THUMBSTICK_X_WIGGLE,
-        right: thumbstick.xAxis > THUMBSTICK_X_WIGGLE,
+        forward: thumbstickRight.yAxis < 0,
+        backward: thumbstickRight.yAxis > 0,
+        left: thumbstickRight.xAxis < -THUMBSTICK_X_WIGGLE,
+        right: thumbstickRight.xAxis > THUMBSTICK_X_WIGGLE,
 
         // rotation: state.camera.rotation
         rotation: helpers.euler.setFromQuaternion(helpers.quaternion),
