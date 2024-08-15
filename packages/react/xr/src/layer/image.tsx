@@ -76,8 +76,8 @@ export function XRImageLayer({
         renderer.xr,
         shape ?? 'quad',
         object,
-        src.width,
-        src.height,
+        layout === 'stereo-left-right' ? src.width / 2 : src.width,
+        layout === 'stereo-top-bottom' ? src.height / 2 : src.height,
         { colorFormat, depthFormat, isStatic: true, layout, mipLevels, textureType: 'texture' },
         properties,
       )
