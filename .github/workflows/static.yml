@@ -6,12 +6,18 @@ on:
       - main
 
 jobs:
-  deploy-static-files:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
+  docs:
+    uses: pmndrs/docs/.github/workflows/build.yml@app-router
+    with:
+      mdx: './docs'
+      libname: 'xr'
+      basePath: '/xr/docs'
+      icon: '🤳'
+      home_redirect: '/getting-started/introduction'
 
+  examples:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -46,12 +52,56 @@ jobs:
           cp -r ./examples/watch/dist/* ./public/examples/watch
           cp -r ./examples/room-with-shadows/dist/* ./public/examples/room-with-shadows
 
-      # Deploy to GH Pages
-      - name: Add no jekyll
-        run: touch public/.nojekyll
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          branch: gh-pages
-          folder: public
+          name: examples
+          path: public/examples/
+
+  bundle-artifacts:
+    runs-on: ubuntu-latest
+    needs:
+      - docs
+      - examples
+    steps:
+      - name: Download Examples Artifiact
+        uses: actions/download-artifact@v4
+        with:
+          name: examples
+          path: ./examples
+
+      - name: Download Docs Artifiact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: ./docs
+
+      - name: Extract Docs
+        run: tar -xf ./docs/artifact.tar -C ./docs/
+
+      - name: Create deploy.tar
+        run: tar -cf deploy.tar ./*
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy
+          path: ./deploy.tar
+
+  deploy:
+    needs: bundle-artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: deploy
