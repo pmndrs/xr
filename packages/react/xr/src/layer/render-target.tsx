@@ -8,11 +8,15 @@ import {
   useStore,
   useThree,
 } from '@react-three/fiber'
-import { forwardRef, ReactNode, RefObject, useCallback, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
+import { ReactNode, RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
 import {
+  DepthTexture,
+  HalfFloatType,
+  LinearFilter,
   Mesh,
   MeshBasicMaterial,
   Object3D,
+  OrthographicCamera,
   PerspectiveCamera,
   Raycaster,
   Scene,
@@ -23,7 +27,6 @@ import {
 import { useXRLayer } from './layer.js'
 import { createXRLayer, XRLayerEntry, XRLayerOptions, XRLayerProperties, XRLayerShape } from '@pmndrs/xr'
 import { XRStore } from '../xr.js'
-import { isOrthographicCamera } from '@react-three/fiber/dist/declarations/src/core/utils.js'
 import { create, StoreApi, UseBoundStore } from 'zustand'
 import { forwardObjectEvents } from '@pmndrs/pointer-events'
 
@@ -43,9 +46,12 @@ export type XRRenderTargetLayerProperties = {
   renderPriority?: number
   pixelWidth: number
   pixelHeight: number
+  src?: undefined
 } & Omit<XRLayerOptions, 'textureType' | 'isStatic' | 'layout'> &
   XRLayerProperties &
   MeshProps
+
+//TODO: custom geometry and border radius for cut outs
 
 export function NonXRRenderTargetLayer({
   renderOrder,
@@ -55,31 +61,32 @@ export function NonXRRenderTargetLayer({
   renderPriority = 0,
   ...props
 }: XRRenderTargetLayerProperties) {
-  const renderTargetRef = useRef<WebGLRenderTarget>(null)
   const ref = useRef<Mesh>(null)
+  const layerStore = useLayerStore(pixelWidth, pixelHeight)
+  const renderTargetRef = useRenderTargetRef(pixelWidth, pixelHeight)
   const materialRef = useRef<MeshBasicMaterial>(null)
   useEffect(() => {
     if (materialRef.current == null || renderTargetRef.current == null) {
       return
     }
     materialRef.current.map = renderTargetRef.current.texture
-  }, [])
+    materialRef.current.needsUpdate = true
+  }, [renderTargetRef])
 
-  const layerStore = useLayerStore(pixelWidth, pixelHeight)
   useForwardEvents(layerStore, ref)
   return (
     <>
       {reconciler.createPortal(
         <context.Provider value={layerStore}>
-          <ChildrenToRenderTarget ref={renderTargetRef} renderPriority={renderPriority}>
+          <ChildrenToRenderTarget renderTargetRef={renderTargetRef} renderPriority={renderPriority}>
             {children}
           </ChildrenToRenderTarget>
         </context.Provider>,
         layerStore,
         null,
       )}
-      <mesh {...props}>
-        <meshBasicMaterial toneMapped={false} />
+      <mesh ref={ref} {...props}>
+        <meshBasicMaterial ref={materialRef} toneMapped={false} />
       </mesh>
     </>
   )
@@ -131,11 +138,16 @@ export function XRRenderTargetLayer({
   })
   const layerStore = useLayerStore(pixelWidth, pixelHeight)
   useForwardEvents(layerStore, ref)
+  const renderTargetRef = useRenderTargetRef(pixelWidth, pixelHeight)
   return (
     <>
       {reconciler.createPortal(
         <context.Provider value={layerStore}>
-          <ChildrenToRenderTarget renderPriority={renderPriority} layerEntryRef={layerEntryRef}>
+          <ChildrenToRenderTarget
+            renderTargetRef={renderTargetRef}
+            renderPriority={renderPriority}
+            layerEntryRef={layerEntryRef}
+          >
             {children}
           </ChildrenToRenderTarget>
         </context.Provider>,
@@ -143,7 +155,7 @@ export function XRRenderTargetLayer({
         null,
       )}
       <mesh {...props} renderOrder={-Infinity} ref={ref}>
-        <meshBasicMaterial colorWrite={false} />
+        <meshBasicMaterial />
       </mesh>
     </>
   )
@@ -262,27 +274,37 @@ export function useLayerStore(width: number, height: number) {
   return layerStore
 }
 
-const ChildrenToRenderTarget = forwardRef<
-  WebGLRenderTarget,
-  {
-    renderPriority: number
-    children: ReactNode
-    layerEntryRef?: RefObject<XRLayerEntry | undefined>
-  }
->(({ renderPriority, children, layerEntryRef }, ref) => {
-  const store = useStore()
-
+export function useRenderTargetRef(width: number, height: number) {
   const renderTargetRef = useRef<WebGLRenderTarget | undefined>(undefined)
   useEffect(() => {
-    const renderTarget = (renderTargetRef.current = new WebGLRenderTarget(1, 1, {}))
+    const renderTarget = (renderTargetRef.current = new WebGLRenderTarget(width, height, {
+      minFilter: LinearFilter,
+      magFilter: LinearFilter,
+      type: HalfFloatType,
+      depthTexture: new DepthTexture(width, height),
+    }))
     return () => renderTarget.dispose()
-  }, [])
+  }, [width, height])
+  return renderTargetRef
+}
+
+function ChildrenToRenderTarget({
+  renderPriority,
+  children,
+  layerEntryRef,
+  renderTargetRef,
+}: {
+  renderPriority: number
+  children: ReactNode
+  layerEntryRef?: RefObject<XRLayerEntry | undefined>
+  renderTargetRef: RefObject<WebGLRenderTarget | undefined>
+}) {
+  const store = useStore()
 
   useEffect(() => {
     const update = (state: RootState, prevState?: RootState) => {
       const { size, camera } = state
-      renderTargetRef.current?.setSize(size.width, size.height)
-      if (isOrthographicCamera(camera)) {
+      if (camera instanceof OrthographicCamera) {
         camera.left = size.width / -2
         camera.right = size.width / 2
         camera.top = size.height / 2
@@ -301,14 +323,15 @@ const ChildrenToRenderTarget = forwardRef<
     return store.subscribe(update)
   }, [store])
 
-  useImperativeHandle(ref, () => renderTargetRef.current!, [])
-
   let oldAutoClear
   let oldXrEnabled
   let oldIsPresenting
   let oldRenderTarget
   useFrame(({ gl, scene, camera }, _delta, frame: XRFrame | undefined) => {
-    if (renderTargetRef.current == null || (layerEntryRef != null && layerEntryRef.current == null) || frame == null) {
+    if (
+      renderTargetRef.current == null ||
+      (layerEntryRef != null && (layerEntryRef.current == null || frame == null))
+    ) {
       return
     }
     oldAutoClear = gl.autoClear
@@ -319,7 +342,7 @@ const ChildrenToRenderTarget = forwardRef<
     gl.xr.enabled = false
     gl.xr.isPresenting = false
     const renderTarget = renderTargetRef.current
-    if (layerEntryRef?.current != null) {
+    if (layerEntryRef?.current != null && frame != null) {
       const subImage = gl.xr.getBinding().getSubImage(layerEntryRef.current.layer, frame)
       gl.setRenderTargetTextures(renderTarget, subImage.colorTexture)
     }
@@ -331,4 +354,4 @@ const ChildrenToRenderTarget = forwardRef<
     gl.xr.isPresenting = oldIsPresenting
   }, renderPriority)
   return <>{children}</>
-})
+}

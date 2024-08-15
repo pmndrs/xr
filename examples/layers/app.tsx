@@ -1,6 +1,8 @@
-import { Canvas } from '@react-three/fiber'
-import { createXRStore, XR, XRLayer } from '@react-three/xr'
-import { useMemo } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
+import { createXRStore, useHover, XR, XRLayer } from '@react-three/xr'
+import { useEffect, useMemo, useRef } from 'react'
+import { Mesh } from 'three'
+import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
 const store = createXRStore()
 
@@ -14,23 +16,50 @@ export function App() {
   return (
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas style={{ width: '100%', flexGrow: 1 }} camera={{ position: [0, 1.5, 0], rotation: [0, 0, 0] }}>
+      <Canvas
+        events={() => ({ enabled: false, priority: 0 })}
+        style={{ width: '100%', flexGrow: 1 }}
+        camera={{ position: [0, 1.5, 0], rotation: [0, 0, 0] }}
+      >
+        <SwitchToXRPointerEvents />
         <XR store={store}>
           {image != null && (
             <XRLayer
-              onClick={() => {}}
               position={[0, 1.5, -0.5]}
-              scale={0.2}
-              shape="equirect"
+              scale={1}
+              shape="quad"
+              pixelHeight={1024}
+              pixelWidth={1024}
+              centralAngle={Math.PI}
+              blendTextureSourceAlpha
               centralHorizontalAngle={Math.PI}
               lowerVerticalAngle={-Math.PI / 2}
               upperVerticalAngle={Math.PI / 2}
-              src={image}
-              quality="graphics-optimized"
-            />
+            >
+              <Inner />
+            </XRLayer>
           )}
         </XR>
       </Canvas>
     </>
   )
+}
+
+function Inner() {
+  const ref = useRef<Mesh>(null)
+  const hover = useHover(ref)
+  return (
+    <mesh ref={ref}>
+      <boxGeometry />
+      <meshBasicMaterial color={hover ? 'red' : 'blue'} />
+    </mesh>
+  )
+}
+
+export function SwitchToXRPointerEvents() {
+  const domElement = useThree((s) => s.gl.domElement)
+  const camera = useThree((s) => s.camera)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  return null
 }
