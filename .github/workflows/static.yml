@@ -6,7 +6,15 @@ on:
       - main
 
 jobs:
-  deploy-static-files:
+  docs:
+    uses: pmndrs/docs/.github/workflows/build.yml@app-router
+    with:
+      mdx: './docs'
+      libname: 'xr'
+      basePath: '/xr/docs'
+      icon: '🤳'
+
+  examples:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -46,12 +54,35 @@ jobs:
           cp -r ./examples/watch/dist/* ./public/examples/watch
           cp -r ./examples/room-with-shadows/dist/* ./public/examples/room-with-shadows
 
-      # Deploy to GH Pages
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'examples'
+          path: 'public/examples/'
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - docs
+      - examples
+    steps:
+      - name: Download Examples Artifiact
+        uses: actions/download-artifact@v4
+        with:
+          name: "examples"
+          path: "./examples"
+
+      - name: Download Docs Artifiact
+        uses: actions/download-artifact@v4
+        with:
+          name: "github-pages"
+          path: "./docs"
+
       - name: Add no jekyll
-        run: touch public/.nojekyll
+        run: touch ./.nojekyll
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: public
+          folder: .
