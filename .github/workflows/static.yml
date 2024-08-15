@@ -16,8 +16,6 @@ jobs:
 
   examples:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
 
       - name: Checkout code
@@ -62,6 +60,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs:
       - docs
       - examples
