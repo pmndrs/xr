@@ -13,11 +13,11 @@ jobs:
       libname: 'xr'
       basePath: '/xr/docs'
       icon: '🤳'
+      home_redirect: '/getting-started/introduction'
 
   examples:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -55,13 +55,11 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: 'examples'
-          path: 'public/examples/'
+          name: examples
+          path: public/examples/
 
-  deploy:
+  bundle-artifacts:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     needs:
       - docs
       - examples
@@ -69,20 +67,41 @@ jobs:
       - name: Download Examples Artifiact
         uses: actions/download-artifact@v4
         with:
-          name: "examples"
-          path: "./examples"
+          name: examples
+          path: ./examples
 
       - name: Download Docs Artifiact
         uses: actions/download-artifact@v4
         with:
-          name: "github-pages"
-          path: "./docs"
+          name: github-pages
+          path: ./docs
 
-      - name: Add no jekyll
-        run: touch ./.nojekyll
+      - name: Extract Docs
+        run: tar -xf ./docs/artifact.tar -C ./docs/
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+      - name: Create deploy.tar
+        run: tar -cf deploy.tar ./*
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          branch: gh-pages
-          folder: .
+          name: deploy
+          path: ./deploy.tar
+
+  deploy:
+    needs: bundle-artifacts
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: deploy
