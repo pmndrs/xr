@@ -11,7 +11,7 @@ jobs:
     with:
       mdx: './docs'
       libname: 'xr'
-      base_path: '/xr/docs'
+      base_path: '/docs'
       icon: '🤳'
       home_redirect: '/getting-started/introduction'
 
