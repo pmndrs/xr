@@ -159,3 +159,22 @@ Hook for getting the geometry from the detected plane.
 ### `useXRPlanes`
 
 Hook for getting all detected planes with the provided semantic label.
+
+### `useLocomotion`
+
+Hook for abstracting boilerplate needed to use locomotion movement in XR.
+
+- `LocomotionOptions`: An object allowing for customization of the locomotion behavior.
+  - `speed`: The speed at which the user moves.
+  - `handControllingMovement`: Specifies which hand will control the movement. Can be either 'left' or 'right'.
+  - `numberOfDegreesToSnapTurnBy`: The number of degrees a single joystick tap will snap the view by.
+  - `snapTurningDeadZone`: How far the joystick must be pushed to trigger a snap turn.
+  - `disableSnapTurning`: Disables snap turning if set to true.
+
+```typescript
+// example usage
+export const exampleComponent = () => {
+  const locomotionRef = useLocomotion();
+  return <XROrigin ref={locomotionRef} />
+}
+```
