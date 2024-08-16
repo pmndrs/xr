@@ -171,7 +171,7 @@ Hook for abstracting boilerplate needed to use locomotion movement in XR.
   - `snapTurningDeadZone`: How far the joystick must be pushed to trigger a snap turn.
   - `disableSnapTurning`: Disables snap turning if set to true.
 
-```typescript
+```tsx
 // example usage
 export const exampleComponent = () => {
   const locomotionRef = useLocomotion();
