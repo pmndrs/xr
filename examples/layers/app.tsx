@@ -1,7 +1,8 @@
 import { Canvas, useThree } from '@react-three/fiber'
 import { createXRStore, useHover, XR, XRLayer } from '@react-three/xr'
+import { Text } from '@react-three/drei'
 import { useEffect, useMemo, useRef } from 'react'
-import { Mesh } from 'three'
+import { Mesh, SRGBColorSpace, VideoTexture } from 'three'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
 const store = createXRStore({
@@ -10,11 +11,16 @@ const store = createXRStore({
 
 export function App() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const image = useMemo(() => {
+  const video = useMemo(() => {
     const result = document.createElement('video')
     result.src = 'test.mp4'
     return result
   }, [])
+  const videoTexture = useMemo(() => {
+    const texture = new VideoTexture(video)
+    texture.colorSpace = SRGBColorSpace
+    return texture
+  }, [video])
   return (
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
@@ -25,23 +31,18 @@ export function App() {
       >
         <SwitchToXRPointerEvents />
         <XR store={store}>
-          {image != null && (
-            <XRLayer
-              position={[0, 1.5, -0.5]}
-              onClick={() => image.play()}
-              scale={0.5}
-              shape="quad"
-              pixelHeight={1024}
-              pixelWidth={1024}
-              centralAngle={Math.PI}
-              centralHorizontalAngle={Math.PI}
-              lowerVerticalAngle={-Math.PI / 2}
-              upperVerticalAngle={Math.PI / 2}
-              src={image}
-            >
-              <Inner />
-            </XRLayer>
-          )}
+          <Text scale={0.03} color="black" position={[-0.3, 1.78, -0.5]}>
+            With XRLayer
+          </Text>
+          <XRLayer position={[-0.3, 1.5, -0.5]} onClick={() => video.play()} scale={0.5} shape="quad" src={video} />
+
+          <Text scale={0.03} color="black" position={[0.3, 1.78, -0.5]}>
+            Without XRLayer
+          </Text>
+          <mesh position={[0.3, 1.5, -0.5]} scale={0.5}>
+            <planeGeometry />
+            <meshBasicMaterial map={videoTexture} toneMapped={false} />
+          </mesh>
         </XR>
       </Canvas>
     </>
