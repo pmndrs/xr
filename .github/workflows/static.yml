@@ -45,12 +45,16 @@ jobs:
           mkdir -p public/examples/stage
           mkdir -p public/examples/watch
           mkdir -p public/examples/room-with-shadows
+          mkdir -p public/examples/layers
+          mkdir -p public/examples/secondary-input-sources
           cp -r ./examples/minecraft/dist/* ./public/examples/minecraft
           cp -r ./examples/pingpong/dist/* ./public/examples/pingpong
           cp -r ./examples/rag-doll/dist/* ./public/examples/rag-doll
           cp -r ./examples/stage/dist/* ./public/examples/stage
           cp -r ./examples/watch/dist/* ./public/examples/watch
           cp -r ./examples/room-with-shadows/dist/* ./public/examples/room-with-shadows
+          cp -r ./examples/layers/dist/* ./public/examples/layers
+          cp -r ./examples/secondary-input-sources/dist/* ./public/examples/secondary-input-sources
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

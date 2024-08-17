@@ -23,4 +23,10 @@ nav: 3
   <li>
     [![Screenshot from Pingpong demo](./pingpong-demo.gif)](https://pmndrs.github.io/xr/examples/pingpong/)
   </li>
+  <li>
+    [![Screenshot from Layers demo](./layers.gif)](https://pmndrs.github.io/xr/examples/layers/)
+  </li>
+  <li>
+    [![Screenshot from Secondary Input Sources demo](./secondary-input-sources.gif)](https://pmndrs.github.io/xr/examples/secondary-input-sources/)
+  </li>
 </Grid>
