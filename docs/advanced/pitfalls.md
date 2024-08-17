@@ -41,3 +41,17 @@ If you cannot enter the VR or AR experience while the assets in your scene are l
 ## XRSpace
 
 If you are placing `<XRSpace>` components outside of the `<XROrigin>` while changing the transformation of the `<XROrigin>` (e.g. by setting `<XROrigin position={[0,1,0]} />`), the elements rendered inside of the `<XRSpace>` will not be transformed with the origin. If the transformations of the origin should be applied to the `<XRSpace>`, make sure to place those components inside the `<XROrigin>`. Not placing `<XRSpace>` components into the `<XROrigin>` can be useful in scenarios where you want to move the `<XROrigin>` independently from the `<XRSpace>`. For instance, building a virtual elevator where your actual room is duplicated into the x-axis so that you can use the elevator to travel between multiple instances of your room.
+
+## OrbitControls
+
+If you have OrbitControls in your scene, make sure to place an `<IfInSessionMode>` guard around them when in XR. Having OrbitControls enabled causes the VR camera to report false values and behave in strange ways.
+
+```tsx
+const OrbitControlsWrapper = () => {
+  return (
+    <IfInSessionMode deny={['immersive-ar', 'immersive-vr']} >
+        <OrbitControls />
+    </IfInSessionMode>
+  )
+}
+```
