@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Group, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
-import { useXRControllerState } from './controller'
+import { useXRInputSourceState } from './input'
 import { useXR } from './xr.js'
 
 export function useHover(ref: RefObject<Object3D>): boolean
@@ -75,7 +75,7 @@ export function useSessionModeSupported(mode: XRSessionMode, onError?: (error: a
         let canceled = false
         if (navigator.xr == null) {
           sessionSupported = false
-          return () => {}
+          return () => { }
         }
 
         navigator.xr
@@ -109,8 +109,10 @@ export interface LocomotionOptions {
   handControllingMovement?: 'left' | 'right'
   speed?: number
   numberOfDegreesToSnapTurnBy?: number
-  snapTurningDeadZone?: number
+  viewControlDeadZone?: number
   disableSnapTurning?: boolean
+  enableSmoothTurning?: boolean
+  smoothTurningSpeed?: number
 }
 
 /**
@@ -119,23 +121,28 @@ export interface LocomotionOptions {
  * @returns A ref to be assigned to the <XROrigin> component (i.e. <XROrigin ref={locomotionRef}>)
  */
 export function useLocomotion(options?: LocomotionOptions) {
-  const defaultSpeed = 1;
+  const defaultSpeed = 2;
+  const defaultSmoothTurningSpeed = 2;
+  const defaultEnableSmoothTurning = false;
   const defaultNumberOfDegreesToSnapTurnBy = 45;
   const defaultHandControllingMovement = 'left';
-  const defaultSnapTurningDeadZone = 0.5;
+  const defaultViewControlDeadZone = 0.5;
   const thumbstickPropName = 'xr-standard-thumbstick';
   const cameraQuaternion = new Quaternion();
 
   // Assign default values to options that are not provided
-  const { handControllingMovement = defaultHandControllingMovement, speed = defaultSpeed, numberOfDegreesToSnapTurnBy = defaultNumberOfDegreesToSnapTurnBy,
-    snapTurningDeadZone = defaultSnapTurningDeadZone, disableSnapTurning } = options || {};
+  const { handControllingMovement = defaultHandControllingMovement, speed = defaultSpeed,
+    numberOfDegreesToSnapTurnBy = defaultNumberOfDegreesToSnapTurnBy, viewControlDeadZone = defaultViewControlDeadZone,
+    enableSmoothTurning = defaultEnableSmoothTurning, smoothTurningSpeed = defaultSmoothTurningSpeed,
+    disableSnapTurning } = options || {};
 
   const positionInfo = useRef<Group>(null);
   const canRotate = useRef(true);
   const camera = useThree((s) => s.camera);
 
-  const l_controller = useXRControllerState("left");
-  const r_controller = useXRControllerState("right");
+  const l_controller = useXRInputSourceState('controller', 'left');
+  const r_controller = useXRInputSourceState('controller', 'right');
+
   const movementController = handControllingMovement === 'left' ? l_controller : r_controller;
   const viewController = handControllingMovement === 'left' ? r_controller : l_controller;
 
@@ -155,19 +162,24 @@ export function useLocomotion(options?: LocomotionOptions) {
 
     // Handle snapping rotation using the viewController
     let rotationQuaternion = null;
-    if (!disableSnapTurning) {
-      if (viewXAxisOrDefault < -snapTurningDeadZone && canRotate.current) {
+    if (!disableSnapTurning && !enableSmoothTurning) {
+      if (viewXAxisOrDefault < -viewControlDeadZone && canRotate.current) {
         canRotate.current = false;
         rotationQuaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(numberOfDegreesToSnapTurnBy));
         positionInfo.current.quaternion.multiply(rotationQuaternion);
       }
-      else if (viewXAxisOrDefault > snapTurningDeadZone && canRotate.current) {
+      else if (viewXAxisOrDefault > viewControlDeadZone && canRotate.current) {
         canRotate.current = false;
         rotationQuaternion = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -MathUtils.degToRad(numberOfDegreesToSnapTurnBy));
         positionInfo.current.quaternion.multiply(rotationQuaternion);
       }
-      else if (viewXAxisOrDefault > -snapTurningDeadZone && viewXAxisOrDefault < snapTurningDeadZone) {
+      else if (viewXAxisOrDefault > -viewControlDeadZone && viewXAxisOrDefault < viewControlDeadZone) {
         canRotate.current = true;
+      }
+    }
+    else if (enableSmoothTurning) {
+      if (Math.abs(viewXAxisOrDefault) > viewControlDeadZone) {
+        positionInfo.current.rotateY((viewXAxisOrDefault < 0 ? 1 : -1) * delta * smoothTurningSpeed);
       }
     }
 

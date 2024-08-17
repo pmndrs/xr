@@ -143,8 +143,10 @@ Hook for abstracting boilerplate needed to use locomotion movement in XR.
   - `speed`: The speed at which the user moves.
   - `handControllingMovement`: Specifies which hand will control the movement. Can be either 'left' or 'right'.
   - `numberOfDegreesToSnapTurnBy`: The number of degrees a single joystick tap will snap the view by.
-  - `snapTurningDeadZone`: How far the joystick must be pushed to trigger a snap turn.
+  - `viewControlDeadZone`: How far the joystick must be pushed to trigger a turn.
   - `disableSnapTurning`: Disables snap turning if set to true.
+  - `enableSmoothTurning`: Enables smooth turning if set to true.
+  - `smoothTurningSpeed`: Controls the speed of smooth turning.
 
 ```tsx
 // example usage
