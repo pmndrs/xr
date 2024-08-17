@@ -52,6 +52,8 @@ export function App() {
 - ✴ [Origin](../tutorials/origin.md)
 - 🪄 [Teleport](../tutorials/teleport.md)
 - 🕹️ [Gamepad](../tutorials/gamepad.md)
+- ➕ [Secondary Input Sources](../tutorials/secondary-input-sources.md)
+- 📺 [Layers](../tutorials/layers.md)
 - 🎮 [Custom Controller/Hands/...](../tutorials/custom-inputs.md)
 - ⚓️ [Anchors](../tutorials/anchors.md)
 - 📱 [Dom Overlay](../tutorials/dom-overlay.md)

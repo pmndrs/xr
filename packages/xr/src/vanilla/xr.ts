@@ -122,6 +122,7 @@ export function createXRStore(
       for (let i = 0; i < length; i++) {
         updatesList[i](frame, delta)
       }
+      store.onBeforeRender()
     },
   })
 }

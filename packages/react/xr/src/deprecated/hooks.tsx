@@ -2,6 +2,9 @@ import { RefObject, useEffect, useRef } from 'react'
 import { Group, Intersection, XRControllerEventType as ThreeXRControllerEventType } from 'three'
 import { PointerEvent } from '@pmndrs/pointer-events'
 import { useXR } from '../xr.js'
+import { useXRInputSourceState, useXRInputSourceStateContext } from '../input.js'
+import { XRControllerState, XRGazeState, XRHandState, XRScreenInputState, XRTransientPointerState } from '@pmndrs/xr'
+import { useXRSpace } from '../space.js'
 
 const eventTranslations = {
   onBlur: 'pointerleave',
@@ -34,7 +37,7 @@ const eventTranslations = {
 } satisfies Record<string, string | { type: string; filter: (event: PointerEvent) => boolean }>
 
 /**
- * @deprecated
+ * @deprecated use normal react-three/fiber event listeners instead (e.g. <mesh onClick={...} />)
  */
 export function useInteraction(
   ref: RefObject<Group>,
@@ -93,3 +96,84 @@ export function useXREvent(
     return session.removeEventListener(type, fn)
   }, [session, handedness, type])
 }
+
+/**
+ * @deprecated use `useXRInputSourceState("transientPointer", "left")` instead
+ * hook for getting the transient-pointer state
+ * @param handedness the handedness that the XRHandState should have
+ */
+export function useXRTransientPointerState(handedness: XRHandedness): XRTransientPointerState | undefined
+
+/**
+ * @deprecated use `useXRInputSourceStateContext("transientPointer")` instead
+ * hook for getting the transient-pointer state inside the xr store config
+ */
+export function useXRTransientPointerState(): XRTransientPointerState
+
+export function useXRTransientPointerState(handedness?: XRHandedness) {
+  return handedness == null
+    ? // eslint-disable-next-line react-hooks/rules-of-hooks
+      useXRInputSourceStateContext('transientPointer')
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useXRInputSourceState('transientPointer', handedness)
+}
+
+/**
+ * @deprecated use `useXRInputSourceStateContext("gaze")` instead
+ * hook for getting the gaze state
+ */
+export function useXRGazeState(): XRGazeState {
+  return useXRInputSourceStateContext('gaze')
+}
+
+/**
+ * @deprecated `useXRInputSourceStateContext("screenInput")` instead
+ * hook for getting the screen-input state
+ */
+export function useXRScreenInputState(): XRScreenInputState {
+  return useXRInputSourceStateContext('screenInput')
+}
+
+/**
+ * @deprecated use `useXRInputSourceState("hand", "left")` instead
+ * hook for getting the XRHandState
+ * @param handedness the handedness that the XRHandState should have
+ */
+export function useXRHandState(handedness: XRHandedness): XRHandState | undefined
+
+/**
+ * @deprecated `useXRInputSourceStateContext("hand")` instead
+ * hook for getting the XRHandState
+ */
+export function useXRHandState(): XRHandState
+
+export function useXRHandState(handedness?: XRHandedness): XRHandState | undefined {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return handedness == null ? useXRInputSourceStateContext('hand') : useXRInputSourceState('hand', handedness)
+}
+
+/**
+ * @deprecated use `useXRInputSourceState("controller", "left")` instead
+ * hook for getting the XRControllerState
+ * @param handedness the handedness that the XRControllerState should have
+ */
+export function useXRControllerState(handedness: XRHandedness): XRControllerState | undefined
+
+/**
+ * @deprecated `useXRInputSourceStateContext("controller")` instead
+ * hook for getting the XRControllerState
+ */
+export function useXRControllerState(): XRControllerState
+
+export function useXRControllerState(handedness?: XRHandedness): XRControllerState | undefined {
+  return handedness == null
+    ? // eslint-disable-next-line react-hooks/rules-of-hooks
+      useXRInputSourceStateContext('controller')
+    : // eslint-disable-next-line react-hooks/rules-of-hooks
+      useXRInputSourceState('controller', handedness)
+}
+
+/**
+ * @deprecated use useXRSpace instead
+ */
+export const useXRReferenceSpace = useXRSpace

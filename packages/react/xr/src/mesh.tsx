@@ -1,29 +1,16 @@
-import { forwardRef, useContext, useEffect, useMemo, useState } from 'react'
+import { forwardRef, useEffect, useMemo, useState } from 'react'
 import { MeshProps, useFrame } from '@react-three/fiber'
 import { BufferGeometry, Mesh } from 'three'
 import { updateXRMeshGeometry } from '@pmndrs/xr/internals'
-import { xrMeshContext } from './contexts.js'
 import { useXR } from './xr.js'
 
 /**
  * component for rendering a mesh for the XRMesh based on the detected mesh geometry
  */
-export const XRMeshModel = forwardRef<Mesh, MeshProps>((props, ref) => {
-  const mesh = useXRMesh()
+export const XRMeshModel = forwardRef<Mesh, MeshProps & { mesh: XRMesh }>(({ mesh, ...rest }, ref) => {
   const geometry = useXRMeshGeometry(mesh)
-  return <mesh ref={ref} geometry={geometry} {...props} />
+  return <mesh ref={ref} geometry={geometry} {...rest} />
 })
-
-/**
- * hook for getting the detected mesh in the current context
- */
-export function useXRMesh(): XRMesh {
-  const context = useContext(xrMeshContext)
-  if (context == null) {
-    throw new Error(`useXRMesh can only be used inside XRMesh or ForEachXRMesh`)
-  }
-  return context
-}
 
 /**
  * hook for getting all dected meshes with the provided semantic label

@@ -10,10 +10,11 @@ export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTe
  * hook for creating a hit test source originating from the provided object or xrspace
  */
 export function useXRHitTestSource(
-  relativeTo: RefObject<Object3D> | XRSpace,
+  relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
   trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
 ) {
   const [source, setState] = useState<Awaited<ReturnType<typeof createXRHitTestSource>> | undefined>()
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useCreateXRHitTestSource(relativeTo, trackableType, setState)
   return source
 }
@@ -23,7 +24,7 @@ export function useXRHitTestSource(
  */
 export function useXRHitTest(
   fn: ((results: Array<XRHitTestResult>, getWorldMatrix: GetWorldMatrixFromXRHitTest) => void) | undefined,
-  relativeTo: RefObject<Object3D> | XRSpace,
+  relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
   trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
 ) {
   const sourceRef = useRef<Awaited<ReturnType<typeof createXRHitTestSource>>>(undefined)
@@ -41,7 +42,7 @@ export function useXRHitTest(
 }
 
 function useCreateXRHitTestSource(
-  relativeTo: RefObject<Object3D> | XRSpace,
+  relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
   trackableType: undefined | XRHitTestTrackableType | Array<XRHitTestTrackableType>,
   onLoad: (result: Awaited<ReturnType<typeof createXRHitTestSource>>) => void,
 ) {
@@ -49,7 +50,8 @@ function useCreateXRHitTestSource(
   useEffect(() => {
     let storedResult: Awaited<ReturnType<typeof createXRHitTestSource>>
     let cancelled = false
-    const relativeToResolved = relativeTo instanceof XRSpace ? relativeTo : relativeTo.current
+    const relativeToResolved =
+      relativeTo instanceof XRSpace || typeof relativeTo === 'string' ? relativeTo : relativeTo?.current
     if (relativeToResolved == null) {
       return
     }
@@ -75,10 +77,11 @@ export function useXRRequestHitTest() {
   const store = useXRStore()
   return useCallback(
     (
-      relativeTo: RefObject<Object3D> | XRSpace,
+      relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
       trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
     ) => {
-      const relativeToResolved = relativeTo instanceof XRSpace ? relativeTo : relativeTo.current
+      const relativeToResolved =
+        relativeTo instanceof XRSpace || typeof relativeTo === 'string' ? relativeTo : relativeTo.current
       if (relativeToResolved == null) {
         return
       }
@@ -93,13 +96,14 @@ export function useXRRequestHitTest() {
  */
 export const XRHitTest = forwardRef<
   Group,
-  GroupProps & {
+  Omit<GroupProps, 'children'> & {
+    space?: XRSpace | XRReferenceSpaceType
     trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>
     onResults?: (results: Array<XRHitTestResult>, getWorldMatrix: GetWorldMatrixFromXRHitTest) => void
   }
->((props, ref) => {
+>(({ trackableType, onResults, space, ...rest }, ref) => {
   const internalRef = useRef<Group>(null)
   useImperativeHandle(ref, () => internalRef.current!)
-  useXRHitTest(props.onResults, internalRef, props.trackableType)
-  return <group {...props} ref={internalRef} />
+  useXRHitTest(onResults, space ?? internalRef, trackableType)
+  return <group {...rest} ref={internalRef} />
 })

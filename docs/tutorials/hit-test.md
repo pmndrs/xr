@@ -1,7 +1,7 @@
 ---
 title: Hit Test
 description: How to add hit testing capabilities to your AR experiences?
-nav: 17
+nav: 19
 ---
 
 Hit testing allows to check intersections with real-world geometry in AR experiences. `@react-three/xr` provides various hooks and components for setting up hit testing.
@@ -18,17 +18,16 @@ const store = createXRStore({
       return (
         <>
           <XRHandModel />
-          <XRSpace space={state.inputSource.targetRaySpace}>
-            <XRHitTest
-              onResults={(results, getWorldMatrix) => {
-                if (results.length === 0) {
-                  return
-                }
-                getWorldMatrix(matrixHelper, results[0])
-                hitTestPosition.setFromMatrixPosition(matrixHelper)
-              }}
-            />
-          </XRSpace>
+          <XRHitTest
+            space={state.inputSource.targetRaySpace}
+            onResults={(results, getWorldMatrix) => {
+              if (results.length === 0) {
+                return
+              }
+              getWorldMatrix(matrixHelper, results[0])
+              hitTestPosition.setFromMatrixPosition(matrixHelper)
+            }}
+          />
         </>
       )
     },

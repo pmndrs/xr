@@ -1,7 +1,7 @@
 ---
 title: from @react-three/xr v5
 description: Migrate your application from @react-three/xr v5
-nav: 21
+nav: 23
 ---
 
 The goal of @react-three/xr v6 is to align this library closer to the react-three ecosystem. We, therefore, focussed on supporting the react-three/fiber event handlers. Another focus of v6 is to reduce boilerplate and provide more defaults while also giving developers more access to the lower-level WebXR primitives. In combination, these changes allow developers to build XR experiences that interoperate with the whole react-three ecosystem using only a few lines of code. 

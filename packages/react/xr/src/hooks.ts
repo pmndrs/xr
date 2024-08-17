@@ -65,7 +65,7 @@ export function useInitRoomCapture() {
  * hook for checking if a session mode is supported
  * @param onError callback executed when an error happens while checking if the session mode is supported
  */
-export function useSessionSupported(mode: XRSessionMode, onError?: (error: any) => void) {
+export function useSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void) {
   const onErrorRef = useRef(onError)
   onErrorRef.current = onError
   const [subscribe, getSnapshot] = useMemo(() => {
@@ -99,6 +99,10 @@ export function useSessionSupported(mode: XRSessionMode, onError?: (error: any) 
     ]
   }, [mode])
   return useSyncExternalStore(subscribe, getSnapshot)
+}
+
+export function useSessionFeatureEnabled(feature: string) {
+  return useXR(({ session }) => session?.enabledFeatures?.includes(feature) ?? false)
 }
 
 export interface LocomotionOptions {
@@ -195,3 +199,4 @@ export function useLocomotion(options?: LocomotionOptions) {
 
   return positionInfo;
 }
+

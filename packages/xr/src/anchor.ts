@@ -115,7 +115,6 @@ export async function requestXRAnchor(store: XRStore<any>, options: XRAnchorOpti
     frame = options.frame ?? (await store.requestFrame())
     space = options.space
     const { offsetPosition, offsetQuaternion } = options
-    console.log(offsetPosition, offsetQuaternion)
     positionHelper.copy(offsetPosition ?? ZeroVector)
     quaternionHelper.copy(offsetQuaternion ?? NeutralQuaternion)
   }

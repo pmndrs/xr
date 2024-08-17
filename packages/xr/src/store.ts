@@ -1,11 +1,21 @@
 import { StoreApi, createStore } from 'zustand/vanilla'
-import type { Camera, Object3D, WebXRManager } from 'three'
+import { Camera, Object3D, WebXRManager } from 'three'
 import { updateXRHandState } from './hand/state.js'
 import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './controller/index.js'
 import { XRHandLoaderOptions } from './hand/index.js'
-import { XRInputSourceStateMap, XRInputSourceStates, createSyncXRInputSourceStates } from './input.js'
+import { XRInputSourceState, XRInputSourceStateMap, createSyncXRInputSourceStates } from './input.js'
 import { XRSessionInitOptions, buildXRSessionInit } from './init.js'
 import type { EmulatorType } from './emulate.js'
+import { XRLayerEntry } from './layer.js'
+
+declare global {
+  export interface XRSessionEventMap {
+    trackedsourceschange: XRInputSourcesChangeEvent
+  }
+  export interface XRSession {
+    trackedSources?: ReadonlyArray<XRInputSource>
+  }
+}
 
 export type XRState<T extends XRElementImplementations> = Readonly<
   {
@@ -13,6 +23,7 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      * current `XRSession`
      */
     session?: XRSession
+    mediaBinding?: XRMediaBinding
     /**
      * `XRReferenceSpace` of the origin in the current session
      * (this references to the session origin at the floor level)
@@ -42,6 +53,10 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      */
     mode: XRSessionMode | null
     /**
+     * all xr input sources
+     */
+    inputSourceStates: ReadonlyArray<XRInputSourceState>
+    /**
      * the detected `XRPlane`s
      */
     detectedPlanes: ReadonlyArray<XRPlane>
@@ -49,15 +64,15 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      * the detected `XRMesh`es
      */
     detectedMeshes: ReadonlyArray<XRMesh>
-  } & WithRecord<T> &
-    XRInputSourceStates
+    /**
+     * active additional webxr layers
+     */
+    layerEntries: ReadonlyArray<XRLayerEntry>
+  } & WithRecord<T>
 >
 
 export type XRElementImplementations = {
   [Key in keyof XRInputSourceStateMap]: unknown
-} & {
-  detectedMesh: unknown
-  detectedPlane: unknown
 }
 
 export type WithRecord<T extends XRElementImplementations> = {
@@ -101,22 +116,6 @@ export type WithRecord<T extends XRElementImplementations> = {
    * @default true
    */
   screenInput: T['screenInput']
-  /**
-   * allows to provide your own plane implementation
-   * implementations can be provided for each typeof of plane individually `{ default: false, couch: { ... } }`
-   * `false` prevents these planes from beeing used
-   * @default false
-   */
-  detectedPlane:
-    | T['detectedPlane']
-    | ({ [Key in XRSemanticLabel]?: T['detectedPlane'] } & { default?: T['detectedPlane'] })
-  /**
-   * allows to provide your own mesh implementation
-   * implementations can be provided for each typeof of plane individually `{ default: false, couch: { ... } }`
-   * `false` prevents these mesh from beeing used
-   * @default false
-   */
-  detectedMesh: T['detectedMesh'] | ({ [Key in XRSemanticLabel]?: T['detectedMesh'] } & { default?: T['detectedMesh'] })
 }
 
 export function resolveInputSourceImplementation<T extends object | Function>(
@@ -145,27 +144,6 @@ export function resolveInputSourceImplementation<T extends object | Function>(
 
 function hasKey<Key extends string>(val: object, key: Key): val is { [K in Key]: unknown } {
   return key in val
-}
-
-export function resolveDetectedImplementation<T extends { [Key in XRSemanticLabel | 'default']?: never } | Function>(
-  implementation: undefined | T | ({ [Key in XRSemanticLabel]?: T | false } & { default?: T | false }) | false,
-  semanticLabel: XRSemanticLabel | undefined,
-  defaultValue: T | false,
-): T | false {
-  implementation ??= defaultValue
-  if (implementation === false) {
-    return false
-  }
-  if (typeof implementation === 'function') {
-    return implementation
-  }
-  if (semanticLabel != null && semanticLabel in implementation) {
-    return implementation[semanticLabel] ?? defaultValue
-  }
-  if ('default' in implementation) {
-    return implementation.default ?? defaultValue
-  }
-  return implementation as T
 }
 
 export type FrameBufferScalingOption =
@@ -211,12 +189,25 @@ export type XRStoreOptions<T extends XRElementImplementations> = {
    * @default true
    */
   enterGrantedSession?: boolean | Array<XRSessionMode>
+  /**
+   * allows to use non primary (tracked) input sources
+   * @default false
+   */
+  secondaryInputSources?: boolean
 } & XRControllerLayoutLoaderOptions &
   XRHandLoaderOptions &
   Partial<WithRecord<T>> &
   XRSessionInitOptions
 
 export type XRStore<T extends XRElementImplementations> = Omit<StoreApi<XRState<T>>, 'destroy'> & {
+  /**
+   * add webxr layer entry
+   */
+  addLayerEntry(entry: XRLayerEntry): void
+  /**
+   * remove webxr layer entry
+   */
+  removeLayerEntry(entry: XRLayerEntry): void
   /**
    * internal function
    */
@@ -225,6 +216,10 @@ export type XRStore<T extends XRElementImplementations> = Omit<StoreApi<XRState<
    * internal function
    */
   onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined): void
+  /**
+   * internal function
+   */
+  onBeforeRender(): void
   /**
    * destroys the store unrepairably (for exiting XR use store.getState().session?.end())
    */
@@ -252,8 +247,6 @@ export type XRStore<T extends XRElementImplementations> = Omit<StoreApi<XRState<
    * update the transient pointer configuration or implementation for both or only one hand
    */
   setTransientPointer(implementation: T['transientPointer'], handedness?: XRHandedness): void
-  setDetectedPlane(implementation: T['detectedPlane'], semanticLabel?: XRSemanticLabel): void
-  setDetectedMesh(implementation: T['detectedMesh'], semanticLabel?: XRSemanticLabel): void
   setFrameRate(value: FrameRateOption): void
   /**
    * returns a promise that resolves on the next render with the xr frame
@@ -279,17 +272,15 @@ const baseInitialState: Omit<
   | 'domOverlayRoot'
 > = {
   session: undefined,
+  mediaBinding: undefined,
   originReferenceSpace: undefined,
   visibilityState: undefined,
   mode: null,
   frameRate: undefined,
-  handStates: [],
-  controllerStates: [],
-  transientPointerStates: [],
-  gazeStates: [],
-  screenInputStates: [],
+  inputSourceStates: [],
   detectedMeshes: [],
   detectedPlanes: [],
+  layerEntries: [],
 }
 
 function startEmulate(emulate: EmulatorType | true, alert: boolean) {
@@ -306,7 +297,7 @@ function startEmulate(emulate: EmulatorType | true, alert: boolean) {
 export function createXRStore<T extends XRElementImplementations>(options?: XRStoreOptions<T>): XRStore<T> {
   const emulate = options?.emulate ?? 'metaQuest3'
   let cleanupEmulate: (() => void) | undefined
-  if (emulate != false) {
+  if (typeof window !== 'undefined' && emulate != false) {
     if (window.location.hostname === 'localhost') {
       startEmulate(emulate, false)
     }
@@ -326,8 +317,6 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     gaze: options?.gaze,
     screenInput: options?.screenInput,
     transientPointer: options?.transientPointer,
-    detectedMesh: options?.detectedMesh,
-    detectedPlane: options?.detectedPlane,
     domOverlayRoot,
   }))
 
@@ -347,12 +336,10 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   document.body.append(domOverlayRoot)
 
   const syncXRInputSourceStates = createSyncXRInputSourceStates(
-    {
-      controller: (state) => store.setState({ controllerStates: [...store.getState().controllerStates, state] }),
-    },
+    (state) => store.setState({ inputSourceStates: [...store.getState().inputSourceStates, state] }),
     options,
   )
-  const bindToSession = createBindToSession(store, syncXRInputSourceStates)
+  const bindToSession = createBindToSession(store, syncXRInputSourceStates, options?.secondaryInputSources ?? false)
   const cleanupSessionGrantedListener = setupSessionGrantedListener(options?.enterGrantedSession, (mode) =>
     enterXR(domOverlayRoot, mode, options, xrManager),
   )
@@ -362,6 +349,18 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   let xrManager: WebXRManager | undefined
 
   return Object.assign(store, {
+    addLayerEntry(layerEntry: XRLayerEntry): void {
+      if (store.getState().session == null) {
+        return
+      }
+      store.setState({ layerEntries: [...store.getState().layerEntries, layerEntry] })
+    },
+    removeLayerEntry(layerEntry: XRLayerEntry): void {
+      if (store.getState().session == null) {
+        return
+      }
+      store.setState({ layerEntries: store.getState().layerEntries.filter((entry) => entry != layerEntry) })
+    },
     requestFrame(): Promise<XRFrame> {
       return new Promise((resolve) => frameRequests.push(resolve))
     },
@@ -375,8 +374,6 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (foveation != null) {
         newXrManager.setFoveation(foveation)
       }
-      cleanupSessionStartListener?.()
-      cleanupSessionStartListener = setupSessionStartListener(newXrManager, bindToSession)
     },
     setFrameRate(value: FrameRateOption) {
       const { session } = store.getState()
@@ -445,82 +442,84 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     setScreenInput(implementation: T['screenInput']) {
       store.setState({ screenInput: implementation })
     },
-    setDetectedPlane(implementation: T['detectedPlane'], semanticLabel?: XRSemanticLabel) {
-      if (semanticLabel == null) {
-        store.setState({ detectedPlane: implementation })
-        return
-      }
-      const currentImplementation = store.getState().detectedPlane
-      const newImplementation = {}
-      if (typeof currentImplementation === 'object') {
-        Object.assign(newImplementation, currentImplementation)
-      }
-      Object.assign(newImplementation, {
-        default: resolveInputSourceImplementation(currentImplementation as any, undefined, {}),
-        [semanticLabel]: implementation,
-      })
-      store.setState({
-        detectedPlane: newImplementation,
-      })
-    },
-    setDetectedMesh(implementation: T['detectedMesh'], semanticLabel?: XRSemanticLabel) {
-      if (semanticLabel == null) {
-        store.setState({ detectedMesh: implementation })
-        return
-      }
-      const currentImplementation = store.getState().detectedMesh
-      const newImplementation = {}
-      if (typeof currentImplementation === 'object') {
-        Object.assign(newImplementation, currentImplementation)
-      }
-      Object.assign(newImplementation, {
-        default: resolveInputSourceImplementation(currentImplementation as any, undefined, {}),
-        [semanticLabel]: implementation,
-      })
-      store.setState({
-        detectedMesh: newImplementation,
-      })
-    },
     destroy() {
       cleanupEmulate?.()
       cleanupDomOverlayRoot?.()
       cleanupSessionStartListener?.()
       cleanupSessionGrantedListener?.()
       //unbinding the session
-      bindToSession(undefined, undefined)
+      bindToSession(undefined)
     },
     enterXR: (mode: XRSessionMode) => enterXR(domOverlayRoot, mode, options, xrManager),
     enterAR: () => enterXR(domOverlayRoot, 'immersive-ar', options, xrManager),
     enterVR: () => enterXR(domOverlayRoot, 'immersive-vr', options, xrManager),
     onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined) {
-      //update origin
-      const { origin: oldOrigin } = store.getState()
-      const origin = camera.parent ?? scene
+      let update: Partial<Mutable<XRState<T>>> | undefined
       const referenceSpace = xrManager?.getReferenceSpace() ?? undefined
-      if (oldOrigin != origin) {
+      const state = store.getState()
+
+      //update origin
+      const origin = camera.parent ?? scene
+      if (state.origin != origin) {
         origin.xrSpace = referenceSpace
-        store.setState({ origin })
+        update ??= {}
+        update.origin = origin
       }
 
       //update reference space
-      const { originReferenceSpace: oldReferenceSpace } = store.getState()
-      if (referenceSpace != oldReferenceSpace) {
+      if (referenceSpace != state.originReferenceSpace) {
         origin.xrSpace = referenceSpace
-        store.setState({ originReferenceSpace: referenceSpace })
+        update ??= {}
+        update.originReferenceSpace = referenceSpace
       }
 
-      if (frame == null) {
+      if (frame != null) {
+        if (xrManager != null) {
+          updateSession(store, frame, xrManager)
+        }
+        if (state.session == null && referenceSpace != null && frame.session != null) {
+          update ??= {}
+          Object.assign(update, bindToSession(frame.session))
+        }
+      }
+
+      if (update != null) {
+        store.setState(update)
+      }
+
+      if (frame != null) {
+        const length = frameRequests.length
+        for (let i = 0; i < length; i++) {
+          frameRequests[i](frame)
+        }
+        frameRequests.length = 0
+      }
+    },
+    onBeforeRender() {
+      const { session, layerEntries } = store.getState()
+      if (session == null || xrManager == null) {
         return
       }
-
-      if (xrManager != null) {
-        updateSession(store, frame, xrManager)
+      const currentLayers = session?.renderState.layers
+      if (currentLayers == null) {
+        return
       }
-      const length = frameRequests.length
-      for (let i = 0; i < length; i++) {
-        frameRequests[i](frame)
+      //TODO: sort by distance to camera
+      ;(layerEntries as Array<(typeof layerEntries)[number]>).sort((l1, l2) => l1.renderOrder - l2.renderOrder)
+      let changed = false
+      const layers = layerEntries.map<XRLayer>(({ layer }, i) => {
+        if (layer != currentLayers[i]) {
+          changed = true
+        }
+        return layer
+      })
+      if (!changed) {
+        return
       }
-      frameRequests.length = 0
+      layers.push(xrManager.getBaseLayer())
+      session.updateRenderState({
+        layers,
+      })
     },
   })
 }
@@ -587,15 +586,6 @@ function setupXRManager(
 
 const allSessionModes: Array<XRSessionMode> = ['immersive-ar', 'immersive-vr', 'inline']
 
-function setupSessionStartListener(xr: WebXRManager, bindToSession: ReturnType<typeof createBindToSession>) {
-  const sessionStartListener = () => {
-    const session = xr.getSession()!
-    bindToSession(session, session.environmentBlendMode === 'opaque' ? 'immersive-vr' : 'immersive-ar')
-  }
-  xr.addEventListener('sessionstart', sessionStartListener)
-  return () => xr.removeEventListener('sessionstart', sessionStartListener)
-}
-
 function setupSessionGrantedListener(
   enterGrantedSession: XRStoreOptions<XRElementImplementations>['enterGrantedSession'] = allSessionModes,
   enterXR: (mode: XRSessionMode) => void,
@@ -622,58 +612,100 @@ function setupSessionGrantedListener(
 function createBindToSession(
   store: StoreApi<XRState<XRElementImplementations>>,
   syncXRInputSourceStates: ReturnType<typeof createSyncXRInputSourceStates>,
+  secondayInputSources: boolean,
 ) {
   let cleanupSession: (() => void) | undefined
-  return (session: XRSession | undefined, mode: XRSessionMode | undefined) => {
+  return (session: XRSession | undefined): Partial<XRState<any>> => {
     cleanupSession?.()
-    if (session == null || mode == null) {
-      return
+    if (session == null) {
+      return {}
     }
-    const onInputSourcesChange = (e: XRInputSourceChangeEvent) =>
-      store.setState(syncXRInputSourceStates(e.session, store.getState(), e.added, e.removed))
+
+    //for debouncing the input source and tracked source changes
+    const inputSourceChangesList: Parameters<typeof syncXRInputSourceStates>[2] & Array<unknown> = []
+    let inputSourceChangesTimeout: number | undefined
+
+    const applySourcesChange = () => {
+      inputSourceChangesTimeout = undefined
+      store.setState({
+        inputSourceStates: syncXRInputSourceStates(session, store.getState().inputSourceStates, inputSourceChangesList),
+      })
+      inputSourceChangesList.length = 0
+    }
+    const onSourcesChange = (isPrimary: boolean, e: XRInputSourcesChangeEvent) => {
+      inputSourceChangesList.push({ isPrimary, added: e.added, removed: e.removed })
+      if (inputSourceChangesTimeout != null) {
+        return
+      }
+      if (secondayInputSources) {
+        inputSourceChangesTimeout = setTimeout(applySourcesChange, 100)
+      } else {
+        applySourcesChange()
+      }
+    }
+
+    const onInputSourcesChange = onSourcesChange.bind(null, true)
     session.addEventListener('inputsourceschange', onInputSourcesChange)
 
-    //event handlers
-    //trigger re-render just re-evaluating the values read from the session
+    let cleanupSecondaryInputSources: (() => void) | undefined
+    if (secondayInputSources) {
+      const onTrackedSourcesChange = onSourcesChange.bind(null, false)
+      session.addEventListener('trackedsourceschange', onTrackedSourcesChange)
+      cleanupSecondaryInputSources = () => session.removeEventListener('trackedsourceschange', onTrackedSourcesChange)
+    }
+
+    //frameratechange and visibilitychange handlers
     const onChange = () => store.setState({ frameRate: session.frameRate, visibilityState: session.visibilityState })
+    session.addEventListener('frameratechange', onChange)
+    session.addEventListener('visibilitychange', onChange)
+
+    //end handler
     const onEnd = () => {
       cleanupSession?.()
       cleanupSession = undefined
       store.setState(baseInitialState)
     }
     session.addEventListener('end', onEnd)
-    session.addEventListener('frameratechange', onChange)
-    session.addEventListener('visibilitychange', onChange)
 
-    store.setState({
-      ...syncXRInputSourceStates(session, undefined, session.inputSources, undefined),
-      frameRate: session.frameRate,
-      visibilityState: session.visibilityState,
-      detectedMeshes: [],
-      detectedPlanes: [],
-      mode,
-      session,
-    })
+    const initialChanges: Parameters<typeof syncXRInputSourceStates>[2] & Array<unknown> = [
+      { isPrimary: true, added: session.inputSources },
+    ]
+    if (secondayInputSources) {
+      initialChanges.push({ isPrimary: false, added: session.trackedSources })
+    }
+    const inputSourceStates = syncXRInputSourceStates(session, [], initialChanges)
+
     cleanupSession = () => {
       //cleanup
-      syncXRInputSourceStates(session, store.getState(), undefined, 'all')
+      cleanupSecondaryInputSources?.()
+      clearTimeout(inputSourceChangesTimeout)
+      syncXRInputSourceStates(session, store.getState().inputSourceStates, 'remove-all')
       session.removeEventListener('end', onEnd)
       session.removeEventListener('frameratechange', onChange)
       session.removeEventListener('visibilitychange', onChange)
       session.removeEventListener('inputsourceschange', onInputSourcesChange)
     }
+
+    return {
+      inputSourceStates,
+      frameRate: session.frameRate,
+      visibilityState: session.visibilityState,
+      detectedMeshes: [],
+      detectedPlanes: [],
+      mode: session.environmentBlendMode === 'opaque' ? 'immersive-vr' : 'immersive-ar',
+      session,
+      mediaBinding: typeof XRMediaBinding == 'undefined' ? undefined : new XRMediaBinding(session),
+    }
   }
+}
+
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P]
 }
 
 function updateSession(store: StoreApi<XRState<XRElementImplementations>>, frame: XRFrame, manager: WebXRManager) {
   const referenceSpace = manager.getReferenceSpace()
-  const {
-    detectedMeshes: prevMeshes,
-    detectedPlanes: prevPlanes,
-    session,
-    controllerStates: controllers,
-    handStates: hands,
-  } = store.getState()
+  const { detectedMeshes: prevMeshes, detectedPlanes: prevPlanes, session, inputSourceStates } = store.getState()
   if (referenceSpace == null || session == null) {
     //not in a XR session
     return
@@ -687,16 +719,18 @@ function updateSession(store: StoreApi<XRState<XRElementImplementations>>, frame
     store.setState({ detectedPlanes, detectedMeshes })
   }
 
-  //update controllers
-  const controllersLength = controllers.length
-  for (let i = 0; i < controllersLength; i++) {
-    updateXRControllerState(controllers[i])
-  }
-
-  //update hands
-  const handsLength = hands.length
-  for (let i = 0; i < handsLength; i++) {
-    updateXRHandState(hands[i], frame, manager)
+  //update input sources
+  const inputSourceStatesLength = inputSourceStates.length
+  for (let i = 0; i < inputSourceStatesLength; i++) {
+    const inputSourceState = inputSourceStates[i]
+    switch (inputSourceState.type) {
+      case 'controller':
+        updateXRControllerState(inputSourceState)
+        break
+      case 'hand':
+        updateXRHandState(inputSourceState, frame, manager)
+        break
+    }
   }
 }
 

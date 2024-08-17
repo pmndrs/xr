@@ -27,7 +27,7 @@ export default defineConfig({
 
 Developing WebXR experiences often requires testing WebXR-specific features, which either require an actual device or an emulator. An emulator allows testing without a specific device and without continuously switching a headset on and off.
 
-`react-three/xr` includes the [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md) emulator out of the box, which is in its 0.x status and very much experimental in its current stage. The emulator builds on [IWER by meta](https://github.com/meta-quest/immersive-web-emulation-runtime/) and adds a easy to use overlay on top of your application. The emulator is activated if no WebXR support is detected on `localhost` or by pressing `Window/Command + Alt/Option + E`.
+`react-three/xr` includes the [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md) emulator out of the box, which is in its 0.x status and very much experimental in its current stage. The emulator builds on [IWER by Meta Quest](https://github.com/meta-quest/immersive-web-emulation-runtime/) and adds a easy to use overlay on top of your application. The emulator is activated if no WebXR support is detected on `localhost` or by pressing `Window/Command + Alt/Option + E`.
 
 ![iwer/devui](./emulator.gif)
 

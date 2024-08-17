@@ -1,7 +1,7 @@
 {
     "dependencies": {
-        "@pmndrs/uikit": "^0.3.10",
-        "@pmndrs/uikit-lucide": "^0.3.10",
+        "@pmndrs/uikit": "^0.4.4",
+        "@pmndrs/uikit-lucide": "^0.4.4",
         "@pmndrs/xr": "workspace:^"
     },
     "scripts": {

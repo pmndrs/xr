@@ -76,13 +76,11 @@ export function XR({ children, store }: XRProperties) {
   useEffect(() => {
     let initialCamera: Camera | undefined
     return store.subscribe((state, prevState) => {
-      const isInXR = state.mode != null
-      const wasInXR = prevState.mode != null
-      if (isInXR === wasInXR) {
+      if (state.session === prevState.session) {
         return
       }
-      //mode has changed
-      if (isInXR) {
+      //session has changed
+      if (state.session != null) {
         const { camera, gl } = rootStore.getState()
         initialCamera = camera
         rootStore.setState({ camera: gl.xr.getCamera() })
@@ -96,6 +94,7 @@ export function XR({ children, store }: XRProperties) {
     })
   }, [rootStore, store])
   useFrame((state, _delta, frame) => store.onBeforeFrame(state.scene, state.camera, frame), -1000)
+  useFrame(() => store.onBeforeRender())
   return (
     <xrContext.Provider value={store}>
       <XRElements />
@@ -118,6 +117,9 @@ export function useXRStore() {
 /**
  * hook for reading the state from the xr store
  */
-export function useXR<T = XRState>(selector: (s: XRState) => T = (state) => state as unknown as T) {
-  return useStore(useXRStore(), selector)
+export function useXR<T = XRState>(
+  selector: (s: XRState) => T = (state) => state as unknown as T,
+  equalityFn?: (a: T, b: T) => boolean,
+) {
+  return useStore(useXRStore(), selector, equalityFn)
 }

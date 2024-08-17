@@ -13,18 +13,18 @@ import {
   createXRHandState,
 } from './hand/index.js'
 
-type Mutable<T> = {
-  [P in keyof T]: T[P] extends ReadonlyArray<infer K> ? Array<K> : never
-}
+export type XRInputSourceStates = ReadonlyArray<XRInputSourceState>
 
 export type XRInputSourceState = XRInputSourceStateMap[keyof XRInputSourceStateMap]
 
 export function isXRInputSourceState(val: unknown): val is XRInputSourceState {
-  return val != null && typeof val === 'object' && 'type' in val
+  return val != null && typeof val === 'object' && 'inputSource' in val
 }
 
 export type XRHandState = {
+  id: string
   type: 'hand'
+  isPrimary: boolean
   inputSource: XRHandInputSource
   events: ReadonlyArray<XRInputSourceEvent>
   pose: XRHandPoseState
@@ -33,7 +33,9 @@ export type XRHandState = {
 }
 
 export type XRControllerState = {
+  id: string
   type: 'controller'
+  isPrimary: boolean
   inputSource: XRInputSource
   events: ReadonlyArray<XRInputSourceEvent>
   gamepad: XRControllerGamepadState
@@ -42,21 +44,27 @@ export type XRControllerState = {
 }
 
 export type XRTransientPointerState = {
+  id: string
   type: 'transientPointer'
+  isPrimary: boolean
   inputSource: XRInputSource
   events: ReadonlyArray<XRInputSourceEvent>
 }
 
-export type XRGazeState = { type: 'gaze'; inputSource: XRInputSource; events: ReadonlyArray<XRInputSourceEvent> }
+export type XRGazeState = {
+  id: string
+  type: 'gaze'
+  isPrimary: boolean
+  inputSource: XRInputSource
+  events: ReadonlyArray<XRInputSourceEvent>
+}
 
 export type XRScreenInputState = {
+  id: string
   type: 'screenInput'
+  isPrimary: boolean
   inputSource: XRInputSource
   events: ReadonlyArray<XRInputSourceEvent>
-}
-
-export type XRInputSourceStates = {
-  [Key in keyof XRInputSourceStateMap as `${Key}States`]: ReadonlyArray<XRInputSourceStateMap[Key]>
 }
 
 export type XRInputSourceStateMap = {
@@ -65,35 +73,6 @@ export type XRInputSourceStateMap = {
   transientPointer: XRTransientPointerState
   gaze: XRGazeState
   screenInput: XRScreenInputState
-}
-
-type SetupXRInputSource<State> = (
-  session: XRSession,
-  inputSource: XRInputSource,
-) =>
-  | {
-      state: State
-      cleanup: () => void
-    }
-  | Promise<{
-      state: State
-      cleanup: () => void
-    }>
-
-function getXRInputSourceType(inputSource: XRInputSource): keyof XRInputSourceStateMap {
-  if (inputSource.hand != null) {
-    return 'hand'
-  }
-  switch (inputSource.targetRayMode) {
-    case 'gaze':
-      return 'gaze'
-    case 'screen':
-      return 'screenInput'
-    case 'tracked-pointer':
-      return 'controller'
-    case 'transient-pointer':
-      return 'transientPointer'
-  }
 }
 
 function setupEvents(session: XRSession, events: Array<XRInputSourceEvent>): () => void {
@@ -114,115 +93,93 @@ function setupEvents(session: XRSession, events: Array<XRInputSourceEvent>): () 
   }
 }
 
-function createXRInputSourceSetupMap(options: (XRControllerLayoutLoaderOptions & XRHandLoaderOptions) | undefined): {
-  [Key in keyof XRInputSourceStateMap]: SetupXRInputSource<XRInputSourceStateMap[Key]>
-} {
-  const layoutLoader = new XRControllerLayoutLoader(options)
-
-  return {
-    controller: async (session, inputSource) => {
-      const events: Array<XRInputSourceEvent> = []
-      const cleanup = setupEvents(session, events)
-      return { state: await createXRControllerState(inputSource, layoutLoader, events), cleanup }
-    },
-    hand: (session, inputSource) => {
-      const events: Array<XRInputSourceEvent> = []
-      const cleanup = setupEvents(session, events)
-      return { state: createXRHandState(inputSource, options, events), cleanup }
-    },
-    gaze: (session, inputSource) => {
-      const events: Array<XRInputSourceEvent> = []
-      const cleanup = setupEvents(session, events)
-      return { state: { type: 'gaze', inputSource, events }, cleanup }
-    },
-    screenInput: (session, inputSource) => {
-      const events: Array<XRInputSourceEvent> = []
-      const cleanup = setupEvents(session, events)
-      return { state: { type: 'screenInput', inputSource, events }, cleanup }
-    },
-    transientPointer: (session, inputSource) => {
-      const events: Array<XRInputSourceEvent> = []
-      const cleanup = setupEvents(session, events)
-      return { state: { type: 'transientPointer', inputSource, events }, cleanup }
-    },
-  }
-}
+let idCounter = 0
 
 export function createSyncXRInputSourceStates(
-  addAsyncMap: {
-    [Key in keyof XRInputSourceStateMap]?: (state: XRInputSourceStateMap[Key]) => void
-  },
+  addController: (controllerState: XRControllerState) => void,
   options: (XRControllerLayoutLoaderOptions & XRHandLoaderOptions) | undefined,
 ) {
-  let currentInputSources = new Set<XRInputSource>()
-  const setupMap = createXRInputSourceSetupMap(options)
   const cleanupMap = new Map<XRInputSource, () => void>()
+  const controllerLayoutLoader = new XRControllerLayoutLoader(options)
+  const idMap = new Map<string, string>()
   return (
     session: XRSession,
-    currentStates: XRInputSourceStates | undefined,
-    added: ReadonlyArray<XRInputSource> | XRInputSourceArray | undefined,
-    removed: ReadonlyArray<XRInputSource> | XRInputSourceArray | 'all' | undefined,
-  ): Partial<XRInputSourceStates> => {
-    currentInputSources = new Set(session.inputSources)
-    const result: Partial<Mutable<XRInputSourceStates>> = {}
-    if (removed === 'all') {
-      result.controllerStates = []
-      result.gazeStates = []
-      result.handStates = []
-      result.screenInputStates = []
-      result.transientPointerStates = []
+    current: ReadonlyArray<XRInputSourceState>,
+    changes:
+      | Array<{
+          isPrimary: boolean
+          added?: XRInputSourceArray | ReadonlyArray<XRInputSource>
+          removed?: XRInputSourceArray | ReadonlyArray<XRInputSource>
+        }>
+      | 'remove-all',
+  ): ReadonlyArray<XRInputSourceState> => {
+    if (changes === 'remove-all') {
       for (const cleanup of cleanupMap.values()) {
         cleanup()
       }
-    } else if (removed != null) {
-      const removedLength = removed.length
-      for (let i = 0; i < removedLength; i++) {
-        const inputSource = removed[i]
-        const type = getXRInputSourceType(inputSource)
-        const states = getOrCreate(`${type}States` as 'controllerStates', result, currentStates)
-        const index = states.findIndex(({ inputSource: is }) => is === inputSource)
-        if (index === -1) {
-          throw new Error(`unable to find removed input source ${inputSource}`)
+      return current
+    }
+
+    const target = [...current]
+
+    for (const { added, isPrimary, removed } of changes) {
+      if (removed != null) {
+        for (const inputSource of removed) {
+          const index = target.findIndex(({ inputSource: is, isPrimary: ip }) => ip === isPrimary && is === inputSource)
+          if (index === -1) {
+            continue
+          }
+          target.splice(index, 1)
+          cleanupMap.get(inputSource)?.()
+          cleanupMap.delete(inputSource)
         }
-        states.splice(index, 1)
-        cleanupMap.get(inputSource)?.()
-        cleanupMap.delete(inputSource)
+      }
+
+      if (added == null) {
+        continue
+      }
+
+      for (const inputSource of added) {
+        const events: Array<XRInputSourceEvent> = []
+        let cleanup = setupEvents(session, events)
+        const key = `${inputSource.handedness}-${inputSource.hand ? 'hand' : 'nohand'}-${inputSource.targetRayMode}-${inputSource.profiles.join(',')}`
+        let id: string | undefined
+        if ((id = idMap.get(key)) == null) {
+          idMap.set(key, (id = `${idCounter++}`))
+        }
+        if (inputSource.hand != null) {
+          target.push(createXRHandState(id, inputSource, options, events, isPrimary))
+        } else {
+          switch (inputSource.targetRayMode) {
+            case 'gaze':
+              target.push({ id, isPrimary, type: 'gaze', inputSource, events })
+              break
+            case 'screen':
+              target.push({ id, isPrimary, type: 'screenInput', inputSource, events })
+              break
+            case 'transient-pointer':
+              target.push({ id, isPrimary, type: 'transientPointer', inputSource, events })
+              break
+            case 'tracked-pointer':
+              let aborted = false
+              const cleanupEvents = cleanup
+              cleanup = () => {
+                cleanupEvents()
+                aborted = true
+              }
+              const stateResult = createXRControllerState(id, inputSource, controllerLayoutLoader, events, isPrimary)
+              if (stateResult instanceof Promise) {
+                stateResult.then((state) => !aborted && addController(state)).catch(console.error)
+              } else {
+                target.push(stateResult)
+              }
+              break
+          }
+        }
+        cleanupMap.set(inputSource, cleanup)
       }
     }
 
-    if (added != null) {
-      added.forEach(async (inputSource) => {
-        const type = getXRInputSourceType(inputSource)
-        let setupResult = setupMap[type](session, inputSource)
-        let resolvedSetupResult: Awaited<typeof setupResult>
-        if (setupResult instanceof Promise) {
-          resolvedSetupResult = await setupResult
-          //test if the input source is still part of the session (can happen since the state is loaded asynchrounously)
-          if (!currentInputSources.has(inputSource)) {
-            return
-          }
-          addAsyncMap[type]!(resolvedSetupResult.state as any)
-        } else {
-          resolvedSetupResult = setupResult
-          getOrCreate(`${type}States` as 'controllerStates', result, currentStates).push(
-            resolvedSetupResult.state as any,
-          )
-        }
-        cleanupMap.set(inputSource, resolvedSetupResult.cleanup)
-      })
-    }
-    return result
+    return target
   }
-}
-
-function getOrCreate<K extends string, T>(
-  key: K,
-  result: Partial<Record<K, Array<T>>>,
-  current: Record<K, ReadonlyArray<T>> | undefined,
-): Array<T> {
-  let states = result[key]
-  if (states == null) {
-    result[key] = states = current == null ? [] : [...current[key]]
-  }
-  return states
 }

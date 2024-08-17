@@ -1,54 +1,95 @@
 import { createGetXRSpaceMatrix } from '@pmndrs/xr/internals'
 import { RootState, useFrame } from '@react-three/fiber'
-import { ReactNode, RefObject, forwardRef, useContext, useImperativeHandle, useMemo, useRef } from 'react'
+import {
+  ReactNode,
+  RefObject,
+  forwardRef,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { Group, Object3D } from 'three'
-import { xrReferenceSpaceContext } from './contexts.js'
-import { useXR } from './xr.js'
+import { xrSpaceContext } from './contexts.js'
+import { useXR, useXRStore } from './xr.js'
 
 /**
- * component that puts its children at the provided space
+ * component that puts its children at the provided space (or reference space type)
  */
 export const XRSpace = forwardRef<
   Object3D,
   {
-    space: XRSpace
+    space: XRSpace | XRReferenceSpaceType
     children?: ReactNode
   }
 >(({ space, children }, ref) => {
   const internalRef = useRef<Group>(null)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const resolvedSpace = typeof space === 'string' ? useXRSpace(space) : space
   useImperativeHandle(ref, () => internalRef.current!, [])
-  useApplyXRSpaceMatrix(internalRef, space, (_state, _delta, frame) => {
+  useApplyXRSpaceMatrix(internalRef, resolvedSpace, (_state, _delta, frame) => {
     if (internalRef.current == null) {
       return
     }
     internalRef.current.visible = frame != null
   })
+  if (resolvedSpace == null) {
+    return null
+  }
   return (
-    <group xrSpace={space} visible={false} matrixAutoUpdate={false} ref={internalRef}>
-      <xrReferenceSpaceContext.Provider value={space}>{children}</xrReferenceSpaceContext.Provider>
+    <group xrSpace={resolvedSpace} visible={false} matrixAutoUpdate={false} ref={internalRef}>
+      <xrSpaceContext.Provider value={resolvedSpace}>{children}</xrSpaceContext.Provider>
     </group>
   )
 })
 
 /**
- * hook for retrieving getting xr reference space from the context
+ * hook for retrieving getting xr space from the context
  */
-export function useXRReferenceSpace() {
-  const context = useContext(xrReferenceSpaceContext)
-  if (context == null) {
-    throw new Error(`XR objects must be placed inside the XROrigin`)
+export function useXRSpace(): XRSpace
+
+export function useXRSpace(type: XRReferenceSpaceType): XRReferenceSpace | undefined
+
+export function useXRSpace(type?: XRReferenceSpaceType): XRSpace | XRReferenceSpace | undefined {
+  if (type == null) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const context = useContext(xrSpaceContext)
+    if (context == null) {
+      throw new Error(`XR objects must be placed inside the XROrigin`)
+    }
+    return context
   }
-  return context
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [referenceSpace, setReferenceSpace] = useState<XRReferenceSpace | undefined>(undefined)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const session = useXR((xr) => xr.session)
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (session == null) {
+      return
+    }
+    let aborted = false
+    session.requestReferenceSpace(type).then((space) => {
+      if (aborted) {
+        return
+      }
+      setReferenceSpace(space)
+    })
+    return () => void (aborted = true)
+  }, [session, type])
+  return referenceSpace
 }
 
 /**
  * hook that returns a function to compute a matrix that contains the transformation of the provided xr space
  */
-export function useGetXRSpaceMatrix(space: XRSpace) {
-  const localReferenceSpace = useContext(xrReferenceSpaceContext)
+export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
+  const localReferenceSpace = useContext(xrSpaceContext)
   const referenceSpace = useXR((xr) => localReferenceSpace ?? xr.originReferenceSpace)
   return useMemo(
-    () => (referenceSpace == null ? undefined : createGetXRSpaceMatrix(space, referenceSpace)),
+    () => (space == null || referenceSpace == null ? undefined : createGetXRSpaceMatrix(space, referenceSpace)),
     [space, referenceSpace],
   )
 }
@@ -60,7 +101,7 @@ export function useGetXRSpaceMatrix(space: XRSpace) {
  */
 export function useApplyXRSpaceMatrix(
   ref: RefObject<Object3D>,
-  space: XRSpace,
+  space: XRSpace | undefined,
   onFrame?: (state: RootState, delta: number, frame: XRFrame | undefined) => void,
 ): void {
   const getXRSpaceMatrix = useGetXRSpaceMatrix(space)

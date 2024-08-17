@@ -1,4 +1,5 @@
 import { DefaultAssetBasePath } from '../index.js'
+import { syncAsync } from './utils.js'
 
 export type XRControllerVisualResponse = {
   states: Array<'default' | 'touched' | 'pressed'>
@@ -67,78 +68,92 @@ export class XRControllerLayoutLoader {
   private readonly defaultProfileId: string
 
   //cache
-  private profilesListPromise: Promise<XRControllerProfilesList> | undefined
-  private profilePromisesMap = new Map<string, Promise<XRControllerProfile>>()
+  private profilesListCache: XRControllerProfilesList | undefined
+  private profileCacheMap = new Map<string, XRControllerProfile>()
 
   constructor(options?: XRControllerLayoutLoaderOptions) {
     this.baseAssetPath = options?.baseAssetPath ?? DefaultAssetBasePath
     this.defaultProfileId = options?.defaultControllerProfileId ?? DefaultDefaultControllerProfileId
   }
 
-  async load(inputSourceProfileIds: ReadonlyArray<string>, handedness: XRHandedness) {
-    const profile = await this.loadProfile(inputSourceProfileIds)
-    for (const key in profile.layouts) {
-      if (!key.includes(handedness)) {
-        continue
-      }
-      return profile.layouts[key]!
-    }
-    throw new Error(
-      `No matching layout for "${handedness}", in profile ${profile.profileId} with layouts ${Object.keys(
-        profile.layouts,
-      ).join(', ')}.`,
+  load(
+    inputSourceProfileIds: ReadonlyArray<string>,
+    handedness: XRHandedness,
+  ): Promise<XRControllerLayout> | XRControllerLayout {
+    return syncAsync(
+      //load profile
+      () => this.loadProfile(inputSourceProfileIds),
+      //get controller layout from profile
+      (profile) => {
+        for (const key in profile.layouts) {
+          if (!key.includes(handedness)) {
+            continue
+          }
+          return profile.layouts[key]!
+        }
+        throw new Error(
+          `No matching layout for "${handedness}", in profile ${profile.profileId} with layouts ${Object.keys(
+            profile.layouts,
+          ).join(', ')}.`,
+        )
+      },
     )
   }
 
   //alias for Loader compatibility
   loadAsync = this.load
 
-  private async loadProfile(inputSourceProfileIds: ReadonlyArray<string>) {
-    this.profilesListPromise ??= fetchJson<XRControllerProfilesList>(
-      new URL('profilesList.json', this.baseAssetPath).href,
-    )
-    const profilesList = await this.profilesListPromise
-    const length = inputSourceProfileIds.length
-    for (let i = 0; i < length; i++) {
-      const profileInfo = profilesList[inputSourceProfileIds[i]]
-      if (profileInfo == null) {
-        continue
-      }
-      return this.loadProfileFromPathCached(profileInfo.path)
-    }
-    const profileInfo = profilesList[this.defaultProfileId]
-    if (profileInfo != null) {
-      return this.loadProfileFromPathCached(profileInfo.path)
-    }
-    throw new Error(
-      `no matching profile found for profiles "${inputSourceProfileIds.join(', ')}" in profile list ${JSON.stringify(
-        profilesList,
-      )}`,
+  private loadProfile(inputSourceProfileIds: ReadonlyArray<string>) {
+    return syncAsync(
+      //load profiles list
+      () =>
+        this.profilesListCache ??
+        fetchJson<XRControllerProfilesList>(new URL('profilesList.json', this.baseAssetPath).href).then(
+          (profilesList) => (this.profilesListCache = profilesList),
+        ),
+      //load profile
+      (profilesList) => {
+        const length = inputSourceProfileIds.length
+        let profileInfo: undefined | { path: string }
+        for (let i = 0; i < length; i++) {
+          profileInfo = profilesList[inputSourceProfileIds[i]]
+          if (profileInfo != null) {
+            break
+          }
+        }
+        profileInfo ??= profilesList[this.defaultProfileId]
+        if (profileInfo == null) {
+          throw new Error(
+            `no matching profile found for profiles "${inputSourceProfileIds.join(', ')}" in profile list ${JSON.stringify(
+              profilesList,
+            )}`,
+          )
+        }
+        return this.loadProfileFromPath(profileInfo.path)
+      },
     )
   }
 
-  private loadProfileFromPathCached(relativeProfilePath: string) {
-    let promise = this.profilePromisesMap.get(relativeProfilePath)
-    if (promise == null) {
-      this.profilePromisesMap.set(relativeProfilePath, (promise = this.loadProfileFromPath(relativeProfilePath)))
+  private loadProfileFromPath(relativeProfilePath: string) {
+    const result = this.profileCacheMap.get(relativeProfilePath)
+    if (result != null) {
+      return result
     }
-    return promise
-  }
-
-  private async loadProfileFromPath(relativeProfilePath: string) {
     const absoluteProfilePath = new URL(relativeProfilePath, this.baseAssetPath).href
-    const profile = await fetchJson<XRControllerProfile>(absoluteProfilePath)
-
-    //overwrite the relative assetPath into an absolute path
-    for (const key in profile.layouts) {
-      const layout = profile.layouts[key]
-      if (layout == null) {
-        continue
+    return fetchJson<XRControllerProfile>(absoluteProfilePath).then((profile) => {
+      //overwrite the relative assetPath into an absolute path
+      for (const key in profile.layouts) {
+        const layout = profile.layouts[key]
+        if (layout == null) {
+          continue
+        }
+        layout.assetPath = new URL(layout.assetPath, absoluteProfilePath).href
       }
-      layout.assetPath = new URL(layout.assetPath, absoluteProfilePath).href
-    }
 
-    return profile
+      this.profileCacheMap.set(relativeProfilePath, profile)
+
+      return profile
+    })
   }
 }
 

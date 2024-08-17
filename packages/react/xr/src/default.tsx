@@ -18,7 +18,7 @@ import {
 import { useRef, Suspense, useContext, useMemo } from 'react'
 import { Group, Mesh, Object3D } from 'three'
 import { XRControllerModel } from './controller.js'
-import { XRHandModel, useXRHandState } from './hand.js'
+import { XRHandModel } from './hand.js'
 import {
   CombinedPointer,
   PointerCursorModel,
@@ -32,6 +32,7 @@ import { XRSpace as XRSpaceImpl } from './space.js'
 import { xrInputSourceStateContext } from './contexts.js'
 import { TeleportPointerRayModel } from './teleport.js'
 import { createPortal, useFrame, useThree } from '@react-three/fiber'
+import { useXRInputSourceStateContext } from './input.js'
 
 export {
   type DefaultXRControllerOptions,
@@ -119,10 +120,7 @@ export const DefaultXRControllerGrabPointer = DefaultXRInputSourceGrabPointer.bi
  * - `cursorModel` properties for configuring how the cursor should look
  */
 export function DefaultXRInputSourceRayPointer(options: DefaultXRInputSourceRayPointerOptions) {
-  const state = useContext(xrInputSourceStateContext)
-  if (state == null) {
-    throw new Error(`DefaultXRInputSourceRayPointer can only be used inside a XRInputSource`)
-  }
+  const state = useXRInputSourceStateContext()
   const ref = useRef<Object3D>(null)
   const pointer = useRayPointer(ref, state, options)
   usePointerXRInputSourceEvents(pointer, state.inputSource, 'select', state.events)
@@ -154,7 +152,7 @@ export function DefaultXRInputSourceRayPointer(options: DefaultXRInputSourceRayP
  * - `button` the id of the button that is triggered when touching
  */
 export function DefaultXRHandTouchPointer(options: DefaultXRHandTouchPointerOptions) {
-  const state = useXRHandState()
+  const state = useXRInputSourceStateContext('hand')
   const ref = useRef<Object3D>(null)
   const pointer = useTouchPointer(ref, state, options)
   const cursorModelOptions = options.cursorModel

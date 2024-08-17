@@ -28,7 +28,7 @@ export function App() {
         </XR>
       </Canvas>
     </>
- )
+  )
 }
 
 function RollerCoaster() {
@@ -37,10 +37,9 @@ function RollerCoaster() {
   const mixer = useMemo(() => new AnimationMixer(gltf.scene), [])
   useEffect(() => {
     for (const animation of gltf.animations) {
-      console.log(animation)
       mixer.clipAction(animation).play()
- }
- }, [gltf, mixer])
+    }
+  }, [gltf, mixer])
   useFrame((state, delta) => mixer.update(delta))
   return (
     <>
@@ -50,9 +49,9 @@ function RollerCoaster() {
           <XROrigin scale={0.24} position-y={-0.1} />
         </group>,
         gltf.scene.getObjectByName('Sessel')!,
- )}
+      )}
     </>
- )
+  )
 }
 ```
 
@@ -75,6 +74,6 @@ function App() {
         </XR>
       </Canvas>
     </>
- )
+  )
 }
 ```

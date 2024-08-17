@@ -76,7 +76,7 @@ function getVisualReponseValue(
     case 'yAxis':
       return stateIsActive ? getNormalizesAxis(componentState).y : 0.5
     case 'button':
-      return stateIsActive ? componentState.button ?? 0 : 0
+      return stateIsActive ? (componentState.button ?? 0) : 0
     case 'state':
       return stateIsActive ? 1.0 : 0.0
   }

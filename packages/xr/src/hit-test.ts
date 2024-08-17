@@ -9,13 +9,21 @@ export type GetWorldMatrixFromXRHitTest = (target: Matrix4, result: XRHitTestRes
 
 export async function createXRHitTestSource(
   store: XRStore<any>,
-  relativeTo: Object3D | XRSpace,
+  relativeTo: Object3D | XRSpace | XRReferenceSpaceType,
   trackableType: XRHitTestTrackableType | Array<XRHitTestTrackableType> = ['point', 'plane', 'mesh'],
 ) {
   let offsetRay: XRRay | undefined
   let space: XRSpace
   let object: Object3D | undefined
   const state = store.getState()
+  if (typeof relativeTo === 'string') {
+    const { session } = store.getState()
+    if (session == null) {
+      return undefined
+    }
+    relativeTo = await session.requestReferenceSpace(relativeTo)
+  }
+
   if (relativeTo instanceof XRSpace) {
     space = relativeTo
     object = state.origin
@@ -27,10 +35,6 @@ export async function createXRHitTestSource(
     space =
       getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper) ??
       state.originReferenceSpace
-
-    if (space === state.originReferenceSpace) {
-      computeOriginReferenceSpaceOffset(relativeTo, state.origin, matrixHelper)
-    }
     vectorHelper.setFromMatrixPosition(matrixHelper)
     const point: DOMPointInit = { ...vectorHelper }
     quaternionHelper.setFromRotationMatrix(matrixHelper)
@@ -54,7 +58,7 @@ export async function createXRHitTestSource(
 
 export async function requestXRHitTest(
   store: XRStore<any>,
-  relativeTo: Object3D | XRSpace,
+  relativeTo: Object3D | XRSpace | XRReferenceSpaceType,
   trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
 ) {
   const sourceData = await createXRHitTestSource(store, relativeTo, trackableType)

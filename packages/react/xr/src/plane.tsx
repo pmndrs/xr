@@ -1,29 +1,16 @@
-import { forwardRef, useContext, useEffect, useMemo, useState } from 'react'
+import { forwardRef, useEffect, useMemo, useState } from 'react'
 import { MeshProps, useFrame } from '@react-three/fiber'
 import { BufferGeometry, Mesh } from 'three'
 import { updateXRPlaneGeometry } from '@pmndrs/xr/internals'
-import { xrPlaneContext } from './contexts.js'
 import { useXR } from './xr.js'
 
 /**
  * component for rendering a mesh for the XRPlane based on the detected plane geometry
  */
-export const XRPlaneModel = forwardRef<Mesh, MeshProps>((props, ref) => {
-  const plane = useXRPlane()
+export const XRPlaneModel = forwardRef<Mesh, MeshProps & { plane: XRPlane }>(({ plane, ...rest }, ref) => {
   const geometry = useXRPlaneGeometry(plane)
-  return <mesh ref={ref} geometry={geometry} {...props} />
+  return <mesh ref={ref} geometry={geometry} {...rest} />
 })
-
-/**
- * hook for getting the detected plane in the current context
- */
-export function useXRPlane(): XRPlane {
-  const context = useContext(xrPlaneContext)
-  if (context == null) {
-    throw new Error(`useXRPlane can only be used inside XRPlane or ForEachXRPlane`)
-  }
-  return context
-}
 
 /**
  * hook for getting all dected planes with the provided semantic label
