@@ -113,8 +113,6 @@ export function createSyncXRInputSourceStates(
         }>
       | 'remove-all',
   ): ReadonlyArray<XRInputSourceState> => {
-    console.log(...changes)
-
     if (changes === 'remove-all') {
       for (const cleanup of cleanupMap.values()) {
         cleanup()
@@ -181,8 +179,6 @@ export function createSyncXRInputSourceStates(
         cleanupMap.set(inputSource, cleanup)
       }
     }
-
-    console.log(target)
 
     return target
   }

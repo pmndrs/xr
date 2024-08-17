@@ -1,7 +1,7 @@
 ---
 title: Dom Overlay
 description: How to add HTML elements for hand-held AR experiences with Dom overlay?
-nav: 16
+nav: 18
 ---
 
 For hand-held AR experiences, such as those using a Smartphone, WebXR offers the dom overlay capability, allowing developers to use HTML code overlayed over the experience. In case scene 3D overlays or overlays in non-handheld AR/VR experiences are needed, check out [pmndrs/uikit](https://github.com/pmndrs/uikit).

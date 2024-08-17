@@ -1,7 +1,7 @@
 ---
 title: Pitfalls
 description: Pitfalls to avoid when building immersive web applications with react-three/xr
-nav: 19
+nav: 21
 ---
 
 ## Changing the camera position in XR

@@ -75,7 +75,7 @@ export function updatePointerRayModel(
   } else {
     material.color.set(color ?? 'white')
   }
-  material.opacity = typeof options.opacity === 'function' ? options.opacity(pointer) : options.opacity ?? 0.4
+  material.opacity = typeof options.opacity === 'function' ? options.opacity(pointer) : (options.opacity ?? 0.4)
 
   let length = options.maxLength ?? 1
   if (intersection != null) {

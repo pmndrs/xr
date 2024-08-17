@@ -14,7 +14,7 @@ export * from './teleport.js'
 export * from './hit-test.js'
 export * from './anchor.js'
 export * from './dom-overlay.js'
-export * from './layer/index.js'
+export * from './layer.js'
 
 //react-three/xr v5 compatibility layer
 export * from './deprecated/index.js'

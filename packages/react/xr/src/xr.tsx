@@ -83,7 +83,6 @@ export function XR({ children, store }: XRProperties) {
       if (state.session != null) {
         const { camera, gl } = rootStore.getState()
         initialCamera = camera
-        console.log((initialCamera as any).fov, (initialCamera as any).aspectRatio)
         rootStore.setState({ camera: gl.xr.getCamera() })
         return
       }
@@ -91,7 +90,6 @@ export function XR({ children, store }: XRProperties) {
         //we always were in xr?
         return
       }
-      console.log((initialCamera as any).fov, (initialCamera as any).aspectRatio)
       rootStore.setState({ camera: initialCamera })
     })
   }, [rootStore, store])

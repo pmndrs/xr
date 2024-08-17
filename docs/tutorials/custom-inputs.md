@@ -1,7 +1,7 @@
 ---
 title: Custom Hands/Controllers/...
 description: Customize interactions and style of inputs such as hands, controllers, and more
-nav: 14
+nav: 16
 ---
 
 @react-three/xr provides a set of default hands, controllers, transient pointers, gazes, and screen input that can be configured and completely exchanged with your own implementation. The following example shows how to configure the ray color of the ray pointer in the users hand.

@@ -56,7 +56,6 @@ export function XRElements({ children }: { children?: ReactNode }) {
 
 function XRControllers() {
   const controllerStates = useXR((xr) => xr.inputSourceStates.filter((state) => state.type === 'controller'), shallow)
-  console.log(controllerStates)
   let Implementation = useXR((xr) => xr.controller)
   if (Implementation === false) {
     return null

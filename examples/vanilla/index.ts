@@ -1,4 +1,4 @@
-import { XROrigin, createXRStore, makeTeleportTarget } from '@pmndrs/xr'
+import { XRLayer, XROrigin, createXRStore, makeTeleportTarget } from '@pmndrs/xr'
 import {
   BoxGeometry,
   Group,
@@ -54,6 +54,21 @@ document.getElementById('enter-ar')?.addEventListener('click', () => store.enter
 document.getElementById('enter-vr')?.addEventListener('click', () => store.enterVR())
 
 scene.add(box)
+
+const testImg = document.createElement('video')
+testImg.src = 'test.mp4'
+testImg.muted = true
+testImg.autoplay = true
+testImg.loop = true
+testImg.style.opacity = '0'
+testImg.style.pointerEvents = 'none'
+document.body.appendChild(testImg)
+const layer = new XRLayer(store, renderer, {
+  src: testImg,
+})
+layer.scale.setScalar(1)
+layer.position.set(1.5, 1, -1)
+scene.add(layer)
 
 //UI
 const group = new Group()

@@ -5,8 +5,12 @@ import {
   PlaneGeometry,
   Quaternion,
   SphereGeometry,
+  SRGBColorSpace,
+  Texture,
   Vector3,
+  VideoTexture,
   WebGLRenderer,
+  WebGLRenderTarget,
   WebXRManager,
 } from 'three'
 import { getSpaceFromAncestors } from './space.js'
@@ -14,15 +18,18 @@ import { XRState, XRStore } from './store.js'
 
 export type XRLayerEntry = { renderOrder: number; readonly layer: XRCylinderLayer | XRQuadLayer | XREquirectLayer }
 
-export type XRVideoLayerOptions = Pick<
-  Partial<XRMediaCylinderLayerInit & XRMediaQuadLayerInit & XRMediaEquirectLayerInit>,
-  'layout' | 'invertStereo'
->
-
 export type XRLayerOptions = Pick<
   Partial<XRCylinderLayerInit & XRQuadLayerInit & XREquirectLayerInit>,
-  'layout' | 'mipLevels' | 'colorFormat' | 'depthFormat' | 'isStatic' | 'textureType'
->
+  'layout' | 'mipLevels' | 'colorFormat' | 'depthFormat'
+> &
+  Pick<
+    Partial<XRMediaCylinderLayerInit & XRMediaQuadLayerInit & XRMediaEquirectLayerInit>,
+    'layout' | 'invertStereo'
+  > & {
+    shape?: XRLayerShape
+  }
+
+export type XRLayerSrc = HTMLVideoElement | Exclude<TexImageSource, VideoFrame | HTMLVideoElement> | WebGLRenderTarget
 
 export type XRLayerProperties = Pick<
   Partial<XRCylinderLayer & XRQuadLayer & XREquirectLayer>,
@@ -42,24 +49,24 @@ const DefaultCentralHorizontalAngle = (60 / 180) * Math.PI
 const DefaultLowerVerticalAngle = (-30 / 180) * Math.PI
 const DefaultUpperVerticalAngle = (30 / 180) * Math.PI
 
-export async function waitForVideoSize(src: HTMLVideoElement) {
-  if (src.readyState < 1) {
-    return new Promise<void>((resolve) => {
-      const onResolve = () => {
-        resolve()
-        src.removeEventListener('loadedmetadata', onResolve)
-      }
-      src.addEventListener('loadedmetadata', onResolve)
-    })
-  }
+export function createXRLayer(
+  src: XRLayerSrc,
+  state: XRState<any>,
+  xrManager: WebXRManager,
+  relativeTo: Object3D,
+  options: XRLayerOptions,
+  properties: XRLayerProperties,
+) {
+  return src instanceof HTMLVideoElement
+    ? createXRVideoLayer(src, state, relativeTo, options, properties)
+    : createXRNormalLayer(src, state, xrManager, relativeTo, options, properties)
 }
 
-export function createXRVideoLayer(
-  state: XRState<any>,
-  shape: XRLayerShape,
-  relativeTo: Object3D,
+function createXRVideoLayer(
   src: HTMLVideoElement,
-  options: XRVideoLayerOptions = {},
+  state: XRState<any>,
+  relativeTo: Object3D,
+  { invertStereo, layout, shape = 'quad' }: XRLayerOptions,
   properties: XRLayerProperties = {},
 ) {
   const space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)
@@ -70,7 +77,8 @@ export function createXRVideoLayer(
   const init: XRMediaCylinderLayerInit &
     XRMediaEquirectLayerInit &
     XRMediaQuadLayerInit & { transform: XRRigidTransform } = {
-    ...options,
+    invertStereo,
+    layout,
     space,
     transform,
   }
@@ -84,26 +92,12 @@ export function createXRVideoLayer(
   return layer
 }
 
-export async function waitForImageSize(src: Exclude<TexImageSource, VideoFrame>) {
-  if (src instanceof HTMLImageElement && !src.complete) {
-    await new Promise<void>((resolve) => {
-      const onResolve = () => {
-        resolve()
-        src.removeEventListener('load', onResolve)
-      }
-      src.addEventListener('load', onResolve)
-    })
-  }
-}
-
-export function createXRLayer(
+function createXRNormalLayer(
+  src: Exclude<TexImageSource, VideoFrame | HTMLVideoElement> | WebGLRenderTarget,
   state: XRState<any>,
   xrManager: WebXRManager,
-  shape: XRLayerShape,
   relativeTo: Object3D,
-  viewPixelWidth: number,
-  viewPixelHeight: number,
-  options: XRLayerOptions = {},
+  { shape = 'quad', ...options }: XRLayerOptions,
   properties: XRLayerProperties = {},
 ) {
   const space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)
@@ -113,8 +107,10 @@ export function createXRLayer(
   const transform = matrixToRigidTransform(matrixHelper, scaleHelper)
   const init: XRCylinderLayerInit & XREquirectLayerInit & XRQuadLayerInit & { transform: XRRigidTransform } = {
     ...options,
-    viewPixelWidth,
-    viewPixelHeight,
+    isStatic: !(src instanceof WebGLRenderTarget),
+    textureType: 'texture',
+    viewPixelWidth: options.layout === 'stereo-left-right' ? src.width / 2 : src.width,
+    viewPixelHeight: options.layout === 'stereo-top-bottom' ? src.height / 2 : src.height,
     space,
     transform,
   }
@@ -136,6 +132,29 @@ const scaleHelper = new Vector3()
 function matrixToRigidTransform(matrix: Matrix4, scaleTarget: Vector3 = scaleHelper): XRRigidTransform {
   matrix.decompose(vectorHelper, quaternionHelper, scaleTarget)
   return new XRRigidTransform({ ...vectorHelper, w: 1.0 }, { ...quaternionHelper })
+}
+
+declare module 'three' {
+  export interface WebGLRenderer {
+    setRenderTargetTextures(
+      renderTarget: WebGLRenderTarget,
+      colorTexture: WebGLTexture,
+      depthTexture?: WebGLTexture,
+    ): void
+  }
+}
+
+export function setXRLayerRenderTarget(
+  renderer: WebGLRenderer,
+  renderTarget: WebGLRenderTarget,
+  layerEntry: XRLayerEntry | undefined | null,
+  frame: XRFrame | undefined,
+) {
+  if (layerEntry != null && frame != null) {
+    const subImage = renderer.xr.getBinding().getSubImage(layerEntry.layer, frame)
+    renderer.setRenderTargetTextures(renderTarget, subImage.colorTexture)
+  }
+  renderer.setRenderTarget(renderTarget)
 }
 
 export function createXRLayerGeometry(
@@ -189,11 +208,11 @@ export function updateXRLayerProperties(
   }
 }
 
-export function setupStaticXRLayerContent(
+export function setupXRImageLayer(
   renderer: WebGLRenderer,
   store: XRStore<any>,
   layer: XRCompositionLayer,
-  content: Exclude<TexImageSource, VideoFrame>,
+  src: Exclude<TexImageSource, VideoFrame | HTMLVideoElement>,
 ) {
   let stop = false
   const draw = async () => {
@@ -201,7 +220,7 @@ export function setupStaticXRLayerContent(
     if (stop) {
       return
     }
-    writeContentToXRLayer(renderer, layer, frame, content)
+    writeContentToXRLayer(renderer, layer, frame, src)
   }
   layer.addEventListener('redraw', draw)
   draw()
@@ -209,6 +228,37 @@ export function setupStaticXRLayerContent(
     stop = true
     layer.removeEventListener('redraw', draw)
   }
+}
+
+export async function waitForXRLayerSrcSize(src: XRLayerSrc | undefined) {
+  if (src instanceof HTMLImageElement && !src.complete) {
+    await new Promise<void>((resolve) => {
+      const onResolve = () => {
+        resolve()
+        src.removeEventListener('load', onResolve)
+      }
+      src.addEventListener('load', onResolve)
+    })
+  }
+  if (src instanceof HTMLVideoElement && src.readyState < 1) {
+    return new Promise<void>((resolve) => {
+      const onResolve = () => {
+        resolve()
+        src.removeEventListener('loadedmetadata', onResolve)
+      }
+      src.addEventListener('loadedmetadata', onResolve)
+    })
+  }
+}
+
+export function getXRLayerSrcTexture(src: XRLayerSrc): Texture {
+  if (src instanceof WebGLRenderTarget) {
+    return src.texture
+  }
+  const texture = src instanceof HTMLVideoElement ? new VideoTexture(src) : new Texture(src)
+  texture.colorSpace = SRGBColorSpace
+  texture.needsUpdate = true
+  return texture
 }
 
 function writeContentToXRLayer(

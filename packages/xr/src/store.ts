@@ -1,5 +1,5 @@
 import { StoreApi, createStore } from 'zustand/vanilla'
-import type { Camera, Object3D, WebXRManager } from 'three'
+import { Camera, Object3D, WebXRManager } from 'three'
 import { updateXRHandState } from './hand/state.js'
 import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './controller/index.js'
 import { XRHandLoaderOptions } from './hand/index.js'
@@ -10,7 +10,7 @@ import { XRLayerEntry } from './layer.js'
 
 declare global {
   export interface XRSessionEventMap {
-    trackedsourceschange: XRInputSourceChangeEvent
+    trackedsourceschange: XRInputSourcesChangeEvent
   }
   export interface XRSession {
     trackedSources?: ReadonlyArray<XRInputSource>
@@ -478,7 +478,8 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
           updateSession(store, frame, xrManager)
         }
         if (state.session == null && referenceSpace != null && frame.session != null) {
-          bindToSession(frame.session)
+          update ??= {}
+          Object.assign(update, bindToSession(frame.session))
         }
       }
 
@@ -614,10 +615,10 @@ function createBindToSession(
   secondayInputSources: boolean,
 ) {
   let cleanupSession: (() => void) | undefined
-  return (session: XRSession | undefined) => {
+  return (session: XRSession | undefined): Partial<XRState<any>> => {
     cleanupSession?.()
     if (session == null) {
-      return
+      return {}
     }
 
     //for debouncing the input source and tracked source changes
@@ -631,7 +632,7 @@ function createBindToSession(
       })
       inputSourceChangesList.length = 0
     }
-    const onSourcesChange = (isPrimary: boolean, e: XRInputSourceChangeEvent) => {
+    const onSourcesChange = (isPrimary: boolean, e: XRInputSourcesChangeEvent) => {
       inputSourceChangesList.push({ isPrimary, added: e.added, removed: e.removed })
       if (inputSourceChangesTimeout != null) {
         return
@@ -674,16 +675,6 @@ function createBindToSession(
     }
     const inputSourceStates = syncXRInputSourceStates(session, [], initialChanges)
 
-    store.setState({
-      inputSourceStates,
-      frameRate: session.frameRate,
-      visibilityState: session.visibilityState,
-      detectedMeshes: [],
-      detectedPlanes: [],
-      mode: session.environmentBlendMode === 'opaque' ? 'immersive-vr' : 'immersive-ar',
-      session,
-      mediaBinding: typeof XRMediaBinding == 'undefined' ? undefined : new XRMediaBinding(session),
-    })
     cleanupSession = () => {
       //cleanup
       cleanupSecondaryInputSources?.()
@@ -693,6 +684,17 @@ function createBindToSession(
       session.removeEventListener('frameratechange', onChange)
       session.removeEventListener('visibilitychange', onChange)
       session.removeEventListener('inputsourceschange', onInputSourcesChange)
+    }
+
+    return {
+      inputSourceStates,
+      frameRate: session.frameRate,
+      visibilityState: session.visibilityState,
+      detectedMeshes: [],
+      detectedPlanes: [],
+      mode: session.environmentBlendMode === 'opaque' ? 'immersive-vr' : 'immersive-ar',
+      session,
+      mediaBinding: typeof XRMediaBinding == 'undefined' ? undefined : new XRMediaBinding(session),
     }
   }
 }

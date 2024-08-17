@@ -82,7 +82,7 @@ export function updatePointerCursorModel(
   } else {
     material.color.set(color ?? 'white')
   }
-  material.opacity = typeof options.opacity === 'function' ? options.opacity(pointer) : options.opacity ?? 0.4
+  material.opacity = typeof options.opacity === 'function' ? options.opacity(pointer) : (options.opacity ?? 0.4)
 
   mesh.position.copy(intersection.pointOnFace)
   mesh.scale.setScalar(options.size ?? 0.1)

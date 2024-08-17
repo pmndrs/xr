@@ -72,6 +72,8 @@ export function App() {
 - ✴ [Origin](https://docs.pmnd.rs/xr/tutorials/origin)
 - 🪄 [Teleport](https://docs.pmnd.rs/xr/tutorials/teleport)
 - 🕹️ [Gamepad](https://docs.pmnd.rs/xr/tutorials/gamepad)
+- ➕ [Secondary Input Sources](https://docs.pmnd.rs/xr/tutorials/secondary-input-sources)
+- 📺 [Layers](https://docs.pmnd.rs/xr/tutorials/layers)
 - 🎮 [Custom Controller/Hands/...](https://docs.pmnd.rs/xr/tutorials/custom-inputs)
 - ⚓️ [Anchors](https://docs.pmnd.rs/xr/tutorials/anchors)
 - 📱 [Dom Overlays](https://docs.pmnd.rs/xr/tutorials/dom-overlay)
@@ -81,8 +83,6 @@ export function App() {
 ## Roadmap
 
 - 🤳 XR Gestures
-- ➕ Multimodal
-- 📺 Layers
 - 🕺 Tracked Body
 - ↕ react-three/controls
 

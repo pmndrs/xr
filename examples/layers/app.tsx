@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Mesh } from 'three'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 
-const store = createXRStore()
+const store = createXRStore({
+  foveation: 0,
+})
 
 export function App() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -26,15 +28,16 @@ export function App() {
           {image != null && (
             <XRLayer
               position={[0, 1.5, -0.5]}
-              scale={1}
+              onClick={() => image.play()}
+              scale={0.5}
               shape="quad"
               pixelHeight={1024}
               pixelWidth={1024}
               centralAngle={Math.PI}
-              blendTextureSourceAlpha
               centralHorizontalAngle={Math.PI}
               lowerVerticalAngle={-Math.PI / 2}
               upperVerticalAngle={Math.PI / 2}
+              src={image}
             >
               <Inner />
             </XRLayer>
