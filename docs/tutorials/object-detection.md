@@ -17,7 +17,7 @@ function RedWalls() {
     <>
       {wallPlanes.map((plane) => (
         <XRSpace space={plane.planeSpace}>
-          <XRPlaneModel>
+          <XRPlaneModel plane={plane}>
             <meshBasicMaterial color="red" />
           </XRPlaneModel>
         </XRSpace>
