@@ -56,9 +56,15 @@ Inputs are a key aspect of react-three/fiber. The following hooks provide access
 
 Hook for listening to xr input source events.
 
+### `useXRInputSourceStateContext`
+
+Hook for getting the XR input source state inside of a component that renders the input source. For example, the `DefaultXRHand` uses this hook to get the state of the hand it renders using `useXRInputSourceStateContext("hand")`.
+
+- `type`: the type that the input source state should have (e.g. `"hand"`)
+
 ### `useXRInputSourceState`
 
-Hook for getting the XR controller state.
+Hook for getting the XR input source state.
 
 - `type`: the type that the input source state should have (e.g. `"hand"`)
 - `handedness`: (optional) the handedness that the XR input source state should have.
