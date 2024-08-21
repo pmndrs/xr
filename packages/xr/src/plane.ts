@@ -24,6 +24,9 @@ const boxHelper = new Box2()
 const sizeHelper = new Vector2()
 
 function createGeometryFromPolygon(polygon: DOMPointReadOnly[]): BufferGeometry {
+  if (polygon.length === 0) {
+    return new BufferGeometry()
+  }
   const shape = new Shape()
   const points = polygon.map(({ x, z }) => new Vector2(x, z))
   //we measure the size and scale & unscale to have normalized UVs for the geometry
