@@ -73,6 +73,7 @@ export type XRInputSourceStateMap = {
   transientPointer: XRTransientPointerState
   gaze: XRGazeState
   screenInput: XRScreenInputState
+  gamepad: XRControllerGamepadState
 }
 
 function setupEvents(session: XRSession, events: Array<XRInputSourceEvent>): () => void {
