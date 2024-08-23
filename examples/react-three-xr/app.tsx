@@ -1,5 +1,13 @@
 import { Canvas } from '@react-three/fiber'
-import { useHover, createXRStore, XR, XROrigin, TeleportTarget } from '@react-three/xr'
+import {
+  useHover,
+  createXRStore,
+  XR,
+  XROrigin,
+  TeleportTarget,
+  UnboundController,
+  UnboundControllerComponent,
+} from '@react-three/xr'
 import { useRef, useState } from 'react'
 import { Mesh, Vector3 } from 'three'
 
@@ -19,6 +27,9 @@ export function App() {
           <ambientLight />
           <XROrigin position={position} />
           <Cube />
+          <group scale={10} position={[0, 0, 4]} rotation={[Math.PI / 2, 0, -Math.PI / 4]}>
+            <DemoController />
+          </group>
           <TeleportTarget onTeleport={setPosition}>
             <mesh scale={[10, 1, 10]} position={[0, -0.5, 0]}>
               <boxGeometry />
@@ -28,6 +39,25 @@ export function App() {
         </XR>
       </Canvas>
     </>
+  )
+}
+
+function DemoController() {
+  return (
+    <UnboundController profileIds={['meta-quest-touch-plus']}>
+      <UnboundControllerComponent id={'a-button'}>
+        <mesh>
+          <sphereGeometry args={[0.01]} />
+          <meshBasicMaterial color={0xff0000} />
+        </mesh>
+      </UnboundControllerComponent>
+      <UnboundControllerComponent id={'b-button'}>
+        <mesh>
+          <sphereGeometry args={[0.01]} />
+          <meshBasicMaterial color={0xff0000} />
+        </mesh>
+      </UnboundControllerComponent>
+    </UnboundController>
   )
 }
 
