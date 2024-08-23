@@ -22,6 +22,7 @@ export type XRControllerModelOptions = {
 }
 
 export function configureXRControllerModel(model: Object3D, options?: XRControllerModelOptions) {
+  model.name = 'XRControllerModel'
   model.renderOrder = options?.renderOrder ?? 0
   model.traverse((child) => {
     if (child instanceof Mesh && child.material instanceof Material) {

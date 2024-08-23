@@ -10,6 +10,7 @@ export class PointerRayModel extends Mesh {
   constructor(pointer: Pointer, options: PointerRayModelOptions = {}) {
     const material = new PointerRayMaterial()
     super(pointerRayGeometry, material)
+    this.name = 'PointerRayModel'
     this.renderOrder = options.renderOrder ?? 2
     onXRFrame(() => updatePointerRayModel(this, material, pointer, options))
   }
@@ -21,6 +22,7 @@ export class PointerCursorModel extends Mesh {
   constructor(pointer: Pointer, options: PointerCursorModelOptions = {}) {
     const material = new PointerCursorMaterial()
     super(pointerCursorGeometry, material)
+    this.name = 'PointerCursorModel'
     this.renderOrder = options.renderOrder ?? 1
     onXRFrame(() => updatePointerCursorModel(this, material, pointer, options))
   }

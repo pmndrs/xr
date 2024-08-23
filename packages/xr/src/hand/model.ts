@@ -47,6 +47,7 @@ export type XRHandModelOptions = {
 }
 
 export function configureXRHandModel(model: Object3D, options?: XRHandModelOptions) {
+  model.name = 'XRHandModel'
   model.renderOrder = options?.renderOrder ?? 0
   model.traverse((child) => {
     if (child instanceof Mesh && child.material instanceof Material) {
