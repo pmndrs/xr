@@ -1,31 +1,20 @@
-import {
-  ReactNode,
-  forwardRef,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-  FC,
-  createContext,
-  useContext,
-} from 'react'
+import { ReactNode, forwardRef, useImperativeHandle, useMemo, useRef, useState, useEffect } from 'react'
 import { suspend } from 'suspend-react'
 import {
-  XRControllerGamepadComponentId,
-  XRControllerGamepadComponentState,
-  XRControllerModelOptions,
-  XRControllerState,
   configureXRControllerModel,
   createUpdateXRControllerVisuals,
   loadXRControllerModel,
+  XRControllerGamepadComponentId,
+  XRControllerGamepadComponentState,
   XRControllerLayout,
   XRControllerLayoutLoader,
   XRControllerLayoutLoaderOptions,
+  XRControllerModelOptions,
+  XRControllerState,
 } from '@pmndrs/xr/internals'
 import { createPortal, useFrame } from '@react-three/fiber'
 import { Object3D } from 'three'
-import { useXRInputSourceState, useXRInputSourceStateContext } from './input.js'
+import { useXRInputSourceStateContext } from './input.js'
 
 /**
  * component for placing content in the controller anchored at a specific component such as the Thumbstick
@@ -90,7 +79,7 @@ const LoadXRControllerModelSymbol = Symbol('loadXRControllerModel')
  */
 export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>((options, ref) => {
   const state = useXRInputSourceStateContext('controller')
-  const model = useLoadXRControllerModel(state.layout)
+  const model = suspend(loadXRControllerModel, [state.layout, undefined, LoadXRControllerModelSymbol])
   configureXRControllerModel(model, options)
   state.object = model
   useImperativeHandle(ref, () => model, [model])
@@ -126,47 +115,4 @@ export function useLoadXRControllerModel(layout: XRControllerLayout) {
     (layout, loader, qwre) => (layout ? loadXRControllerModel(layout, loader) : Promise.resolve()),
     [layout, undefined, LoadXRControllerModelSymbol],
   )
-}
-
-export function getXRControllerComponentObject(
-  model: Object3D,
-  layout: XRControllerLayout,
-  componentId: XRControllerGamepadComponentId,
-) {
-  const component = layout.components[componentId]
-  // TODO: Add support for providing gamepad state
-  const firstVisualResponse = component.visualResponses[Object.keys(component.visualResponses)[0]]
-  if (!firstVisualResponse) return
-  const valueNode = model.getObjectByName(firstVisualResponse.valueNodeName)
-
-  return { object: valueNode }
-}
-
-const unboundControllerContext = createContext<XRControllerState | undefined>(undefined)
-
-export const UnboundController: FC<{ profileIds: string[] }> = ({ profileIds, children }) => {
-  const layout = useLoadXRControllerLayout(['meta-quest-touch-plus'], 'right')
-  const model = useLoadXRControllerModel(layout)
-
-  return model ? (
-    <unboundControllerContext.Provider value={{ model, layout }}>
-      <primitive object={model} />
-      {children}
-    </unboundControllerContext.Provider>
-  ) : null
-}
-
-export const UnboundControllerComponent: FC = ({ id, children }) => {
-  const [object, setObject] = useState<Object3D | undefined>(undefined)
-  const { model, layout } = useContext(unboundControllerContext)
-
-  useEffect(() => {
-    if (!model) {
-      return
-    }
-    const component = getXRControllerComponentObject(model, layout, id)
-
-    setObject(component?.object)
-  }, [model, layout, id])
-  return object ? createPortal(children, object) : null
 }
