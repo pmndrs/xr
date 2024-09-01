@@ -290,7 +290,10 @@ export function updateXRLayerTransform(
   centralAngle: number | undefined,
   relativeTo: Object3D,
 ) {
-  target.space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)!
+  if (state.originReferenceSpace == null) {
+    return
+  }
+  target.space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)
   target.transform = matrixToRigidTransform(matrixHelper, scaleHelper)
   applyXRLayerScale(getLayerShape(target), target, centralAngle, scaleHelper)
 }
