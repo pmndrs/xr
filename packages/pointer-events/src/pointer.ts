@@ -1,6 +1,8 @@
-import { Object3D } from 'three'
+import { Object3D, Intersection as ThreeIntersection } from 'three'
 import { Intersection } from './intersections/index.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent, WheelEvent, emitPointerEvent } from './event.js'
+import { intersectPointerEventTargets } from './intersections/utils.js'
+import { Intersector } from './intersections/intersector.js'
 
 const buttonsDownTimeKey = Symbol('buttonsDownTime')
 const buttonsClickTimeKey = Symbol('buttonsClickTime')
@@ -112,17 +114,17 @@ export class Pointer {
     public readonly id: number,
     public readonly type: string,
     public readonly state: any,
-    private readonly computeIntersection: (
-      scene: Object3D,
-      nativeEvent: unknown,
-      pointerCapture: PointerCapture | undefined,
-    ) => Intersection | undefined,
+    public readonly intersector: Intersector,
     private readonly onMoveCommited?: (pointer: Pointer) => void,
     private readonly parentSetPointerCapture?: () => void,
     private readonly parentReleasePointerCapture?: () => void,
     private readonly options: PointerOptions = {},
   ) {
     pointerMap.set(id, this)
+  }
+
+  getPointerCapture(): PointerCapture | undefined {
+    return this.pointerCapture
   }
 
   hasCaptured(object: Object3D): boolean {
@@ -171,13 +173,26 @@ export class Pointer {
     }
   }
 
+  private computeIntersection(scene: Object3D, nativeEvent: NativeEvent) {
+    if (this.pointerCapture != null) {
+      return this.intersector.intersectPointerCapture(this.pointerCapture, nativeEvent)
+    }
+    this.intersector.startIntersection(nativeEvent)
+    intersectPointerEventTargets(scene, [this])
+    return this.intersector.finalizeIntersection()
+  }
+
+  setIntersection(intersection: Intersection | undefined): void {
+    this.intersection = intersection
+  }
+
   /**
    * allows to separately compute and afterwards commit a move
    * => do not forget to call commitMove after computeMove
    * can be used to compute the current intersection and disable or enable the pointer before commiting the move
    */
   computeMove(scene: Object3D, nativeEvent: NativeEvent) {
-    this.intersection = this.computeIntersection(scene, nativeEvent, this.pointerCapture)
+    this.intersection = this.computeIntersection(scene, nativeEvent)
   }
 
   commit(nativeEvent: NativeEvent) {
@@ -336,7 +351,7 @@ export class Pointer {
     }
     let intersection = this.intersection
     if (!useCurrentIntersection) {
-      intersection = this.computeIntersection(scene, nativeEvent, this.pointerCapture)
+      intersection = this.computeIntersection(scene, nativeEvent)
     }
     if (!this.wasMoved && useCurrentIntersection) {
       this.onFirstMove.push(this.cancel.bind(this, nativeEvent))

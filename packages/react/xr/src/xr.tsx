@@ -10,10 +10,12 @@ import {
   DefaultXRScreenInputOptions,
 } from '@pmndrs/xr/internals'
 import { Camera, useFrame, useThree, useStore as useRootStore } from '@react-three/fiber'
-import { ComponentType, ReactNode, useContext, useEffect } from 'react'
+import { ComponentType, ReactNode, useContext, useEffect, useMemo } from 'react'
 import { useStore } from 'zustand'
-import { xrContext } from './contexts.js'
+import { combinedPointerContext, xrContext } from './contexts.js'
 import { XRElements } from './elements.js'
+import { setupSyncIsVisible } from '@pmndrs/xr'
+import { CombinedPointer } from '@pmndrs/pointer-events'
 
 type XRElementImplementation = {
   /**
@@ -97,10 +99,23 @@ export function XR({ children, store }: XRProperties) {
   useFrame(() => store.onBeforeRender())
   return (
     <xrContext.Provider value={store}>
-      <XRElements />
-      {children}
+      <RootCombinedPointer>
+        <XRElements />
+        {children}
+      </RootCombinedPointer>
     </xrContext.Provider>
   )
+}
+
+export function RootCombinedPointer({ children }: { children?: ReactNode }) {
+  const store = useXRStore()
+  const pointer = useMemo(() => new CombinedPointer(true), [])
+  useEffect(
+    () => setupSyncIsVisible(store, (visible) => pointer.setEnabled(visible, { timeStamp: performance.now() })),
+    [store, pointer],
+  )
+  useFrame((state) => pointer.move(state.scene, { timeStamp: performance.now() }), -50)
+  return <combinedPointerContext.Provider value={pointer}>{children}</combinedPointerContext.Provider>
 }
 
 /**

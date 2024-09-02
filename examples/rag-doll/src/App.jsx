@@ -36,7 +36,7 @@ export function App() {
       >
         Enter VR
       </button>
-      <Canvas dpr={[1, 2]} shadows camera={{ position: [-40, 40, 40], fov: 25, near: 1, far: 100 }}>
+      <Canvas dpr={[1, 2]} shadows camera={{ position: [-40, 40, 40], fov: 25 }}>
         <OrbitControls />
         <XR store={store}>
           <color attach="background" args={['#171720']} />

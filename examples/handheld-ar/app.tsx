@@ -9,7 +9,6 @@ export function App() {
   const [bool, setBool] = useState(false)
   return (
     <>
-      <button onClick={() => store.enterVR()}>Enter VR</button>
       <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas style={{ width: '100%', flexGrow: 1 }}>
         <XR store={store}>

@@ -1,6 +1,6 @@
-import { Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { Object3D } from 'three'
 import { Pointer, PointerOptions } from '../pointer.js'
-import { Intersection, IntersectionOptions, intersectSphere } from '../intersections/index.js'
+import { Intersection, IntersectionOptions, SphereIntersector } from '../intersections/index.js'
 import { generateUniquePointerId } from './index.js'
 
 export type TouchPointerOptions = {
@@ -19,26 +19,17 @@ export type TouchPointerOptions = {
 } & PointerOptions &
   IntersectionOptions
 
-export const defaultTouchPointerOptions = {
-  button: 0,
-  downRadius: 0.03,
-  hoverRadius: 0.1,
-} satisfies TouchPointerOptions
-
 export function createTouchPointer(
   space: { current?: Object3D | null },
   pointerState: any,
-  options: TouchPointerOptions = defaultTouchPointerOptions,
+  options: TouchPointerOptions = {},
   pointerType: string = 'touch',
 ) {
-  const fromPosition = new Vector3()
-  const fromQuaternion = new Quaternion()
-  const pointerId = generateUniquePointerId()
   return new Pointer(
-    pointerId,
+    generateUniquePointerId(),
     pointerType,
     pointerState,
-    (scene, _, pointerCapture) => {
+    new SphereIntersector((_nativeEvent, fromPosition, fromQuaternion) => {
       const spaceObject = space.current
       if (spaceObject == null) {
         return undefined
@@ -46,18 +37,8 @@ export function createTouchPointer(
       spaceObject.updateWorldMatrix(true, false)
       fromPosition.setFromMatrixPosition(spaceObject.matrixWorld)
       fromQuaternion.setFromRotationMatrix(spaceObject.matrixWorld)
-      return intersectSphere(
-        fromPosition,
-        fromQuaternion,
-        options.hoverRadius ?? defaultTouchPointerOptions.hoverRadius,
-        scene,
-        pointerId,
-        pointerType,
-        pointerState,
-        pointerCapture,
-        options,
-      )
-    },
+      return options.hoverRadius ?? 0.1
+    }, options),
     createUpdateTouchPointer(options),
     undefined,
     undefined,
@@ -65,21 +46,18 @@ export function createTouchPointer(
   )
 }
 
-function createUpdateTouchPointer(options: TouchPointerOptions = defaultTouchPointerOptions) {
+function createUpdateTouchPointer(options: TouchPointerOptions) {
   let wasPointerDown = false
   return (pointer: Pointer) => {
     if (!pointer.getEnabled()) {
       return
     }
     const intersection = pointer.getIntersection()
-    const isPointerDown = computeIsPointerDown(
-      intersection,
-      options.downRadius ?? defaultTouchPointerOptions.downRadius,
-    )
+    const isPointerDown = computeIsPointerDown(intersection, options.downRadius ?? 0.03)
     if (isPointerDown === wasPointerDown) {
       return
     }
-    const nativeEvent = { timeStamp: performance.now(), button: options.button ?? defaultTouchPointerOptions.button }
+    const nativeEvent = { timeStamp: performance.now(), button: options.button ?? 0 }
     if (isPointerDown) {
       pointer.down(nativeEvent)
     } else {
