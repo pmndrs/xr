@@ -11,7 +11,6 @@ import {
   useXRRequestHitTest,
   useXRAnchor,
   useXRInputSourceStateContext,
-  useXRInputSourceState,
 } from '@react-three/xr'
 import { useEffect, useRef } from 'react'
 import { Matrix4, Mesh, Vector3 } from 'three'
@@ -127,6 +126,9 @@ function Point({ index, left }: { left?: boolean; index: number }) {
   useEffect(
     () =>
       (left ? useLeftPoints : useRightPoints).subscribe((state) => {
+        if (index >= state.length) {
+          return
+        }
         ref.current!.position.copy(state[index])
       }),
     [index, left],

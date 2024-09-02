@@ -11,6 +11,8 @@ import {
   createDefaultXRTransientPointer,
 } from './default.js'
 import { XRSpaceType } from './types.js'
+import { CombinedPointer } from '@pmndrs/pointer-events'
+import { setupSyncIsVisible } from '../visible.js'
 
 export function setupSyncXRElements(
   scene: Object3D,
@@ -18,6 +20,10 @@ export function setupSyncXRElements(
   target: Object3D,
   updatesList: XRUpdatesList,
 ): () => void {
+  const combined = new CombinedPointer(true)
+  const onFrame = () => combined.move(scene, { timeStamp: performance.now() })
+  updatesList.push(onFrame)
+  setupSyncIsVisible(store, (visible) => combined.setEnabled(visible, { timeStamp: performance.now() }))
   const inputGroup = new Group()
   const syncControllers = setupSyncInputSourceElements(
     createDefaultXRController,
@@ -26,9 +32,26 @@ export function setupSyncXRElements(
     'controller',
     inputGroup,
     updatesList,
+    combined,
   )
-  const syncGazes = setupSyncInputSourceElements(createDefaultXRGaze, scene, store, 'gaze', inputGroup, updatesList)
-  const syncHands = setupSyncInputSourceElements(createDefaultXRHand, scene, store, 'hand', inputGroup, updatesList)
+  const syncGazes = setupSyncInputSourceElements(
+    createDefaultXRGaze,
+    scene,
+    store,
+    'gaze',
+    inputGroup,
+    updatesList,
+    combined,
+  )
+  const syncHands = setupSyncInputSourceElements(
+    createDefaultXRHand,
+    scene,
+    store,
+    'hand',
+    inputGroup,
+    updatesList,
+    combined,
+  )
   const syncScreenInputs = setupSyncInputSourceElements(
     createDefaultXRScreenInput,
     scene,
@@ -36,6 +59,7 @@ export function setupSyncXRElements(
     'screenInput',
     inputGroup,
     updatesList,
+    combined,
   )
   const syncTransientPointers = setupSyncInputSourceElements(
     createDefaultXRTransientPointer,
@@ -44,6 +68,7 @@ export function setupSyncXRElements(
     'transientPointer',
     inputGroup,
     updatesList,
+    combined,
   )
   const unsubscribe = store.subscribe((s, prev) => {
     inputGroup.visible = s.visibilityState === 'visible'
@@ -61,6 +86,11 @@ export function setupSyncXRElements(
   })
   target.add(inputGroup)
   return () => {
+    const index = updatesList.indexOf(onFrame)
+    if (index === -1) {
+      return
+    }
+    updatesList.splice(index, 1)
     target.remove(inputGroup)
     unsubscribe()
     syncControllers(undefined, [], [], false, false)
@@ -78,13 +108,15 @@ function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
     space: Object3D,
     state: any,
     session: XRSession,
-    options?: any,
+    options: any,
+    combined: CombinedPointer,
   ) => void,
   scene: Object3D,
   store: XRStore<XRElementImplementations>,
   key: K,
   target: Object3D,
   updatesList: XRUpdatesList,
+  combined: CombinedPointer,
 ) {
   return setupSync<K, WithRecord<XRElementImplementations>[K]>(key, (session, state, implementationInfo) =>
     runInXRUpdatesListContext(updatesList, () => {
@@ -100,7 +132,7 @@ function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
       target.add(spaceObject)
       const customCleanup =
         typeof implementation === 'object'
-          ? defaultCreate(scene, store, spaceObject, state, session, implementation)
+          ? defaultCreate(scene, store, spaceObject, state, session, implementation, combined)
           : implementation?.(store, spaceObject, state as any, session)
       return () => {
         target.remove(spaceObject)

@@ -2,15 +2,14 @@ import { ReactNode, RefObject, forwardRef, useContext, useEffect, useImperativeH
 import {
   CombinedPointer as CombinedPointerImpl,
   GrabPointerOptions,
+  LinesPointerOptions,
   Pointer,
   RayPointerOptions,
   TouchPointerOptions,
   createGrabPointer,
+  createLinesPointer,
   createRayPointer,
   createTouchPointer,
-  defaultGrabPointerOptions,
-  defaultRayPointerOptions,
-  defaultTouchPointerOptions,
 } from '@pmndrs/pointer-events'
 import { Mesh, Object3D } from 'three'
 import { createPortal, useFrame, useThree } from '@react-three/fiber'
@@ -23,8 +22,7 @@ import {
   updatePointerCursorModel,
   updatePointerRayModel,
 } from '@pmndrs/xr/internals'
-import { useXR, useXRStore } from './xr.js'
-import { setupSyncIsVisible } from '@pmndrs/xr'
+import { useXR } from './xr.js'
 import { combinedPointerContext } from './contexts.js'
 
 //for checking if `event.pointerState` is from an xr input source
@@ -34,10 +32,15 @@ export { type XRInputSourceState, isXRInputSourceState } from '@pmndrs/xr/intern
  * component for combining multiple pointer into one so that only one pointer is active at each time
  */
 export function CombinedPointer({ children }: { children?: ReactNode }) {
-  const pointer = useMemo(() => new CombinedPointerImpl(), [])
-  usePointerXRSessionVisibility(pointer)
-  useFrame((state) => pointer.move(state.scene, { timeStamp: performance.now() }), -50)
+  const pointer = useMemo(() => new CombinedPointerImpl(false), [])
+  useSetupPointer(pointer)
   return <combinedPointerContext.Provider value={pointer}>{children}</combinedPointerContext.Provider>
+}
+
+function clearObject(object: Record<string, unknown>): void {
+  for (const key of Object.keys(object)) {
+    delete object[key]
+  }
 }
 
 /**
@@ -50,7 +53,8 @@ export function useGrabPointer(
   pointerType?: string,
 ): Pointer {
   const options = useMemo<GrabPointerOptions>(() => ({}), [])
-  Object.assign(options, defaultGrabPointerOptions, currentOptions)
+  clearObject(options)
+  Object.assign(options, currentOptions)
   const pointer = useMemo(
     () => createGrabPointer(spaceRef, pointerState, options, pointerType),
     [spaceRef, pointerState, options, pointerType],
@@ -69,9 +73,30 @@ export function useRayPointer(
   pointerType?: string,
 ): Pointer {
   const options = useMemo<RayPointerOptions>(() => ({}), [])
-  Object.assign(options, defaultRayPointerOptions, currentOptions)
+  clearObject(options)
+  Object.assign(options, currentOptions)
   const pointer = useMemo(
     () => createRayPointer(spaceRef, pointerState, options, pointerType),
+    [spaceRef, pointerState, options, pointerType],
+  )
+  useSetupPointer(pointer, currentOptions?.makeDefault)
+  return pointer
+}
+
+/**
+ * hook for creating a ray pointer
+ */
+export function useLinesPointer(
+  spaceRef: RefObject<Object3D>,
+  pointerState: any,
+  currentOptions?: LinesPointerOptions & { makeDefault?: boolean },
+  pointerType?: string,
+): Pointer {
+  const options = useMemo<LinesPointerOptions>(() => ({}), [])
+  clearObject(options)
+  Object.assign(options, currentOptions)
+  const pointer = useMemo(
+    () => createLinesPointer(spaceRef, pointerState, options, pointerType),
     [spaceRef, pointerState, options, pointerType],
   )
   useSetupPointer(pointer, currentOptions?.makeDefault)
@@ -88,7 +113,8 @@ export function useTouchPointer(
   pointerType?: string,
 ): Pointer {
   const options = useMemo<TouchPointerOptions>(() => ({}), [])
-  Object.assign(options, defaultTouchPointerOptions, currentOptions)
+  clearObject(options)
+  Object.assign(options, currentOptions)
   const pointer = useMemo(
     () => createTouchPointer(spaceRef, pointerState, options, pointerType),
     [spaceRef, pointerState, options, pointerType],
@@ -151,24 +177,21 @@ export function usePointerXRInputSourceEvents(
   }, [event, inputSource, pointer, session, missingEvents])
 }
 
-function useSetupPointer(pointer: Pointer, makeDefault: boolean = false) {
+function useSetupPointer(pointer: Pointer | CombinedPointerImpl, makeDefault: boolean = false) {
   const combinedPointer = useContext(combinedPointerContext)
   if (combinedPointer == null) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    usePointerXRSessionVisibility(pointer)
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useFrame((state) => pointer.move(state.scene, { timeStamp: performance.now() }), -50)
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => combinedPointer.register(pointer, makeDefault), [combinedPointer, pointer, makeDefault])
+    throw new Error(`xr pointers can only be used inside the XR component`)
   }
-  useEffect(() => () => pointer.exit({ timeStamp: performance.now() }), [pointer])
-}
-
-function usePointerXRSessionVisibility(pointer: Pointer | CombinedPointerImpl) {
-  const store = useXRStore()
-  useEffect(
-    () => setupSyncIsVisible(store, (visible) => pointer.setEnabled(visible, { timeStamp: performance.now() })),
-    [store, pointer],
-  )
+  useEffect(() => {
+    const unregister = combinedPointer.register(pointer, makeDefault)
+    return () => {
+      unregister()
+    }
+  }, [combinedPointer, pointer, makeDefault])
+  useEffect(() => {
+    if (!(pointer instanceof Pointer)) {
+      return
+    }
+    return () => pointer.exit({ timeStamp: performance.now() })
+  }, [pointer])
 }

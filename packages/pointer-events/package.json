@@ -24,8 +24,9 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -p build.tsconfig.json",
-    "test": "vitest run",
-    "bench": "vitest bench",
+    "test": "vitest run --printConsoleTrace",
+    "bench-write": "vitest bench --output-json bench.json --run",
+    "bench-compare": "vitest bench --compare bench.json --run",
     "example": "vite example --host",
     "example:build": "vite build example"
   },
@@ -35,6 +36,6 @@
     "@types/three": "^0.164.0",
     "three": "^0.164.1",
     "vite": "^5.2.11",
-    "vitest": "^1.6.0"
+    "vitest": "^2.0.5"
   }
 }

@@ -23,7 +23,7 @@ const store = createXRStore({
   controller: { teleportPointer: true },
 })
 
-setPreferredColorScheme('light')
+setPreferredColorScheme('dark')
 
 export function App() {
   const [counter, setCounter] = useState(0)

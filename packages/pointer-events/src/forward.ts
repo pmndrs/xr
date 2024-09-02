@@ -1,7 +1,7 @@
 import { Camera, Object3D, Quaternion, Scene, Vector2, Vector3 } from 'three'
-import { Pointer, PointerCapture, PointerOptions } from './pointer.js'
+import { Pointer, PointerOptions } from './pointer.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
-import { intersectRayFromCamera } from './intersections/ray.js'
+import { CameraRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
 import { IntersectionOptions } from './intersections/index.js'
 
@@ -18,10 +18,6 @@ export type ForwardEventsOptions = {
   pointerTypePrefix?: string
 } & PointerOptions &
   IntersectionOptions
-
-const vectorHelper = new Vector3()
-const vector2Helper = new Vector2()
-const quaternionHelper = new Quaternion()
 
 function htmlEventToCoords(element: HTMLElement, e: unknown, target: Vector2): Vector2 {
   if (!(e instanceof globalThis.MouseEvent)) {
@@ -94,7 +90,7 @@ function forwardEvents(
   },
   toCamera: Camera,
   toScene: Object3D,
-  toCoords: (event: unknown, target: Vector2) => Vector2,
+  toCoords: (event: unknown, target: Vector2) => void,
   setPointerCapture: (pointerId: number) => void,
   releasePointerCapture: (ponterId: number) => void,
   options: ForwardEventsOptions = {},
@@ -107,27 +103,16 @@ function forwardEvents(
     if (innerPointer != null) {
       return innerPointer
     }
-    pointerType = `${pointerTypePrefix}${pointerType}`
-    const computeIntersection = (scene: Object3D, nativeEvent: unknown, pointerCapture: PointerCapture | undefined) =>
-      intersectRayFromCamera(
-        toCamera,
-        toCoords(nativeEvent, vector2Helper),
-        toCamera.getWorldPosition(vectorHelper),
-        toCamera.getWorldQuaternion(quaternionHelper),
-        scene,
-        pointerId,
-        pointerType,
-        pointerState,
-        pointerCapture,
-        options,
-      )
     pointerMap.set(
       pointerId,
       (innerPointer = new Pointer(
         generateUniquePointerId(),
-        pointerType,
+        `${pointerTypePrefix}${pointerType}`,
         pointerState,
-        computeIntersection,
+        new CameraRayIntersector((nativeEvent, coords) => {
+          toCoords(nativeEvent, coords)
+          return toCamera
+        }, options),
         undefined,
         forwardPointerCapture ? setPointerCapture.bind(null, pointerId) : undefined,
         forwardPointerCapture ? releasePointerCapture.bind(null, pointerId) : undefined,

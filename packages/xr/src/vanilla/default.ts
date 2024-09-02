@@ -21,7 +21,6 @@ import {
 } from '../internals.js'
 import { XRControllerModel } from './controller.js'
 import { XRElementImplementations } from './xr.js'
-import { setupSyncIsVisible } from '../visible.js'
 import {
   DefaultXRControllerOptions,
   DefaultXRGazeOptions,
@@ -38,6 +37,7 @@ import {
   createGrabPointer,
   createRayPointer,
   createTouchPointer,
+  createLinesPointer,
 } from '@pmndrs/pointer-events'
 import { onXRFrame } from './utils.js'
 import { XRSpaceType } from './types.js'
@@ -48,14 +48,14 @@ export function createDefaultXRInputSourceRayPointer(
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
-  options?: DefaultXRInputSourceRayPointerOptions,
-  combined?: CombinedPointer,
+  options: DefaultXRInputSourceRayPointerOptions | undefined,
+  combined: CombinedPointer,
   makeDefault?: boolean,
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
-  const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
+  const unregister = combined.register(pointer, makeDefault)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   let undoAddRayModel: (() => void) | undefined
@@ -80,7 +80,7 @@ export function createDefaultXRInputSourceRayPointer(
     undoAddRayModel?.()
     undoAddCursorModel?.()
     unbind()
-    cleanupPointer()
+    unregister()
   }
 }
 
@@ -90,8 +90,8 @@ export function createDefaultXRInputSourceTeleportPointer(
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
-  options?: DefaultXRInputSourceTeleportPointerOptions,
-  combined?: CombinedPointer,
+  options: DefaultXRInputSourceTeleportPointerOptions | undefined,
+  combined: CombinedPointer,
   makeDefault?: boolean,
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
@@ -103,13 +103,13 @@ export function createDefaultXRInputSourceTeleportPointer(
   onXRFrame((_, delta) => syncTeleportPointerRayGroup(raySpace, teleportPointerRayGroup, delta))
 
   const linePoints = createTeleportRayLine()
-  const pointer = createRayPointer(
+  const pointer = createLinesPointer(
     { current: teleportPointerRayGroup },
     state,
     { ...options, customFilter: buildTeleportTargetFilter(options), linePoints },
     'teleport',
   )
-  const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
+  const unregister = combined.register(pointer, makeDefault)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   let undoAddRayModel: (() => void) | undefined
   const { rayModel: rayModelOptions = true, cursorModel: cursorModelOptions = true } = options ?? {}
@@ -137,22 +137,8 @@ export function createDefaultXRInputSourceTeleportPointer(
     undoAddRayModel?.()
     undoAddCursorModel?.()
     unbind()
-    cleanupPointer()
+    unregister()
   }
-}
-
-function setupPointer(
-  scene: Object3D,
-  store: XRStore<XRElementImplementations>,
-  pointer: Pointer,
-  combined: CombinedPointer | undefined,
-  makeDefault: boolean | undefined,
-) {
-  if (combined != null) {
-    return combined?.register(pointer, makeDefault ?? false)
-  }
-  onXRFrame(() => pointer.move(scene, { timeStamp: performance.now() }))
-  return setupSyncIsVisible(store, (visible) => pointer.setEnabled(visible, { timeStamp: performance.now() }))
 }
 
 export function createDefaultXRInputSourceGrabPointer(
@@ -163,14 +149,14 @@ export function createDefaultXRInputSourceGrabPointer(
   gripSpace: XRSpaceType,
   session: XRSession,
   event: 'select' | 'squeeze',
-  options?: DefaultXRInputSourceGrabPointerOptions,
-  combined?: CombinedPointer,
+  options: DefaultXRInputSourceGrabPointerOptions | undefined,
+  combined: CombinedPointer,
   makeDefault?: boolean,
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const gripSpaceObject = new XRSpace(gripSpace)
   const pointer = createGrabPointer({ current: gripSpaceObject }, state, options)
-  const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
+  const unregister = combined.register(pointer, makeDefault)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, event, state.events)
   space.add(gripSpaceObject)
 
@@ -183,7 +169,7 @@ export function createDefaultXRInputSourceGrabPointer(
     undoAddCursorModel = () => scene.remove(cursorModel)
   }
   return () => {
-    cleanupPointer()
+    unregister()
     pointer.exit({ timeStamp: performance.now() })
     space.remove(gripSpaceObject)
     undoAddCursorModel?.()
@@ -196,14 +182,14 @@ export function createDefaultXRHandTouchPointer(
   store: XRStore<XRElementImplementations>,
   space: Object3D,
   state: XRHandState,
-  options?: DefaultXRHandTouchPointerOptions,
-  combined?: CombinedPointer,
+  options: DefaultXRHandTouchPointerOptions | undefined,
+  combined: CombinedPointer,
   makeDefault?: boolean,
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const touchSpaceObject = new XRSpace(state.inputSource.hand.get('index-finger-tip')!)
   const pointer = createTouchPointer({ current: touchSpaceObject }, state, options)
-  const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
+  const unregister = combined.register(pointer, makeDefault)
   space.add(touchSpaceObject)
   let undoAddCursorModel: (() => void) | undefined
   const { cursorModel: cursorModelOptions = true } = options ?? {}
@@ -216,7 +202,7 @@ export function createDefaultXRHandTouchPointer(
     undoAddCursorModel = () => scene.remove(cursorModel)
   }
   return () => {
-    cleanupPointer()
+    unregister()
     pointer.exit({ timeStamp: performance.now() })
     space.remove(touchSpaceObject)
     undoAddCursorModel?.()
@@ -236,10 +222,10 @@ export function createDefaultXRHand(
     model: modelOptions = true,
     touchPointer: touchPointerOptions = true,
   }: DefaultXRHandOptions = {},
+  combined: CombinedPointer,
 ): () => void {
-  const combined = new CombinedPointer()
-  onXRFrame(() => combined.move(scene, { timeStamp: performance.now() }))
-  setupSyncIsVisible(store, (visible) => combined.setEnabled(visible, { timeStamp: performance.now() }))
+  const combinedPointer = new CombinedPointer(false)
+  const unregisterPointer = combined.register(combinedPointer)
 
   let destroyRayPointer: (() => void) | undefined
   if (rayPointerOptions !== false) {
@@ -261,7 +247,7 @@ export function createDefaultXRHand(
                 ...spreadable(rayPointerRayModelOptions),
               },
       },
-      combined,
+      combinedPointer,
       true,
     )
   }
@@ -275,7 +261,7 @@ export function createDefaultXRHand(
           state,
           session,
           spreadable(teleportPointerOptions),
-          combined,
+          combinedPointer,
         )
   const destroyGrabPointer =
     grabPointerOptions === false
@@ -289,12 +275,12 @@ export function createDefaultXRHand(
           session,
           'select',
           spreadable(grabPointerOptions),
-          combined,
+          combinedPointer,
         )
   const destroyTouchPointer =
     touchPointerOptions === false
       ? undefined
-      : createDefaultXRHandTouchPointer(scene, store, space, state, spreadable(touchPointerOptions), combined)
+      : createDefaultXRHandTouchPointer(scene, store, space, state, spreadable(touchPointerOptions), combinedPointer)
   let removeModel: (() => void) | undefined
   if (modelOptions !== false) {
     const model = new XRHandModel(state.inputSource.hand, state.assetPath, spreadable(modelOptions))
@@ -302,6 +288,7 @@ export function createDefaultXRHand(
     removeModel = () => space.remove(model)
   }
   return () => {
+    unregisterPointer()
     destroyRayPointer?.()
     destroyGrabPointer?.()
     destroyTouchPointer?.()
@@ -322,10 +309,10 @@ export function createDefaultXRController(
     teleportPointer: teleportPointerOptions = false,
     model: modelOptions = true,
   }: DefaultXRControllerOptions = {},
+  combined: CombinedPointer,
 ): () => void {
-  const combined = new CombinedPointer()
-  onXRFrame(() => combined.move(scene, { timeStamp: performance.now() }))
-  setupSyncIsVisible(store, (visible) => combined.setEnabled(visible, { timeStamp: performance.now() }))
+  const combinedPointer = new CombinedPointer(true)
+  const unregisterPointer = combined.register(combinedPointer)
   const destroyRayPointer =
     rayPointerOptions === false
       ? undefined
@@ -336,7 +323,7 @@ export function createDefaultXRController(
           state,
           session,
           { minDistance: 0.2, ...spreadable(rayPointerOptions) },
-          combined,
+          combinedPointer,
           true,
         )
 
@@ -350,7 +337,7 @@ export function createDefaultXRController(
           state,
           session,
           spreadable(teleportPointerOptions),
-          combined,
+          combinedPointer,
         )
   const destroyGrabPointer =
     grabPointerOptions === false
@@ -364,7 +351,7 @@ export function createDefaultXRController(
           session,
           'squeeze',
           spreadable(grabPointerOptions),
-          combined,
+          combinedPointer,
         )
 
   let removeModel: (() => void) | undefined
@@ -374,6 +361,7 @@ export function createDefaultXRController(
     removeModel = () => space.remove(model)
   }
   return () => {
+    unregisterPointer()
     destroyTeleportPointer?.()
     destroyRayPointer?.()
     destroyGrabPointer?.()
@@ -387,14 +375,13 @@ export function createDefaultXRTransientPointer(
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
-  options?: DefaultXRTransientPointerOptions,
-  combined?: CombinedPointer,
-  makeDefault?: boolean,
+  options: DefaultXRTransientPointerOptions | undefined,
+  combined: CombinedPointer,
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
-  const cleanupPointer = setupPointer(scene, store, pointer, combined, makeDefault)
+  const unregister = combined.register(pointer)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   let undoAddCursorModel: (() => void) | undefined
@@ -408,7 +395,7 @@ export function createDefaultXRTransientPointer(
     undoAddCursorModel = () => scene.remove(cursorModel)
   }
   return () => {
-    cleanupPointer()
+    unregister()
     pointer.exit({ timeStamp: performance.now() })
     space.remove(raySpace)
     undoAddCursorModel?.()
@@ -422,12 +409,13 @@ export function createDefaultXRGaze(
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
-  options?: DefaultXRGazeOptions,
+  options: DefaultXRGazeOptions | undefined,
+  combined: CombinedPointer,
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
-  const cleanupPointer = setupPointer(scene, store, pointer, undefined, undefined)
+  const unregister = combined.register(pointer)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   let undoAddCursorModel: (() => void) | undefined
@@ -441,7 +429,7 @@ export function createDefaultXRGaze(
     undoAddCursorModel = () => scene.remove(cursorModel)
   }
   return () => {
-    cleanupPointer()
+    unregister()
     pointer.exit({ timeStamp: performance.now() })
     space.remove(raySpace)
     undoAddCursorModel?.()
@@ -455,16 +443,17 @@ export function createDefaultXRScreenInput(
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
-  options?: DefaultXRScreenInputOptions,
+  options: DefaultXRScreenInputOptions | undefined,
+  combined: CombinedPointer,
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
   const pointer = createRayPointer({ current: raySpace }, state, options)
-  const cleanupPointer = setupPointer(scene, store, pointer, undefined, undefined)
+  const unregister = combined.register(pointer)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
   return () => {
-    cleanupPointer()
+    unregister()
     space.remove(raySpace)
     pointer.exit({ timeStamp: performance.now() })
     unbind()

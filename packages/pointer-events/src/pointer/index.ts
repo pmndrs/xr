@@ -6,4 +6,5 @@ export function generateUniquePointerId() {
 
 export * from './grab.js'
 export * from './ray.js'
+export * from './lines.js'
 export * from './touch.js'
