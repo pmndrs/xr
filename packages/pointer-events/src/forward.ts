@@ -1,9 +1,10 @@
-import { Camera, Object3D, Quaternion, Scene, Vector2, Vector3 } from 'three'
+import { Camera, Mesh, Object3D, Scene, Vector2 } from 'three'
 import { Pointer, PointerOptions } from './pointer.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
 import { CameraRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
 import { IntersectionOptions } from './intersections/index.js'
+import { getClosestUV } from './utils.js'
 
 export type ForwardablePointerEvent = { pointerId?: number; pointerType?: string; pointerState?: any } & NativeEvent
 
@@ -56,10 +57,11 @@ function portalEventToCoords(e: unknown, target: Vector2): Vector2 {
   if (!(e instanceof PointerEvent)) {
     return target.set(0, 0)
   }
-  if (e.uv == null) {
+  if (!(e.object instanceof Mesh)) {
     return target.set(0, 0)
   }
-  target.copy(e.uv).multiplyScalar(2).addScalar(-1)
+  getClosestUV(target, e.point, e.object)
+  target.multiplyScalar(2).addScalar(-1)
   return target
 }
 
