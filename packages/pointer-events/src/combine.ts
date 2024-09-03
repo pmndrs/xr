@@ -28,8 +28,12 @@ export class CombinedPointer {
     this.pointers.splice(index, 1)
   }
 
-  private startIntersection(nonCapturedPointers: Array<Pointer>, nativeEvent: NativeEvent) {
+  /**
+   * @returns true if any pointer is captured
+   */
+  private startIntersection(nonCapturedPointers: Array<Pointer>, nativeEvent: NativeEvent): boolean {
     const length = this.pointers.length
+    let anyPointerIsCaptured = false
     for (let i = 0; i < length; i++) {
       const pointer = this.pointers[i]
       if (pointer instanceof CombinedPointer) {
@@ -38,12 +42,14 @@ export class CombinedPointer {
       }
       const pointerCapture = pointer.getPointerCapture()
       if (pointerCapture != null) {
+        anyPointerIsCaptured = true
         pointer.setIntersection(pointer.intersector.intersectPointerCapture(pointerCapture, nativeEvent))
         continue
       }
       nonCapturedPointers.push(pointer)
       pointer.intersector.startIntersection(nativeEvent)
     }
+    return anyPointerIsCaptured
   }
 
   /**
@@ -109,24 +115,21 @@ export class CombinedPointer {
       return
     }
 
-    /*
-    slow version that stays in here for benchmarking
-    for (let i = 0; i < this.pointers.length; i++) {
-      this.pointers[i].move(scene, nativeEvent)
-    }*/
-
     //start intersection, build nonCapturedPointers list, and compute the intersection for all captured pointers
     this.nonCapturedPointers.length = 0
-    this.startIntersection(this.nonCapturedPointers, nativeEvent)
+    const anyPointerIsCaptured = this.startIntersection(this.nonCapturedPointers, nativeEvent)
 
-    //intersect scene using the non captured pointers
-    intersectPointerEventTargets(scene, this.nonCapturedPointers)
+    //we only need to intersect the scene if no pointer is captured or (in case one or more pointers are captured) if mulitple pointers can be enabled
+    if (!anyPointerIsCaptured || this.enableMultiplePointers) {
+      //intersect scene using the non captured pointers
+      intersectPointerEventTargets(scene, this.nonCapturedPointers)
 
-    //finalize the intersection for the non captured pointers
-    const nonCapturedPointerLength = this.nonCapturedPointers.length
-    for (let i = 0; i < nonCapturedPointerLength; i++) {
-      const pointer = this.nonCapturedPointers[i]
-      pointer.setIntersection(pointer.intersector.finalizeIntersection())
+      //finalize the intersection for the non captured pointers
+      const nonCapturedPointerLength = this.nonCapturedPointers.length
+      for (let i = 0; i < nonCapturedPointerLength; i++) {
+        const pointer = this.nonCapturedPointers[i]
+        pointer.setIntersection(pointer.intersector.finalizeIntersection())
+      }
     }
 
     //commit the intersection, compute active pointers, and enabling/disabling pointers
