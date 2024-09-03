@@ -1,5 +1,8 @@
 import {
   CylinderGeometry,
+  DepthTexture,
+  HalfFloatType,
+  LinearFilter,
   Matrix4,
   Object3D,
   PlaneGeometry,
@@ -327,4 +330,13 @@ export function getLayerShape(layer: XRCylinderLayer | XRQuadLayer | XREquirectL
     return 'equirect'
   }
   return 'quad'
+}
+
+export function createXRLayerRenderTarget(pixelWidth: number, pixelHeight: number, dpr: number) {
+  return new WebGLRenderTarget(pixelWidth * dpr, pixelHeight * dpr, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    type: HalfFloatType,
+    depthTexture: new DepthTexture(pixelWidth, pixelHeight),
+  })
 }

@@ -11,6 +11,7 @@ import {
   getXRLayerSrcTexture,
   setupXRImageLayer,
   setXRLayerRenderTarget,
+  createXRLayerRenderTarget,
 } from '@pmndrs/xr'
 import {
   context,
@@ -21,6 +22,7 @@ import {
   useFrame,
   useStore,
   useThree,
+  Viewport,
 } from '@react-three/fiber'
 import {
   forwardRef,
@@ -60,6 +62,7 @@ export type XRLayerProperties = XRLayerOptions &
     children?: ReactNode
     pixelWidth?: number
     pixelHeight?: number
+    dpr?: number
     src?: Exclude<XRLayerSrc, WebGLRenderTarget>
   }
 
@@ -67,6 +70,7 @@ export function XRLayer({
   src,
   pixelWidth = 1024,
   pixelHeight = 1024,
+  dpr = 1,
   renderPriority = 0,
   children,
   ...props
@@ -92,7 +96,7 @@ export function XRLayer({
       }),
     [props.centralAngle, props.centralHorizontalAngle, props.lowerVerticalAngle, props.shape, props.upperVerticalAngle],
   )
-  const store = useLayerStore(pixelWidth, pixelHeight)
+  const store = useLayerStore(pixelWidth, pixelHeight, dpr)
   useForwardEvents(store, ref, [hasSize, layersEnabled])
   if (!hasSize) {
     return null
@@ -115,6 +119,7 @@ export function XRLayer({
           layerEntryRef={layerEntryRef}
           pixelWidth={pixelWidth}
           pixelHeight={pixelHeight}
+          dpr={dpr}
           ref={ref}
           {...props}
           src={src}
@@ -128,6 +133,7 @@ export function XRLayer({
           src={src}
           pixelWidth={pixelWidth}
           pixelHeight={pixelHeight}
+          dpr={dpr}
           geometry={geometry}
         />
       )}
@@ -142,6 +148,7 @@ export const XRLayerImplementation = forwardRef<
     geometry?: BufferGeometry
     pixelWidth: number
     pixelHeight: number
+    dpr: number
     renderTargetRef: MutableRefObject<WebGLRenderTarget | undefined>
     layerEntryRef: MutableRefObject<XRLayerEntry | undefined>
   }
@@ -165,6 +172,7 @@ export const XRLayerImplementation = forwardRef<
       invertStereo,
       pixelWidth,
       pixelHeight,
+      dpr,
       renderTargetRef,
       layerEntryRef,
       ...props
@@ -193,7 +201,7 @@ export const XRLayerImplementation = forwardRef<
       if (internalRef.current == null) {
         return
       }
-      const resolvedSrc = src ?? createXRLayerRenderTarget(pixelWidth, pixelHeight, renderTargetRef)
+      const resolvedSrc = src ?? (renderTargetRef.current = createXRLayerRenderTarget(pixelWidth, pixelHeight, dpr))
       const layer = createXRLayer(
         resolvedSrc,
         store.getState(),
@@ -235,6 +243,7 @@ export const XRLayerImplementation = forwardRef<
       mipLevels,
       pixelHeight,
       pixelWidth,
+      dpr,
       renderTargetRef,
       renderer,
       shape,
@@ -281,15 +290,16 @@ export const FallbackXRLayerImplementation = forwardRef<
     geometry?: BufferGeometry
     pixelWidth: number
     pixelHeight: number
+    dpr: number
     renderTargetRef: MutableRefObject<WebGLRenderTarget | undefined>
   }
->(({ src, renderTargetRef, renderOrder, pixelWidth, pixelHeight, ...props }, ref) => {
+>(({ src, renderTargetRef, dpr, renderOrder, pixelWidth, pixelHeight, ...props }, ref) => {
   const materialRef = useRef<MeshBasicMaterial>(null)
   useEffect(() => {
     if (materialRef.current == null) {
       return
     }
-    const resolvedSrc = src ?? createXRLayerRenderTarget(pixelWidth, pixelHeight, renderTargetRef)
+    const resolvedSrc = src ?? (renderTargetRef.current = createXRLayerRenderTarget(pixelWidth, pixelHeight, dpr))
     const texture = getXRLayerSrcTexture(resolvedSrc)
     materialRef.current.map = texture
     materialRef.current.needsUpdate = true
@@ -300,26 +310,13 @@ export const FallbackXRLayerImplementation = forwardRef<
       }
       texture.dispose()
     }
-  }, [src, pixelWidth, pixelHeight, renderTargetRef])
+  }, [src, pixelWidth, pixelHeight, dpr, renderTargetRef])
   return (
     <mesh ref={ref} {...props}>
       <meshBasicMaterial ref={materialRef} toneMapped={false} />
     </mesh>
   )
 })
-
-function createXRLayerRenderTarget(
-  pixelWidth: number,
-  pixelHeight: number,
-  renderTargetRef: MutableRefObject<WebGLRenderTarget | undefined>,
-) {
-  return (renderTargetRef.current = new WebGLRenderTarget(pixelWidth, pixelHeight, {
-    minFilter: LinearFilter,
-    magFilter: LinearFilter,
-    type: HalfFloatType,
-    depthTexture: new DepthTexture(pixelWidth, pixelHeight),
-  }))
-}
 
 function useForwardEvents(store: UseBoundStore<StoreApi<RootState>>, ref: RefObject<Mesh>, deps: Array<any>) {
   useEffect(() => {
@@ -359,7 +356,7 @@ export const privateKeys = [
   'viewport',
 ]
 
-export function useLayerStore(width: number, height: number) {
+export function useLayerStore(width: number, height: number, dpr: number) {
   const previousRoot = useStore()
   const layerStore = useMemo(() => {
     let previousState = previousRoot.getState()
@@ -424,14 +421,25 @@ export function useLayerStore(width: number, height: number) {
   }, [previousRoot])
   //syncing up previous store with the current store
   useEffect(() => previousRoot.subscribe(layerStore.getState().setPreviousState), [previousRoot, layerStore])
-  useEffect(
-    () =>
-      layerStore.setState({
-        size: { width, height, top: 0, left: 0 },
-        viewport: { ...previousRoot.getState().viewport, width, height, aspect: width / height },
-      }),
-    [width, height, layerStore, previousRoot],
-  )
+  useEffect(() => {
+    const viewport: RootState['viewport'] = {
+      factor: 1,
+      distance: 0,
+      dpr,
+      initialDpr: dpr,
+      left: 0,
+      top: 0,
+      getCurrentViewport: () => viewport,
+      width,
+      height,
+      aspect: width / height,
+    }
+
+    layerStore.setState({
+      size: { width, height, top: 0, left: 0 },
+      viewport,
+    })
+  }, [width, height, dpr, layerStore, previousRoot])
   return layerStore
 }
 
@@ -474,6 +482,7 @@ function ChildrenToRenderTarget({
   let oldXrEnabled
   let oldIsPresenting
   let oldRenderTarget
+  //TODO: support frameloop="demand"
   useFrame((_state, _delta, frame: XRFrame | undefined) => {
     if (
       renderTargetRef.current == null ||
