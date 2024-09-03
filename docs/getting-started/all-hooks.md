@@ -140,3 +140,15 @@ Hook for getting the geometry from the detected plane.
 ### `useXRPlanes`
 
 Hook for getting all detected planes with the provided semantic label.
+
+## Controller model and layout
+
+@react-three/xr exposes some hook to load controller models and layouts without actual controllers (for demo or tutoial purposes).
+
+### useLoadXRControllerLayout
+
+Hook for loading a controller layout, which contains info about the controller model and its buttons / controls.
+
+### useLoadXRControllerModel
+
+Hook for loading a controller model.
