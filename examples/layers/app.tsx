@@ -35,7 +35,15 @@ export function App() {
             32x32 XRLayer with DPR=32
           </Text>
           <XROrigin position={[0, -1.5, 0]} />
-          <XRLayer dpr={32} pixelWidth={32} pixelHeight={32} position={[-0.6, 0, -0.5]} scale={0.5} shape="quad">
+          <XRLayer
+            rotation-y={Math.PI / 16}
+            dpr={32}
+            pixelWidth={32}
+            pixelHeight={32}
+            position={[-0.6, 0, -0.5]}
+            scale={0.5}
+            shape="quad"
+          >
             <mesh>
               <boxGeometry />
               <meshBasicMaterial color="red" toneMapped={false} />
@@ -50,7 +58,7 @@ export function App() {
           <Text scale={0.03} color="black" position={[0.6, 0.28, -0.5]}>
             Without XRLayer
           </Text>
-          <mesh position={[0.6, 0, -0.5]} scale={0.5}>
+          <mesh rotation-y={-Math.PI / 16} position={[0.6, 0, -0.5]} scale={0.5}>
             <planeGeometry />
             <meshBasicMaterial map={videoTexture} toneMapped={false} />
           </mesh>

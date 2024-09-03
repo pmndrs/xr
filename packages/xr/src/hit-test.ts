@@ -1,5 +1,6 @@
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
 import { getSpaceFromAncestors, XRStore } from './internals.js'
+import { toDOMPointInit } from './utils.js'
 
 const matrixHelper = new Matrix4()
 const vectorHelper = new Vector3()
@@ -40,11 +41,10 @@ export async function createXRHitTestSource(
 
     //compute offset ray
     vectorHelper.setFromMatrixPosition(matrixHelper)
-    const point: DOMPointInit = { ...vectorHelper }
+    const point = toDOMPointInit(vectorHelper)
     quaternionHelper.setFromRotationMatrix(matrixHelper)
     vectorHelper.set(0, 0, -1).applyQuaternion(quaternionHelper)
-    const direction: DOMPointInit = { ...vectorHelper }
-    const offsetRay = new XRRay(point, direction)
+    const offsetRay = new XRRay(point, toDOMPointInit(vectorHelper, 0))
 
     //configure for request and compute hit test results
     object = relativeTo

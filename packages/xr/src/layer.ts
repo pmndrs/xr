@@ -18,6 +18,7 @@ import {
 } from 'three'
 import { getSpaceFromAncestors } from './space.js'
 import { XRState, XRStore } from './store.js'
+import { toDOMPointInit } from './utils.js'
 
 export type XRLayerEntry = { renderOrder: number; readonly layer: XRCylinderLayer | XRQuadLayer | XREquirectLayer }
 
@@ -134,7 +135,7 @@ const scaleHelper = new Vector3()
 
 function matrixToRigidTransform(matrix: Matrix4, scaleTarget: Vector3 = scaleHelper): XRRigidTransform {
   matrix.decompose(vectorHelper, quaternionHelper, scaleTarget)
-  return new XRRigidTransform({ ...vectorHelper, w: 1.0 }, { ...quaternionHelper })
+  return new XRRigidTransform(toDOMPointInit(vectorHelper), toDOMPointInit(quaternionHelper))
 }
 
 declare module 'three' {
