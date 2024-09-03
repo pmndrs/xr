@@ -5,8 +5,6 @@ import {
   DefaultXRHandOptions,
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
-  XRControllerGamepadComponentId,
-  XRControllerLayout,
   XRState as BaseXRState,
   XRStore as BaseXRStore,
   XRStoreOptions as BaseXRStoreOptions,
@@ -18,7 +16,6 @@ import { combinedPointerContext, xrContext } from './contexts.js'
 import { XRElements } from './elements.js'
 import { setupSyncIsVisible } from '@pmndrs/xr'
 import { CombinedPointer } from '@pmndrs/pointer-events'
-import { Object3D } from 'three'
 
 type XRElementImplementation = {
   /**
@@ -140,21 +137,4 @@ export function useXR<T = XRState>(
   equalityFn?: (a: T, b: T) => boolean,
 ) {
   return useStore(useXRStore(), selector, equalityFn)
-}
-
-/**
- * function for getting the object of a specific component from the xr controller model
- */
-export function getXRControllerComponentObject(
-  model: Object3D,
-  layout: XRControllerLayout,
-  componentId: XRControllerGamepadComponentId,
-) {
-  const component = layout.components[componentId]
-  // TODO: Add support for providing gamepad state
-  const firstVisualResponse = component.visualResponses[Object.keys(component.visualResponses)[0]]
-  if (!firstVisualResponse) return
-  const valueNode = model.getObjectByName(firstVisualResponse.valueNodeName)
-
-  return { object: valueNode }
 }

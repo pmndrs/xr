@@ -16,6 +16,7 @@ import {
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
 } from '../default.js'
+import { XRControllerGamepadComponentId, XRControllerLayout } from '../controller/index.js'
 
 export type XRElementImplementationCleanup = (() => void) | void
 
@@ -125,4 +126,21 @@ export function createXRStore(
       store.onBeforeRender()
     },
   })
+}
+
+/**
+ * function for getting the object of a specific component from the xr controller model
+ */
+export function getXRControllerComponentObject(
+  model: Object3D,
+  layout: XRControllerLayout,
+  componentId: XRControllerGamepadComponentId,
+) {
+  const component = layout.components[componentId]
+  // TODO: Add support for providing gamepad state
+  const firstVisualResponse = component.visualResponses[Object.keys(component.visualResponses)[0]]
+  if (!firstVisualResponse) return
+  const valueNode = model.getObjectByName(firstVisualResponse.valueNodeName)
+
+  return { object: valueNode }
 }

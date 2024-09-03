@@ -1,13 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import {
-  useHover,
-  createXRStore,
-  XR,
-  XROrigin,
-  TeleportTarget,
-  UnboundController,
-  UnboundControllerComponent,
-} from '@react-three/xr'
+import { useHover, createXRStore, XR, XROrigin, TeleportTarget } from '@react-three/xr'
 import { useRef, useState } from 'react'
 import { Mesh, Vector3 } from 'three'
 

@@ -5,12 +5,12 @@ import {
   XR,
   XROrigin,
   TeleportTarget,
-  XRControllerGamepadComponentId,
   XRControllerState,
   useLoadXRControllerLayout,
   useLoadXRControllerModel,
-  getXRControllerComponentObject,
 } from '@react-three/xr'
+
+import { XRControllerGamepadComponentId, getXRControllerComponentObject } from '@pmndrs/xr'
 import { createContext, FC, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react'
 import { Mesh, Object3D, Vector3 } from 'three'
 
