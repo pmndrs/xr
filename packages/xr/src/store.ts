@@ -461,16 +461,20 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       //update origin
       const origin = camera.parent ?? scene
       if (state.origin != origin) {
-        origin.xrSpace = referenceSpace
         update ??= {}
         update.origin = origin
       }
 
       //update reference space
       if (referenceSpace != state.originReferenceSpace) {
-        origin.xrSpace = referenceSpace
         update ??= {}
         update.originReferenceSpace = referenceSpace
+      }
+
+      //set xr space on current origin (and reset on previous)
+      origin.xrSpace = referenceSpace
+      if (state.origin != origin && state.origin != null) {
+        state.origin.xrSpace = undefined
       }
 
       if (frame != null) {
