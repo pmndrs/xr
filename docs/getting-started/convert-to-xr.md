@@ -15,7 +15,7 @@ npm install @react-three/xr@latest
 Next, we import the `createXRStore` and create a xr store.
 
 ```tsx
-import { createXRStore } from '@react-three/xr'
+import { createXRStore, XR } from '@react-three/xr'
 
 const store = createXRStore()
 ```
