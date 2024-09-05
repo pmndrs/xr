@@ -143,12 +143,12 @@ Hook for getting all detected planes with the provided semantic label.
 
 ## Controller model and layout
 
-@react-three/xr exposes some hook to load controller models and layouts without actual controllers (for demo or tutoial purposes).
+@react-three/xr exposes some hook to load controller models and layouts without actual xr controllers for building controller demos/tutoials.
 
-### useLoadXRControllerLayout
+### `useLoadXRControllerLayout`
 
-Hook for loading a controller layout, which contains info about the controller model and its buttons / controls.
+Hook for loading a controller layout, which contains info about the controller model and its buttons / controls. For xr controllers provided through WebXR the layout is loaded and provided through the controller state automatically, therefore, this hook's purpose is for building controller demos/tutorials. 
 
-### useLoadXRControllerModel
+### `useLoadXRControllerModel`
 
-Hook for loading a controller model.
+Hook for loading a controller model using the handedness and the controller layout.
