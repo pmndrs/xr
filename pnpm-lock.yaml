@@ -81,6 +81,21 @@ importers:
         specifier: ^5.2.11
         version: 5.4.2(@types/node@20.16.3)
 
+  examples/demo-controller:
+    dependencies:
+      '@pmndrs/xr':
+        specifier: workspace:^
+        version: link:../../packages/xr
+      '@react-three/drei':
+        specifier: ^9.112.0
+        version: 9.112.0(@react-three/fiber@8.17.6)(@types/react@18.3.5)(@types/three@0.164.1)(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
+      '@react-three/uikit':
+        specifier: ^0.5.3
+        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+      '@react-three/xr':
+        specifier: workspace:^
+        version: link:../../packages/react/xr
+
   examples/handheld-ar:
     dependencies:
       '@react-three/drei':
@@ -218,21 +233,6 @@ importers:
       '@react-three/drei':
         specifier: ^9.108.3
         version: 9.111.5(@react-three/fiber@8.17.6)(@types/react@18.3.5)(@types/three@0.164.1)(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
-      '@react-three/xr':
-        specifier: workspace:^
-        version: link:../../packages/react/xr
-
-  examples/tutorial-controllers:
-    dependencies:
-      '@pmndrs/xr':
-        specifier: workspace:^
-        version: link:../../packages/xr
-      '@react-three/drei':
-        specifier: ^9.112.0
-        version: 9.112.0(@react-three/fiber@8.17.6)(@types/react@18.3.5)(@types/three@0.164.1)(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
-      '@react-three/uikit':
-        specifier: ^0.5.3
-        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       '@react-three/xr':
         specifier: workspace:^
         version: link:../../packages/react/xr
