@@ -108,6 +108,6 @@ export function useLoadXRControllerLayout(
   }, [LoadXRControllerLayoutSymbol, handedness, ...profileIds])
 }
 
-export function useLoadXRControllerModel(layout: XRControllerLayout | undefined) {
+export function useLoadXRControllerModel(layout: XRControllerLayout) {
   return suspend(loadXRControllerModel, [layout, undefined, LoadXRControllerModelSymbol])
 }
