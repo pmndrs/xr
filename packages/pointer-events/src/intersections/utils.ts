@@ -1,7 +1,8 @@
 import { Plane, Intersection as ThreeIntersection, Object3D } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
-import { AllowedPointerEventsType, type AllowedPointerEvents } from '../pointer.js'
+import { AllowedPointerEventsType, Pointer, type AllowedPointerEvents } from '../pointer.js'
 import { hasObjectListeners } from '../utils.js'
+import { CombinedPointer } from '../index.js'
 
 export function computeIntersectionWorldPlane(target: Plane, intersection: Intersection, object: Object3D): boolean {
   if (intersection.face == null) {
@@ -16,10 +17,7 @@ function isPointerEventsAllowed(
   hasListener: boolean,
   pointerEvents: AllowedPointerEvents,
   pointerEventsType: AllowedPointerEventsType,
-  pointerId: number,
-  pointerType: string,
-  pointerState: unknown,
-): boolean {
+): boolean | ((pointer: Pointer) => boolean) {
   if (pointerEvents === 'none') {
     return false
   }
@@ -30,7 +28,7 @@ function isPointerEventsAllowed(
     return true
   }
   if (typeof pointerEventsType === 'function') {
-    return pointerEventsType(pointerId, pointerType, pointerState)
+    return ({ id, type, state }) => pointerEventsType(id, type, state)
   }
   let value: Array<string> | string
   let invert: boolean
@@ -41,53 +39,50 @@ function isPointerEventsAllowed(
     invert = false
     value = pointerEventsType.allow
   }
-  let result: boolean
   if (Array.isArray(value)) {
-    result = value.includes(pointerType)
-  } else {
-    result = value === pointerType
+    return (pointer) => invertIf(value.includes(pointer.type), invert)
   }
-
-  return invert ? !result : result
+  return (pointer) => invertIf(value === pointer.type, invert)
 }
 
-export function traversePointerEventTargets(
+function invertIf(toInvert: boolean, ifIsTrue: boolean): boolean {
+  return ifIsTrue ? !toInvert : toInvert
+}
+
+export function intersectPointerEventTargets(
   object: Object3D,
-  pointerId: number,
-  pointerType: string,
-  pointerState: unknown,
-  callback: (object: Object3D, pointerEventsOrder: number | undefined) => void,
+  pointers: Array<Pointer>,
   parentHasListener: boolean = false,
   parentPointerEvents?: AllowedPointerEvents,
   parentPointerEventsType?: AllowedPointerEventsType,
   parentPointerEventsOrder?: number,
 ): void {
   const hasListener = parentHasListener || hasObjectListeners(object)
-  const pointerEvents = object.pointerEvents ?? parentPointerEvents
-  const pointerEventsType = object.pointerEventsType ?? parentPointerEventsType
+  const pointerEvents = object.pointerEvents ?? parentPointerEvents ?? 'listener'
+  const pointerEventsType = object.pointerEventsType ?? parentPointerEventsType ?? 'all'
   const pointerEventsOrder = object.pointerEventsOrder ?? parentPointerEventsOrder
 
-  const isAllowed = isPointerEventsAllowed(
-    hasListener,
-    pointerEvents ?? 'listener',
-    pointerEventsType ?? 'all',
-    pointerId,
-    pointerType,
-    pointerState,
-  )
-
-  if (isAllowed) {
-    callback(object, pointerEventsOrder)
+  const isAllowed = isPointerEventsAllowed(hasListener, pointerEvents, pointerEventsType)
+  const length = pointers.length
+  if (isAllowed === true) {
+    for (let i = 0; i < length; i++) {
+      pointers[i].intersector.executeIntersection(object, pointerEventsOrder)
+    }
+  } else if (typeof isAllowed === 'function') {
+    for (let i = 0; i < length; i++) {
+      const pointer = pointers[i]
+      if (!isAllowed(pointer)) {
+        continue
+      }
+      pointers[i].intersector.executeIntersection(object, pointerEventsOrder)
+    }
   }
 
-  const length = object.children.length
-  for (let i = 0; i < length; i++) {
-    traversePointerEventTargets(
+  const childrenLength = object.children.length
+  for (let i = 0; i < childrenLength; i++) {
+    intersectPointerEventTargets(
       object.children[i],
-      pointerId,
-      pointerType,
-      pointerState,
-      callback,
+      pointers,
       hasListener,
       pointerEvents,
       pointerEventsType,
@@ -98,6 +93,7 @@ export function traversePointerEventTargets(
 
 /**
  * @returns undefined if `i1` is the dominant intersection
+ * @param i2DistanceOffset modifies i2 and adds the i2DistanceOffset to the current distance
  */
 export function getDominantIntersectionIndex<T extends ThreeIntersection>(
   i1: T | undefined,

@@ -1,4 +1,4 @@
-import { Intersection as ThreeIntersection, Quaternion, Vector3 } from 'three'
+import { Intersection as ThreeIntersection, Quaternion, Vector3, Line3 } from 'three'
 
 export type Intersection = ThreeIntersection & {
   pointerPosition: Vector3
@@ -12,8 +12,8 @@ export type Intersection = ThreeIntersection & {
   details:
     | {
         type: 'lines'
-        lineIndex: number
         distanceOnLine: number
+        lineIndex: number
       }
     | {
         type: 'camera-ray'

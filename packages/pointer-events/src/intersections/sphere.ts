@@ -9,63 +9,111 @@ import {
   Intersection as ThreeIntersection,
   Plane,
 } from 'three'
-import { Intersection, IntersectionOptions } from './index.js'
-import { computeIntersectionWorldPlane, getDominantIntersectionIndex, traversePointerEventTargets } from './utils.js'
+import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './utils.js'
 import type { PointerCapture } from '../pointer.js'
+import { Intersector } from './intersector.js'
+import { Intersection, IntersectionOptions } from '../index.js'
 
 const collisionSphere = new Sphere()
 const intersectsHelper: Array<ThreeIntersection> = []
 
-export function intersectSphere(
-  fromPosition: Vector3,
-  fromQuaternion: Quaternion,
-  radius: number,
-  scene: Object3D,
-  pointerId: number,
-  pointerType: string,
-  pointerState: unknown,
-  pointerCapture: PointerCapture | undefined,
-  options: IntersectionOptions | undefined,
-): Intersection | undefined {
-  if (pointerCapture != null) {
-    return intersectSpherePointerCapture(fromPosition, fromQuaternion, pointerCapture)
-  }
-  let intersection: ThreeIntersection | undefined
-  let pointerEventsOrder: number | undefined
-  collisionSphere.center.copy(fromPosition)
-  collisionSphere.radius = radius
+export class SphereIntersector extends Intersector {
+  private readonly fromPosition = new Vector3()
+  private readonly fromQuaternion = new Quaternion()
 
-  traversePointerEventTargets(scene, pointerId, pointerType, pointerState, (object, objectPointerEventsOrder) => {
+  constructor(
+    /**
+     * @returns the sphere radius
+     */
+    private readonly prepareTransformation: (
+      nativeEvent: unknown,
+      fromPosition: Vector3,
+      fromQuaternion: Quaternion,
+    ) => number | undefined,
+    private readonly options: IntersectionOptions,
+  ) {
+    super()
+  }
+
+  public intersectPointerCapture(
+    { intersection, object }: PointerCapture,
+    nativeEvent: unknown,
+  ): Intersection | undefined {
+    if (intersection.details.type != 'sphere') {
+      return undefined
+    }
+    if (this.prepareTransformation(nativeEvent, this.fromPosition, this.fromQuaternion) == null) {
+      return undefined
+    }
+    //compute old inputDevicePosition-point offset
+    oldInputDevicePointOffset.copy(intersection.point).sub(intersection.pointerPosition)
+    //compute oldInputDeviceQuaternion-newInputDeviceQuaternion offset
+    inputDeviceQuaternionOffset.copy(intersection.pointerQuaternion).invert().multiply(this.fromQuaternion)
+    //apply quaternion offset to old inputDevicePosition-point offset and add to new inputDevicePosition
+    const point = oldInputDevicePointOffset.clone().applyQuaternion(inputDeviceQuaternionOffset).add(this.fromPosition)
+
+    computeIntersectionWorldPlane(planeHelper, intersection, object)
+
+    const pointOnFace = planeHelper.projectPoint(this.fromPosition, new Vector3())
+
+    return {
+      details: {
+        type: 'sphere',
+      },
+      distance: intersection.distance,
+      pointerPosition: this.fromPosition.clone(),
+      pointerQuaternion: this.fromQuaternion.clone(),
+      object,
+      point,
+      pointOnFace,
+      face: intersection.face,
+      localPoint: intersection.localPoint,
+    }
+  }
+
+  protected prepareIntersection(nativeEvent: unknown): boolean {
+    const radius = this.prepareTransformation(nativeEvent, this.fromPosition, this.fromQuaternion)
+    if (radius == null) {
+      return false
+    }
+    collisionSphere.center.copy(this.fromPosition)
+    collisionSphere.radius = radius
+    return true
+  }
+
+  public executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void {
     intersectSphereWithObject(collisionSphere, object, intersectsHelper)
     const index = getDominantIntersectionIndex(
-      intersection,
-      pointerEventsOrder,
+      this.intersection,
+      this.pointerEventsOrder,
       intersectsHelper,
       objectPointerEventsOrder,
-      options,
+      this.options,
     )
     if (index != null) {
-      intersection = intersectsHelper[index]
-      pointerEventsOrder = objectPointerEventsOrder
+      this.intersection = intersectsHelper[index]
+      this.pointerEventsOrder = objectPointerEventsOrder
     }
     intersectsHelper.length = 0
-  })
-
-  if (intersection == null) {
-    return undefined
   }
 
-  return Object.assign(intersection, {
-    details: {
-      type: 'sphere' as const,
-    },
-    pointOnFace: intersection.point,
-    pointerPosition: fromPosition.clone(),
-    pointerQuaternion: fromQuaternion.clone(),
-    localPoint: intersection.point
-      .clone()
-      .applyMatrix4(invertedMatrixHelper.copy(intersection.object.matrixWorld).invert()),
-  })
+  public finalizeIntersection(): Intersection | undefined {
+    if (this.intersection == null) {
+      return undefined
+    }
+
+    return Object.assign(this.intersection, {
+      details: {
+        type: 'sphere' as const,
+      },
+      pointOnFace: this.intersection.point,
+      pointerPosition: this.fromPosition.clone(),
+      pointerQuaternion: this.fromQuaternion.clone(),
+      localPoint: this.intersection.point
+        .clone()
+        .applyMatrix4(invertedMatrixHelper.copy(this.intersection.object.matrixWorld).invert()),
+    })
+  }
 }
 
 const matrixHelper = new Matrix4()
@@ -123,40 +171,6 @@ function intersectSphereWithObject(pointerSphere: Sphere, object: Object3D, targ
 const oldInputDevicePointOffset = new Vector3()
 const inputDeviceQuaternionOffset = new Quaternion()
 const planeHelper = new Plane()
-
-function intersectSpherePointerCapture(
-  fromPosition: Vector3,
-  fromQuaterion: Quaternion,
-  { intersection, object }: PointerCapture,
-): Intersection | undefined {
-  if (intersection.details.type != 'sphere') {
-    return undefined
-  }
-  //compute old inputDevicePosition-point offset
-  oldInputDevicePointOffset.copy(intersection.point).sub(intersection.pointerPosition)
-  //compute oldInputDeviceQuaternion-newInputDeviceQuaternion offset
-  inputDeviceQuaternionOffset.copy(intersection.pointerQuaternion).invert().multiply(fromQuaterion)
-  //apply quaternion offset to old inputDevicePosition-point offset and add to new inputDevicePosition
-  const point = oldInputDevicePointOffset.clone().applyQuaternion(inputDeviceQuaternionOffset).add(fromPosition)
-
-  computeIntersectionWorldPlane(planeHelper, intersection, object)
-
-  const pointOnFace = planeHelper.projectPoint(fromPosition, new Vector3())
-
-  return {
-    details: {
-      type: 'sphere',
-    },
-    distance: intersection.distance,
-    pointerPosition: fromPosition.clone(),
-    pointerQuaternion: fromQuaterion.clone(),
-    object,
-    point,
-    pointOnFace,
-    face: intersection.face,
-    localPoint: intersection.localPoint,
-  }
-}
 
 const helperSphere = new Sphere()
 

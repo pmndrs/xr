@@ -24,6 +24,7 @@ import {
   PointerCursorModel,
   PointerRayModel,
   useGrabPointer,
+  useLinesPointer,
   usePointerXRInputSourceEvents,
   useRayPointer,
   useTouchPointer,
@@ -316,7 +317,7 @@ export function DefaultXRInputSourceTeleportPointer(options: DefaultXRInputSourc
   const ref = useRef<Object3D>(null)
   const groupRef = useRef<Group>(null)
   const linePoints = useMemo(() => createTeleportRayLine(), [])
-  const pointer = useRayPointer(
+  const pointer = useLinesPointer(
     groupRef,
     state,
     {

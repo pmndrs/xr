@@ -1,5 +1,8 @@
 import {
   CylinderGeometry,
+  DepthTexture,
+  HalfFloatType,
+  LinearFilter,
   Matrix4,
   Object3D,
   PlaneGeometry,
@@ -15,6 +18,7 @@ import {
 } from 'three'
 import { getSpaceFromAncestors } from './space.js'
 import { XRState, XRStore } from './store.js'
+import { toDOMPointInit } from './utils.js'
 
 export type XRLayerEntry = { renderOrder: number; readonly layer: XRCylinderLayer | XRQuadLayer | XREquirectLayer }
 
@@ -131,7 +135,7 @@ const scaleHelper = new Vector3()
 
 function matrixToRigidTransform(matrix: Matrix4, scaleTarget: Vector3 = scaleHelper): XRRigidTransform {
   matrix.decompose(vectorHelper, quaternionHelper, scaleTarget)
-  return new XRRigidTransform({ ...vectorHelper, w: 1.0 }, { ...quaternionHelper })
+  return new XRRigidTransform(toDOMPointInit(vectorHelper), toDOMPointInit(quaternionHelper))
 }
 
 declare module 'three' {
@@ -290,7 +294,10 @@ export function updateXRLayerTransform(
   centralAngle: number | undefined,
   relativeTo: Object3D,
 ) {
-  target.space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)!
+  if (state.originReferenceSpace == null) {
+    return
+  }
+  target.space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)
   target.transform = matrixToRigidTransform(matrixHelper, scaleHelper)
   applyXRLayerScale(getLayerShape(target), target, centralAngle, scaleHelper)
 }
@@ -324,4 +331,13 @@ export function getLayerShape(layer: XRCylinderLayer | XRQuadLayer | XREquirectL
     return 'equirect'
   }
   return 'quad'
+}
+
+export function createXRLayerRenderTarget(pixelWidth: number, pixelHeight: number, dpr: number) {
+  return new WebGLRenderTarget(pixelWidth * dpr, pixelHeight * dpr, {
+    minFilter: LinearFilter,
+    magFilter: LinearFilter,
+    type: HalfFloatType,
+    depthTexture: new DepthTexture(pixelWidth, pixelHeight),
+  })
 }

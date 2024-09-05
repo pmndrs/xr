@@ -1,5 +1,6 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { XRStore } from './store.js'
+import { toDOMPointInit } from './utils.js'
 
 const OneVector = new Vector3(1, 1, 1)
 const ZeroVector = new Vector3(0, 0, 0)
@@ -84,10 +85,7 @@ export type XRAnchorSpaceOptions = {
 export async function requestXRAnchor(store: XRStore<any>, options: XRAnchorOptions): Promise<XRAnchor | undefined> {
   if (options.relativeTo === 'hit-test-result') {
     return options.hitTestResult.createAnchor?.(
-      new XRRigidTransform(
-        options.offsetPosition == null ? undefined : { ...options.offsetPosition, w: 1 },
-        options.offsetQuaternion == null ? undefined : { ...options.offsetQuaternion },
-      ),
+      new XRRigidTransform(toDOMPointInit(options.offsetPosition), toDOMPointInit(options.offsetQuaternion)),
     )
   }
   let frame: XRFrame
@@ -118,5 +116,8 @@ export async function requestXRAnchor(store: XRStore<any>, options: XRAnchorOpti
     positionHelper.copy(offsetPosition ?? ZeroVector)
     quaternionHelper.copy(offsetQuaternion ?? NeutralQuaternion)
   }
-  return frame.createAnchor?.(new XRRigidTransform({ ...positionHelper, w: 1 }, { ...quaternionHelper }), space)
+  return frame.createAnchor?.(
+    new XRRigidTransform(toDOMPointInit(positionHelper), toDOMPointInit(quaternionHelper)),
+    space,
+  )
 }

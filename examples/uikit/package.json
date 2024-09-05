@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@pmndrs/pointer-events": "^6.1.0",
+        "@pmndrs/pointer-events": "workspace:^",
         "@react-three/drei": "^9.108.3",
         "@react-three/uikit": "^0.4.0",
         "@react-three/uikit-default": "^0.4.0",

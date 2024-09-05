@@ -1,5 +1,5 @@
 import { Canvas, useThree } from '@react-three/fiber'
-import { createXRStore, useHover, XR, XRLayer } from '@react-three/xr'
+import { createXRStore, useHover, XR, XRLayer, XROrigin } from '@react-three/xr'
 import { Text } from '@react-three/drei'
 import { useEffect, useMemo, useRef } from 'react'
 import { Mesh, SRGBColorSpace, VideoTexture } from 'three'
@@ -27,36 +27,44 @@ export function App() {
       <Canvas
         events={() => ({ enabled: false, priority: 0 })}
         style={{ width: '100%', flexGrow: 1 }}
-        camera={{ position: [0, 1.5, 0], rotation: [0, 0, 0] }}
+        camera={{ position: [0, 0, 0], rotation: [0, 0, 0] }}
       >
         <SwitchToXRPointerEvents />
         <XR store={store}>
-          <Text scale={0.03} color="black" position={[-0.3, 1.78, -0.5]}>
+          <Text scale={0.03} color="black" position={[-0.6, 0.28, -0.5]}>
+            32x32 XRLayer with DPR=32
+          </Text>
+          <XROrigin position={[0, -1.5, 0]} />
+          <XRLayer
+            rotation-y={Math.PI / 16}
+            dpr={32}
+            pixelWidth={32}
+            pixelHeight={32}
+            position={[-0.6, 0, -0.5]}
+            scale={0.5}
+            shape="quad"
+          >
+            <mesh>
+              <boxGeometry />
+              <meshBasicMaterial color="red" toneMapped={false} />
+            </mesh>
+          </XRLayer>
+
+          <Text scale={0.03} color="black" position={[0, 0.28, -0.5]}>
             With XRLayer
           </Text>
-          <XRLayer position={[-0.3, 1.5, -0.5]} onClick={() => video.play()} scale={0.5} shape="quad" src={video} />
+          <XRLayer position={[0, 0, -0.5]} onClick={() => video.play()} scale={0.5} shape="quad" src={video} />
 
-          <Text scale={0.03} color="black" position={[0.3, 1.78, -0.5]}>
+          <Text scale={0.03} color="black" position={[0.6, 0.28, -0.5]}>
             Without XRLayer
           </Text>
-          <mesh position={[0.3, 1.5, -0.5]} scale={0.5}>
+          <mesh rotation-y={-Math.PI / 16} position={[0.6, 0, -0.5]} scale={0.5}>
             <planeGeometry />
             <meshBasicMaterial map={videoTexture} toneMapped={false} />
           </mesh>
         </XR>
       </Canvas>
     </>
-  )
-}
-
-function Inner() {
-  const ref = useRef<Mesh>(null)
-  const hover = useHover(ref)
-  return (
-    <mesh ref={ref}>
-      <boxGeometry />
-      <meshBasicMaterial color={hover ? 'red' : 'blue'} />
-    </mesh>
   )
 }
 

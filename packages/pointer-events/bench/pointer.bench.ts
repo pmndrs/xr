@@ -1,29 +1,46 @@
 import { bench, describe } from 'vitest'
 import { createRayPointer } from '../src/pointer/index.js'
 import { BoxGeometry, Mesh, Object3D, Raycaster, Scene } from 'three'
+import { CombinedPointer } from '../src/combine.js'
 
-const tenPointer = new Array(10).fill(undefined).map(() =>
-  createRayPointer(
-    {
-      current: new Object3D(),
-    },
-    {},
+const combinedPointer = new CombinedPointer(true)
+const leftPointer = new CombinedPointer(false)
+combinedPointer.register(leftPointer)
+new Array(5).fill(undefined).forEach(() =>
+  leftPointer.register(
+    createRayPointer(
+      {
+        current: new Object3D(),
+      },
+      {},
+    ),
+  ),
+)
+const rightPointer = new CombinedPointer(false)
+combinedPointer.register(rightPointer)
+new Array(5).fill(undefined).forEach(() =>
+  rightPointer.register(
+    createRayPointer(
+      {
+        current: new Object3D(),
+      },
+      {},
+    ),
   ),
 )
 
-const onePointer = new Array(1).fill(undefined).map(() =>
-  createRayPointer(
-    {
-      current: new Object3D(),
-    },
-    {},
-  ),
+const singlePointer = createRayPointer(
+  {
+    current: new Object3D(),
+  },
+  {},
 )
 
 function createScene(hor: 'small' | 'big', depth: 'small' | 'big'): Scene {
   const scene = new Scene()
   const horLength = hor === 'small' ? 1 : 20
   const depthLength = depth === 'small' ? 1 : 20
+  let hasPointerEvents = true
   for (let i = 0; i < horLength; i++) {
     const object = new Object3D()
     object.position.x = 1000
@@ -32,8 +49,11 @@ function createScene(hor: 'small' | 'big', depth: 'small' | 'big'): Scene {
     for (let i = 0; i < depthLength; i++) {
       object.add((lastObject = new Object3D()))
     }
-    lastObject.add(new Mesh(new BoxGeometry()))
+    const mesh = new Mesh(new BoxGeometry())
+    mesh.pointerEvents = hasPointerEvents ? 'auto' : 'listener'
+    lastObject.add(mesh)
     scene.add(object)
+    hasPointerEvents = !hasPointerEvents
   }
   return scene
 }
@@ -49,14 +69,10 @@ describe('pointer performance - scene: horizontal small, depth small; ', () => {
     raycaster.intersectObject(sceneHorSmallDepthSmall)
   })
   bench('scene: horizontal small, depth small; pointer: 1', () => {
-    for (const pointer of onePointer) {
-      pointer.move(sceneHorSmallDepthSmall, { timeStamp: performance.now() })
-    }
+    singlePointer.move(sceneHorSmallDepthSmall, { timeStamp: performance.now() })
   })
   bench('scene: horizontal small, depth small; pointer: 10', () => {
-    for (const pointer of tenPointer) {
-      pointer.move(sceneHorSmallDepthSmall, { timeStamp: performance.now() })
-    }
+    combinedPointer.move(sceneHorSmallDepthSmall, { timeStamp: performance.now() })
   })
 })
 
@@ -65,14 +81,10 @@ describe('pointer performance - scene: horizontal big, depth small; ', () => {
     raycaster.intersectObject(sceneHorBigDepthSmall)
   })
   bench('scene: horizontal big, depth small; pointer: 1', () => {
-    for (const pointer of onePointer) {
-      pointer.move(sceneHorBigDepthSmall, { timeStamp: performance.now() })
-    }
+    singlePointer.move(sceneHorBigDepthSmall, { timeStamp: performance.now() })
   })
   bench('scene: horizontal big, depth small; pointer: 10', () => {
-    for (const pointer of tenPointer) {
-      pointer.move(sceneHorBigDepthSmall, { timeStamp: performance.now() })
-    }
+    combinedPointer.move(sceneHorBigDepthSmall, { timeStamp: performance.now() })
   })
 })
 
@@ -81,14 +93,10 @@ describe('pointer performance - scene: horizontal small, depth big; ', () => {
     raycaster.intersectObject(sceneHorSmallDepthBig)
   })
   bench('scene: horizontal small, depth big; pointer: 1', () => {
-    for (const pointer of onePointer) {
-      pointer.move(sceneHorSmallDepthBig, { timeStamp: performance.now() })
-    }
+    singlePointer.move(sceneHorSmallDepthBig, { timeStamp: performance.now() })
   })
   bench('scene: horizontal small, depth big; pointer: 10', () => {
-    for (const pointer of tenPointer) {
-      pointer.move(sceneHorSmallDepthBig, { timeStamp: performance.now() })
-    }
+    combinedPointer.move(sceneHorSmallDepthBig, { timeStamp: performance.now() })
   })
 })
 
@@ -97,13 +105,9 @@ describe('pointer performance - scene: horizontal big, depth big; ', () => {
     raycaster.intersectObject(sceneHorBigDepthBig)
   })
   bench('scene: horizontal big, depth big; pointer: 1', () => {
-    for (const pointer of onePointer) {
-      pointer.move(sceneHorBigDepthBig, { timeStamp: performance.now() })
-    }
+    singlePointer.move(sceneHorBigDepthBig, { timeStamp: performance.now() })
   })
   bench('scene: horizontal big, depth big; pointer: 10', () => {
-    for (const pointer of tenPointer) {
-      pointer.move(sceneHorBigDepthBig, { timeStamp: performance.now() })
-    }
+    combinedPointer.move(sceneHorBigDepthBig, { timeStamp: performance.now() })
   })
 })

@@ -1,17 +1,20 @@
 import { ReactNode, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { suspend } from 'suspend-react'
 import {
-  XRControllerGamepadComponentId,
-  XRControllerGamepadComponentState,
-  XRControllerModelOptions,
-  XRControllerState,
   configureXRControllerModel,
   createUpdateXRControllerVisuals,
   loadXRControllerModel,
+  XRControllerGamepadComponentId,
+  XRControllerGamepadComponentState,
+  XRControllerLayout,
+  XRControllerLayoutLoader,
+  XRControllerLayoutLoaderOptions,
+  XRControllerModelOptions,
+  XRControllerState,
 } from '@pmndrs/xr/internals'
 import { createPortal, useFrame } from '@react-three/fiber'
 import { Object3D } from 'three'
-import { useXRInputSourceState, useXRInputSourceStateContext } from './input.js'
+import { useXRInputSourceStateContext } from './input.js'
 
 /**
  * component for placing content in the controller anchored at a specific component such as the Thumbstick
@@ -87,3 +90,24 @@ export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>(
   useFrame(update)
   return <primitive object={model} />
 })
+
+const LoadXRControllerLayoutSymbol = Symbol('loadXRControllerLayout')
+
+export function useLoadXRControllerLayout(
+  profileIds: string[],
+  handedness: XRHandedness,
+  { baseAssetPath, defaultControllerProfileId }: XRControllerLayoutLoaderOptions = {},
+): XRControllerLayout {
+  const loader = useMemo(
+    () => new XRControllerLayoutLoader({ baseAssetPath, defaultControllerProfileId }),
+    [baseAssetPath, defaultControllerProfileId],
+  )
+  return suspend(() => {
+    const result = loader.loadAsync(profileIds, handedness)
+    return result instanceof Promise ? result : Promise.resolve(result)
+  }, [LoadXRControllerLayoutSymbol, handedness, ...profileIds])
+}
+
+export function useLoadXRControllerModel(layout: XRControllerLayout) {
+  return suspend(loadXRControllerModel, [layout, undefined, LoadXRControllerModelSymbol])
+}

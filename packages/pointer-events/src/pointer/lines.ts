@@ -1,36 +1,38 @@
 import { Object3D, Vector3 } from 'three'
 import { Pointer, PointerOptions } from '../pointer.js'
-import { IntersectionOptions, RayIntersector } from '../intersections/index.js'
+import { IntersectionOptions, LinesIntersector } from '../intersections/index.js'
 import { generateUniquePointerId } from './index.js'
 
-export type RayPointerOptions = {
+export type LinesPointerOptions = {
   /**
    * @default 0
    * distance to intersection in local space
    */
   minDistance?: number
   /**
-   * @default NegZAxis
+   * points for that compose the lines
+   * @default [new Vector3(0,0,0), new Vector3(0,0,1)]
    */
-  direction?: Vector3
+  linePoints?: Array<Vector3>
 } & PointerOptions &
   IntersectionOptions
 
-export function createRayPointer(
+export function createLinesPointer(
   space: { current?: Object3D | null },
   pointerState: any,
-  options: RayPointerOptions = {},
-  pointerType: string = 'ray',
+  options: LinesPointerOptions = {},
+  pointerType: string = 'lines',
 ) {
   return new Pointer(
     generateUniquePointerId(),
     pointerType,
     pointerState,
-    new RayIntersector((_nativeEvent, matrixWorld) => {
-      if (space.current == null) {
+    new LinesIntersector((_nativeEvent, fromMatrixWorld) => {
+      const spaceObject = space.current
+      if (spaceObject == null) {
         return false
       }
-      matrixWorld.copy(space.current.matrixWorld)
+      fromMatrixWorld.copy(spaceObject.matrixWorld)
       return true
     }, options),
     undefined,

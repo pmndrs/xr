@@ -22,17 +22,19 @@ export function createGetXRSpaceMatrix(
   }
 }
 
-export function computeOriginReferenceSpaceOffset(
+export function getSpaceFromAncestors(
   object: Object3D,
   origin: Object3D | undefined,
-  target: Matrix4,
-): void {
-  if (origin == null) {
-    target.copy(object.matrixWorld)
-    return
-  }
-  target.copy(origin.matrixWorld).invert().multiply(object.matrixWorld)
-}
+  originReferenceSpace: XRReferenceSpace,
+  targetOffsetMatrix?: Matrix4,
+): XRSpace
+
+export function getSpaceFromAncestors(
+  object: Object3D,
+  origin?: Object3D,
+  originReferenceSpace?: XRReferenceSpace,
+  targetOffsetMatrix?: Matrix4,
+): XRSpace | undefined
 
 export function getSpaceFromAncestors(
   object: Object3D,
@@ -49,6 +51,14 @@ export function getSpaceFromAncestors(
     computeOriginReferenceSpaceOffset(object, origin, targetOffsetMatrix)
   }
   return originReferenceSpace
+}
+
+function computeOriginReferenceSpaceOffset(object: Object3D, origin: Object3D | undefined, target: Matrix4): void {
+  if (origin == null) {
+    target.copy(object.matrixWorld)
+    return
+  }
+  target.copy(origin.matrixWorld).invert().multiply(object.matrixWorld)
 }
 
 function getXRSpaceFromAncestorsRec(

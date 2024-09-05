@@ -1,5 +1,6 @@
 import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
-import { computeOriginReferenceSpaceOffset, getSpaceFromAncestors, XRStore } from './internals.js'
+import { getSpaceFromAncestors, XRStore } from './internals.js'
+import { toDOMPointInit } from './utils.js'
 
 const matrixHelper = new Matrix4()
 const vectorHelper = new Vector3()
@@ -12,47 +13,53 @@ export async function createXRHitTestSource(
   relativeTo: Object3D | XRSpace | XRReferenceSpaceType,
   trackableType: XRHitTestTrackableType | Array<XRHitTestTrackableType> = ['point', 'plane', 'mesh'],
 ) {
-  let offsetRay: XRRay | undefined
-  let space: XRSpace
-  let object: Object3D | undefined
   const state = store.getState()
   if (typeof relativeTo === 'string') {
-    const { session } = store.getState()
-    if (session == null) {
+    if (state.session == null) {
       return undefined
     }
-    relativeTo = await session.requestReferenceSpace(relativeTo)
+    relativeTo = await state.session.requestReferenceSpace(relativeTo)
   }
 
+  const entityTypes = Array.isArray(trackableType) ? trackableType : [trackableType]
+
+  //necassary data for request and compute hit test results
+  let options: XRHitTestOptionsInit
+  let baseSpace: XRSpace | undefined
+  let object: Object3D | undefined
+
   if (relativeTo instanceof XRSpace) {
-    space = relativeTo
+    //configure for request and compute hit test results
+    options = { space: relativeTo, entityTypes }
     object = state.origin
   } else {
-    if (state.originReferenceSpace == null) {
+    //compute space
+    const space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)
+    if (space == null) {
       return undefined
     }
-    object = relativeTo
-    space =
-      getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper) ??
-      state.originReferenceSpace
+
+    //compute offset ray
     vectorHelper.setFromMatrixPosition(matrixHelper)
-    const point: DOMPointInit = { ...vectorHelper }
+    const point = toDOMPointInit(vectorHelper)
     quaternionHelper.setFromRotationMatrix(matrixHelper)
     vectorHelper.set(0, 0, -1).applyQuaternion(quaternionHelper)
-    const direction: DOMPointInit = { ...vectorHelper }
-    offsetRay = new XRRay(point, direction)
+    const offsetRay = new XRRay(point, toDOMPointInit(vectorHelper, 0))
+
+    //configure for request and compute hit test results
+    object = relativeTo
+    options = { space, offsetRay, entityTypes }
+    baseSpace = space
   }
-  const source = await store.getState().session?.requestHitTestSource?.({
-    space,
-    entityTypes: Array.isArray(trackableType) ? trackableType : [trackableType],
-    offsetRay,
-  })
+
+  const source = await store.getState().session?.requestHitTestSource?.(options)
   if (source == null) {
     return undefined
   }
+
   return {
     source,
-    getWorldMatrix: computeWorldMatrixFromXRHitTestResult.bind(null, space, object),
+    getWorldMatrix: computeWorldMatrixFromXRHitTestResult.bind(null, store, baseSpace, object),
   }
 }
 
@@ -76,12 +83,17 @@ export async function requestXRHitTest(
 }
 
 function computeWorldMatrixFromXRHitTestResult(
-  space: XRSpace,
+  store: XRStore<any>,
+  baseSpace: XRSpace | undefined,
   object: Object3D | undefined,
   target: Matrix4,
   result: XRHitTestResult,
 ): boolean {
-  const pose = result.getPose(space)
+  baseSpace ??= store.getState().originReferenceSpace
+  if (baseSpace == null) {
+    return false
+  }
+  const pose = result.getPose(baseSpace)
   if (pose == null) {
     return false
   }
