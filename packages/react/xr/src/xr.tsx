@@ -1,13 +1,13 @@
 import {
+  createXRStore as createXRStoreImpl,
+  DefaultXRControllerOptions,
+  DefaultXRGazeOptions,
+  DefaultXRHandOptions,
+  DefaultXRScreenInputOptions,
+  DefaultXRTransientPointerOptions,
   XRState as BaseXRState,
   XRStore as BaseXRStore,
   XRStoreOptions as BaseXRStoreOptions,
-  createXRStore as createXRStoreImpl,
-  DefaultXRHandOptions,
-  DefaultXRControllerOptions,
-  DefaultXRTransientPointerOptions,
-  DefaultXRGazeOptions,
-  DefaultXRScreenInputOptions,
 } from '@pmndrs/xr/internals'
 import { Camera, useFrame, useThree, useStore as useRootStore } from '@react-three/fiber'
 import { ComponentType, ReactNode, useContext, useEffect, useMemo } from 'react'

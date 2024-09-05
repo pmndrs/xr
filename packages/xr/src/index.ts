@@ -3,15 +3,20 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 export const DefaultGltfLoader = new GLTFLoader()
 export const DefaultAssetBasePath = 'https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0/dist/profiles/'
 
-export type {
-  XRControllerComponent,
-  XRControllerGamepadComponentId,
-  XRControllerGamepadComponentState,
-  XRControllerGamepadState,
-  XRControllerLayout,
-  XRControllerLayoutLoader,
-  XRControllerLayoutLoaderOptions,
-  XRControllerVisualResponse,
+export {
+  getXRControllerComponentObject,
+  configureXRControllerModel,
+  createUpdateXRControllerVisuals,
+  loadXRControllerModel,
+  type XRControllerModelOptions,
+  type XRControllerComponent,
+  type XRControllerGamepadComponentId,
+  type XRControllerGamepadComponentState,
+  type XRControllerGamepadState,
+  type XRControllerLayout,
+  type XRControllerLayoutLoader,
+  type XRControllerLayoutLoaderOptions,
+  type XRControllerVisualResponse,
 } from './controller/index.js'
 export type { XRHandInputSource, XRHandLoaderOptions, XRHandPoseState, XRHandPoseUrls } from './hand/index.js'
 export {
