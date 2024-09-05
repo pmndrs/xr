@@ -7,10 +7,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 export default defineConfig({
   plugins: [react(), basicSsl()],
   resolve: {
-    alias: [
-      { find: '@react-three/xr', replacement: path.resolve(__dirname, '../../packages/react/xr/src/index.ts') },
-      { find: '@pmndrs/xr', replacement: path.resolve(__dirname, '../../packages/xr/src/index.ts') },
-    ],
+    alias: [{ find: '@react-three/xr', replacement: path.resolve(__dirname, '../../packages/react/xr/src/index.ts') }],
     dedupe: ['@react-three/fiber', 'three'],
   },
 })

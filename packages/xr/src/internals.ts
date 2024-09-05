@@ -1,6 +1,6 @@
 export * from './controller/index.js'
 export * from './hand/index.js'
-export * from './default.js'
+export type * from './default.js'
 export * from './pointer/index.js'
 export * from './mesh.js'
 export * from './plane.js'

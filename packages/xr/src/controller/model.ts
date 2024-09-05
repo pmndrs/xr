@@ -1,11 +1,34 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { XRControllerLayout } from './layout.js'
-import { DefaultGltfLoader } from '../index.js'
-import { Material, Mesh, Object3D } from 'three'
+import { DefaultGltfLoader, XRControllerGamepadComponentId } from '../index.js'
+import { Group, Material, Mesh, Object3D } from 'three'
 
-export async function loadXRControllerModel(layout: XRControllerLayout, loader: GLTFLoader = DefaultGltfLoader) {
+export async function loadXRControllerModel(
+  layout: XRControllerLayout | undefined,
+  loader: GLTFLoader = DefaultGltfLoader,
+) {
+  if (layout == null) {
+    //promise that never resolved
+    return new Promise<Group>(() => {})
+  }
   const { scene } = await loader.loadAsync(layout.assetPath)
   return scene.clone(true)
+}
+
+/**
+ * function for getting the object of a specific component from the xr controller model
+ */
+export function getXRControllerComponentObject(
+  model: Object3D,
+  layout: XRControllerLayout,
+  componentId: XRControllerGamepadComponentId,
+) {
+  const component = layout.components[componentId]
+  const firstVisualResponse = component.visualResponses[Object.keys(component.visualResponses)[0]]
+  if (firstVisualResponse == null) {
+    return undefined
+  }
+  return model.getObjectByName(firstVisualResponse.valueNodeName)
 }
 
 export type XRControllerModelOptions = {

@@ -1,4 +1,4 @@
-import { ReactNode, forwardRef, useImperativeHandle, useMemo, useRef, useState, useEffect } from 'react'
+import { ReactNode, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { suspend } from 'suspend-react'
 import {
   configureXRControllerModel,
@@ -91,28 +91,23 @@ export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>(
   return <primitive object={model} />
 })
 
+const LoadXRControllerLayoutSymbol = Symbol('loadXRControllerLayout')
+
 export function useLoadXRControllerLayout(
   profileIds: string[],
   handedness: XRHandedness,
-  options?: XRControllerLayoutLoaderOptions,
-): XRControllerLayout | undefined {
-  const loader = useRef(new XRControllerLayoutLoader(options))
-
-  const [layout, setLayout] = useState<XRControllerLayout | undefined>(undefined)
-
-  useEffect(() => {
-    const load = async () => {
-      setLayout(await loader.current.load(profileIds, handedness))
-    }
-    load()
-  }, [handedness, profileIds])
-
-  return layout
+  { baseAssetPath, defaultControllerProfileId }: XRControllerLayoutLoaderOptions = {},
+): XRControllerLayout {
+  const loader = useMemo(
+    () => new XRControllerLayoutLoader({ baseAssetPath, defaultControllerProfileId }),
+    [baseAssetPath, defaultControllerProfileId],
+  )
+  return suspend(() => {
+    const result = loader.loadAsync(profileIds, handedness)
+    return result instanceof Promise ? result : Promise.resolve(result)
+  }, [LoadXRControllerLayoutSymbol, handedness, ...profileIds])
 }
 
-export function useLoadXRControllerModel(layout: XRControllerLayout) {
-  return suspend(
-    (layout, loader, qwre) => (layout ? loadXRControllerModel(layout, loader) : Promise.resolve()),
-    [layout, undefined, LoadXRControllerModelSymbol],
-  )
+export function useLoadXRControllerModel(layout: XRControllerLayout | undefined) {
+  return suspend(loadXRControllerModel, [layout, undefined, LoadXRControllerModelSymbol])
 }
