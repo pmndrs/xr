@@ -18,10 +18,17 @@ import { useControls } from 'leva'
 const store = createXRStore({
   hand: {
     teleportPointer: true,
-    rayPointer: { cursorModel: { color: 'black' } },
+    rayPointer: {
+      cursorModel: { color: 'black' },
+    },
     touchPointer: { cursorModel: { color: 'black' } },
   },
-  controller: { teleportPointer: true },
+  controller: {
+    rayPointer: {
+      filter: () => false,
+    },
+    teleportPointer: true,
+  },
 })
 
 setPreferredColorScheme('dark')

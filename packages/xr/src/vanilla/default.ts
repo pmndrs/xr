@@ -106,7 +106,7 @@ export function createDefaultXRInputSourceTeleportPointer(
   const pointer = createLinesPointer(
     { current: teleportPointerRayGroup },
     state,
-    { ...options, customFilter: buildTeleportTargetFilter(options), linePoints },
+    { ...options, filter: buildTeleportTargetFilter(options), linePoints },
     'teleport',
   )
   const unregister = combined.register(pointer, makeDefault)

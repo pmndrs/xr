@@ -32,7 +32,6 @@ export type Intersection = ThreeIntersection & {
 }
 
 export type IntersectionOptions = {
-  customFilter?: (intersection: ThreeIntersection) => boolean
   /**
    * @returns a negative number if i1 should be sorted before i2
    * for sorting by distance use i1.distance - i2.distance
