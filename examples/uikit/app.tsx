@@ -1,5 +1,5 @@
 import { Canvas, useThree } from '@react-three/fiber'
-import { useHover, createXRStore, XR, XRLayer } from '@react-three/xr'
+import { createXRStore, XR, XRLayer, XROrigin } from '@react-three/xr'
 import { Environment } from '@react-three/drei'
 import { Container, Text, Image, Root, setPreferredColorScheme, Fullscreen } from '@react-three/uikit'
 import { Button, Slider } from '@react-three/uikit-default'
@@ -11,8 +11,9 @@ import {
   MenuIcon,
   PlayIcon,
 } from '@react-three/uikit-lucide'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { useControls } from 'leva'
 
 const store = createXRStore({
   hand: {
@@ -27,12 +28,14 @@ setPreferredColorScheme('dark')
 
 export function App() {
   const [counter, setCounter] = useState(0)
+  const { visible } = useControls({ visible: true })
   return (
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas events={() => ({ enabled: false, priority: 0 })} style={{ width: '100%', flexGrow: 1 }}>
         <SwitchToXRPointerEvents />
         <XR store={store}>
+          <XROrigin visible={visible} />
           <Environment preset="city" />
           <XRLayer
             dpr={4}

@@ -5,7 +5,8 @@
         "@react-three/uikit": "^0.4.0",
         "@react-three/uikit-default": "^0.4.0",
         "@react-three/uikit-lucide": "^0.4.0",
-        "@react-three/xr": "workspace:^"
+        "@react-three/xr": "workspace:^",
+        "leva": "^0.9.35"
     },
     "scripts": {
         "dev": "vite --host"

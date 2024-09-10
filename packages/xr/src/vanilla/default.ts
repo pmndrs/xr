@@ -67,7 +67,7 @@ export function createDefaultXRInputSourceRayPointer(
   }
   let undoAddCursorModel: (() => void) | undefined
   if (cursorModelOptions !== false) {
-    const cursorModel = new PointerCursorModel(pointer, {
+    const cursorModel = new PointerCursorModel(raySpace, pointer, {
       opacity: defaultRayPointerOpacity,
       ...spreadable(cursorModelOptions),
     })
@@ -122,7 +122,7 @@ export function createDefaultXRInputSourceTeleportPointer(
   }
   let undoAddCursorModel: (() => void) | undefined
   if (cursorModelOptions !== false) {
-    const cursorModel = new PointerCursorModel(pointer, {
+    const cursorModel = new PointerCursorModel(raySpace, pointer, {
       opacity: defaultRayPointerOpacity,
       ...spreadable(cursorModelOptions),
     })
@@ -162,7 +162,7 @@ export function createDefaultXRInputSourceGrabPointer(
 
   let undoAddCursorModel: (() => void) | undefined
   if (options?.cursorModel !== false) {
-    const cursorModel = new PointerCursorModel(pointer, {
+    const cursorModel = new PointerCursorModel(gripSpaceObject, pointer, {
       opacity: defaultGrabPointerOpacity,
     })
     scene.add(cursorModel)
@@ -194,7 +194,7 @@ export function createDefaultXRHandTouchPointer(
   let undoAddCursorModel: (() => void) | undefined
   const { cursorModel: cursorModelOptions = true } = options ?? {}
   if (cursorModelOptions !== false) {
-    const cursorModel = new PointerCursorModel(pointer, {
+    const cursorModel = new PointerCursorModel(touchSpaceObject, pointer, {
       opacity: defaultTouchPointerOpacity,
       ...spreadable(cursorModelOptions),
     })
@@ -387,7 +387,7 @@ export function createDefaultXRTransientPointer(
   let undoAddCursorModel: (() => void) | undefined
   const { cursorModel: cursorModelOptions = true } = options ?? {}
   if (cursorModelOptions !== false) {
-    const cursorModel = new PointerCursorModel(pointer, {
+    const cursorModel = new PointerCursorModel(raySpace, pointer, {
       opacity: defaultRayPointerOpacity,
       ...spreadable(cursorModelOptions),
     })
@@ -421,7 +421,7 @@ export function createDefaultXRGaze(
   let undoAddCursorModel: (() => void) | undefined
   const { cursorModel: cursorModelOptions = true } = options ?? {}
   if (cursorModelOptions !== false) {
-    const cursorModel = new PointerCursorModel(pointer, {
+    const cursorModel = new PointerCursorModel(raySpace, pointer, {
       opacity: defaultRayPointerOpacity,
       ...spreadable(cursorModelOptions),
     })
