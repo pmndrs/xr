@@ -2,13 +2,13 @@ import { Plane, Intersection as ThreeIntersection, Object3D } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { AllowedPointerEventsType, Pointer, type AllowedPointerEvents } from '../pointer.js'
 import { hasObjectListeners } from '../utils.js'
-import { CombinedPointer } from '../index.js'
 
 export function computeIntersectionWorldPlane(target: Plane, intersection: Intersection, object: Object3D): boolean {
-  if (intersection.face == null) {
+  const normal = intersection.normal ?? intersection.face?.normal
+  if (normal == null) {
     return false
   }
-  target.setFromNormalAndCoplanarPoint(intersection.face.normal, intersection.localPoint)
+  target.setFromNormalAndCoplanarPoint(normal, intersection.localPoint)
   target.applyMatrix4(object.matrixWorld)
   return true
 }

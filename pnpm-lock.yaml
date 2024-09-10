@@ -246,14 +246,14 @@ importers:
         specifier: ^9.108.3
         version: 9.111.5(@react-three/fiber@8.17.6)(@types/react@18.3.5)(@types/three@0.164.1)(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
       '@react-three/uikit':
-        specifier: ^0.4.0
-        version: 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+        specifier: ^0.5.3
+        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       '@react-three/uikit-default':
-        specifier: ^0.4.0
-        version: 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+        specifier: ^0.5.3
+        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       '@react-three/uikit-lucide':
-        specifier: ^0.4.0
-        version: 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+        specifier: ^0.5.3
+        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       '@react-three/xr':
         specifier: workspace:^
         version: link:../../packages/react/xr
@@ -1646,11 +1646,11 @@ packages:
       three-stdlib: 2.23.9(three@0.167.1)
     dev: false
 
-  /@react-three/uikit-default@0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1):
-    resolution: {integrity: sha512-Y+6nfymUqHZUX4b777DwTn4I/4M5m1hBBn69oVJ4IwpPICkCtn4y0K8iolg0NjGfkbsDzCYIF8Y7xcXwo0VoKQ==}
+  /@react-three/uikit-default@0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1):
+    resolution: {integrity: sha512-HFOXVRMncspePY4N/Ctycni3Bw9hxw/i+NUgFgqd18UzsAIEGzNQMQu8VFTlApJSmo0dUslcscTsBRHy8N6/JQ==}
     dependencies:
-      '@react-three/uikit': 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
-      '@react-three/uikit-lucide': 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+      '@react-three/uikit': 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+      '@react-three/uikit-lucide': 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       tunnel-rat: 0.1.2(@types/react@18.3.5)(react@18.3.1)
     transitivePeerDependencies:
       - '@react-three/fiber'
@@ -1665,6 +1665,19 @@ packages:
     resolution: {integrity: sha512-XwOnuZOXiItfR9NV2eYblzaE29p/JMGqpcad0Sds4nY9YYd373jcrpKYK2f0yYCb33nZvjK22mo4cMQx7F2oUQ==}
     dependencies:
       '@react-three/uikit': 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+    transitivePeerDependencies:
+      - '@react-three/fiber'
+      - '@types/react'
+      - immer
+      - react
+      - three
+      - ts-node
+    dev: false
+
+  /@react-three/uikit-lucide@0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1):
+    resolution: {integrity: sha512-3lT64688XmI5t1VchKZjFhcFHRHWCFchNZSKYpd2X+Tp+xpGqixCSRtj4UxsJkRzjSAf3zkDXoUgjtgfUPdqPQ==}
+    dependencies:
+      '@react-three/uikit': 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
     transitivePeerDependencies:
       - '@react-three/fiber'
       - '@types/react'

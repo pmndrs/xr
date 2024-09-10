@@ -2,9 +2,9 @@
     "dependencies": {
         "@pmndrs/pointer-events": "workspace:^",
         "@react-three/drei": "^9.108.3",
-        "@react-three/uikit": "^0.4.0",
-        "@react-three/uikit-default": "^0.4.0",
-        "@react-three/uikit-lucide": "^0.4.0",
+        "@react-three/uikit": "^0.5.3",
+        "@react-three/uikit-default": "^0.5.3",
+        "@react-three/uikit-lucide": "^0.5.3",
         "@react-three/xr": "workspace:^",
         "leva": "^0.9.35"
     },
