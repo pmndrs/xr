@@ -141,23 +141,27 @@ Hook for getting the geometry from the detected plane.
 
 Hook for getting all detected planes with the provided semantic label.
 
-### `useLocomotion`
+### `useControllerLocomotion`
 
-Hook for abstracting boilerplate needed to use locomotion movement in XR.
+Hook for abstracting boilerplate needed to use controller based locomotion in XR.
 
-- `LocomotionOptions`: An object allowing for customization of the locomotion behavior.
-  - `speed`: The speed at which the user moves.
-  - `handControllingMovement`: Specifies which hand will control the movement. Can be either 'left' or 'right'.
-  - `numberOfDegreesToSnapTurnBy`: The number of degrees a single joystick tap will snap the view by.
-  - `viewControlDeadZone`: How far the joystick must be pushed to trigger a turn.
-  - `disableSnapTurning`: Disables snap turning if set to true.
-  - `enableSmoothTurning`: Enables smooth turning if set to true.
-  - `smoothTurningSpeed`: Controls the speed of smooth turning.
+- `ControllerLocomotionOptions`: An object allowing for customization of the controller behavior.
+  `movementController`: Specifies which hand will control the movement. Can be either 'left' or 'right' (i.e. `XRHandedness`).
+  - `translationOptions`: 
+    - `speed`: The speed at which the user moves.
+    - `disableRefTranslation`: Disables moving the XROrigin from the controller. Mostly used when implementing physics-based movement.
+    - `motionCallback`: A callback that provides the motion vector as a parameter.
+  - `rotationOptions`: 
+    - `numberOfDegreesToSnapBy`: The number of degrees a single joystick tap will snap the view by.
+    - `viewControlDeadZone`: How far the joystick must be pushed to trigger a turn.
+    - `disableSnapTurning`: Disables snap turning if set to true.
+    - `enableSmoothTurning`: Enables smooth turning if set to true.
+    - `smoothTurningSpeed`: Controls the speed of smooth turning.
 
 ```tsx
 // example usage
 export const exampleComponent = () => {
-  const locomotionRef = useLocomotion();
+  const locomotionRef = useControllerLocomotion();
   return <XROrigin ref={locomotionRef} />
 }
 ```

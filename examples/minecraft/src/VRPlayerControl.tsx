@@ -1,10 +1,7 @@
-import * as THREE from 'three'
-import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useXRControllerState, XROrigin } from '@react-three/xr'
-
-const TURN_SPEED = 1.5,
-  THUMBSTICK_X_WIGGLE = 0.5
+import { Vector3Object } from '@react-three/rapier'
+import { useControllerLocomotion, useXRInputSourceState, XROrigin } from '@react-three/xr'
+import * as THREE from 'three'
 
 const helpers = {
   euler: new THREE.Euler(),
@@ -22,36 +19,31 @@ export function VRPlayerControl({
     left: boolean
     right: boolean
     rotation: THREE.Euler
+    velocity?: Vector3Object
+    newVelocity?: THREE.Vector3
   }) => void
 }) {
-  const originRef = useRef<THREE.Group>(null)
+  const controllerRight = useXRInputSourceState('controller', 'right')
 
-  const controllerLeft = useXRControllerState('left')
-  const controllerRight = useXRControllerState('right')
+  const physicsMove = (velocity: THREE.Vector3) => {
+    playerMove({
+      forward: false,
+      backward: false,
+      left: false,
+      right: false,
+      rotation: helpers.euler,
+      velocity: undefined,
+      newVelocity: velocity,
+    })
+  }
 
-  useFrame((state, delta) => {
-    const thumbstickRight = controllerRight?.gamepad?.['xr-standard-thumbstick']
-    if (originRef.current != null && thumbstickRight?.xAxis != null && thumbstickRight.xAxis != 0) {
-      originRef.current.rotateY((thumbstickRight.xAxis < 0 ? 1 : -1) * TURN_SPEED * delta)
-    }
+  const originRef = useControllerLocomotion({
+    translationOptions: { motionCallback: physicsMove, speed: 5, disableRefTranslation: true },
+  })
 
+  useFrame(() => {
     if (controllerRight?.gamepad?.['a-button']?.state === 'pressed') {
       playerJump?.()
-    }
-
-    const thumbstickLeft = controllerLeft?.gamepad['xr-standard-thumbstick']
-    if (thumbstickLeft?.xAxis != null && thumbstickLeft.yAxis != null) {
-      state.camera.getWorldQuaternion(helpers.quaternion)
-
-      playerMove?.({
-        forward: thumbstickLeft.yAxis < 0,
-        backward: thumbstickLeft.yAxis > 0,
-        left: thumbstickLeft.xAxis < -THUMBSTICK_X_WIGGLE,
-        right: thumbstickLeft.xAxis > THUMBSTICK_X_WIGGLE,
-
-        // rotation: state.camera.rotation
-        rotation: helpers.euler.setFromQuaternion(helpers.quaternion),
-      })
     }
   })
 
