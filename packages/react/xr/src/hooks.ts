@@ -105,20 +105,17 @@ export function useSessionFeatureEnabled(feature: string) {
   return useXR(({ session }) => session?.enabledFeatures?.includes(feature) ?? false)
 }
 
-export interface ControllerLocomotionOptions {
-  movementController?: XRHandedness
-  translationOptions?: {
-    speed?: number
-    disableRefTranslation?: boolean
-    motionCallback?: (inputVector: Vector3) => void
-  }
-  rotationOptions?: {
-    numberOfDegreesToSnapBy?: number
-    viewControlDeadZone?: number
-    disableSnapTurning?: boolean
-    enableSmoothTurning?: boolean
-    smoothTurningSpeed?: number
-  }
+export interface ControllerLocomotionTranslationOptions {
+  speed?: number
+  disableRefTranslation?: boolean
+  motionCallback?: (inputVector: Vector3) => void
+}
+export interface ControllerLocomotionRotationOptions {
+  numberOfDegreesToSnapBy?: number
+  viewControlDeadZone?: number
+  disableSnapTurning?: boolean
+  enableSmoothTurning?: boolean
+  smoothTurningSpeed?: number
 }
 
 /**
@@ -126,7 +123,11 @@ export interface ControllerLocomotionOptions {
  * @param options Options that can be provided to customize the locomotion behavior
  * @returns A ref to be assigned to the <XROrigin> component (i.e. <XROrigin ref={locomotionRef}>)
  */
-export function useControllerLocomotion(options?: ControllerLocomotionOptions) {
+export function useControllerLocomotion(
+  translationOptions?: ControllerLocomotionTranslationOptions,
+  rotationOptions?: ControllerLocomotionRotationOptions,
+  movementController?: XRHandedness,
+) {
   const defaultSpeed = 2
   const defaultSmoothTurningSpeed = 2
   const defaultEnableSmoothTurning = false
@@ -140,21 +141,19 @@ export function useControllerLocomotion(options?: ControllerLocomotionOptions) {
   const cameraQuaternion = new Quaternion()
 
   // Assign default values to options that are not provided
+  const safeMovementController = movementController ?? defaultHandControllingMovement
   const {
-    movementController = defaultHandControllingMovement,
-    translationOptions: {
-      speed = defaultSpeed,
-      disableRefTranslation = defaultDisableRefTranslation,
-      motionCallback = defaultMotionCallback,
-    } = {},
-    rotationOptions: {
-      numberOfDegreesToSnapBy = defaultNumberOfDegreesToSnapTurnBy,
-      viewControlDeadZone = defaultViewControlDeadZone,
-      disableSnapTurning = defaultDisableSnapTurning,
-      enableSmoothTurning = defaultEnableSmoothTurning,
-      smoothTurningSpeed = defaultSmoothTurningSpeed,
-    } = {},
-  } = options || {}
+    speed = defaultSpeed,
+    disableRefTranslation = defaultDisableRefTranslation,
+    motionCallback = defaultMotionCallback,
+  } = translationOptions || {}
+  const {
+    numberOfDegreesToSnapBy = defaultNumberOfDegreesToSnapTurnBy,
+    viewControlDeadZone = defaultViewControlDeadZone,
+    disableSnapTurning = defaultDisableSnapTurning,
+    enableSmoothTurning = defaultEnableSmoothTurning,
+    smoothTurningSpeed = defaultSmoothTurningSpeed,
+  } = rotationOptions || {}
 
   const positionInfo = useRef<Group>(null)
   const canRotate = useRef(true)
@@ -162,8 +161,8 @@ export function useControllerLocomotion(options?: ControllerLocomotionOptions) {
   const l_controller = useXRInputSourceState('controller', 'left')
   const r_controller = useXRInputSourceState('controller', 'right')
 
-  const resolvedMovementController = movementController === 'left' ? l_controller : r_controller
-  const viewController = movementController === 'left' ? r_controller : l_controller
+  const resolvedMovementController = safeMovementController === 'left' ? l_controller : r_controller
+  const viewController = safeMovementController === 'left' ? r_controller : l_controller
 
   const upVector = new Vector3(0, 1, 0)
   const inputVector = new Vector3()

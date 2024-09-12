@@ -37,9 +37,7 @@ export function VRPlayerControl({
     })
   }
 
-  const originRef = useControllerLocomotion({
-    translationOptions: { motionCallback: physicsMove, speed: 5, disableRefTranslation: true },
-  })
+  const originRef = useControllerLocomotion({ motionCallback: physicsMove, speed: 5, disableRefTranslation: true })
 
   useFrame(() => {
     if (controllerRight?.gamepad?.['a-button']?.state === 'pressed') {
