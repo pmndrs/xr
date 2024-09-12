@@ -137,8 +137,8 @@ export function useControllerLocomotion(
   const defaultNumberOfDegreesToSnapTurnBy = 45
   const defaultHandControllingMovement = 'left'
   const defaultViewControlDeadZone = 0.5
+
   const thumbstickPropName = 'xr-standard-thumbstick'
-  const cameraQuaternion = new Quaternion()
 
   // Assign default values to options that are not provided
   const safeMovementController = movementController ?? defaultHandControllingMovement
@@ -166,6 +166,7 @@ export function useControllerLocomotion(
 
   const upVector = new Vector3(0, 1, 0)
   const inputVector = new Vector3()
+  const cameraQuaternion = new Quaternion()
   const rotationQuaternion: Quaternion = new Quaternion()
 
   useFrame((state, delta) => {
