@@ -3,11 +3,6 @@ import { Vector3Object } from '@react-three/rapier'
 import { useControllerLocomotion, useXRInputSourceState, XROrigin } from '@react-three/xr'
 import * as THREE from 'three'
 
-const helpers = {
-  euler: new THREE.Euler(),
-  quaternion: new THREE.Quaternion(),
-}
-
 export function VRPlayerControl({
   playerJump,
   playerMove,
@@ -25,19 +20,19 @@ export function VRPlayerControl({
 }) {
   const controllerRight = useXRInputSourceState('controller', 'right')
 
-  const physicsMove = (velocity: THREE.Vector3) => {
+  const physicsMove = (velocity: THREE.Vector3, rotation: THREE.Euler) => {
     playerMove({
       forward: false,
       backward: false,
       left: false,
       right: false,
-      rotation: helpers.euler,
+      rotation: rotation,
       velocity: undefined,
       newVelocity: velocity,
     })
   }
 
-  const originRef = useControllerLocomotion({ motionCallback: physicsMove, speed: 5, disableRefTranslation: true })
+  useControllerLocomotion(physicsMove, { speed: 5 })
 
   useFrame(() => {
     if (controllerRight?.gamepad?.['a-button']?.state === 'pressed') {
@@ -45,5 +40,5 @@ export function VRPlayerControl({
     }
   })
 
-  return <XROrigin ref={originRef} position={[0, -1.25, 0]} />
+  return <XROrigin position={[0, -1.25, 0]} />
 }

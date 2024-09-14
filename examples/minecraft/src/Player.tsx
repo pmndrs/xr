@@ -51,7 +51,9 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     }
 
     if (newVelocity) {
+      // If we have a new velocity, we're in VR mode
       rigidBodyRef.current?.setLinvel({ x: newVelocity.x, y: velocity?.y ?? 0, z: newVelocity.z }, true)
+      rigidBodyRef.current?.setRotation(new THREE.Quaternion().setFromEuler(rotation), true)
       return
     }
 

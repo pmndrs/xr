@@ -1,6 +1,6 @@
-import { useFrame } from '@react-three/fiber'
+import { RootState, useFrame } from '@react-three/fiber'
 import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { Group, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
+import { Euler, Group, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 import { useXRInputSourceState } from './input'
 import { useXR } from './xr.js'
 
@@ -107,8 +107,6 @@ export function useSessionFeatureEnabled(feature: string) {
 
 export interface ControllerLocomotionTranslationOptions {
   speed?: number
-  disableRefTranslation?: boolean
-  motionCallback?: (inputVector: Vector3) => void
 }
 export interface ControllerLocomotionRotationOptions {
   numberOfDegreesToSnapBy?: number
@@ -124,6 +122,9 @@ export interface ControllerLocomotionRotationOptions {
  * @returns A ref to be assigned to the <XROrigin> component (i.e. <XROrigin ref={locomotionRef}>)
  */
 export function useControllerLocomotion(
+  target:
+    | RefObject<Group>
+    | ((velocity: Vector3, rotationVelocity: Euler, deltaTime: number, state: RootState, frame?: XRFrame) => void),
   translationOptions?: ControllerLocomotionTranslationOptions,
   rotationOptions?: ControllerLocomotionRotationOptions,
   movementController?: XRHandedness,
@@ -132,8 +133,6 @@ export function useControllerLocomotion(
   const defaultSmoothTurningSpeed = 2
   const defaultEnableSmoothTurning = false
   const defaultDisableSnapTurning = false
-  const defaultDisableRefTranslation = false
-  const defaultMotionCallback = undefined
   const defaultNumberOfDegreesToSnapTurnBy = 45
   const defaultHandControllingMovement = 'left'
   const defaultViewControlDeadZone = 0.5
@@ -142,11 +141,7 @@ export function useControllerLocomotion(
 
   // Assign default values to options that are not provided
   const safeMovementController = movementController ?? defaultHandControllingMovement
-  const {
-    speed = defaultSpeed,
-    disableRefTranslation = defaultDisableRefTranslation,
-    motionCallback = defaultMotionCallback,
-  } = translationOptions || {}
+  const { speed = defaultSpeed } = translationOptions || {}
   const {
     numberOfDegreesToSnapBy = defaultNumberOfDegreesToSnapTurnBy,
     viewControlDeadZone = defaultViewControlDeadZone,
@@ -155,8 +150,9 @@ export function useControllerLocomotion(
     smoothTurningSpeed = defaultSmoothTurningSpeed,
   } = rotationOptions || {}
 
-  const positionInfo = useRef<Group>(null)
   const canRotate = useRef(true)
+  const localPositionRef = useRef<Group>(new Group())
+  const positionInfo = typeof target === 'object' ? target : localPositionRef
 
   const l_controller = useXRInputSourceState('controller', 'left')
   const r_controller = useXRInputSourceState('controller', 'right')
@@ -169,7 +165,7 @@ export function useControllerLocomotion(
   const cameraQuaternion = new Quaternion()
   const rotationQuaternion: Quaternion = new Quaternion()
 
-  useFrame((state, delta) => {
+  useFrame((state, delta, frame) => {
     if (movementController === 'none') return
     if (positionInfo.current == null || resolvedMovementController == null || viewController == null) return
 
@@ -215,8 +211,10 @@ export function useControllerLocomotion(
       inputVector.applyQuaternion(rotationQuaternion)
     }
 
-    motionCallback && motionCallback(inputVector)
-    if (disableRefTranslation) return
+    if (typeof target === 'function') {
+      target(inputVector, positionInfo.current.rotation, delta, state, frame)
+      return
+    }
 
     let xChange = positionInfo.current.position.x
     let zChange = positionInfo.current.position.z
@@ -234,6 +232,4 @@ export function useControllerLocomotion(
       positionInfo.current.position.z = zChange
     }
   })
-
-  return positionInfo
 }
