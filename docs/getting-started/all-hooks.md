@@ -145,10 +145,9 @@ Hook for getting all detected planes with the provided semantic label.
 
 Hook for abstracting boilerplate needed to use controller based locomotion in XR.
 
+  - `target`: Either a `THREE.Group` ref, or a callback function. Recieves movement input. (required)
   - `translationOptions`: 
     - `speed`: The speed at which the user moves.
-    - `disableRefTranslation`: Disables moving the XROrigin from the controller. Mostly used when implementing physics-based movement.
-    - `motionCallback`: A callback that provides the motion vector as a parameter. Mostly used when implementing physics-based movement.
   - `rotationOptions`: 
     - `numberOfDegreesToSnapBy`: The number of degrees a single joystick tap will snap the view by.
     - `viewControlDeadZone`: How far the joystick must be pushed to trigger a turn.
@@ -158,10 +157,40 @@ Hook for abstracting boilerplate needed to use controller based locomotion in XR
   `movementController`: Specifies which hand will control the movement. Can be either 'left' or 'right' (i.e. `XRHandedness`).
 
 ```tsx
-// example usage
-export const exampleComponent = () => {
-  const locomotionRef = useControllerLocomotion();
-  return <XROrigin ref={locomotionRef} />
+// Example showing basic usage
+export const userMovement = () => {
+  const originRef = useRef<THREE.Group>(null);
+   useControllerLocomotion(originRef);
+  return <XROrigin ref={originRef} />
+}
+
+// Example using rapier physics
+export const userMovementWithPhysics = () => {
+  const userRigidBodyRef = useRef<RapierRigidBody>(null);
+
+  const userMove = (inputVector: Vector3, rotationInfo: Euler) => {
+    if (userRigidBodyRef.current) {
+      const currentLinvel = userRigidBodyRef.current.linvel()
+      const newLinvel = { x: inputVector.x, y: currentLinvel.y, z: inputVector.z }
+      userRigidBodyRef.current.setLinvel(newLinvel, true)
+      userRigidBodyRef.current.setRotation(new Quaternion().setFromEuler(rotationInfo), true)
+    }
+  }
+
+  useControllerLocomotion(userMove)
+
+  return <>
+    <RigidBody
+      ref={userRigidBodyRef}
+      colliders={false}
+      type='dynamic'
+      position={[0, 2, 0]}
+      enabledRotations={[false, false, false]}
+      canSleep={false}
+    >
+      <CapsuleCollider args={[.3, .5]} />
+      <XROrigin position={[0, -1, 0]} />
+    </RigidBody>
 }
 ```
 
