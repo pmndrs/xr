@@ -246,17 +246,20 @@ importers:
         specifier: ^9.108.3
         version: 9.111.5(@react-three/fiber@8.17.6)(@types/react@18.3.5)(@types/three@0.164.1)(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
       '@react-three/uikit':
-        specifier: ^0.4.0
-        version: 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+        specifier: ^0.5.3
+        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       '@react-three/uikit-default':
-        specifier: ^0.4.0
-        version: 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+        specifier: ^0.5.3
+        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       '@react-three/uikit-lucide':
-        specifier: ^0.4.0
-        version: 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+        specifier: ^0.5.3
+        version: 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       '@react-three/xr':
         specifier: workspace:^
         version: link:../../packages/react/xr
+      leva:
+        specifier: ^0.9.35
+        version: 0.9.35(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1)(react@18.3.1)
 
   examples/vanilla:
     dependencies:
@@ -3522,8 +3525,8 @@ snapshots:
 
   '@react-three/uikit-default@0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)':
     dependencies:
-      '@react-three/uikit': 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
-      '@react-three/uikit-lucide': 0.4.4(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+      '@react-three/uikit': 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
+      '@react-three/uikit-lucide': 0.5.3(@react-three/fiber@8.17.6)(@types/react@18.3.5)(react@18.3.1)(three@0.167.1)
       tunnel-rat: 0.1.2(@types/react@18.3.5)(react@18.3.1)
     transitivePeerDependencies:
       - '@react-three/fiber'

@@ -57,6 +57,16 @@ export type PointerOptions = {
    * @default 2
    */
   contextMenuButton?: number
+  /**
+   * filtering the intersectable objects
+   * @default undefined
+   */
+  filter?: (
+    object: Object3D,
+    pointerEvents: AllowedPointerEvents,
+    pointerEventsType: AllowedPointerEventsType,
+    pointerEventsOrder: number,
+  ) => boolean
 }
 
 const pointerMap = new Map<number, Pointer>()
@@ -118,7 +128,7 @@ export class Pointer {
     private readonly onMoveCommited?: (pointer: Pointer) => void,
     private readonly parentSetPointerCapture?: () => void,
     private readonly parentReleasePointerCapture?: () => void,
-    private readonly options: PointerOptions = {},
+    public readonly options: PointerOptions = {},
   ) {
     pointerMap.set(id, this)
   }

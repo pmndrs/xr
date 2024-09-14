@@ -20,7 +20,7 @@ export abstract class Intersector {
 
   protected abstract prepareIntersection(nativeEvent: unknown): boolean
 
-  public abstract executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void
+  public abstract executeIntersection(object: Object3D, objectPointerEventsOrder: number): void
 
   public abstract finalizeIntersection(): Intersection | undefined
 }

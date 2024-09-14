@@ -11,11 +11,22 @@ declare module 'three' {
 }
 
 export function hasObjectListeners({ _listeners, __r3f }: Object3D): boolean {
-  if (_listeners != null && Object.keys(_listeners).length > 0) {
-    return true
-  }
   if (__r3f != null && __r3f?.eventCount > 0) {
     return true
+  }
+  if (_listeners == null) {
+    return false
+  }
+  const entries = Object.entries(_listeners)
+  const length = entries.length
+  for (let i = 0; i < length; i++) {
+    const entry = entries[i]
+    if (!listenerNames.includes(entry[0])) {
+      continue
+    }
+    if (entry[1] != null && entry[1].length > 0) {
+      return true
+    }
   }
   return false
 }
@@ -53,6 +64,7 @@ const r3fEventToHandlerMap: Record<keyof PointerEventsMap, string> = {
   pointerup: 'onPointerUp',
   wheel: 'onWheel',
 }
+const listenerNames = Object.keys(r3fEventToHandlerMap)
 
 const triangleHelper1 = new Triangle()
 const triangleHelper2 = new Triangle()

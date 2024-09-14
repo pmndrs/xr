@@ -141,12 +141,11 @@ export class CameraRayIntersector extends Intersector {
     }
 
     computeIntersectionWorldPlane(this.viewPlane, intersection, object)
-    const pointOnFace = this.raycaster.ray.intersectPlane(this.viewPlane, new Vector3()) ?? point
     return {
       ...intersection,
       object,
       point,
-      pointOnFace,
+      pointOnFace: point,
       pointerPosition: this.fromPosition.clone(),
       pointerQuaternion: this.fromQuaternion.clone(),
     }

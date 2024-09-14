@@ -1,5 +1,5 @@
 import { Pointer } from '@pmndrs/pointer-events'
-import { BoxGeometry, Mesh, PlaneGeometry } from 'three'
+import { BoxGeometry, Mesh, Object3D, PlaneGeometry } from 'three'
 import { onXRFrame } from './utils.js'
 import { PointerRayMaterial, PointerRayModelOptions, updatePointerRayModel } from '../pointer/ray.js'
 import { PointerCursorMaterial, PointerCursorModelOptions, updatePointerCursorModel } from '../pointer/cursor.js'
@@ -18,10 +18,10 @@ export class PointerRayModel extends Mesh {
 const pointerCursorGeometry = new PlaneGeometry()
 
 export class PointerCursorModel extends Mesh {
-  constructor(pointer: Pointer, options: PointerCursorModelOptions = {}) {
+  constructor(pointerGroup: Object3D, pointer: Pointer, options: PointerCursorModelOptions = {}) {
     const material = new PointerCursorMaterial()
     super(pointerCursorGeometry, material)
     this.renderOrder = options.renderOrder ?? 1
-    onXRFrame(() => updatePointerCursorModel(this, material, pointer, options))
+    onXRFrame(() => updatePointerCursorModel(pointerGroup, this, material, pointer, options))
   }
 }

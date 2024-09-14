@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { useHover, createXRStore, XR, XROrigin, TeleportTarget } from '@react-three/xr'
 import { useRef, useState } from 'react'
 import { Mesh, Vector3 } from 'three'
+import { Smoke } from './smoke.js'
 
 const store = createXRStore({
   hand: { teleportPointer: true },
@@ -19,6 +20,7 @@ export function App() {
           <ambientLight />
           <XROrigin position={position} />
           <Cube />
+          <Smoke count={100} maxSize={0.3} minSize={0.1} spawnRate={10} speed={0.1} />
           <TeleportTarget onTeleport={setPosition}>
             <mesh scale={[10, 1, 10]} position={[0, -0.5, 0]}>
               <boxGeometry />

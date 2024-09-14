@@ -323,7 +323,7 @@ export function DefaultXRInputSourceTeleportPointer(options: DefaultXRInputSourc
     {
       ...options,
       linePoints,
-      customFilter: buildTeleportTargetFilter(options),
+      filter: buildTeleportTargetFilter(options),
     },
     'teleport',
   )

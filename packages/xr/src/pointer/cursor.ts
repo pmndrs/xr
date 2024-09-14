@@ -3,6 +3,7 @@ import {
   ColorRepresentation,
   Mesh,
   MeshBasicMaterial,
+  Object3D,
   Quaternion,
   Vector3,
   Vector3Tuple,
@@ -64,13 +65,14 @@ const quaternionHelper = new Quaternion()
 const offsetHelper = new Vector3()
 
 export function updatePointerCursorModel(
+  pointerGroup: Object3D,
   mesh: Mesh,
   material: MeshBasicMaterial,
   pointer: Pointer,
   options: PointerCursorModelOptions,
 ) {
   const intersection = pointer.getIntersection()
-  if (intersection == null || !pointer.getEnabled()) {
+  if (intersection == null || !pointer.getEnabled() || !isVisble(pointerGroup)) {
     mesh.visible = false
     return
   }
@@ -95,4 +97,14 @@ export function updatePointerCursorModel(
     mesh.position.add(offsetHelper)
   }
   mesh.updateMatrix()
+}
+
+function isVisble({ visible, parent }: Object3D): boolean {
+  if (!visible) {
+    return false
+  }
+  if (parent == null) {
+    return true
+  }
+  return isVisble(parent)
 }

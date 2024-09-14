@@ -12,8 +12,9 @@ import {
   Vector3Tuple,
 } from 'three'
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
-import { IntersectionOptions, Pointer } from '@pmndrs/pointer-events'
+import { Pointer } from '@pmndrs/pointer-events'
 import { clamp } from 'three/src/math/MathUtils.js'
+import { AllowedPointerEvents, AllowedPointerEventsType, PointerOptions } from '@pmndrs/pointer-events/dist/pointer'
 
 /**
  * marks its children as teleportable
@@ -61,12 +62,17 @@ export function isTeleportTarget(object: Object3D): boolean {
   return object.userData.teleportTarget === true
 }
 
-export function buildTeleportTargetFilter(options: IntersectionOptions = {}) {
-  return (interaction: Intersection) => {
-    if (!isTeleportTarget(interaction.object)) {
+export function buildTeleportTargetFilter(options: PointerOptions = {}) {
+  return (
+    object: Object3D,
+    pointerEvents: AllowedPointerEvents,
+    pointerEventsType: AllowedPointerEventsType,
+    pointerEventsOrder: number,
+  ) => {
+    if (!isTeleportTarget(object)) {
       return false
     }
-    if (options.customFilter != null && !options.customFilter(interaction)) {
+    if (options.filter != null && !options.filter(object, pointerEvents, pointerEventsType, pointerEventsOrder)) {
       return false
     }
     return true

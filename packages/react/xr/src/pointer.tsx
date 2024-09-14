@@ -11,7 +11,7 @@ import {
   createRayPointer,
   createTouchPointer,
 } from '@pmndrs/pointer-events'
-import { Mesh, Object3D } from 'three'
+import { Group, Mesh, Object3D } from 'three'
 import { createPortal, useFrame, useThree } from '@react-three/fiber'
 import {
   PointerCursorMaterial,
@@ -146,16 +146,25 @@ export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { point
 export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & { pointer: Pointer }>((props, ref) => {
   const material = useMemo(() => new PointerCursorMaterial(), [])
   const internalRef = useRef<Mesh>(null)
+  const groupRef = useRef<Group>(null)
   useImperativeHandle(ref, () => internalRef.current!, [])
   useFrame(
-    () => internalRef.current != null && updatePointerCursorModel(internalRef.current, material, props.pointer, props),
+    () =>
+      internalRef.current != null &&
+      groupRef.current != null &&
+      updatePointerCursorModel(groupRef.current, internalRef.current, material, props.pointer, props),
   )
   const scene = useThree((s) => s.scene)
-  return createPortal(
-    <mesh renderOrder={props.renderOrder ?? 1} ref={internalRef} matrixAutoUpdate={false} material={material}>
-      <planeGeometry />
-    </mesh>,
-    scene,
+  return (
+    <>
+      <group ref={groupRef} />
+      {createPortal(
+        <mesh renderOrder={props.renderOrder ?? 1} ref={internalRef} matrixAutoUpdate={false} material={material}>
+          <planeGeometry />
+        </mesh>,
+        scene,
+      )}
+    </>
   )
 })
 
