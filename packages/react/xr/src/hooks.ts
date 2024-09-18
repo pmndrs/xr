@@ -125,7 +125,16 @@ const thumbstickPropName = 'xr-standard-thumbstick'
 
 /**
  * A hook for handling basic locomotion in VR
- * @param options Options that can be provided to customize the locomotion behavior
+ * @param {RefObject<Group> | ((velocity: Vector3, rotationVelocity: Euler, deltaTime: number, state: RootState, frame?: XRFrame) => void)} target Either a `THREE.Group` ref, or a callback function. Recieves movement input (required).
+ * @param {Object} translationOptions Options that control the translation of the user.
+ * @param {Object} translationOptions.speed The speed at which the user moves.
+ * @param {Object} rotationOptions Options that control the rotation of the user.
+ * @param {Object} rotationOptions.viewControlDeadZone How far the joystick must be pushed to trigger a turn. 
+ * @param {Object} rotationOptions.disableControllerBasedRotation Disables rotation using the controller.
+ * @param {Object} rotationOptions.rotationType Controls how rotation using the controller functions. Can be either 'smooth' or 'snap'.
+ * @param {Object} rotationOptions.degrees If `rotationType` is 'snap', this specifies the number of degrees to snap the user's view by.
+ * @param {Object} rotationOptions.speed If `rotationType` is 'smooth', this specifies the speed at which the user's view rotates.
+ * @param {XRHandedness} movementController Specifies which hand will control the movement. Can be either 'left' or 'right'.
  * @returns A ref to be assigned to the <XROrigin> component (i.e. <XROrigin ref={locomotionRef}>)
  */
 export function useControllerLocomotion(
