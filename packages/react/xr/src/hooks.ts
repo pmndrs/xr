@@ -135,7 +135,6 @@ const thumbstickPropName = 'xr-standard-thumbstick'
  * @param {Object} rotationOptions.degrees If `rotationType` is 'snap', this specifies the number of degrees to snap the user's view by.
  * @param {Object} rotationOptions.speed If `rotationType` is 'smooth', this specifies the speed at which the user's view rotates.
  * @param {XRHandedness} movementController Specifies which hand will control the movement. Can be either 'left' or 'right'.
- * @returns A ref to be assigned to the <XROrigin> component (i.e. <XROrigin ref={locomotionRef}>)
  */
 export function useControllerLocomotion(
   target:
