@@ -1,9 +1,16 @@
-import * as THREE from 'three'
-import { useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
 import { useKeyboardControls } from '@react-three/drei'
-import { CapsuleCollider, interactionGroups, RapierRigidBody, RigidBody, useRapier } from '@react-three/rapier'
+import { useFrame } from '@react-three/fiber'
+import {
+  CapsuleCollider,
+  interactionGroups,
+  RapierRigidBody,
+  RigidBody,
+  useRapier,
+  Vector3Object,
+} from '@react-three/rapier'
 import { IfInSessionMode } from '@react-three/xr'
+import { useRef } from 'react'
+import * as THREE from 'three'
 
 import { Axe } from './Axe.jsx'
 import { VRPlayerControl } from './VRPlayerControl.jsx'
@@ -15,10 +22,13 @@ const sideVector = new THREE.Vector3()
 const rotation = new THREE.Vector3()
 
 const vectorHelper = new THREE.Vector3()
+const quaternionHelper = new THREE.Quaternion()
+const quaternionHelper2 = new THREE.Quaternion()
+const eulerHelper = new THREE.Euler()
 
 export function Player({ lerp = THREE.MathUtils.lerp }) {
   const axe = useRef<THREE.Group>(null)
-  const ref = useRef<RapierRigidBody>(null)
+  const rigidBodyRef = useRef<RapierRigidBody>(null)
   const { rapier, world } = useRapier()
   const [, getKeys] = useKeyboardControls()
 
@@ -27,32 +37,54 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     backward,
     left,
     right,
-    rotation,
+    rotationVelocity,
     velocity,
+    newVelocity,
   }: {
     forward: boolean
     backward: boolean
     left: boolean
     right: boolean
-    rotation: THREE.Euler
-    velocity?: any
+    rotationVelocity: number
+    velocity?: Vector3Object
+    newVelocity?: THREE.Vector3
   }) => {
+    if (rigidBodyRef.current == null) {
+      return
+    }
     if (!velocity) {
-      velocity = ref.current?.linvel()
+      velocity = rigidBodyRef.current?.linvel()
+    }
+
+    //apply rotation
+    const { x, y, z, w } = rigidBodyRef.current.rotation()
+    quaternionHelper.set(x, y, z, w)
+    quaternionHelper.multiply(quaternionHelper2.setFromEuler(eulerHelper.set(0, rotationVelocity, 0, 'YXZ')))
+    rigidBodyRef.current?.setRotation(quaternionHelper, true)
+
+    if (newVelocity) {
+      // If we have a new velocity, we're in VR mode
+      rigidBodyRef.current?.setLinvel({ x: newVelocity.x, y: velocity?.y ?? 0, z: newVelocity.z }, true)
+      return
     }
 
     frontVector.set(0, 0, (backward ? 1 : 0) - (forward ? 1 : 0))
     sideVector.set((left ? 1 : 0) - (right ? 1 : 0), 0, 0)
-    direction.subVectors(frontVector, sideVector).normalize().multiplyScalar(SPEED).applyEuler(rotation)
-    ref.current?.setLinvel({ x: direction.x, y: velocity.y, z: direction.z }, true)
+    direction
+      .subVectors(frontVector, sideVector)
+      .applyQuaternion(quaternionHelper)
+      .setComponent(1, 0)
+      .normalize()
+      .multiplyScalar(SPEED)
+    rigidBodyRef.current?.setLinvel({ x: direction.x, y: velocity?.y ?? 0, z: direction.z }, true)
   }
 
   const playerJump = () => {
-    if (ref.current == null) {
+    if (rigidBodyRef.current == null) {
       return
     }
     const ray = world.castRay(
-      new rapier.Ray(ref.current.translation(), { x: 0, y: -1, z: 0 }),
+      new rapier.Ray(rigidBodyRef.current.translation(), { x: 0, y: -1, z: 0 }),
       Infinity,
       false,
       undefined,
@@ -61,21 +93,21 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     const grounded = ray != null && Math.abs(ray.timeOfImpact) <= 1.25
 
     if (grounded) {
-      ref.current.setLinvel({ x: 0, y: 7.5, z: 0 }, true)
+      rigidBodyRef.current.setLinvel({ x: 0, y: 7.5, z: 0 }, true)
     }
   }
 
   useFrame((state) => {
-    if (ref.current == null) {
+    if (rigidBodyRef.current == null) {
       return
     }
     const { forward, backward, left, right, jump } = getKeys()
-    const velocity = ref.current.linvel()
+    const velocity = rigidBodyRef.current.linvel()
 
     vectorHelper.set(velocity.x, velocity.y, velocity.z)
 
     // update camera
-    const { x, y, z } = ref.current.translation()
+    const { x, y, z } = rigidBodyRef.current.translation()
     state.camera.position.set(x, y, z)
 
     // update axe
@@ -90,13 +122,13 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     }
 
     // movement
-    if (ref.current) {
+    if (rigidBodyRef.current) {
       playerMove({
         forward,
         backward,
         left,
         right,
-        rotation: state.camera.rotation,
+        rotationVelocity: 0,
         velocity,
       })
 
@@ -109,7 +141,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
   return (
     <>
       <RigidBody
-        ref={ref}
+        ref={rigidBodyRef}
         colliders={false}
         mass={1}
         type="dynamic"

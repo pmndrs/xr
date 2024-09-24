@@ -1,6 +1,6 @@
 import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { useXR } from './xr.js'
 import { Object3D } from 'three'
+import { useXR } from './xr.js'
 
 export function useHover(ref: RefObject<Object3D>): boolean
 

@@ -141,6 +141,58 @@ Hook for getting the geometry from the detected plane.
 
 Hook for getting all detected planes with the provided semantic label.
 
+### `useControllerLocomotion`
+
+Hook for abstracting boilerplate needed to use controller based locomotion in XR.
+
+  - `target`: Either a `THREE.Group` ref, or a callback function. Recieves movement input. (required)
+  - `translationOptions`: 
+    - `speed`: The speed at which the user moves.
+  - `rotationOptions`: 
+    - `deadZone`: How far the joystick must be pushed to trigger a turn.
+    - `type`: Controls how rotation using the controller functions. Can be either 'smooth' or 'snap'.
+      - `degrees`: If `rotationType` is 'snap', this specifies the number of degrees to snap the user's view by.
+      - `speed`: If `rotationType` is 'smooth', this specifies the speed at which the user's view rotates.
+  - `translationController`: Specifies which hand will control the translation. Can be either 'left' or 'right' (i.e. `XRHandedness`).
+
+```tsx
+// Example showing basic usage
+export const userMovement = () => {
+  const originRef = useRef<THREE.Group>(null);
+   useControllerLocomotion(originRef);
+  return <XROrigin ref={originRef} />
+}
+
+// Example using rapier physics
+export const userMovementWithPhysics = () => {
+  const userRigidBodyRef = useRef<RapierRigidBody>(null);
+
+  const userMove = (inputVector: Vector3, rotationInfo: Euler) => {
+    if (userRigidBodyRef.current) {
+      const currentLinvel = userRigidBodyRef.current.linvel()
+      const newLinvel = { x: inputVector.x, y: currentLinvel.y, z: inputVector.z }
+      userRigidBodyRef.current.setLinvel(newLinvel, true)
+      userRigidBodyRef.current.setRotation(new Quaternion().setFromEuler(rotationInfo), true)
+    }
+  }
+
+  useControllerLocomotion(userMove)
+
+  return <>
+    <RigidBody
+      ref={userRigidBodyRef}
+      colliders={false}
+      type='dynamic'
+      position={[0, 2, 0]}
+      enabledRotations={[false, false, false]}
+      canSleep={false}
+    >
+      <CapsuleCollider args={[.3, .5]} />
+      <XROrigin position={[0, -1, 0]} />
+    </RigidBody>
+}
+```
+
 ## Controller model and layout
 
 @react-three/xr exposes some hook to load controller models and layouts without actual xr controllers for building controller demos/tutoials.

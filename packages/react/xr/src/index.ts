@@ -15,6 +15,7 @@ export * from './hit-test.js'
 export * from './anchor.js'
 export * from './dom-overlay.js'
 export * from './layer.js'
+export * from './controller-locomotion.js'
 
 //react-three/xr v5 compatibility layer
 export * from './deprecated/index.js'
