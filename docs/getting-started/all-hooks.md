@@ -149,12 +149,11 @@ Hook for abstracting boilerplate needed to use controller based locomotion in XR
   - `translationOptions`: 
     - `speed`: The speed at which the user moves.
   - `rotationOptions`: 
-    - `viewControlDeadZone`: How far the joystick must be pushed to trigger a turn.
-    - `disableControllerBasedRotation`: Disables rotation using the controller.
-    - `rotationType`: Controls how rotation using the controller functions. Can be either 'smooth' or 'snap'.
+    - `deadZone`: How far the joystick must be pushed to trigger a turn.
+    - `type`: Controls how rotation using the controller functions. Can be either 'smooth' or 'snap'.
       - `degrees`: If `rotationType` is 'snap', this specifies the number of degrees to snap the user's view by.
       - `speed`: If `rotationType` is 'smooth', this specifies the speed at which the user's view rotates.
-  - `movementController`: Specifies which hand will control the movement. Can be either 'left' or 'right' (i.e. `XRHandedness`).
+  - `translationController`: Specifies which hand will control the translation. Can be either 'left' or 'right' (i.e. `XRHandedness`).
 
 ```tsx
 // Example showing basic usage

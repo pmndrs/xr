@@ -22,6 +22,9 @@ const sideVector = new THREE.Vector3()
 const rotation = new THREE.Vector3()
 
 const vectorHelper = new THREE.Vector3()
+const quaternionHelper = new THREE.Quaternion()
+const quaternionHelper2 = new THREE.Quaternion()
+const eulerHelper = new THREE.Euler()
 
 export function Player({ lerp = THREE.MathUtils.lerp }) {
   const axe = useRef<THREE.Group>(null)
@@ -34,7 +37,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     backward,
     left,
     right,
-    rotation,
+    rotationVelocity,
     velocity,
     newVelocity,
   }: {
@@ -42,24 +45,37 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     backward: boolean
     left: boolean
     right: boolean
-    rotation: THREE.Euler
+    rotationVelocity: number
     velocity?: Vector3Object
     newVelocity?: THREE.Vector3
   }) => {
+    if (rigidBodyRef.current == null) {
+      return
+    }
     if (!velocity) {
       velocity = rigidBodyRef.current?.linvel()
     }
 
+    //apply rotation
+    const { x, y, z, w } = rigidBodyRef.current.rotation()
+    quaternionHelper.set(x, y, z, w)
+    quaternionHelper.multiply(quaternionHelper2.setFromEuler(eulerHelper.set(0, rotationVelocity, 0, 'YXZ')))
+    rigidBodyRef.current?.setRotation(quaternionHelper, true)
+
     if (newVelocity) {
       // If we have a new velocity, we're in VR mode
       rigidBodyRef.current?.setLinvel({ x: newVelocity.x, y: velocity?.y ?? 0, z: newVelocity.z }, true)
-      rigidBodyRef.current?.setRotation(new THREE.Quaternion().setFromEuler(rotation), true)
       return
     }
 
     frontVector.set(0, 0, (backward ? 1 : 0) - (forward ? 1 : 0))
     sideVector.set((left ? 1 : 0) - (right ? 1 : 0), 0, 0)
-    direction.subVectors(frontVector, sideVector).normalize().multiplyScalar(SPEED).applyEuler(rotation)
+    direction
+      .subVectors(frontVector, sideVector)
+      .applyQuaternion(quaternionHelper)
+      .setComponent(1, 0)
+      .normalize()
+      .multiplyScalar(SPEED)
     rigidBodyRef.current?.setLinvel({ x: direction.x, y: velocity?.y ?? 0, z: direction.z }, true)
   }
 
@@ -112,7 +128,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
         backward,
         left,
         right,
-        rotation: state.camera.rotation,
+        rotationVelocity: 0,
         velocity,
       })
 
