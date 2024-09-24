@@ -37,7 +37,7 @@ export type XRState<T extends XRElementImplementations> = Readonly<
     /**
      * the HTML element for doing dom overlays in handheld AR experiences
      */
-    domOverlayRoot: Element
+    domOverlayRoot?: Element
     /**
      * the session visibility state
      * e.g. `"visible-blurred"` typically occurs when the user sees an OS overlay
@@ -309,7 +309,12 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     window.addEventListener('keydown', keydownListener)
     cleanupEmulate = () => window.removeEventListener('keydown', keydownListener)
   }
-  const domOverlayRoot = options?.domOverlay instanceof HTMLElement ? options.domOverlay : document.createElement('div')
+  const domOverlayRoot =
+    typeof HTMLElement === 'undefined'
+      ? undefined
+      : options?.domOverlay instanceof HTMLElement
+        ? options.domOverlay
+        : document.createElement('div')
   const store = createStore<XRState<XRElementImplementations>>(() => ({
     ...baseInitialState,
     controller: options?.controller,
@@ -321,19 +326,21 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   }))
 
   let cleanupDomOverlayRoot: (() => void) | undefined
-  if (domOverlayRoot.parentNode == null) {
-    const setupDisplay = (state: XRState<any>) => {
-      domOverlayRoot.style.display = state.session != null ? 'block' : 'none'
+  if (domOverlayRoot != null) {
+    if (domOverlayRoot.parentNode == null) {
+      const setupDisplay = (state: XRState<any>) => {
+        domOverlayRoot.style.display = state.session != null ? 'block' : 'none'
+      }
+      const unsubscribe = store.subscribe(setupDisplay)
+      setupDisplay(store.getState())
+      document.body.appendChild(domOverlayRoot)
+      cleanupDomOverlayRoot = () => {
+        domOverlayRoot.remove()
+        unsubscribe()
+      }
     }
-    const unsubscribe = store.subscribe(setupDisplay)
-    setupDisplay(store.getState())
-    document.body.appendChild(domOverlayRoot)
-    cleanupDomOverlayRoot = () => {
-      domOverlayRoot.remove()
-      unsubscribe()
-    }
+    document.body.append(domOverlayRoot)
   }
-  document.body.append(domOverlayRoot)
 
   const syncXRInputSourceStates = createSyncXRInputSourceStates(
     (state) => store.setState({ inputSourceStates: [...store.getState().inputSourceStates, state] }),
@@ -548,7 +555,7 @@ async function setFrameRate(session: XRSession, frameRate: FrameRateOption): Pro
 }
 
 async function enterXR(
-  domOverlayRoot: Element,
+  domOverlayRoot: Element | undefined,
   mode: XRSessionMode,
   options: XRStoreOptions<XRElementImplementations> | undefined,
   xrManager: WebXRManager | undefined,

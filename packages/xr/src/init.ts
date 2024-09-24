@@ -51,7 +51,7 @@ export type XRSessionInitOptions = {
 
 export function buildXRSessionInit(
   mode: XRSessionMode,
-  domOverlayRoot: Element,
+  domOverlayRoot: Element | undefined,
   {
     anchors = true,
     handTracking = true,
@@ -90,7 +90,10 @@ export function buildXRSessionInit(
   const init: XRSessionInit = {
     requiredFeatures,
     optionalFeatures,
-    domOverlay: { root: domOverlayRoot },
+  }
+
+  if (domOverlayRoot != null) {
+    init.domOverlay = { root: domOverlayRoot }
   }
 
   //TODO: replace with call to isSupportedFeature (unbounded, ...)

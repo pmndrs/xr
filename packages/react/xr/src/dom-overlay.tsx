@@ -10,6 +10,9 @@ export const XRDomOverlay = forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>
   const domOverlayRoot = useXR((xr) => xr.domOverlayRoot)
   const { In, Out } = useMemo(tunnel, [])
   useEffect(() => {
+    if (domOverlayRoot == null) {
+      return
+    }
     const root = createRoot(domOverlayRoot)
     root.render(<Out />)
     return () => root.unmount()
