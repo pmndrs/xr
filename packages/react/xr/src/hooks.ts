@@ -71,7 +71,7 @@ export function useSessionModeSupported(mode: XRSessionMode, onError?: (error: a
     return [
       (onChange: () => void) => {
         let canceled = false
-        if (navigator.xr == null) {
+        if (typeof navigator === 'undefined' || navigator.xr == null) {
           sessionSupported = false
           return () => {}
         }

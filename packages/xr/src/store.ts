@@ -284,6 +284,9 @@ const baseInitialState: Omit<
 }
 
 function startEmulate(emulate: EmulatorType | true, alert: boolean) {
+  if (typeof navigator === 'undefined') {
+    return
+  }
   Promise.all([navigator.xr?.isSessionSupported('immersive-vr'), navigator.xr?.isSessionSupported('immersive-ar')])
     .then(([vr, ar]) => (!ar && !vr ? import('./emulate.js') : undefined))
     .then((pkg) => {
@@ -560,7 +563,7 @@ async function enterXR(
   options: XRStoreOptions<XRElementImplementations> | undefined,
   xrManager: WebXRManager | undefined,
 ): Promise<XRSession | undefined> {
-  if (navigator.xr == null) {
+  if (typeof navigator === 'undefined' || navigator.xr == null) {
     return Promise.reject(new Error(`WebXR not supported`))
   }
   if (xrManager == null) {
@@ -601,7 +604,7 @@ function setupSessionGrantedListener(
   enterGrantedSession: XRStoreOptions<XRElementImplementations>['enterGrantedSession'] = allSessionModes,
   enterXR: (mode: XRSessionMode) => void,
 ) {
-  if (enterGrantedSession === false) {
+  if (typeof navigator === 'undefined' || enterGrantedSession === false) {
     return
   }
   if (enterGrantedSession === true) {
