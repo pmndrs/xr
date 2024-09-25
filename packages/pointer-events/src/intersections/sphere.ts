@@ -13,6 +13,7 @@ import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './u
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
 import { Intersection, IntersectionOptions } from '../index.js'
+import { updateAndCheckWorldTransformation } from '../utils.js'
 
 const collisionSphere = new Sphere()
 const intersectsHelper: Array<ThreeIntersection> = []
@@ -21,28 +22,39 @@ export class SphereIntersector extends Intersector {
   private readonly fromPosition = new Vector3()
   private readonly fromQuaternion = new Quaternion()
 
+  private ready?: boolean
+
   constructor(
-    /**
-     * @returns the sphere radius
-     */
-    private readonly prepareTransformation: (
-      nativeEvent: unknown,
-      fromPosition: Vector3,
-      fromQuaternion: Quaternion,
-    ) => number | undefined,
+    private readonly space: { current?: Object3D | null },
+    private readonly getSphereRadius: () => number,
     private readonly options: IntersectionOptions,
   ) {
     super()
   }
 
-  public intersectPointerCapture(
-    { intersection, object }: PointerCapture,
-    nativeEvent: unknown,
-  ): Intersection | undefined {
+  public isReady(): boolean {
+    return this.ready ?? this.prepareTransformation()
+  }
+
+  private prepareTransformation(): boolean {
+    const spaceObject = this.space.current
+    if (spaceObject == null) {
+      return (this.ready = false)
+    }
+    this.ready = updateAndCheckWorldTransformation(spaceObject)
+    if (!this.ready) {
+      return false
+    }
+    this.fromPosition.setFromMatrixPosition(spaceObject.matrixWorld)
+    this.fromQuaternion.setFromRotationMatrix(spaceObject.matrixWorld)
+    return true
+  }
+
+  public intersectPointerCapture({ intersection, object }: PointerCapture): Intersection | undefined {
     if (intersection.details.type != 'sphere') {
       return undefined
     }
-    if (this.prepareTransformation(nativeEvent, this.fromPosition, this.fromQuaternion) == null) {
+    if (!this.prepareTransformation()) {
       return undefined
     }
     //compute old inputDevicePosition-point offset
@@ -71,17 +83,18 @@ export class SphereIntersector extends Intersector {
     }
   }
 
-  protected prepareIntersection(nativeEvent: unknown): boolean {
-    const radius = this.prepareTransformation(nativeEvent, this.fromPosition, this.fromQuaternion)
-    if (radius == null) {
-      return false
+  protected prepareIntersection(): void {
+    if (!this.prepareTransformation()) {
+      return
     }
     collisionSphere.center.copy(this.fromPosition)
-    collisionSphere.radius = radius
-    return true
+    collisionSphere.radius = this.getSphereRadius()
   }
 
   public executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void {
+    if (!this.isReady()) {
+      return
+    }
     intersectSphereWithObject(collisionSphere, object, intersectsHelper)
     const index = getDominantIntersectionIndex(
       this.intersection,

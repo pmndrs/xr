@@ -3,7 +3,7 @@ import { Matrix4, Object3D } from 'three'
 export function createGetXRSpaceMatrix(
   space: XRSpace,
   referenceSpace: XRSpace | (() => XRSpace | undefined),
-): (target: Matrix4, frame: XRFrame | undefined) => void {
+): (target: Matrix4, frame: XRFrame | undefined) => boolean {
   return (target, frame) => {
     if (space === referenceSpace) {
       target.identity()

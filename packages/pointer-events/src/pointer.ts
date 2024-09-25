@@ -198,7 +198,7 @@ export class Pointer {
 
   /**
    * allows to separately compute and afterwards commit a move
-   * => do not forget to call commitMove after computeMove
+   * => do not forget to call commit after computeMove
    * can be used to compute the current intersection and disable or enable the pointer before commiting the move
    */
   computeMove(scene: Object3D, nativeEvent: NativeEvent) {
@@ -245,7 +245,7 @@ export class Pointer {
     this.prevIntersection = this.intersection
     this.prevEnabled = this.enabled
 
-    if (!this.wasMoved) {
+    if (!this.wasMoved && this.intersector.isReady()) {
       this.wasMoved = true
       const length = this.onFirstMove.length
       for (let i = 0; i < length; i++) {

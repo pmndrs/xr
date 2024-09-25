@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { useHover, createXRStore, XR, XROrigin, TeleportTarget } from '@react-three/xr'
+import { useHover, createXRStore, XR, XROrigin, TeleportTarget, useXRInputSourceStates } from '@react-three/xr'
 import { useRef, useState } from 'react'
 import { Mesh, Vector3 } from 'three'
 import { Smoke } from './smoke.js'
@@ -20,13 +20,13 @@ export function App() {
           <ambientLight />
           <XROrigin position={position} />
           <Cube />
-          <Smoke count={100} maxSize={0.3} minSize={0.1} spawnRate={10} speed={0.1} />
+          {/*<Smoke count={100} maxSize={0.3} minSize={0.1} spawnRate={10} speed={0.1} />
           <TeleportTarget onTeleport={setPosition}>
             <mesh scale={[10, 1, 10]} position={[0, -0.5, 0]}>
               <boxGeometry />
               <meshBasicMaterial color="green" />
             </mesh>
-          </TeleportTarget>
+          </TeleportTarget>*/}
         </XR>
       </Canvas>
     </>
@@ -36,15 +36,17 @@ export function App() {
 function Cube() {
   const ref = useRef<Mesh>(null)
   const hover = useHover(ref)
+  const [toggle, setToggle] = useState(false)
   return (
     <mesh
-      onClick={() => store.setHand({ rayPointer: { cursorModel: { color: 'green' } } }, 'right')}
-      position={[0, 2, 0]}
+      onClick={() => setToggle((x) => !x)}
+      position={[0, 1, -1]}
+      scale={0.1}
       pointerEventsType={{ deny: 'grab' }}
       ref={ref}
     >
       <boxGeometry />
-      <meshBasicMaterial color={hover ? 'red' : 'blue'} />
+      <meshBasicMaterial color={toggle ? 'white' : hover ? 'red' : 'blue'} />
     </mesh>
   )
 }

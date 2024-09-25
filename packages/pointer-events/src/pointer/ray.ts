@@ -26,13 +26,7 @@ export function createRayPointer(
     generateUniquePointerId(),
     pointerType,
     pointerState,
-    new RayIntersector((_nativeEvent, matrixWorld) => {
-      if (space.current == null) {
-        return false
-      }
-      matrixWorld.copy(space.current.matrixWorld)
-      return true
-    }, options),
+    new RayIntersector(space, options),
     undefined,
     undefined,
     undefined,

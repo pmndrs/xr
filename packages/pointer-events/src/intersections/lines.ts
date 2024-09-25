@@ -13,6 +13,7 @@ import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './u
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
 import { Intersection, IntersectionOptions } from '../index.js'
+import { updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()
 const intersectsHelper: Array<ThreeIntersection & { details: { distanceOnLine: number; lineIndex: number } }> = []
@@ -27,22 +28,38 @@ export class LinesIntersector extends Intersector {
   private intersectionLineIndex: number = 0
   private intersectionDistanceOnLine: number = 0
 
+  private ready?: boolean
+
   constructor(
-    private readonly prepareTransformation: (nativeEvent: unknown, fromMatrixWorld: Matrix4) => boolean,
+    private readonly space: { current?: Object3D | null },
     private readonly options: IntersectionOptions & { linePoints?: Array<Vector3>; minDistance?: number },
   ) {
     super()
   }
 
-  public intersectPointerCapture(
-    { intersection, object }: PointerCapture,
-    nativeEvent: unknown,
-  ): Intersection | undefined {
+  public isReady(): boolean {
+    return this.ready ?? this.prepareTransformation()
+  }
+
+  private prepareTransformation(): boolean {
+    const spaceObject = this.space.current
+    if (spaceObject == null) {
+      return (this.ready = false)
+    }
+    this.ready = updateAndCheckWorldTransformation(spaceObject)
+    if (!this.ready) {
+      return false
+    }
+    this.fromMatrixWorld.copy(spaceObject.matrixWorld)
+    return true
+  }
+
+  public intersectPointerCapture({ intersection, object }: PointerCapture): Intersection | undefined {
     const details = intersection.details
     if (details.type != 'lines') {
       return undefined
     }
-    if (!this.prepareTransformation(nativeEvent, this.fromMatrixWorld)) {
+    if (!this.prepareTransformation()) {
       return undefined
     }
     const linePoints = this.options.linePoints ?? defaultLinePoints
@@ -60,9 +77,9 @@ export class LinesIntersector extends Intersector {
     }
   }
 
-  protected prepareIntersection(nativeEvent: unknown): boolean {
-    if (!this.prepareTransformation(nativeEvent, this.fromMatrixWorld)) {
-      return false
+  protected prepareIntersection(): void {
+    if (!this.prepareTransformation()) {
+      return
     }
     const linePoints = this.options.linePoints ?? defaultLinePoints
     const length = linePoints.length - 1
@@ -82,10 +99,13 @@ export class LinesIntersector extends Intersector {
       raycaster.far = lineLength
     }
     this.raycasters.length = length
-    return true
+    return
   }
 
   public executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void {
+    if (!this.isReady()) {
+      return
+    }
     let lineLengthSum = 0
     const length = this.raycasters.length
     //TODO: optimize - we only need to intersect with raycasters before or equal to the raycaster that did the current intersection

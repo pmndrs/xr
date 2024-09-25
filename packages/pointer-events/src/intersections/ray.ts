@@ -11,13 +11,13 @@ import {
   Vector2,
 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
-import { Pointer, type PointerCapture } from '../pointer.js'
+import { type PointerCapture } from '../pointer.js'
 import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './utils.js'
 import { Intersector } from './intersector.js'
+import { updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()
 const intersectsHelper: Array<ThreeIntersection> = []
-const matrixHelper = new Matrix4()
 const scaleHelper = new Vector3()
 const NegZAxis = new Vector3(0, 0, -1)
 const directionHelper = new Vector3()
@@ -28,21 +28,39 @@ export class RayIntersector extends Intersector {
   private readonly raycasterQuaternion = new Quaternion()
   private worldScale: number = 0
 
+  private ready?: boolean
+
   constructor(
-    private readonly prepareTransformation: (nativeEvent: unknown, matrixWorld: Matrix4) => boolean,
+    private readonly space: { current?: Object3D | null },
     private readonly options: IntersectionOptions & { minDistance?: number; direction?: Vector3 },
   ) {
     super()
   }
 
-  public intersectPointerCapture(
-    { intersection, object }: PointerCapture,
-    nativeEvent: unknown,
-  ): Intersection | undefined {
+  public isReady(): boolean {
+    return this.ready ?? this.prepareTransformation()
+  }
+
+  private prepareTransformation(): boolean {
+    const spaceObject = this.space.current
+    if (spaceObject == null) {
+      return (this.ready = false)
+    }
+    this.ready = updateAndCheckWorldTransformation(spaceObject)
+    if (!this.ready) {
+      return false
+    }
+    spaceObject.matrixWorld.decompose(this.raycaster.ray.origin, this.raycasterQuaternion, scaleHelper)
+    this.worldScale = scaleHelper.x
+    this.raycaster.ray.direction.copy(this.options?.direction ?? NegZAxis).applyQuaternion(this.raycasterQuaternion)
+    return true
+  }
+
+  public intersectPointerCapture({ intersection, object }: PointerCapture): Intersection | undefined {
     if (intersection.details.type != 'ray') {
       return undefined
     }
-    if (!this.prepareIntersection(nativeEvent)) {
+    if (!this.prepareTransformation()) {
       return undefined
     }
     computeIntersectionWorldPlane(planeHelper, intersection, object)
@@ -58,17 +76,14 @@ export class RayIntersector extends Intersector {
     }
   }
 
-  protected prepareIntersection(nativeEvent: unknown): boolean {
-    if (!this.prepareTransformation(nativeEvent, matrixHelper)) {
-      return false
-    }
-    matrixHelper.decompose(this.raycaster.ray.origin, this.raycasterQuaternion, scaleHelper)
-    this.worldScale = scaleHelper.x
-    this.raycaster.ray.direction.copy(this.options?.direction ?? NegZAxis).applyQuaternion(this.raycasterQuaternion)
-    return true
+  protected prepareIntersection(): void {
+    this.prepareTransformation()
   }
 
   public executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void {
+    if (!this.isReady()) {
+      return
+    }
     object.raycast(this.raycaster, intersectsHelper)
     const index = getDominantIntersectionIndex(
       this.intersection,
@@ -118,6 +133,10 @@ export class CameraRayIntersector extends Intersector {
     private readonly options: IntersectionOptions,
   ) {
     super()
+  }
+
+  public isReady(): boolean {
+    return true
   }
 
   public intersectPointerCapture(

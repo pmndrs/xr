@@ -27,14 +27,7 @@ export function createLinesPointer(
     generateUniquePointerId(),
     pointerType,
     pointerState,
-    new LinesIntersector((_nativeEvent, fromMatrixWorld) => {
-      const spaceObject = space.current
-      if (spaceObject == null) {
-        return false
-      }
-      fromMatrixWorld.copy(spaceObject.matrixWorld)
-      return true
-    }, options),
+    new LinesIntersector(space, options),
     undefined,
     undefined,
     undefined,

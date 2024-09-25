@@ -2,8 +2,8 @@ import { createGetXRSpaceMatrix } from '@pmndrs/xr/internals'
 import { RootState, useFrame } from '@react-three/fiber'
 import {
   ReactNode,
-  RefObject,
   forwardRef,
+  useCallback,
   useContext,
   useEffect,
   useImperativeHandle,
@@ -13,7 +13,7 @@ import {
 } from 'react'
 import { Group, Object3D } from 'three'
 import { xrSpaceContext } from './contexts.js'
-import { useXR, useXRStore } from './xr.js'
+import { useXR } from './xr.js'
 
 /**
  * component that puts its children at the provided space (or reference space type)
@@ -25,22 +25,21 @@ export const XRSpace = forwardRef<
     children?: ReactNode
   }
 >(({ space, children }, ref) => {
-  const internalRef = useRef<Group>(null)
+  const internalRef = useRef<Group | null>(null)
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const resolvedSpace = typeof space === 'string' ? useXRSpace(space) : space
   useImperativeHandle(ref, () => internalRef.current!, [])
-  useApplyXRSpaceMatrix(internalRef, resolvedSpace, (_state, _delta, frame) => {
-    if (internalRef.current == null) {
-      return
+  useApplyXRSpaceMatrix(internalRef, resolvedSpace)
+  const setRef = useCallback((group: Group | null) => {
+    if (group != null) {
+      group.transformReady = false
+      group.visible = false
     }
-    internalRef.current.visible = frame != null
-  })
-  if (resolvedSpace == null) {
-    return null
-  }
+    internalRef.current = group
+  }, [])
   return (
-    <group xrSpace={resolvedSpace} visible={false} matrixAutoUpdate={false} ref={internalRef}>
-      <xrSpaceContext.Provider value={resolvedSpace}>{children}</xrSpaceContext.Provider>
+    <group xrSpace={resolvedSpace} matrixAutoUpdate={false} ref={setRef}>
+      {resolvedSpace && <xrSpaceContext.Provider value={resolvedSpace}>{children}</xrSpaceContext.Provider>}
     </group>
   )
 })
@@ -100,16 +99,15 @@ export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
  * @requires that matrixAutoUpdate is disabled for the referenced object
  */
 export function useApplyXRSpaceMatrix(
-  ref: RefObject<Object3D>,
+  ref: { current?: Group | null },
   space: XRSpace | undefined,
   onFrame?: (state: RootState, delta: number, frame: XRFrame | undefined) => void,
 ): void {
   const getXRSpaceMatrix = useGetXRSpaceMatrix(space)
   useFrame((state, delta, frame: XRFrame | undefined) => {
-    if (ref.current == null || getXRSpaceMatrix == null) {
-      return
+    if (ref.current != null) {
+      ref.current.visible = ref.current.transformReady = getXRSpaceMatrix?.(ref.current.matrix, frame) ?? false
     }
-    getXRSpaceMatrix(ref.current.matrix, frame)
     onFrame?.(state, delta, frame)
     //makes sure we update the frame before using the space transformation anywhere
   }, -100)

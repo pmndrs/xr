@@ -7,7 +7,26 @@ declare module 'three' {
       eventCount: number
       handlers: Record<string, ((e: any) => void) | undefined>
     }
+    /**
+     * undefined and true means the transformation is ready
+     * false means transformation is not ready
+     */
+    transformReady?: boolean
   }
+}
+
+export function updateAndCheckWorldTransformation({ transformReady, parent, matrix, matrixWorld }: Object3D): boolean {
+  if (transformReady === false) {
+    return false
+  }
+  if (parent == null) {
+    return true
+  }
+  if (!updateAndCheckWorldTransformation(parent)) {
+    return false
+  }
+  matrixWorld.multiplyMatrices(parent.matrixWorld, matrix)
+  return true
 }
 
 export function hasObjectListeners({ _listeners, __r3f }: Object3D): boolean {

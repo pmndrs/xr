@@ -29,16 +29,7 @@ export function createTouchPointer(
     generateUniquePointerId(),
     pointerType,
     pointerState,
-    new SphereIntersector((_nativeEvent, fromPosition, fromQuaternion) => {
-      const spaceObject = space.current
-      if (spaceObject == null) {
-        return undefined
-      }
-      spaceObject.updateWorldMatrix(true, false)
-      fromPosition.setFromMatrixPosition(spaceObject.matrixWorld)
-      fromQuaternion.setFromRotationMatrix(spaceObject.matrixWorld)
-      return options.hoverRadius ?? 0.1
-    }, options),
+    new SphereIntersector(space, () => options.hoverRadius ?? 0.1, options),
     createUpdateTouchPointer(options),
     undefined,
     undefined,

@@ -10,6 +10,7 @@ export class XRSpace extends Object3D {
     originReferenceSpace?: XRReferenceSpace,
   ) {
     super()
+    this.transformReady = false
     const getSpaceMatrix = createGetXRSpaceMatrix(xrSpace, () =>
       getSpaceFromAncestors(this, origin, originReferenceSpace),
     )
@@ -19,8 +20,7 @@ export class XRSpace extends Object3D {
       if (frame == null) {
         return
       }
-      getSpaceMatrix(this.matrix, frame)
-      this.visible = true
+      this.visible = this.transformReady = getSpaceMatrix(this.matrix, frame)
     })
   }
 }

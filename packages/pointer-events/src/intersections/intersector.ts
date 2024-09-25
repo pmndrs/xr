@@ -18,7 +18,9 @@ export abstract class Intersector {
     nativeEvent: unknown,
   ): Intersection | undefined
 
-  protected abstract prepareIntersection(nativeEvent: unknown): boolean
+  public abstract isReady(): boolean
+
+  protected abstract prepareIntersection(nativeEvent: unknown): void
 
   public abstract executeIntersection(object: Object3D, objectPointerEventsOrder: number): void
 
