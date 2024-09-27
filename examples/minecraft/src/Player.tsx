@@ -24,7 +24,6 @@ const rotation = new THREE.Vector3()
 const vectorHelper = new THREE.Vector3()
 const quaternionHelper = new THREE.Quaternion()
 const quaternionHelper2 = new THREE.Quaternion()
-const eulerHelper = new THREE.Euler()
 
 export function Player({ lerp = THREE.MathUtils.lerp }) {
   const axe = useRef<THREE.Group>(null)
@@ -45,7 +44,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     backward: boolean
     left: boolean
     right: boolean
-    rotationVelocity: number
+    rotationVelocity: THREE.Euler
     velocity?: Vector3Object
     newVelocity?: THREE.Vector3
   }) => {
@@ -59,7 +58,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     //apply rotation
     const { x, y, z, w } = rigidBodyRef.current.rotation()
     quaternionHelper.set(x, y, z, w)
-    quaternionHelper.multiply(quaternionHelper2.setFromEuler(eulerHelper.set(0, rotationVelocity, 0, 'YXZ')))
+    quaternionHelper.multiply(quaternionHelper2.setFromEuler(rotationVelocity))
     rigidBodyRef.current?.setRotation(quaternionHelper, true)
 
     if (newVelocity) {
