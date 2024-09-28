@@ -13,20 +13,20 @@ export function VRPlayerControl({
     backward: boolean
     left: boolean
     right: boolean
-    rotationVelocity: number
+    rotationYVelocity: number
     velocity?: Vector3Object
     newVelocity?: THREE.Vector3
   }) => void
 }) {
   const controllerRight = useXRInputSourceState('controller', 'right')
 
-  const physicsMove = (velocity: THREE.Vector3, rotationVelocity: THREE.Euler) => {
+  const physicsMove = (velocity: THREE.Vector3, rotationYVelocity: number) => {
     playerMove({
       forward: false,
       backward: false,
       left: false,
       right: false,
-      rotationVelocity,
+      rotationYVelocity,
       velocity: undefined,
       newVelocity: velocity,
     })
