@@ -22,6 +22,8 @@ const thumbstickPropName = 'xr-standard-thumbstick'
 const vectorHelper = new Vector3()
 const quaternionHelper = new Quaternion()
 const eulerHelper = new Euler()
+const positionHelper = new Vector3()
+const scaleHelper = new Vector3()
 
 /**
  * function for handling controller based locomotion in VR
@@ -94,7 +96,8 @@ export function createControllerLocomotionUpdate() {
       }
       const { speed = defaultSpeed } = translationOptions
       vectorHelper.set(translationXAxis * speed, 0, translationYAxis * speed)
-      vectorHelper.applyQuaternion(camera.getWorldQuaternion(quaternionHelper))
+      camera.matrixWorld.decompose(positionHelper, quaternionHelper, scaleHelper)
+      vectorHelper.applyQuaternion(quaternionHelper)
 
       if (yRotationChange) {
         vectorHelper.applyEuler(eulerHelper.set(0, yRotationChange, 0, 'YXZ'))

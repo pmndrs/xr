@@ -4,8 +4,9 @@ import { Physics, usePlane } from '@react-three/cannon'
 import { Cursor } from './helpers/Drag.js'
 import { Guy } from './components/Guy.jsx'
 import { Mug, Chair, Table, Lamp } from './components/Furniture.jsx'
-import { createXRStore, XR, XROrigin } from '@react-three/xr'
-import { Suspense } from 'react'
+import { createXRStore, useControllerLocomotion, XR, XROrigin } from '@react-three/xr'
+import { useRef, Suspense } from 'react'
+import { Group } from 'three'
 
 const store = createXRStore({
   hand: { touchPointer: false },
@@ -55,12 +56,18 @@ export function App() {
             </Physics>
           </Suspense>
           <group position={[0, -5, 0]}>
-            <XROrigin scale={10} />
+            <ControlledXROrigin />
           </group>
         </XR>
       </Canvas>
     </>
   )
+}
+
+function ControlledXROrigin() {
+  const ref = useRef(null)
+  useControllerLocomotion(ref, { speed: 10 })
+  return <XROrigin ref={ref} scale={10} />
 }
 
 function Floor(props) {
