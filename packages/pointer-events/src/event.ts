@@ -118,6 +118,20 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
     return this.intersection.details
   }
 
+  /**
+   * @deprecated
+   */
+  get clientX(): number {
+    return (this.nativeEvent as any).clientX ?? 0
+  }
+
+  /**
+   * @deprecated
+   */
+  get clientY(): number {
+    return (this.nativeEvent as any).clientY ?? 0
+  }
+
   /** same as target */
   get target(): Object3D {
     return this.object

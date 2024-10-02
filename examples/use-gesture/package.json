@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@pmndrs/pointer-events": "workspace:^",
+    "@react-three/xr": "workspace:^",
+    "@use-gesture/react": "^10.3.1"
+  },
+  "scripts": {
+    "dev": "vite --host"
+  }
+}
