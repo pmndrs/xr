@@ -11,11 +11,12 @@ import {
   createDefaultXRTransientPointer,
 } from './default.js'
 import { XRSpaceType } from './types.js'
-import { CombinedPointer } from '@pmndrs/pointer-events'
+import { CombinedPointer, GetCamera } from '@pmndrs/pointer-events'
 import { setupSyncIsVisible } from '../visible.js'
 
 export function setupSyncXRElements(
   scene: Object3D,
+  getCamera: GetCamera,
   store: XRStore<XRElementImplementations>,
   target: Object3D,
   updatesList: XRUpdatesList,
@@ -28,6 +29,7 @@ export function setupSyncXRElements(
   const syncControllers = setupSyncInputSourceElements(
     createDefaultXRController,
     scene,
+    getCamera,
     store,
     'controller',
     inputGroup,
@@ -37,6 +39,7 @@ export function setupSyncXRElements(
   const syncGazes = setupSyncInputSourceElements(
     createDefaultXRGaze,
     scene,
+    getCamera,
     store,
     'gaze',
     inputGroup,
@@ -46,6 +49,7 @@ export function setupSyncXRElements(
   const syncHands = setupSyncInputSourceElements(
     createDefaultXRHand,
     scene,
+    getCamera,
     store,
     'hand',
     inputGroup,
@@ -55,6 +59,7 @@ export function setupSyncXRElements(
   const syncScreenInputs = setupSyncInputSourceElements(
     createDefaultXRScreenInput,
     scene,
+    getCamera,
     store,
     'screenInput',
     inputGroup,
@@ -64,6 +69,7 @@ export function setupSyncXRElements(
   const syncTransientPointers = setupSyncInputSourceElements(
     createDefaultXRTransientPointer,
     scene,
+    getCamera,
     store,
     'transientPointer',
     inputGroup,
@@ -104,7 +110,7 @@ export function setupSyncXRElements(
 function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
   defaultCreate: (
     scene: Object3D,
-    store: XRStore<XRElementImplementations>,
+    getCamera: GetCamera,
     space: Object3D,
     state: any,
     session: XRSession,
@@ -112,6 +118,7 @@ function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
     combined: CombinedPointer,
   ) => void,
   scene: Object3D,
+  getCamera: GetCamera,
   store: XRStore<XRElementImplementations>,
   key: K,
   target: Object3D,
@@ -132,7 +139,7 @@ function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
       target.add(spaceObject)
       const customCleanup =
         typeof implementation === 'object'
-          ? defaultCreate(scene, store, spaceObject, state, session, implementation, combined)
+          ? defaultCreate(scene, getCamera, spaceObject, state, session, implementation, combined)
           : implementation?.(store, spaceObject, state as any, session)
       return () => {
         target.remove(spaceObject)

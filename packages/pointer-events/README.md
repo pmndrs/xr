@@ -14,7 +14,7 @@ const canvas = document.getElementById('canvas')
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10)
 camera.position.z = 1
-forwardHtmlEvents(canvas, camera, scene)
+forwardHtmlEvents(canvas, () => camera, scene)
 
 const width = window.innerWidth,
   height = window.innerHeight

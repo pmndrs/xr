@@ -1,4 +1,12 @@
-export { Pointer } from './pointer.js'
+export {
+  Pointer,
+  PointerCapture,
+  AllowedPointerEvents,
+  AllowedPointerEventsType,
+  GetCamera,
+  PointerOptions,
+  getPointerById,
+} from './pointer.js'
 export {
   type EventHandlerToEventName,
   type NativeEvent as NativePointerEvent,

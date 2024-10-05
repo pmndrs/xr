@@ -38,13 +38,14 @@ import {
   createRayPointer,
   createTouchPointer,
   createLinesPointer,
+  GetCamera,
 } from '@pmndrs/pointer-events'
 import { onXRFrame } from './utils.js'
 import { XRSpaceType } from './types.js'
 
 export function createDefaultXRInputSourceRayPointer(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
@@ -54,7 +55,7 @@ export function createDefaultXRInputSourceRayPointer(
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
-  const pointer = createRayPointer({ current: raySpace }, state, options)
+  const pointer = createRayPointer(getCamera, { current: raySpace }, state, options)
   const unregister = combined.register(pointer, makeDefault)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
@@ -86,7 +87,7 @@ export function createDefaultXRInputSourceRayPointer(
 
 export function createDefaultXRInputSourceTeleportPointer(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
@@ -104,6 +105,7 @@ export function createDefaultXRInputSourceTeleportPointer(
 
   const linePoints = createTeleportRayLine()
   const pointer = createLinesPointer(
+    getCamera,
     { current: teleportPointerRayGroup },
     state,
     { ...options, filter: buildTeleportTargetFilter(options), linePoints },
@@ -143,7 +145,7 @@ export function createDefaultXRInputSourceTeleportPointer(
 
 export function createDefaultXRInputSourceGrabPointer(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRInputSourceState,
   gripSpace: XRSpaceType,
@@ -155,7 +157,7 @@ export function createDefaultXRInputSourceGrabPointer(
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const gripSpaceObject = new XRSpace(gripSpace)
-  const pointer = createGrabPointer({ current: gripSpaceObject }, state, options)
+  const pointer = createGrabPointer(getCamera, { current: gripSpaceObject }, state, options)
   const unregister = combined.register(pointer, makeDefault)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, event, state.events)
   space.add(gripSpaceObject)
@@ -179,7 +181,7 @@ export function createDefaultXRInputSourceGrabPointer(
 
 export function createDefaultXRHandTouchPointer(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRHandState,
   options: DefaultXRHandTouchPointerOptions | undefined,
@@ -188,7 +190,7 @@ export function createDefaultXRHandTouchPointer(
 ) {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const touchSpaceObject = new XRSpace(state.inputSource.hand.get('index-finger-tip')!)
-  const pointer = createTouchPointer({ current: touchSpaceObject }, state, options)
+  const pointer = createTouchPointer(getCamera, { current: touchSpaceObject }, state, options)
   const unregister = combined.register(pointer, makeDefault)
   space.add(touchSpaceObject)
   let undoAddCursorModel: (() => void) | undefined
@@ -211,7 +213,7 @@ export function createDefaultXRHandTouchPointer(
 
 export function createDefaultXRHand(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRHandState,
   session: XRSession,
@@ -232,7 +234,7 @@ export function createDefaultXRHand(
     const rayPointerRayModelOptions = spreadable(rayPointerOptions)?.rayModel
     destroyRayPointer = createDefaultXRInputSourceRayPointer(
       scene,
-      store,
+      getCamera,
       space,
       state,
       session,
@@ -256,7 +258,7 @@ export function createDefaultXRHand(
       ? undefined
       : createDefaultXRInputSourceTeleportPointer(
           scene,
-          store,
+          getCamera,
           space,
           state,
           session,
@@ -268,7 +270,7 @@ export function createDefaultXRHand(
       ? undefined
       : createDefaultXRInputSourceGrabPointer(
           scene,
-          store,
+          getCamera,
           space,
           state,
           state.inputSource.hand.get('index-finger-tip')!,
@@ -280,7 +282,14 @@ export function createDefaultXRHand(
   const destroyTouchPointer =
     touchPointerOptions === false
       ? undefined
-      : createDefaultXRHandTouchPointer(scene, store, space, state, spreadable(touchPointerOptions), combinedPointer)
+      : createDefaultXRHandTouchPointer(
+          scene,
+          getCamera,
+          space,
+          state,
+          spreadable(touchPointerOptions),
+          combinedPointer,
+        )
   let removeModel: (() => void) | undefined
   if (modelOptions !== false) {
     const model = new XRHandModel(state.inputSource.hand, state.assetPath, spreadable(modelOptions))
@@ -299,7 +308,7 @@ export function createDefaultXRHand(
 
 export function createDefaultXRController(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRControllerState,
   session: XRSession,
@@ -318,7 +327,7 @@ export function createDefaultXRController(
       ? undefined
       : createDefaultXRInputSourceRayPointer(
           scene,
-          store,
+          getCamera,
           space,
           state,
           session,
@@ -332,7 +341,7 @@ export function createDefaultXRController(
       ? undefined
       : createDefaultXRInputSourceTeleportPointer(
           scene,
-          store,
+          getCamera,
           space,
           state,
           session,
@@ -344,7 +353,7 @@ export function createDefaultXRController(
       ? undefined
       : createDefaultXRInputSourceGrabPointer(
           scene,
-          store,
+          getCamera,
           space,
           state,
           state.inputSource.gripSpace!,
@@ -371,7 +380,7 @@ export function createDefaultXRController(
 
 export function createDefaultXRTransientPointer(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
@@ -380,7 +389,7 @@ export function createDefaultXRTransientPointer(
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
-  const pointer = createRayPointer({ current: raySpace }, state, options)
+  const pointer = createRayPointer(getCamera, { current: raySpace }, state, options)
   const unregister = combined.register(pointer)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
@@ -405,7 +414,7 @@ export function createDefaultXRTransientPointer(
 
 export function createDefaultXRGaze(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
@@ -414,7 +423,7 @@ export function createDefaultXRGaze(
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
-  const pointer = createRayPointer({ current: raySpace }, state, options)
+  const pointer = createRayPointer(getCamera, { current: raySpace }, state, options)
   const unregister = combined.register(pointer)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)
@@ -439,7 +448,7 @@ export function createDefaultXRGaze(
 
 export function createDefaultXRScreenInput(
   scene: Object3D,
-  store: XRStore<XRElementImplementations>,
+  getCamera: GetCamera,
   space: Object3D,
   state: XRInputSourceState,
   session: XRSession,
@@ -448,7 +457,7 @@ export function createDefaultXRScreenInput(
 ): () => void {
   //the space must be created before the pointer to make sure that the space is updated before the pointer
   const raySpace = new XRSpace(state.inputSource.targetRaySpace)
-  const pointer = createRayPointer({ current: raySpace }, state, options)
+  const pointer = createRayPointer(getCamera, { current: raySpace }, state, options)
   const unregister = combined.register(pointer)
   const unbind = bindPointerXRInputSourceEvent(pointer, session, state.inputSource, 'select', state.events)
   space.add(raySpace)

@@ -72,6 +72,6 @@ export function SwitchToXRPointerEvents() {
   const domElement = useThree((s) => s.gl.domElement)
   const camera = useThree((s) => s.camera)
   const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, camera, scene), [domElement, camera, scene])
+  useEffect(() => forwardHtmlEvents(domElement, () => camera, scene), [domElement, camera, scene])
   return null
 }

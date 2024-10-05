@@ -1,5 +1,5 @@
 import { Object3D, Vector3 } from 'three'
-import { Pointer, PointerOptions } from '../pointer.js'
+import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
 import { IntersectionOptions, LinesIntersector } from '../intersections/index.js'
 import { generateUniquePointerId } from './index.js'
 
@@ -18,6 +18,7 @@ export type LinesPointerOptions = {
   IntersectionOptions
 
 export function createLinesPointer(
+  getCamera: GetCamera,
   space: { current?: Object3D | null },
   pointerState: any,
   options: LinesPointerOptions = {},
@@ -28,6 +29,7 @@ export function createLinesPointer(
     pointerType,
     pointerState,
     new LinesIntersector(space, options),
+    getCamera,
     undefined,
     undefined,
     undefined,

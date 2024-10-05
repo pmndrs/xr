@@ -12,7 +12,7 @@ import {
   createTouchPointer,
 } from '@pmndrs/pointer-events'
 import { Group, Mesh, Object3D } from 'three'
-import { createPortal, useFrame, useThree } from '@react-three/fiber'
+import { createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import {
   PointerCursorMaterial,
   PointerCursorModelOptions,
@@ -55,9 +55,10 @@ export function useGrabPointer(
   const options = useMemo<GrabPointerOptions>(() => ({}), [])
   clearObject(options)
   Object.assign(options, currentOptions)
+  const store = useStore()
   const pointer = useMemo(
-    () => createGrabPointer(spaceRef, pointerState, options, pointerType),
-    [spaceRef, pointerState, options, pointerType],
+    () => createGrabPointer(() => store.getState().camera, spaceRef, pointerState, options, pointerType),
+    [store, spaceRef, pointerState, options, pointerType],
   )
   useSetupPointer(pointer, currentOptions?.makeDefault)
   return pointer
@@ -75,9 +76,10 @@ export function useRayPointer(
   const options = useMemo<RayPointerOptions>(() => ({}), [])
   clearObject(options)
   Object.assign(options, currentOptions)
+  const store = useStore()
   const pointer = useMemo(
-    () => createRayPointer(spaceRef, pointerState, options, pointerType),
-    [spaceRef, pointerState, options, pointerType],
+    () => createRayPointer(() => store.getState().camera, spaceRef, pointerState, options, pointerType),
+    [store, spaceRef, pointerState, options, pointerType],
   )
   useSetupPointer(pointer, currentOptions?.makeDefault)
   return pointer
@@ -95,9 +97,10 @@ export function useLinesPointer(
   const options = useMemo<LinesPointerOptions>(() => ({}), [])
   clearObject(options)
   Object.assign(options, currentOptions)
+  const store = useStore()
   const pointer = useMemo(
-    () => createLinesPointer(spaceRef, pointerState, options, pointerType),
-    [spaceRef, pointerState, options, pointerType],
+    () => createLinesPointer(() => store.getState().camera, spaceRef, pointerState, options, pointerType),
+    [store, spaceRef, pointerState, options, pointerType],
   )
   useSetupPointer(pointer, currentOptions?.makeDefault)
   return pointer
@@ -115,9 +118,10 @@ export function useTouchPointer(
   const options = useMemo<TouchPointerOptions>(() => ({}), [])
   clearObject(options)
   Object.assign(options, currentOptions)
+  const store = useStore()
   const pointer = useMemo(
-    () => createTouchPointer(spaceRef, pointerState, options, pointerType),
-    [spaceRef, pointerState, options, pointerType],
+    () => createTouchPointer(() => store.getState().camera, spaceRef, pointerState, options, pointerType),
+    [store, spaceRef, pointerState, options, pointerType],
   )
   useSetupPointer(pointer, currentOptions?.makeDefault)
   return pointer

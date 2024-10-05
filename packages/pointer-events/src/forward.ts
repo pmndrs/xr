@@ -1,5 +1,5 @@
-import { Camera, Mesh, Object3D, Scene, Vector2 } from 'three'
-import { Pointer, PointerOptions } from './pointer.js'
+import { Camera, Mesh, Object3D, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
+import { GetCamera, Pointer, PointerOptions } from './pointer.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
 import { CameraRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
@@ -35,14 +35,14 @@ function htmlEventToCoords(element: HTMLElement, e: unknown, target: Vector2): V
  */
 export function forwardHtmlEvents(
   fromElement: HTMLElement,
-  toCamera: Camera,
-  toScene: Object3D,
+  getCamera: GetCamera,
+  scene: Object3D,
   options?: ForwardEventsOptions,
 ) {
   return forwardEvents(
     fromElement,
-    toCamera,
-    toScene,
+    getCamera,
+    scene,
     htmlEventToCoords.bind(null, fromElement),
     fromElement.setPointerCapture.bind(fromElement),
     fromElement.releasePointerCapture.bind(fromElement),
@@ -67,14 +67,14 @@ function portalEventToCoords(e: unknown, target: Vector2): Vector2 {
 
 export function forwardObjectEvents(
   fromPortal: Object3D,
-  toCamera: Camera,
-  toScene: Scene,
+  getCamera: GetCamera,
+  scene: Scene,
   options?: ForwardEventsOptions,
 ) {
   return forwardEvents(
     fromPortal,
-    toCamera,
-    toScene,
+    getCamera,
+    scene,
     portalEventToCoords,
     fromPortal.setPointerCapture.bind(fromPortal),
     fromPortal.releasePointerCapture.bind(fromPortal),
@@ -90,8 +90,8 @@ function forwardEvents(
     addEventListener: (type: string, fn: (e: ForwardablePointerEvent & NativeWheelEvent) => void) => void
     removeEventListener: (type: string, fn: (e: ForwardablePointerEvent & NativeWheelEvent) => void) => void
   },
-  toCamera: Camera,
-  toScene: Object3D,
+  getCamera: GetCamera,
+  scene: Object3D,
   toCoords: (event: unknown, target: Vector2) => void,
   setPointerCapture: (pointerId: number) => void,
   releasePointerCapture: (ponterId: number) => void,
@@ -113,8 +113,9 @@ function forwardEvents(
         pointerState,
         new CameraRayIntersector((nativeEvent, coords) => {
           toCoords(nativeEvent, coords)
-          return toCamera
+          return getCamera()
         }, options),
+        getCamera,
         undefined,
         forwardPointerCapture ? setPointerCapture.bind(null, pointerId) : undefined,
         forwardPointerCapture ? releasePointerCapture.bind(null, pointerId) : undefined,
@@ -123,12 +124,12 @@ function forwardEvents(
     )
     return innerPointer
   }
-  const pointerMoveListener = (e: ForwardablePointerEvent) => getInnerPointer(e).move(toScene, e)
+  const pointerMoveListener = (e: ForwardablePointerEvent) => getInnerPointer(e).move(scene, e)
   const pointerCancelListener = (e: ForwardablePointerEvent) => getInnerPointer(e).cancel(e)
   const pointerDownListener = (e: ForwardablePointerEvent) => void (hasButton(e) && getInnerPointer(e).down(e))
   const pointerUpListener = (e: ForwardablePointerEvent) => void (hasButton(e) && getInnerPointer(e).up(e))
   const pointerLeaveListener = (e: ForwardablePointerEvent) => getInnerPointer(e).exit(e)
-  const wheelListener = (e: ForwardablePointerEvent & NativeWheelEvent) => getInnerPointer(e).wheel(toScene, e, false)
+  const wheelListener = (e: ForwardablePointerEvent & NativeWheelEvent) => getInnerPointer(e).wheel(scene, e, false)
 
   from.addEventListener('pointermove', pointerMoveListener)
   from.addEventListener('pointercancel', pointerCancelListener)

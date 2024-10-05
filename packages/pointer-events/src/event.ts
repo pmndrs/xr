@@ -1,7 +1,9 @@
-import { BaseEvent, Face, Object3D, Quaternion, Vector2, Vector3 } from 'three'
-import { Intersection } from './intersections/index.js'
+import { BaseEvent, Face, Object3D, Quaternion, Ray, Vector2, Vector3 } from 'three'
+import { Intersection as ThreeIntersection } from './intersections/index.js'
 import { Pointer } from './pointer.js'
 import { getObjectListeners } from './utils.js'
+import type { Camera, IntersectionEvent, Intersection } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import { HtmlEvent, Properties } from './html-event.js'
 
 export type PointerEventsMap = {
   [Key in keyof PointerEventsHandlers as EventHandlerToEventName<Key>]-?: PointerEventsHandlers[Key]
@@ -26,43 +28,33 @@ export type PointerEventsHandlers = {
 
 export type NativeEvent = {
   timeStamp: number
-  shiftKey?: boolean
-  metaKey?: boolean
-  ctrlKey?: boolean
-  altKey?: boolean
   button?: number
 }
 
+const helperVector = new Vector3()
+
 export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
-  implements Intersection, BaseEvent<keyof PointerEventsMap>
+  extends HtmlEvent<E>
+  implements
+    ThreeIntersection,
+    BaseEvent<keyof PointerEventsMap>,
+    IntersectionEvent<E>,
+    Properties<
+      Omit<
+        globalThis.PointerEvent | globalThis.MouseEvent | globalThis.WheelEvent,
+        'target' | 'currentTarget' | 'srcElement'
+      >
+    >
 {
   //--- pointer events data
   get pointerId(): number {
-    return this.pointer.id
+    return this.internalPointer.id
   }
   get pointerType(): string {
-    return this.pointer.type
+    return this.internalPointer.type
   }
   get pointerState(): any {
-    return this.pointer.state
-  }
-  get timeStamp(): number {
-    return this.nativeEvent.timeStamp
-  }
-  get button(): number | undefined {
-    return this.nativeEvent.button
-  }
-  get shiftKey(): boolean {
-    return this.nativeEvent.shiftKey ?? false
-  }
-  get metaKey(): boolean {
-    return this.nativeEvent.metaKey ?? false
-  }
-  get ctrlKey(): boolean {
-    return this.nativeEvent.ctrlKey ?? false
-  }
-  get altKey(): boolean {
-    return this.nativeEvent.altKey ?? false
+    return this.internalPointer.state
   }
 
   //--- intersection data
@@ -114,53 +106,99 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
   get localPoint(): Vector3 {
     return this.intersection.localPoint
   }
-  get details(): Intersection['details'] {
+  get details(): ThreeIntersection['details'] {
     return this.intersection.details
   }
 
-  /**
-   * @deprecated
-   */
-  get clientX(): number {
-    return (this.nativeEvent as any).clientX ?? 0
-  }
-
-  /**
-   * @deprecated
-   */
-  get clientY(): number {
-    return (this.nativeEvent as any).clientY ?? 0
-  }
-
-  /** same as target */
+  /** same as object */
   get target(): Object3D {
     return this.object
   }
-  /** same as currentTarget */
+  /** same as currentObject */
   get currentTarget(): Object3D {
     return this.currentObject
   }
-
-  //the stop propagation functions will be set while propagating
-  stopPropagation!: () => void
-  stopImmediatePropagation!: () => void
+  /** same as currentObject */
+  get eventObject(): Object3D {
+    return this.currentObject
+  }
+  /** same as object */
+  get srcElement(): Object3D {
+    return this.currentObject
+  }
 
   constructor(
     public readonly type: keyof PointerEventsMap,
     public readonly bubbles: boolean,
-    public readonly nativeEvent: E,
-    protected pointer: Pointer,
-    protected readonly intersection: Intersection,
+    nativeEvent: E,
+    protected internalPointer: Pointer,
+    protected readonly intersection: ThreeIntersection,
+    public readonly camera: Camera,
     public readonly currentObject: Object3D = intersection.object,
     public readonly object: Object3D = currentObject,
-  ) {}
+    private readonly propagationState: { stopped: boolean; stoppedImmediate: boolean } = {
+      stopped: !bubbles,
+      stoppedImmediate: !bubbles,
+    },
+  ) {
+    super(nativeEvent)
+  }
+
+  get pointer(): Vector2 {
+    helperVector.copy(this.intersection.point).project(this.camera)
+    return new Vector2(helperVector.x, helperVector.y)
+  }
+
+  get ray(): Ray {
+    const ray = new Ray()
+    ray.origin.setFromMatrixPosition(this.camera.matrixWorld)
+    ray.lookAt(this.point)
+    return ray
+  }
+
+  get intersections(): Intersection[] {
+    return [{ ...this.intersection, eventObject: this.currentObject }]
+  }
+
+  get unprojectedPoint(): Vector3 {
+    const p = this.pointer
+    return new Vector3(p.x, p.y, 0).unproject(this.camera)
+  }
+
+  get stopped(): boolean {
+    return this.propagationState.stoppedImmediate || this.propagationState.stopped
+  }
+
+  get stoppedImmediate(): boolean {
+    return this.propagationState.stoppedImmediate
+  }
+
+  get delta(): number {
+    throw new Error(`not supported`)
+  }
+
+  stopPropagation(): void {
+    this.propagationState.stopped = true
+  }
+  stopImmediatePropagation(): void {
+    this.propagationState.stoppedImmediate = true
+  }
 
   /**
    * for internal use
    */
   retarget(currentObject: Object3D) {
-    const { type, bubbles, nativeEvent, pointer, intersection, target } = this
-    return new PointerEvent(type, bubbles, nativeEvent, pointer, intersection, currentObject, target)
+    return new PointerEvent(
+      this.type,
+      this.bubbles,
+      this.nativeEvent,
+      this.internalPointer,
+      this.intersection,
+      this.camera,
+      currentObject,
+      this.target,
+      this.propagationState,
+    )
   }
 }
 
@@ -186,19 +224,26 @@ export class WheelEvent extends PointerEvent<NativeWheelEvent> {
   constructor(
     nativeEvent: NativeWheelEvent,
     pointer: Pointer,
-    intersection: Intersection,
+    intersection: ThreeIntersection,
+    camera: Camera,
     currentObject?: Object3D,
     object?: Object3D,
   ) {
-    super('wheel', true, nativeEvent, pointer, intersection, currentObject, object)
+    super('wheel', true, nativeEvent, pointer, intersection, camera, currentObject, object)
   }
 
   /**
    * for internal use
    */
   retarget(currentObject: Object3D) {
-    const { type, bubbles, nativeEvent, pointer, intersection, target } = this
-    return new WheelEvent(nativeEvent, pointer, intersection, currentObject, target)
+    return new WheelEvent(
+      this.nativeEvent,
+      this.internalPointer,
+      this.intersection,
+      this.camera,
+      currentObject,
+      this.target,
+    )
   }
 }
 
@@ -211,22 +256,14 @@ function emitPointerEventRec(baseEvent: PointerEvent<NativeEvent>, currentObject
     return
   }
   const listeners = getObjectListeners(currentObject, baseEvent.type)
-  let propagationStopped = !baseEvent.bubbles
   if (listeners != null && listeners.length > 0) {
     const event = baseEvent.retarget(currentObject)
     const length = listeners.length
-    event.stopPropagation = () => (propagationStopped = true)
-
-    let loopStopped = false
-    event.stopImmediatePropagation = () => {
-      propagationStopped = true
-      loopStopped = true
-    }
-    for (let i = 0; i < length && !loopStopped; i++) {
+    for (let i = 0; i < length && !event.stoppedImmediate; i++) {
       listeners[i](event)
     }
   }
-  if (propagationStopped) {
+  if (baseEvent.stopped) {
     return
   }
   emitPointerEventRec(baseEvent, currentObject.parent)

@@ -47,8 +47,8 @@ box.addEventListener('pointerout', () => boxMaterial.color.set('red'))
 
 const canvas = document.getElementById('root') as HTMLCanvasElement
 
-forwardHtmlEvents(canvas, camera, scene)
-forwardObjectEvents(plane, innerCamera, innerScene)
+forwardHtmlEvents(canvas, () => camera, scene)
+forwardObjectEvents(plane, () => innerCamera, innerScene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 

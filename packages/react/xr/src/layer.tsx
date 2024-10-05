@@ -330,7 +330,7 @@ function useForwardEvents(store: UseBoundStore<StoreApi<RootState>>, ref: RefObj
         return
       }
       cleanup?.()
-      cleanup = forwardObjectEvents(current, state.camera, state.scene)
+      cleanup = forwardObjectEvents(current, () => state.camera, state.scene)
     }
     update(store.getState())
     const unsubscribe = store.subscribe(update)

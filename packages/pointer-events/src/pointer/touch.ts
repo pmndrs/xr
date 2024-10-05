@@ -1,5 +1,5 @@
-import { Object3D } from 'three'
-import { Pointer, PointerOptions } from '../pointer.js'
+import { Object3D, OrthographicCamera, PerspectiveCamera } from 'three'
+import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
 import { Intersection, IntersectionOptions, SphereIntersector } from '../intersections/index.js'
 import { generateUniquePointerId } from './index.js'
 
@@ -20,6 +20,7 @@ export type TouchPointerOptions = {
   IntersectionOptions
 
 export function createTouchPointer(
+  getCamera: GetCamera,
   space: { current?: Object3D | null },
   pointerState: any,
   options: TouchPointerOptions = {},
@@ -30,6 +31,7 @@ export function createTouchPointer(
     pointerType,
     pointerState,
     new SphereIntersector(space, () => options.hoverRadius ?? 0.1, options),
+    getCamera,
     createUpdateTouchPointer(options),
     undefined,
     undefined,

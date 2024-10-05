@@ -1,4 +1,4 @@
-import { Camera, Object3D, WebXRManager } from 'three'
+import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, WebXRManager } from 'three'
 import { XRStore, XRStoreOptions, createXRStore as createXRStoreImpl } from '../store.js'
 import { setupSyncXRElements } from './elements.js'
 import type {
@@ -8,7 +8,7 @@ import type {
   XRScreenInputState,
   XRTransientPointerState,
 } from '../input.js'
-import { ForwardEventsOptions, forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { ForwardEventsOptions, forwardHtmlEvents, GetCamera } from '@pmndrs/pointer-events'
 import {
   DefaultXRControllerOptions,
   DefaultXRGazeOptions,
@@ -88,12 +88,12 @@ export type XRElementImplementations = {
 export function createXRStore(
   canvas: HTMLCanvasElement,
   scene: Object3D,
-  camera: Camera,
+  getCamera: GetCamera,
   xr: WebXRManager,
   options?: XRStoreOptions<XRElementImplementations> & { htmlInput?: ForwardEventsOptions | false },
 ) {
   const cleanupHtmlEventForward =
-    options?.htmlInput === false ? undefined : forwardHtmlEvents(canvas, camera, scene, options?.htmlInput)
+    options?.htmlInput === false ? undefined : forwardHtmlEvents(canvas, getCamera, scene, options?.htmlInput)
   const updatesList: XRUpdatesList = []
   const store = createXRStoreImpl<XRElementImplementations>(options)
   store.setWebXRManager(xr)
@@ -104,7 +104,7 @@ export function createXRStore(
     }
     cleanupSyncElements?.()
     cleanupSyncElements =
-      state.origin != null ? setupSyncXRElements(scene, store, state.origin, updatesList) : undefined
+      state.origin != null ? setupSyncXRElements(scene, getCamera, store, state.origin, updatesList) : undefined
   })
   return Object.assign(store, {
     destroy() {
@@ -117,7 +117,7 @@ export function createXRStore(
       if (frame == null) {
         return
       }
-      store.onBeforeFrame(scene, camera, frame)
+      store.onBeforeFrame(scene, getCamera(), frame)
       const length = updatesList.length
       for (let i = 0; i < length; i++) {
         updatesList[i](frame, delta)

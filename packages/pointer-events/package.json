@@ -34,6 +34,7 @@
   "devDependencies": {
     "@types/node": "^20.12.11",
     "@types/three": "^0.164.0",
+    "@react-three/fiber": "^8.17.9",
     "three": "^0.164.1",
     "vite": "^5.2.11",
     "vitest": "^2.0.5"

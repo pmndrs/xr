@@ -1,5 +1,5 @@
 import { Object3D } from 'three'
-import { Pointer, PointerOptions } from '../pointer.js'
+import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
 import { SphereIntersector } from '../intersections/sphere.js'
 import { generateUniquePointerId } from './index.js'
 import { IntersectionOptions } from '../intersections/index.js'
@@ -13,6 +13,7 @@ export type GrabPointerOptions = {
   IntersectionOptions
 
 export function createGrabPointer(
+  getCamera: GetCamera,
   space: { current?: Object3D | null },
   pointerState: any,
   options: GrabPointerOptions = {},
@@ -23,6 +24,7 @@ export function createGrabPointer(
     pointerType,
     pointerState,
     new SphereIntersector(space, () => options.radius ?? 0.07, options),
+    getCamera,
     undefined,
     undefined,
     undefined,
