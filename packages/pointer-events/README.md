@@ -77,4 +77,6 @@ leftPointer.move()
 rightPointer.move()
 ```
 
+## Pitfalls
 
+The `pointerEvents` attribute of any Mesh/Object3D/... will not be cloned when cloning the object.
