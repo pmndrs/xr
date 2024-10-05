@@ -76,7 +76,12 @@ export class CombinedPointer {
         pointer.computeActivePointer()
       }
       const intersection = pointer.getIntersection()
-      const distance = pointer.getPointerCapture() != null ? -Infinity : (intersection?.distance ?? Infinity)
+      const distance =
+        pointer.getPointerCapture() != null
+          ? -Infinity
+          : intersection?.object.isVoidObject
+            ? Infinity
+            : (intersection?.distance ?? Infinity)
       const isDefault = this.isDefaults[i]
       if (smallestDistance == null || (isDefault && distance === smallestDistance) || distance < smallestDistance) {
         this.activePointer = pointer
@@ -128,7 +133,7 @@ export class CombinedPointer {
       const nonCapturedPointerLength = this.nonCapturedPointers.length
       for (let i = 0; i < nonCapturedPointerLength; i++) {
         const pointer = this.nonCapturedPointers[i]
-        pointer.setIntersection(pointer.intersector.finalizeIntersection())
+        pointer.setIntersection(pointer.intersector.finalizeIntersection(scene))
       }
     }
 

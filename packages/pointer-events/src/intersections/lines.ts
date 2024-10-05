@@ -9,7 +9,7 @@ import {
   Intersection as ThreeIntersection,
   Object3D,
 } from 'three'
-import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './utils.js'
+import { computeIntersectionWorldPlane, getDominantIntersectionIndex, voidObjectIntersectionFromRay } from './utils.js'
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
 import { Intersection, IntersectionOptions } from '../index.js'
@@ -25,6 +25,8 @@ const defaultLinePoints = [new Vector3(0, 0, 0), new Vector3(0, 0, 1)]
 export class LinesIntersector extends Intersector {
   private raycasters: Array<Raycaster> = []
   private fromMatrixWorld = new Matrix4()
+
+  //state
   private intersectionLineIndex: number = 0
   private intersectionDistanceOnLine: number = 0
 
@@ -54,13 +56,15 @@ export class LinesIntersector extends Intersector {
     return true
   }
 
-  public intersectPointerCapture({ intersection, object }: PointerCapture): Intersection | undefined {
+  public intersectPointerCapture({ intersection, object }: PointerCapture): Intersection {
     const details = intersection.details
     if (details.type != 'lines') {
-      return undefined
+      throw new Error(
+        `unable to process a pointer capture of type "${intersection.details.type}" with a lines intersector`,
+      )
     }
     if (!this.prepareTransformation()) {
-      return undefined
+      return intersection
     }
     const linePoints = this.options.linePoints ?? defaultLinePoints
     lineHelper.set(linePoints[details.lineIndex], linePoints[details.lineIndex + 1]).applyMatrix4(this.fromMatrixWorld)
@@ -133,9 +137,28 @@ export class LinesIntersector extends Intersector {
     }
   }
 
-  public finalizeIntersection(): Intersection | undefined {
+  public finalizeIntersection(scene: Object3D): Intersection {
+    const pointerPosition = new Vector3().setFromMatrixPosition(this.fromMatrixWorld)
+    const pointerQuaternion = new Quaternion().setFromRotationMatrix(this.fromMatrixWorld)
     if (this.intersection == null) {
-      return undefined
+      const lastRaycasterIndex = this.raycasters.length - 1
+      const prevDistance = this.raycasters.reduce(
+        (prev, caster, i) => (i === lastRaycasterIndex ? prev : prev + caster.far),
+        0,
+      )
+      const lastRaycaster = this.raycasters[lastRaycasterIndex]
+      return voidObjectIntersectionFromRay(
+        scene,
+        lastRaycaster.ray,
+        (distanceOnLine) => ({
+          lineIndex: this.raycasters.length - 1,
+          distanceOnLine,
+          type: 'lines' as const,
+        }),
+        pointerPosition,
+        pointerQuaternion,
+        prevDistance,
+      )
     }
     //TODO: consider maxLength
     return Object.assign(this.intersection, {
@@ -144,8 +167,8 @@ export class LinesIntersector extends Intersector {
         distanceOnLine: this.intersectionDistanceOnLine,
         type: 'lines' as const,
       },
-      pointerPosition: new Vector3().setFromMatrixPosition(this.fromMatrixWorld),
-      pointerQuaternion: new Quaternion().setFromRotationMatrix(this.fromMatrixWorld),
+      pointerPosition,
+      pointerQuaternion,
       pointOnFace: this.intersection.point,
       localPoint: this.intersection.point
         .clone()

@@ -12,7 +12,7 @@ import {
 import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './utils.js'
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
-import { Intersection, IntersectionOptions } from '../index.js'
+import { getVoidObject, Intersection, IntersectionOptions } from '../index.js'
 import { updateAndCheckWorldTransformation } from '../utils.js'
 
 const collisionSphere = new Sphere()
@@ -50,12 +50,14 @@ export class SphereIntersector extends Intersector {
     return true
   }
 
-  public intersectPointerCapture({ intersection, object }: PointerCapture): Intersection | undefined {
+  public intersectPointerCapture({ intersection, object }: PointerCapture): Intersection {
     if (intersection.details.type != 'sphere') {
-      return undefined
+      throw new Error(
+        `unable to process a pointer capture of type "${intersection.details.type}" with a sphere intersector`,
+      )
     }
     if (!this.prepareTransformation()) {
-      return undefined
+      return intersection
     }
     //compute old inputDevicePosition-point offset
     oldInputDevicePointOffset.copy(intersection.point).sub(intersection.pointerPosition)
@@ -110,9 +112,22 @@ export class SphereIntersector extends Intersector {
     intersectsHelper.length = 0
   }
 
-  public finalizeIntersection(): Intersection | undefined {
+  public finalizeIntersection(scene: Object3D): Intersection {
+    const pointerPosition = this.fromPosition.clone()
+    const pointerQuaternion = this.fromQuaternion.clone()
     if (this.intersection == null) {
-      return undefined
+      return {
+        details: {
+          type: 'sphere' as const,
+        },
+        distance: 0,
+        point: pointerPosition,
+        object: getVoidObject(scene),
+        pointerPosition,
+        pointerQuaternion,
+        pointOnFace: pointerPosition,
+        localPoint: pointerPosition,
+      }
     }
 
     return Object.assign(this.intersection, {

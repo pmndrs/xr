@@ -10,7 +10,7 @@ import {
   WebGLRenderTarget,
   WebGLRenderer,
 } from 'three'
-import { PointerEventsMap, forwardHtmlEvents, forwardObjectEvents } from '@pmndrs/pointer-events'
+import { PointerEventsMap, getVoidObject, forwardHtmlEvents, forwardObjectEvents } from '@pmndrs/pointer-events'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.z = 2
@@ -23,8 +23,8 @@ const plane = new Mesh(new PlaneGeometry(), new MeshBasicMaterial({ map: frambuf
 plane.scale.setScalar(2)
 scene.add(plane)
 
-plane.addEventListener('pointerover', () => (innerScene.background = new Color('orange')))
-plane.addEventListener('pointerout', () => (innerScene.background = new Color('white')))
+plane.addEventListener('pointerenter', () => (innerScene.background = new Color('orange')))
+plane.addEventListener('pointerleave', () => (innerScene.background = new Color('white')))
 
 const innerScene = new Scene()
 innerScene.background = new Color('white')
@@ -44,6 +44,9 @@ box.addEventListener('pointerdown', (e) => {
   box.setPointerCapture(e.pointerId)
 })
 box.addEventListener('pointerout', () => boxMaterial.color.set('red'))
+
+getVoidObject(innerScene).addEventListener('click', () => console.log('click inner'))
+getVoidObject(scene).addEventListener('click', () => console.log('click outer'))
 
 const canvas = document.getElementById('root') as HTMLCanvasElement
 

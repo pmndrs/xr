@@ -72,7 +72,12 @@ export function updatePointerCursorModel(
   options: PointerCursorModelOptions,
 ) {
   const intersection = pointer.getIntersection()
-  if (intersection == null || !pointer.getEnabled() || !isVisble(pointerGroup)) {
+  if (
+    intersection == null ||
+    !pointer.getEnabled() ||
+    intersection.object.isVoidObject === true ||
+    !isVisble(pointerGroup)
+  ) {
     mesh.visible = false
     return
   }

@@ -35,13 +35,14 @@ function htmlEventToCoords(element: HTMLElement, e: unknown, target: Vector2): V
  */
 export function forwardHtmlEvents(
   fromElement: HTMLElement,
-  getCamera: GetCamera,
+  getCamera: GetCamera | OrthographicCamera | PerspectiveCamera,
   scene: Object3D,
   options?: ForwardEventsOptions,
 ) {
   return forwardEvents(
     fromElement,
-    getCamera,
+    //backwards compatibility
+    typeof getCamera === 'function' ? getCamera : () => getCamera,
     scene,
     htmlEventToCoords.bind(null, fromElement),
     fromElement.setPointerCapture.bind(fromElement),

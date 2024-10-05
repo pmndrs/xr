@@ -1,4 +1,12 @@
-import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, Intersection as ThreeIntersection } from 'three'
+import {
+  Camera,
+  Object3D,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Intersection as ThreeIntersection,
+  Vector3,
+} from 'three'
 import { Intersection } from './intersections/index.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent, WheelEvent, emitPointerEvent } from './event.js'
 import { intersectPointerEventTargets } from './intersections/utils.js'
@@ -34,10 +42,11 @@ declare module 'three' {
     pointerEventsOrder?: number
     [buttonsDownTimeKey]?: ButtonsTime
     [buttonsClickTimeKey]?: ButtonsTime
+    isVoidObject?: boolean
   }
 }
 
-export type ButtonsTime = Map<number, number>
+type ButtonsTime = Map<number, number>
 
 export type PointerCapture = {
   object: Object3D
@@ -164,6 +173,9 @@ export class Pointer {
     return this.buttonsDown
   }
 
+  /**
+   * @returns undefined if no intersection was executed yet
+   */
   getIntersection(): Intersection | undefined {
     return this.intersection
   }
@@ -192,10 +204,10 @@ export class Pointer {
     }
     this.intersector.startIntersection(nativeEvent)
     intersectPointerEventTargets(scene, [this])
-    return this.intersector.finalizeIntersection()
+    return this.intersector.finalizeIntersection(scene)
   }
 
-  setIntersection(intersection: Intersection | undefined): void {
+  setIntersection(intersection: Intersection): void {
     this.intersection = intersection
   }
 
@@ -303,7 +315,6 @@ export class Pointer {
     if (this.intersection == null) {
       return
     }
-
     const { contextMenuButton = 2, dblClickThresholdMs = 500, clickThesholdMs = 300 } = this.options
 
     this.pointerCapture = undefined

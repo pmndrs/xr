@@ -138,7 +138,7 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
     public readonly object: Object3D = currentObject,
     private readonly propagationState: { stopped: boolean; stoppedImmediate: boolean } = {
       stopped: !bubbles,
-      stoppedImmediate: !bubbles,
+      stoppedImmediate: false,
     },
   ) {
     super(nativeEvent)

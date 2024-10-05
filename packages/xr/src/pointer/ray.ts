@@ -63,12 +63,12 @@ export function updatePointerRayModel(
   pointer: Pointer,
   options: PointerRayModelOptions,
 ) {
-  if (!pointer.getEnabled()) {
+  const intersection = pointer.getIntersection()
+  if (!pointer.getEnabled() || intersection == null) {
     mesh.visible = false
     return
   }
   mesh.visible = true
-  const intersection = pointer.getIntersection()
   const color = typeof options.color === 'function' ? options.color(pointer) : options.color
   if (Array.isArray(color)) {
     material.color.set(...color)
@@ -77,10 +77,7 @@ export function updatePointerRayModel(
   }
   material.opacity = typeof options.opacity === 'function' ? options.opacity(pointer) : (options.opacity ?? 0.4)
 
-  let length = options.maxLength ?? 1
-  if (intersection != null) {
-    length = Math.min(length, intersection.distance)
-  }
+  const length = Math.min(options.maxLength ?? 1, intersection.distance)
   mesh.position.z = -length / 2
   const size = options.size ?? 0.005
   mesh.scale.set(size, size, length)

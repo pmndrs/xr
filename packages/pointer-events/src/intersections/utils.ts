@@ -1,7 +1,8 @@
-import { Plane, Intersection as ThreeIntersection, Object3D } from 'three'
+import { Plane, Intersection as ThreeIntersection, Object3D, Vector3, Ray, Quaternion } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { AllowedPointerEventsType, Pointer, type AllowedPointerEvents } from '../pointer.js'
 import { hasObjectListeners } from '../utils.js'
+import { getVoidObject, VoidObjectCollider } from './intersector.js'
 
 export function computeIntersectionWorldPlane(target: Plane, intersection: Intersection, object: Object3D): boolean {
   const normal = intersection.normal ?? intersection.face?.normal
@@ -142,4 +143,27 @@ function defaultSort(
   }
   //i1 - i2 because negative values mean the sorting i1 before i2 is correct
   return i1.distance - i2.distance
+}
+
+export function voidObjectIntersectionFromRay(
+  scene: Object3D,
+  ray: Ray,
+  getDetails: (distanceOnRay: number) => Intersection['details'],
+  pointerPosition: Vector3,
+  pointerQuaternion: Quaternion,
+  addToDistance: number = 0,
+): Intersection {
+  const point = ray.intersectSphere(VoidObjectCollider, new Vector3())!
+  const distanceOnRay = point.distanceTo(ray.origin)
+  return {
+    distance: distanceOnRay + addToDistance,
+    object: getVoidObject(scene),
+    point,
+    normal: ray.origin.clone().sub(point).normalize(),
+    details: getDetails(distanceOnRay),
+    pointerPosition,
+    pointerQuaternion,
+    pointOnFace: point,
+    localPoint: point,
+  }
 }

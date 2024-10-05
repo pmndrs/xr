@@ -1,11 +1,13 @@
 import { BufferAttribute, Matrix4, Mesh, Object3D, Triangle, Vector2, Vector3 } from 'three'
 import { PointerEventsMap } from './event.js'
+import type { Root } from '@react-three/fiber/dist/declarations/src/core/renderer.js'
 
 declare module 'three' {
   interface Object3D {
     __r3f?: {
       eventCount: number
       handlers: Record<string, ((e: any) => void) | undefined>
+      root: Root['store']
     }
     /**
      * undefined and true means the transformation is ready
@@ -51,20 +53,24 @@ export function hasObjectListeners({ _listeners, __r3f }: Object3D): boolean {
 }
 
 export function getObjectListeners<E>(
-  { _listeners, __r3f }: Object3D,
+  object: Object3D,
   forEvent: keyof PointerEventsMap,
 ): Array<(event: E) => void> | undefined {
-  if (_listeners != null && forEvent in _listeners) {
-    return _listeners[forEvent]
+  if (object._listeners != null && forEvent in object._listeners) {
+    return object._listeners[forEvent]
   }
 
   //R3F compatibility
-  if (__r3f == null) {
-    return undefined
+  let handler: ((e: any) => void) | undefined
+  if (object.isVoidObject && forEvent === 'click' && object.parent?.__r3f != null) {
+    handler = object.parent.__r3f.root.getState().onPointerMissed
   }
-  const handler = __r3f.handlers[r3fEventToHandlerMap[forEvent]]
+  if (object.__r3f != null) {
+    handler = object.__r3f.handlers[r3fEventToHandlerMap[forEvent]]
+  }
+
   if (handler == null) {
-    return
+    return undefined
   }
   return [handler]
 }
