@@ -15,12 +15,13 @@ import { Intersector } from './intersector.js'
 import { getVoidObject, Intersection, IntersectionOptions } from '../index.js'
 import { updateAndCheckWorldTransformation } from '../utils.js'
 
-const collisionSphere = new Sphere()
 const intersectsHelper: Array<ThreeIntersection> = []
+const scaleHelper = new Vector3()
 
 export class SphereIntersector extends Intersector {
   private readonly fromPosition = new Vector3()
   private readonly fromQuaternion = new Quaternion()
+  private readonly collisionSphere = new Sphere()
 
   private ready?: boolean
 
@@ -45,8 +46,7 @@ export class SphereIntersector extends Intersector {
     if (!this.ready) {
       return false
     }
-    this.fromPosition.setFromMatrixPosition(spaceObject.matrixWorld)
-    this.fromQuaternion.setFromRotationMatrix(spaceObject.matrixWorld)
+    spaceObject.matrixWorld.decompose(this.fromPosition, this.fromQuaternion, scaleHelper)
     return true
   }
 
@@ -89,15 +89,16 @@ export class SphereIntersector extends Intersector {
     if (!this.prepareTransformation()) {
       return
     }
-    collisionSphere.center.copy(this.fromPosition)
-    collisionSphere.radius = this.getSphereRadius()
+    this.collisionSphere.center.copy(this.fromPosition)
+    this.collisionSphere.radius = this.getSphereRadius()
   }
 
   public executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void {
     if (!this.isReady()) {
       return
     }
-    intersectSphereWithObject(collisionSphere, object, intersectsHelper)
+    intersectsHelper.length = 0
+    intersectSphereWithObject(this.collisionSphere, object, intersectsHelper)
     const index = getDominantIntersectionIndex(
       this.intersection,
       this.pointerEventsOrder,
