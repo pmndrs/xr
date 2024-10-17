@@ -292,7 +292,7 @@ export function createDefaultXRHand(
         )
   let removeModel: (() => void) | undefined
   if (modelOptions !== false) {
-    const model = new XRHandModel(state.inputSource.hand, state.assetPath, spreadable(modelOptions))
+    const model = new XRHandModel(state, spreadable(modelOptions))
     space.add(model)
     removeModel = () => space.remove(model)
   }
@@ -365,7 +365,7 @@ export function createDefaultXRController(
 
   let removeModel: (() => void) | undefined
   if (modelOptions !== false) {
-    const model = new XRControllerModel(state.layout, state.gamepad, spreadable(modelOptions))
+    const model = new XRControllerModel(state, spreadable(modelOptions))
     space.add(model)
     removeModel = () => space.remove(model)
   }

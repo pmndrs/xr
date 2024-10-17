@@ -25,6 +25,7 @@ export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, re
   const gltf = useLoader(GLTFLoader, state.assetPath)
   const model = useMemo(() => cloneXRHandGltf(gltf), [gltf])
   configureXRHandModel(model, options)
+  state.object = model
   useImperativeHandle(ref, () => model, [model])
   const referenceSpace = useXRSpace()
   const update = useMemo(
