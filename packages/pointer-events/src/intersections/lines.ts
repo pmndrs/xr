@@ -18,6 +18,7 @@ import { updateAndCheckWorldTransformation } from '../utils.js'
 const invertedMatrixHelper = new Matrix4()
 const intersectsHelper: Array<ThreeIntersection & { details: { distanceOnLine: number; lineIndex: number } }> = []
 const lineHelper = new Line3()
+const scaleHelper = new Vector3()
 const planeHelper = new Plane()
 const rayHelper = new Ray()
 const defaultLinePoints = [new Vector3(0, 0, 0), new Vector3(0, 0, 1)]
@@ -72,12 +73,15 @@ export class LinesIntersector extends Intersector {
     const point = lineHelper.at(details.distanceOnLine / lineHelper.distance(), new Vector3())
     computeIntersectionWorldPlane(planeHelper, intersection, object)
     const pointOnFace = rayHelper.intersectPlane(planeHelper, new Vector3()) ?? point
+    const pointerPosition = new Vector3()
+    const pointerQuaternion = new Quaternion()
+    this.fromMatrixWorld.decompose(pointerPosition, pointerQuaternion, scaleHelper)
     return {
       ...intersection,
       pointOnFace,
       point,
-      pointerPosition: new Vector3().setFromMatrixPosition(this.fromMatrixWorld),
-      pointerQuaternion: new Quaternion().setFromRotationMatrix(this.fromMatrixWorld),
+      pointerPosition,
+      pointerQuaternion,
     }
   }
 
@@ -138,8 +142,9 @@ export class LinesIntersector extends Intersector {
   }
 
   public finalizeIntersection(scene: Object3D): Intersection {
-    const pointerPosition = new Vector3().setFromMatrixPosition(this.fromMatrixWorld)
-    const pointerQuaternion = new Quaternion().setFromRotationMatrix(this.fromMatrixWorld)
+    const pointerPosition = new Vector3()
+    const pointerQuaternion = new Quaternion()
+    this.fromMatrixWorld.decompose(pointerPosition, pointerQuaternion, scaleHelper)
     if (this.intersection == null) {
       const lastRaycasterIndex = this.raycasters.length - 1
       const prevDistance = this.raycasters.reduce(
@@ -150,7 +155,8 @@ export class LinesIntersector extends Intersector {
       return voidObjectIntersectionFromRay(
         scene,
         lastRaycaster.ray,
-        (distanceOnLine) => ({
+        (point, distanceOnLine) => ({
+          line: new Line3(lastRaycaster.ray.origin.clone(), point),
           lineIndex: this.raycasters.length - 1,
           distanceOnLine,
           type: 'lines' as const,
@@ -161,11 +167,16 @@ export class LinesIntersector extends Intersector {
       )
     }
     //TODO: consider maxLength
+    const raycaster = this.raycasters[this.intersectionLineIndex]
     return Object.assign(this.intersection, {
       details: {
         lineIndex: this.intersectionLineIndex,
         distanceOnLine: this.intersectionDistanceOnLine,
         type: 'lines' as const,
+        line: new Line3(
+          raycaster.ray.origin.clone(),
+          raycaster.ray.direction.clone().multiplyScalar(raycaster.far).add(raycaster.ray.origin),
+        ),
       },
       pointerPosition,
       pointerQuaternion,

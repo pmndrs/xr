@@ -1,4 +1,4 @@
-import { BaseEvent, Face, Object3D, Quaternion, Ray, Vector2, Vector3 } from 'three'
+import { BaseEvent, Face, Object3D, Quaternion, Ray, Raycaster, Vector2, Vector3 } from 'three'
 import { Intersection as ThreeIntersection } from './intersections/index.js'
 import { Pointer } from './pointer.js'
 import { getObjectListeners } from './utils.js'
@@ -150,10 +150,20 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
   }
 
   get ray(): Ray {
-    const ray = new Ray()
-    ray.origin.setFromMatrixPosition(this.camera.matrixWorld)
-    ray.lookAt(this.point)
-    return ray
+    switch (this.intersection.details.type) {
+      case 'camera-ray':
+      case 'ray':
+      case 'sphere':
+        return new Ray(
+          this.intersection.pointerPosition,
+          new Vector3(0, 0, -1).applyQuaternion(this.intersection.pointerQuaternion),
+        )
+      case 'lines':
+        return new Ray(
+          this.intersection.details.line.start,
+          this.intersection.details.line.end.clone().sub(this.intersection.details.line.start).normalize(),
+        )
+    }
   }
 
   get intersections(): Intersection[] {

@@ -1,15 +1,14 @@
 {
-  "name": "@react-three/xr",
-  "description": "VR/AR for react-three-fiber",
+  "name": "@react-three/handle",
+  "description": "agnostic expandable handles for react-three-fiber",
   "author": "Bela Bohlender",
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://github.com/pmndrs/xr",
   "type": "module",
   "keywords": [
     "r3f",
-    "xr",
-    "ar",
-    "vr",
+    "handle",
+    "controls",
     "three.js",
     "react",
     "typescript"
@@ -25,15 +24,10 @@
   "peerDependencies": {
     "@react-three/fiber": ">=8",
     "react": ">=18",
-    "react-dom": ">=18",
     "three": "*"
   },
   "dependencies": {
-    "@pmndrs/pointer-events": "workspace:^",
-    "@pmndrs/xr": "workspace:^",
-    "suspend-react": "^0.1.3",
-    "tunnel-rat": "^0.1.2",
-    "zustand": "^4.5.2"
+    "@pmndrs/handle": "workspace:^"
   },
   "scripts": {
     "build": "tsc",

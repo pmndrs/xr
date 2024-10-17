@@ -105,6 +105,18 @@ importers:
         specifier: workspace:^
         version: link:../../packages/react/xr
 
+  examples/handle:
+    dependencies:
+      '@pmndrs/pointer-events':
+        specifier: workspace:^
+        version: link:../../packages/pointer-events
+      '@react-three/handle':
+        specifier: workspace:^
+        version: link:../../packages/react/handle
+      '@react-three/xr':
+        specifier: workspace:^
+        version: link:../../packages/react/xr
+
   examples/hit-test-anchor:
     dependencies:
       '@react-three/xr':
@@ -306,6 +318,12 @@ importers:
         specifier: workspace:^
         version: link:../../packages/react/xr
 
+  packages/handle:
+    dependencies:
+      '@pmndrs/pointer-events':
+        specifier: workspace:^
+        version: link:../pointer-events
+
   packages/pointer-events:
     devDependencies:
       '@react-three/fiber':
@@ -326,6 +344,21 @@ importers:
       vitest:
         specifier: ^2.0.5
         version: 2.0.5(@types/node@20.16.3)
+
+  packages/react/handle:
+    dependencies:
+      '@pmndrs/handle':
+        specifier: workspace:^
+        version: link:../../handle
+      '@react-three/fiber':
+        specifier: '>=8'
+        version: 8.17.9(react-dom@18.3.1)(react@18.3.1)(three@0.167.1)
+      react:
+        specifier: '>=18'
+        version: 18.3.1
+      three:
+        specifier: '*'
+        version: 0.167.1
 
   packages/react/xr:
     dependencies:
@@ -356,13 +389,6 @@ importers:
       zustand:
         specifier: ^4.5.2
         version: 4.5.5(@types/react@18.3.5)(react@18.3.1)
-    devDependencies:
-      '@vitejs/plugin-react':
-        specifier: ^4.3.0
-        version: 4.3.1(vite@5.4.2)
-      vite:
-        specifier: ^5.2.11
-        version: 5.4.2(@types/node@20.16.3)
 
   packages/xr:
     dependencies:

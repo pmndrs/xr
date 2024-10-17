@@ -4,6 +4,7 @@ import { toDOMPointInit } from './utils.js'
 
 const matrixHelper = new Matrix4()
 const vectorHelper = new Vector3()
+const scaleHelper = new Vector3()
 const quaternionHelper = new Quaternion()
 
 export type GetWorldMatrixFromXRHitTest = (target: Matrix4, result: XRHitTestResult) => boolean
@@ -40,9 +41,8 @@ export async function createXRHitTestSource(
     }
 
     //compute offset ray
-    vectorHelper.setFromMatrixPosition(matrixHelper)
+    matrixHelper.decompose(vectorHelper, quaternionHelper, scaleHelper)
     const point = toDOMPointInit(vectorHelper)
-    quaternionHelper.setFromRotationMatrix(matrixHelper)
     vectorHelper.set(0, 0, -1).applyQuaternion(quaternionHelper)
     const offsetRay = new XRRay(point, toDOMPointInit(vectorHelper, 0))
 

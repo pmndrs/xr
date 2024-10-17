@@ -148,7 +148,7 @@ function defaultSort(
 export function voidObjectIntersectionFromRay(
   scene: Object3D,
   ray: Ray,
-  getDetails: (distanceOnRay: number) => Intersection['details'],
+  getDetails: (pointer: Vector3, distanceOnRay: number) => Intersection['details'],
   pointerPosition: Vector3,
   pointerQuaternion: Quaternion,
   addToDistance: number = 0,
@@ -160,7 +160,7 @@ export function voidObjectIntersectionFromRay(
     object: getVoidObject(scene),
     point,
     normal: ray.origin.clone().sub(point).normalize(),
-    details: getDetails(distanceOnRay),
+    details: getDetails(point, distanceOnRay),
     pointerPosition,
     pointerQuaternion,
     pointOnFace: point,
