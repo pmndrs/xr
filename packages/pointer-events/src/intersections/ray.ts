@@ -91,7 +91,7 @@ export class RayIntersector extends Intersector {
     if (this.options.minDistance != null) {
       const length = intersectsHelper.length
       const localMinDistance = this.options.minDistance / this.worldScale
-      for (let i = 0; i < length; i++) {
+      for (let i = length - 1; i >= 0; i--) {
         if (intersectsHelper[i].distance < localMinDistance) {
           intersectsHelper.splice(i, 1)
         }
