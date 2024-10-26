@@ -32,20 +32,16 @@ const OrbitControlsWrapper = () => {
 
 ## I cannot enter the XR session!
 
-### Missing Https:
-
+1. **Missing Https**  
 If you are trying to enter the AR or VR modus and nothing is happening, make sure that you are accessing the website using `https://`.
 In case you are using vite, we recommend using the `@vitejs/plugin-basic-ssl` to try out your vite application on your device while developing.
 
-### Missing XR component
-
+2. **Missing XR component**  
 If you made sure that the website is accessed using `https://` and still nothing happens when executing `enterAR` or `enterVR`, it is likely that the `<XR>` component is missing. Be sure to add the `<XR>` component directly into the `<Canvas>` and make sure both the `<Canvas>` and the `<XR>` component are present when the button is pressed.
 
-### Entering while loading content
-
+3. **Entering while loading content**  
 If you cannot enter the VR or AR experience, there might be assets in your scene that are loading.
 Make sure to place a suspense boundary around your scene. With this setup, the `<XR>` component stays mounted while your scene loads.
-
 ```tsx
 <Canvas>
   <XR>
