@@ -1,9 +1,10 @@
 import { useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { SoftShadows, Float, CameraControls, Sky, PerformanceMonitor } from '@react-three/drei'
+import { SoftShadows, Float, CameraControls, Sky } from '@react-three/drei'
 import { easing } from 'maath'
 import { Model as Room } from './Room.jsx'
-import { XR, XROrigin, createXRStore } from '@react-three/xr'
+import { XR, XROrigin, createXRStore, IfInSessionMode } from '@react-three/xr'
+import { Vector3 } from 'three'
 
 function Light() {
   const ref = useRef()
@@ -53,7 +54,9 @@ export default function App() {
       <Canvas shadows camera={{ position: [5, 2, 10], fov: 50 }}>
         <XR store={store}>
           <SoftShadows />
-          <CameraControls makeDefault />
+          <IfInSessionMode deny={['immersive-vr', 'immersive-ar']}>
+            <CameraControls makeDefault />
+          </IfInSessionMode>
           <color attach="background" args={['#d0d0d0']} />
           <fog attach="fog" args={['#d0d0d0', 8, 35]} />
           <ambientLight intensity={0.4} />
@@ -71,6 +74,9 @@ export default function App() {
 }
 
 function Sphere({ color = 'hotpink', floatIntensity = 15, position = [0, 5, -8], scale = 1 }) {
+  //logging the camera position
+  // eslint-disable-next-line @react-three/no-new-in-loop
+  useFrame((s) => console.log(...s.camera.getWorldPosition(new Vector3()).toArray()))
   return (
     <Float floatIntensity={floatIntensity}>
       <mesh castShadow position={position} scale={scale}>
