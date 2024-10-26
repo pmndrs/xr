@@ -3,12 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { RefObject, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
 
-export type HandleOptions = {
-  target: RefObject<Object3D>
-  /**
-   * @default target
-   */
-  relativeTo?: RefObject<Object3D>
+export type HandleOptions<T> = {
   /**
    * @default target
    */
@@ -18,25 +13,14 @@ export type HandleOptions = {
    * @default true
    */
   bind?: boolean
-} & BaseHandleOptions
+} & BaseHandleOptions<T>
 
-export function useHandle<T>(fn: (state: HandleState<T>) => T, options: HandleOptions): HandleStore<T> {
-  const fnRef = useRef(fn)
-  fnRef.current = fn
+export function useHandle<T>(target: RefObject<Object3D>, options: HandleOptions<T> = {}): HandleStore<T> {
   const optionsRef = useRef(options)
   optionsRef.current = options
-  const store = useMemo(
-    () =>
-      new HandleStore(
-        (state: HandleState<T>) => fnRef.current(state),
-        options.target,
-        options.relativeTo,
-        () => optionsRef.current,
-      ),
-    [options.target, options.relativeTo],
-  )
+  const store = useMemo(() => new HandleStore(target, () => optionsRef.current), [target])
   useFrame((state) => store.update(state.clock.getElapsedTime()))
-  const handleRef = options.handle ?? options.target
+  const handleRef = options.handle ?? target
   useEffect(() => {
     if (options.bind === false) {
       return

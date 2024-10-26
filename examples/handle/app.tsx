@@ -12,10 +12,15 @@ export function App() {
     <>
       <button onClick={() => store.enterVR()}>Enter VR</button>
       <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas events={() => ({ enabled: false, priority: 0 })} style={{ width: '100%', flexGrow: 1 }}>
+      <Canvas
+        camera={{ position: [1, 1, 1] }}
+        events={() => ({ enabled: false, priority: 0 })}
+        style={{ width: '100%', flexGrow: 1 }}
+      >
         <SwitchToXRPointerEvents />
         <XR store={store}>
           <ambientLight />
+          <directionalLight position={[1, 1, 1]} />
           <Cube />
           <Cube />
           {/*<Smoke count={100} maxSize={0.3} minSize={0.1} spawnRate={10} speed={0.1} />
@@ -102,7 +107,7 @@ function Cube() {
   useHandle(
     (state) => {
       ref.current?.position.copy(state.current.position)
-      ref.current?.quaternion.copy(state.current.quaterion)
+      ref.current?.quaternion.copy(state.current.quaternion)
       if (state.current.pointerAmount > 1) {
         ref.current?.scale.copy(state.current.scale)
         if (ref.current != null) {
@@ -114,6 +119,8 @@ function Cube() {
     },
     {
       target: ref,
+      translate: 'x',
+      rotate: false,
     },
   )
   return (
@@ -128,7 +135,7 @@ function Cube() {
         ref={ref}
       >
         <boxGeometry />
-        <meshBasicMaterial color="red" />
+        <meshPhongMaterial color="red" />
         <mesh
           pointerEventsOrder={1}
           renderOrder={1}

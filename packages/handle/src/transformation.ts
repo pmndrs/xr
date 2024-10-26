@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Plane, Quaternion, Ray, Vector3 } from 'three'
+/*import { Euler, Matrix4, Plane, Quaternion, Ray, Vector3 } from 'three'
 import { HandleOptions, HandleTransformOptions } from './store.js'
 import { Axis } from './state.js'
 import { applyHandleTransformOptions, getRotateOrderFromOptions, isDefaultOptions } from './utils.js'
@@ -27,7 +27,7 @@ const matrixHelper = new Matrix4()
  *
  * initialRelativeToOriginWorldMatrix * initialMatrixInRelativeToOriginSpace = initialWorldMatrix <=>
  * initialMatrixInRelativeToOriginSpace = initialRelativeToOriginWorldMatrix-1 * initialWorldMatrix
- */
+ *
 export function computeGlobalTransformation(
   inputState: Map<
     number,
@@ -194,7 +194,7 @@ export function computeGlobalTransformation(
     /* TODO:
     recomposeRelativeTo(result, , relativeToParentWorldMatrix, initialRelativeToParentWorldMatrix, () => {
 
-    })*/
+    })*
 
     input2.initialWorldMatrix.decompose(vectorHelper1, quaterionHelper2, vectorHelper2)
     return result
@@ -291,59 +291,4 @@ function projectIntoSpaceFromOptions(
   }
   projectOntoPlane(point, direction, notActiveAxes[0])
 }
-
-const planes = {
-  x: new Plane(new Vector3(1, 0, 0), 0),
-  y: new Plane(new Vector3(0, 1, 0), 0),
-  z: new Plane(new Vector3(0, 0, 1), 0),
-}
-
-function projectOntoPlane(point: Vector3, direction: Vector3 | undefined, notAxis: Axis): void {
-  const plane = planes[notAxis]
-  if (direction == null || Math.abs(plane.normal.dot(direction)) < 0.001) {
-    point[notAxis] = 0
-    return
-  }
-  const distanceToPlane = plane.distanceToPoint(point)
-  let distanceAlongDirection = distanceToPlane / direction.dot(plane.normal)
-  point.addScaledVector(direction, -distanceAlongDirection)
-}
-
-const normals = {
-  x: new Vector3(1, 0, 0),
-  y: new Vector3(0, 1, 0),
-  z: new Vector3(0, 0, 1),
-}
-
-const anotherAxis = {
-  x: 'y',
-  y: 'z',
-  z: 'x',
-} as const
-
-const projectHelper = new Vector3()
-const crossVectorHelper = new Vector3()
-/**
- * finds the intersection between the given axis (infinite line) and another infinite line provided with point and direction
- */
-function projectOntoAxis(p2: Vector3, n2: Vector3 | undefined, axis: Axis): void {
-  const n1 = normals[axis]
-  if (n2 == null || Math.abs(n1.dot(n2)) > 0.999) {
-    const tmp = p2[axis]
-    p2.set(0, 0, 0)
-    p2[axis] = tmp
-    return
-  }
-  projectPointOntoNormal(projectHelper.copy(p2), crossVectorHelper.crossVectors(n1, n2).normalize())
-  p2.sub(projectHelper)
-  //projectHelper with the normal n2 now represents a line that crosses the axis at the desired point
-
-  const a = anotherAxis[axis]
-  const distance = -p2[a] / n2[a]
-  p2.addScaledVector(n2, distance)
-}
-
-function projectPointOntoNormal(point: Vector3, normal: Vector3) {
-  const dot = point.dot(normal)
-  point.copy(normal).multiplyScalar(dot)
-}
+*/

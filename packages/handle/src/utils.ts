@@ -1,67 +1,7 @@
-import { clamp } from 'three/src/math/MathUtils.js'
-import { EulerOrder, Object3D, Vector3 } from 'three'
-import type { HandleTransformOptions } from './store.js'
-import type { Axis } from './state.js'
+import { Plane, Vector3 } from 'three'
 import { PointerEvent } from '@pmndrs/pointer-events'
-
-type VectorLike = { x: number; y: number; z: number }
-
-/**
- * @returns the locked axis or undefined if not axis was locked
- */
-export function applyHandleTransformOptions(
-  vector: VectorLike,
-  initialVector: VectorLike | undefined,
-  options: HandleTransformOptions,
-): void {
-  if (typeof options === 'boolean') {
-    if (options === false && initialVector != null) {
-      copy(vector, initialVector)
-    }
-    return
-  }
-  if (typeof options === 'string') {
-    if (initialVector != null) {
-      const tmp = vector[options]
-      copy(vector, initialVector)
-      vector[options] = tmp
-    }
-    return
-  }
-  const { x = true, y = true, z = true } = options
-  if (initialVector != null) {
-    if (x === false) {
-      vector.x = initialVector.x
-    }
-    if (y === false) {
-      vector.y = initialVector.y
-    }
-    if (x === false) {
-      vector.z = initialVector.z
-    }
-  }
-  if (Array.isArray(x)) {
-    vector.x = clamp(vector.x, ...x)
-  }
-  if (Array.isArray(y)) {
-    vector.y = clamp(vector.y, ...y)
-  }
-  if (Array.isArray(z)) {
-    vector.z = clamp(vector.z, ...z)
-  }
-}
-
-function copy(to: VectorLike, from: VectorLike): void {
-  to.x = from.x
-  to.y = from.y
-  to.z = from.z
-}
-
-export type Object3DRef = Object3D | { current?: Object3D | null }
-
-export function resolveRef(ref: Object3DRef | undefined): Object3D | undefined | null {
-  return ref instanceof Object3D ? ref : ref?.current
-}
+import { Axis } from './state.js'
+import { HandleOptions, HandleTransformOptions } from './store.js'
 
 export function getWorldDirection(event: PointerEvent, target: Vector3): boolean {
   if (event.details.type === 'sphere') {
@@ -80,56 +20,166 @@ export function getWorldDirection(event: PointerEvent, target: Vector3): boolean
   return true
 }
 
-export function getRotateOrderFromOptions(rotateOptions: HandleTransformOptions): EulerOrder {
-  if (typeof rotateOptions === 'boolean') {
-    return 'XYZ'
-  }
+const spaceHelper = new Set<Axis>()
 
-  if (typeof rotateOptions === 'string') {
-    switch (rotateOptions) {
-      case 'x':
-        return 'XYZ'
-      case 'y':
-        return 'YXZ'
-      default:
-        return 'ZXY'
+export function projectOntoSpace(
+  initialWorldPoint: Vector3,
+  worldPoint: Vector3,
+  worldDirection: Vector3 | undefined,
+  options: HandleOptions,
+  pointerAmount: number,
+): void {
+  spaceHelper.clear()
+  if (
+    options.translate === 'as-rotate' ||
+    options.translate === 'as-scale' ||
+    options.translate === 'as-rotate-and-scale'
+  ) {
+    if (options.translate != 'as-rotate') {
+      getSpaceFromOptions(spaceHelper, options.scale ?? true, false)
     }
-  }
-  let start = ''
-  let end = ''
-  if (rotateOptions.x === false) {
-    end += 'X'
+    if (options.translate != 'as-scale') {
+      getSpaceFromOptions(spaceHelper, options.rotate ?? true, true)
+    }
+  } else if (pointerAmount === 1) {
+    getSpaceFromOptions(spaceHelper, options.translate ?? true, false)
   } else {
-    start += 'X'
+    getSpaceFromOptions(spaceHelper, options.translate ?? true, false)
+    getSpaceFromOptions(spaceHelper, options.rotate ?? true, true)
+    getSpaceFromOptions(spaceHelper, options.scale ?? true, false)
   }
-  if (rotateOptions.y === false) {
-    end += 'Y'
-  } else {
-    start += 'Y'
+  switch (spaceHelper.size) {
+    case 0:
+    case 3:
+      return
+    case 1:
+      projectOntoAxis(initialWorldPoint, worldPoint, worldDirection, ...(spaceHelper as unknown as [Axis]))
   }
-  if (rotateOptions.z === false) {
-    end += 'Z'
-  } else {
-    start += 'Z'
+  if (!spaceHelper.has('x')) {
+    projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'x')
+    return
   }
-  return (start + end) as EulerOrder
+  if (!spaceHelper.has('y')) {
+    projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'y')
+    return
+  }
+  projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'z')
 }
 
-export function isDefaultOptions(options: HandleTransformOptions) {
-  if (typeof options === 'boolean') {
-    return options
+const otherAxes = {
+  x: ['y', 'z'],
+  y: ['x', 'z'],
+  z: ['x', 'y'],
+} as const
+
+function getSpaceFromOptions(target: Set<Axis>, options: HandleTransformOptions, rotate: boolean): void {
+  if (options === false) {
+    return
+  }
+  if (options === true) {
+    target.add('x')
+    target.add('y')
+    target.add('z')
+    return
   }
   if (typeof options === 'string') {
-    return false
+    getSpaceFromAxis(target, options, rotate)
+    return
   }
-  if ((options.x ?? true) != true) {
-    return false
+  if ((options.x ?? true) === true) {
+    getSpaceFromAxis(target, 'x', rotate)
   }
-  if ((options.y ?? true) != true) {
-    return false
+  if ((options.y ?? true) === true) {
+    getSpaceFromAxis(target, 'y', rotate)
   }
-  if ((options.z ?? true) != true) {
-    return false
+  if ((options.z ?? true) === true) {
+    getSpaceFromAxis(target, 'z', rotate)
   }
-  return true
+}
+
+function getSpaceFromAxis(target: Set<Axis>, axis: Axis, rotate: boolean): void {
+  if (rotate) {
+    const [axis1, axis2] = otherAxes[axis]
+    target.add(axis1)
+    target.add(axis2)
+  } else {
+    target.add(axis)
+  }
+}
+
+const planes = {
+  x: new Plane(new Vector3(1, 0, 0), 0),
+  y: new Plane(new Vector3(0, 1, 0), 0),
+  z: new Plane(new Vector3(0, 0, 1), 0),
+}
+
+function projectOntoPlane(
+  initialWorldPoint: Vector3,
+  worldPoint: Vector3,
+  worldDirection: Vector3 | undefined,
+  notAxis: Axis,
+): void {
+  const plane = planes[notAxis]
+  if (worldDirection == null || Math.abs(plane.normal.dot(worldDirection)) < 0.001) {
+    worldPoint[notAxis] = 0
+    return
+  }
+  plane.constant = -initialWorldPoint[notAxis]
+  const distanceToPlane = plane.distanceToPoint(worldPoint)
+  let distanceAlongDirection = distanceToPlane / worldDirection.dot(plane.normal)
+  worldPoint.addScaledVector(worldDirection, -distanceAlongDirection)
+  worldPoint[notAxis] = initialWorldPoint[notAxis]
+}
+
+const normals = {
+  x: new Vector3(1, 0, 0),
+  y: new Vector3(0, 1, 0),
+  z: new Vector3(0, 0, 1),
+}
+
+const anotherAxisMap = {
+  x: 'y',
+  y: 'z',
+  z: 'x',
+} as const
+
+const projectHelper = new Vector3()
+const crossVectorHelper = new Vector3()
+const vectorHelper = new Vector3()
+/**
+ * finds the intersection between the given axis (infinite line) and another infinite line provided with point and direction
+ */
+function projectOntoAxis(
+  initialWorldPoint: Vector3,
+  worldPoint: Vector3,
+  worldDirection: Vector3 | undefined,
+  axis: Axis,
+): void {
+  const n1 = normals[axis]
+  if (worldDirection == null || Math.abs(n1.dot(worldDirection)) > 0.999) {
+    const tmp = worldPoint[axis]
+    worldPoint.copy(initialWorldPoint)
+    worldPoint[axis] = tmp
+    return
+  }
+  vectorHelper.copy(initialWorldPoint)
+  vectorHelper[axis] = 0
+  projectPointOntoNormal(
+    projectHelper.copy(worldPoint).sub(vectorHelper),
+    crossVectorHelper.crossVectors(n1, worldDirection).normalize(),
+  )
+  worldPoint.sub(projectHelper)
+  //projectHelper with the normal n2 now represents a line that crosses the axis at the desired point
+
+  const anotherAxis = anotherAxisMap[axis]
+  const distance = (initialWorldPoint[anotherAxis] - worldPoint[anotherAxis]) / worldDirection[anotherAxis]
+  worldPoint.addScaledVector(worldDirection, distance)
+  const tmp = worldPoint[axis]
+  worldPoint.copy(initialWorldPoint)
+  worldPoint[axis] = tmp
+}
+
+function projectPointOntoNormal(point: Vector3, normal: Vector3) {
+  const dot = point.dot(normal)
+  point.copy(normal).multiplyScalar(dot)
 }
