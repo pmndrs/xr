@@ -48,7 +48,7 @@ Lastly, use the `store` to setup the `XR` component to wrap your scene.
 
 **Your application is now useable with an AR or VR headset.**
 
-If something did not work as expected, check out the [Pitfalls](../advanced/pitfalls.md), create an [issue on github](https://github.com/pmndrs/react-xr/issues), or message us on [Discord](https://discord.gg/poimandres).
+If something did not work as expected, check out the [FAQ](../getting-started/faq.md), create an [issue on github](https://github.com/pmndrs/react-xr/issues), or message us on [Discord](https://discord.gg/poimandres).
 
 With this basic XR setup, you can start expanding the features of your XR application. The following questions might help you in integrating those features. 
 
