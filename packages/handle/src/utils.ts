@@ -20,50 +20,49 @@ export function getWorldDirection(event: PointerEvent, target: Vector3): boolean
   return true
 }
 
-const spaceHelper = new Set<Axis>()
-
 export function projectOntoSpace(
+  space: Set<Axis>,
   initialWorldPoint: Vector3,
   worldPoint: Vector3,
   worldDirection: Vector3 | undefined,
-  options: HandleOptions,
-  pointerAmount: number,
 ): void {
-  spaceHelper.clear()
+  switch (space.size) {
+    case 0:
+    case 3:
+      return
+    case 1:
+      projectOntoAxis(initialWorldPoint, worldPoint, worldDirection, ...(space as unknown as [Axis]))
+  }
+  if (!space.has('x')) {
+    projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'x')
+    return
+  }
+  if (!space.has('y')) {
+    projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'y')
+    return
+  }
+  projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'z')
+}
+
+export function getSpaceFromOptions(target: Set<Axis>, options: HandleOptions<unknown>, pointerAmount: number) {
   if (
     options.translate === 'as-rotate' ||
     options.translate === 'as-scale' ||
     options.translate === 'as-rotate-and-scale'
   ) {
     if (options.translate != 'as-rotate') {
-      getSpaceFromOptions(spaceHelper, options.scale ?? true, false)
+      getSpaceFromTransformOptions(target, options.scale ?? true, false)
     }
     if (options.translate != 'as-scale') {
-      getSpaceFromOptions(spaceHelper, options.rotate ?? true, true)
+      getSpaceFromTransformOptions(target, options.rotate ?? true, true)
     }
   } else if (pointerAmount === 1) {
-    getSpaceFromOptions(spaceHelper, options.translate ?? true, false)
+    getSpaceFromTransformOptions(target, options.translate ?? true, false)
   } else {
-    getSpaceFromOptions(spaceHelper, options.translate ?? true, false)
-    getSpaceFromOptions(spaceHelper, options.rotate ?? true, true)
-    getSpaceFromOptions(spaceHelper, options.scale ?? true, false)
+    getSpaceFromTransformOptions(target, options.translate ?? true, false)
+    getSpaceFromTransformOptions(target, options.rotate ?? true, true)
+    getSpaceFromTransformOptions(target, options.scale ?? true, false)
   }
-  switch (spaceHelper.size) {
-    case 0:
-    case 3:
-      return
-    case 1:
-      projectOntoAxis(initialWorldPoint, worldPoint, worldDirection, ...(spaceHelper as unknown as [Axis]))
-  }
-  if (!spaceHelper.has('x')) {
-    projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'x')
-    return
-  }
-  if (!spaceHelper.has('y')) {
-    projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'y')
-    return
-  }
-  projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, 'z')
 }
 
 const otherAxes = {
@@ -72,7 +71,7 @@ const otherAxes = {
   z: ['x', 'y'],
 } as const
 
-function getSpaceFromOptions(target: Set<Axis>, options: HandleTransformOptions, rotate: boolean): void {
+function getSpaceFromTransformOptions(target: Set<Axis>, options: HandleTransformOptions, rotate: boolean): void {
   if (options === false) {
     return
   }

@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, EulerOrder, Matrix4, Quaternion, Vector3 } from 'three'
 import { Axis, HandleTransformState } from '../state.js'
 import { HandleOptions, HandleTransformOptions } from '../store.js'
 import { clamp } from 'three/src/math/MathUtils.js'
@@ -8,20 +8,18 @@ const eulerHelper = new Euler()
 
 export function applyTransformOptionsToRotation(
   currentRotation: Quaternion,
-  initialRotation: Euler,
+  rotationOrder: EulerOrder,
   options: HandleTransformOptions,
 ): Euler {
-  const order = initialRotation.order
-  const result = new Euler(0, 0, 0, order)
+  const result = new Euler(0, 0, 0, rotationOrder)
   quaternionHelper.copy(currentRotation)
-  for (const axisElement of order) {
+  for (const axisElement of rotationOrder) {
     const axis = axisElement as Axis
-    const axisAngle = eulerHelper.setFromQuaternion(currentRotation, order)[axis]
+    const axisAngle = eulerHelper.setFromQuaternion(currentRotation, rotationOrder)[axis]
     result[axis] = axisAngle
-    quaternionHelper.setFromEuler(result).conjugate()
+    quaternionHelper.setFromEuler(result).invert()
     currentRotation.premultiply(quaternionHelper)
-    const initialAxisAngle = initialRotation[axis]
-    result[axis] = initialAxisAngle + applyTransformOptionsToAxis(axis, axisAngle - initialAxisAngle, options)
+    result[axis] = applyTransformOptionsToAxis(axis, axisAngle, 0, options)
     currentRotation.setFromEuler(result)
     currentRotation.multiply(quaternionHelper)
   }
@@ -31,25 +29,34 @@ export function applyTransformOptionsToRotation(
 /**
  * @requires that the provided vector is a delta vector not the absolute new vector
  */
-export function applyTransformOptionsToVector(target: Vector3, options: HandleTransformOptions): void {
-  target.x = applyTransformOptionsToAxis('x', target.x, options)
-  target.y = applyTransformOptionsToAxis('y', target.y, options)
-  target.z = applyTransformOptionsToAxis('z', target.z, options)
+export function applyTransformOptionsToVector(
+  target: Vector3,
+  neutralValue: number,
+  options: HandleTransformOptions,
+): void {
+  target.x = applyTransformOptionsToAxis('x', target.x, neutralValue, options)
+  target.y = applyTransformOptionsToAxis('y', target.y, neutralValue, options)
+  target.z = applyTransformOptionsToAxis('z', target.z, neutralValue, options)
 }
 
 /**
  * @requires that the provided value is a delta value not the absolute value
  */
-export function applyTransformOptionsToAxis(axis: Axis, value: number, options: HandleTransformOptions): number {
+export function applyTransformOptionsToAxis(
+  axis: Axis,
+  value: number,
+  neutralValue: number,
+  options: HandleTransformOptions,
+): number {
   if (typeof options === 'boolean') {
-    return options ? value : 0
+    return options ? value : neutralValue
   }
   if (typeof options === 'string') {
-    return options === axis ? value : 0
+    return options === axis ? value : neutralValue
   }
   const option = options[axis]
   if (option === false) {
-    return 0
+    return neutralValue
   }
   if (Array.isArray(option)) {
     return clamp(value, ...option)
@@ -59,15 +66,17 @@ export function applyTransformOptionsToAxis(axis: Axis, value: number, options: 
 
 const matrixHelper1 = new Matrix4()
 const matrixHelper2 = new Matrix4()
-const vectorHelper = new Vector3()
+
+export type BaseHandleStoreData = {
+  initialTargetQuaternion: Quaternion
+  initialTargetRotation: Euler
+}
 
 export function computeHandleTransformState(
   time: number,
-  computeScale: () => Vector3,
+  pointerAmount: number,
   targetWorldMatrix: Matrix4,
-  initialTargetPosition: Vector3,
-  initialTargetQuaternion: Quaternion,
-  initialTargetRotation: Euler,
+  storeData: BaseHandleStoreData,
   targetParentWorldMatrix: Matrix4 | undefined,
   options: HandleOptions<unknown> & { translate?: HandleTransformOptions },
 ): HandleTransformState {
@@ -80,22 +89,21 @@ export function computeHandleTransformState(
   //new values
   const position = new Vector3()
   const quaternion = new Quaternion()
+  const scale = new Vector3()
 
   //decompose
-  matrixHelper1.decompose(position, quaternion, vectorHelper)
+  matrixHelper1.decompose(position, quaternion, scale)
   //position and quaternion now contain the resulting transformation before applying the options
 
   //compute position
-  position.sub(initialTargetPosition)
-  applyTransformOptionsToVector(position, options.translate ?? true)
-  position.add(initialTargetPosition)
+  applyTransformOptionsToVector(position, 0, options.translate ?? true)
 
   //compute rotation
   let rotation: Euler
   const rotateOptions = options.rotate ?? true
   if (rotateOptions === false) {
-    quaternion.copy(initialTargetQuaternion)
-    rotation = initialTargetRotation.clone()
+    quaternion.copy(storeData.initialTargetQuaternion)
+    rotation = storeData.initialTargetRotation.clone()
   } else if (
     rotateOptions === true ||
     (typeof rotateOptions != 'string' &&
@@ -103,17 +111,20 @@ export function computeHandleTransformState(
       rotateOptions.y === true &&
       rotateOptions.z === true)
   ) {
-    rotation = new Euler().setFromQuaternion(quaternion, initialTargetRotation.order)
+    rotation = new Euler().setFromQuaternion(quaternion, storeData.initialTargetRotation.order)
   } else {
-    rotation = applyTransformOptionsToRotation(quaternion, initialTargetRotation, rotateOptions)
+    rotation = applyTransformOptionsToRotation(quaternion, storeData.initialTargetRotation.order, rotateOptions)
   }
 
+  //compute scale
+  applyTransformOptionsToVector(scale, 1, options.scale ?? true)
+
   return {
-    pointerAmount: 1,
+    pointerAmount,
     position,
     quaternion,
     rotation,
-    scale: computeScale(),
+    scale,
     time,
   }
 }

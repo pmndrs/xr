@@ -1,12 +1,25 @@
 import { Euler, Matrix4, Object3D, Object3DEventMap, Quaternion, Vector2Tuple, Vector3 } from 'three'
 import type { PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
-import { Axis, HandleState, HandleStateImpl } from './state.js'
-import { projectOntoSpace, getWorldDirection } from './utils.js'
-import { computeHandleTransformState } from './computations/index.js'
-import { PointerData } from './computations/one-pointer.js'
+import { Axis, HandleState, HandleStateImpl, HandleTransformState } from './state.js'
+import { getWorldDirection } from './utils.js'
+import {
+  computeOnePointerHandleTransformState,
+  OnePointerHandlePointerData,
+  OnePointerHandleStoreData,
+} from './computations/one-pointer.js'
+import {
+  computeTwoPointerHandleTransformState,
+  TwoPointerHandlePointerData,
+  TwoPointerHandleStoreData,
+} from './computations/two-pointer.js'
+import { computeTranslateAsHandleTransformState } from './computations/index.js'
 
 export type HandleOptions<T> = {
-  fn?: (state: HandleState<T>) => T
+  /**
+   * function that allows to modify and apply the state to the target
+   * @default (state, target) => {target.position.copy(state.current.position);target.quaternion.copy(state.current.quaternion);target.scale.copy(state.current.scale);}
+   */
+  apply?: (state: HandleState<T>, target: Object3D) => T
   /**
    * @default false
    * necassary if the relative space (e.g. when using the default relativeTo="local") changes often (e.g. every frame)
@@ -35,7 +48,7 @@ export type HandleOptions<T> = {
     /**
      * @default false
      */
-    //TODO: uniform?: boolean | Axis
+    uniform?: boolean
   }
   //TODO: filter
   /**
@@ -67,19 +80,23 @@ const vectorHelper = new Vector3()
  * const stop = handleStore.capture(pointerId, handle)
  */
 
-export class HandleStore<T> {
+export class HandleStore<T> implements OnePointerHandleStoreData, TwoPointerHandleStoreData {
   //internal out state (will be used to output the state)
   private outputState: HandleStateImpl<T>
   private latestMoveEvent: PointerEvent | undefined
 
   //internal in state (will be written on save)
-  private readonly inputState = new Map<number, PointerData>()
-  private readonly capturedObjects = new Map<number, Object3D>()
-  private readonly initialTargetPosition = new Vector3()
-  private readonly initialTargetQuaternion = new Quaternion()
-  private readonly initialTargetRotation = new Euler()
-  private readonly initialTargetScale = new Vector3()
-  private readonly initialTargetParentWorldMatrix = new Matrix4()
+  readonly inputState = new Map<number, OnePointerHandlePointerData & TwoPointerHandlePointerData>()
+  readonly capturedObjects = new Map<number, Object3D>()
+  readonly initialTargetPosition = new Vector3()
+  readonly initialTargetQuaternion = new Quaternion()
+  readonly initialTargetRotation = new Euler()
+  readonly initialTargetScale = new Vector3()
+  initialTargetParentWorldMatrix: Matrix4 | undefined
+
+  //prev state
+  prevTwoPointerDeltaRotation: Quaternion | undefined
+  prevAngle: number | undefined
 
   public readonly handlers = {
     onPointerDown: this.onPointerDown.bind(this),
@@ -104,26 +121,28 @@ export class HandleStore<T> {
     }
     const pointerWorldDirection = getWorldDirection(event, vectorHelper) ? vectorHelper.clone() : undefined
     this.inputState.set(event.pointerId, {
-      initialPointerToTargetParentOffset: new Matrix4(),
       pointerWorldDirection,
       pointerWorldPoint: event.point,
       pointerWorldQuaternion: event.pointerQuaternion,
-      initialPointerWorldPoint: event.point,
+      initialPointerWorldPoint: event.point.clone(),
       initialPointerWorldDirection: pointerWorldDirection?.clone(),
+      initialPointerWorldQuaternion: event.pointerQuaternion.clone(),
+      prevPointerWorldQuaternion: event.pointerQuaternion,
     })
     this.save()
-    if (this.inputState.size !== 1) {
-      return
+    if (this.inputState.size === 1) {
+      this.outputState.start(event, {
+        pointerAmount: 1,
+        time: event.timeStamp,
+        position: this.initialTargetPosition.clone(),
+        quaternion: this.initialTargetQuaternion.clone(),
+        rotation: this.initialTargetRotation.clone(),
+        scale: this.initialTargetScale.clone(),
+      })
+    } else {
+      //TODO: add
     }
-    this.outputState.start(event, {
-      pointerAmount: 1,
-      time: event.timeStamp,
-      position: this.initialTargetPosition.clone(),
-      quaternion: this.initialTargetQuaternion.clone(),
-      rotation: this.initialTargetRotation.clone(),
-      scale: this.initialTargetScale.clone(),
-    })
-    this.outputState.memo = this.fn(this.outputState)
+    this.outputState.memo = this.apply(target)
   }
 
   private onPointerDown(event: PointerEvent): void {
@@ -135,19 +154,21 @@ export class HandleStore<T> {
   }
 
   private onPointerMove(event: PointerEvent): void {
-    this.stopPropagation(event)
-    const entry = this.inputState.get(event.pointerId)
-    if (entry != null) {
-      this.latestMoveEvent = event
-      entry.pointerWorldPoint = event.point
-      entry.pointerWorldQuaternion = event.pointerQuaternion
-      if (entry.pointerWorldDirection != null) {
-        getWorldDirection(event, entry.pointerWorldDirection)
-      }
+    if (!this.capturedObjects.has(event.pointerId)) {
       return
     }
-    if (this.capturedObjects.has(event.pointerId)) {
+    this.stopPropagation(event)
+    const entry = this.inputState.get(event.pointerId)
+    if (entry == null) {
       this.firstOnPointer(event)
+      return
+    }
+    this.latestMoveEvent = event
+    entry.pointerWorldPoint = event.point
+    entry.prevPointerWorldQuaternion = entry.pointerWorldQuaternion
+    entry.pointerWorldQuaternion = event.pointerQuaternion
+    if (entry.pointerWorldDirection != null) {
+      getWorldDirection(event, entry.pointerWorldDirection)
     }
   }
 
@@ -161,10 +182,16 @@ export class HandleStore<T> {
     this.capturedObjects.clear()
     this.inputState.clear()
     this.outputState.end(undefined)
-    this.fn(this.outputState)
+    const target = this.getTarget()
+    if (target != null) {
+      this.apply(target)
+    }
   }
 
   private onPointerUp(event: PointerEvent): void {
+    if (!this.capturedObjects.has(event.pointerId)) {
+      return
+    }
     this.stopPropagation(event)
     this.releasePointer(event.pointerId, event.object, event)
   }
@@ -178,20 +205,31 @@ export class HandleStore<T> {
     ) {
       return
     }
-    this.outputState.update(
-      this.latestMoveEvent,
-      computeHandleTransformState(
-        time,
-        this.inputState,
-        this.initialTargetPosition,
-        this.initialTargetQuaternion,
-        this.initialTargetRotation,
-        this.initialTargetScale,
-        target.parent?.matrixWorld,
-        this.getOptions(),
-      ),
-    )
-    this.fn(this.outputState)
+
+    const options = this.getOptions()
+    let transformState: HandleTransformState
+
+    if (
+      options.translate === 'as-rotate' ||
+      options.translate === 'as-rotate-and-scale' ||
+      options.translate === 'as-scale'
+    ) {
+      this.prevTwoPointerDeltaRotation = undefined
+      this.prevAngle = undefined
+      const [p1] = this.inputState.values()
+      transformState = computeTranslateAsHandleTransformState()
+    } else if (this.inputState.size === 1) {
+      this.prevTwoPointerDeltaRotation = undefined
+      this.prevAngle = undefined
+      const [p1] = this.inputState.values()
+      transformState = computeOnePointerHandleTransformState(time, p1, this, target.parent?.matrixWorld, options)
+    } else {
+      const [p1, p2] = this.inputState.values()
+      transformState = computeTwoPointerHandleTransformState(time, p1, p2, this, target.parent?.matrixWorld, options)
+    }
+
+    this.outputState.update(this.latestMoveEvent, transformState)
+    this.outputState.memo = this.apply(target)
     this.latestMoveEvent = undefined
   }
 
@@ -224,7 +262,7 @@ export class HandleStore<T> {
       return
     }
     this.outputState.end(event)
-    this.fn(this.outputState)
+    this.apply(target)
   }
 
   private stopPropagation(event: PointerEvent | undefined) {
@@ -232,6 +270,11 @@ export class HandleStore<T> {
       return
     }
     event.stopPropagation()
+  }
+
+  private apply(target: Object3D): T {
+    const apply = this.getOptions().apply ?? defaultApply
+    return apply(this.outputState, target)
   }
 
   getState(): HandleState<T> | undefined {
@@ -244,24 +287,26 @@ export class HandleStore<T> {
       return
     }
     target.updateWorldMatrix(true, false)
+    //reset prev
+    this.prevAngle = undefined
+    this.prevTwoPointerDeltaRotation = undefined
+    //update initial
+    this.initialTargetParentWorldMatrix = target.parent?.matrixWorld.clone()
     if (target.matrixAutoUpdate) {
       this.initialTargetPosition.copy(target.position)
       this.initialTargetQuaternion.copy(target.quaternion)
-      this.initialTargetScale.copy(target.scale)
       this.initialTargetRotation.copy(target.rotation)
+      this.initialTargetScale.copy(target.scale)
     } else {
       target.matrix.decompose(this.initialTargetPosition, this.initialTargetQuaternion, this.initialTargetScale)
       this.initialTargetRotation.setFromQuaternion(this.initialTargetQuaternion, target.rotation.order)
     }
     for (const data of this.inputState.values()) {
-      initialPointerWorldPoint.copy(pointerWorldPoint)
-      projectOntoSpace(
-        pointerWorldPoint,
-        vectorHelper.copy(pointerWorldPoint),
-        pointerWorldDirection,
-        this.getOptions(),
-        this.inputState.size,
-      )
+      if (data.pointerWorldDirection != null) {
+        data.initialPointerWorldDirection?.copy(data.pointerWorldDirection)
+      }
+      data.initialPointerWorldPoint.copy(data.pointerWorldPoint)
+      data.initialPointerWorldQuaternion.copy(data.pointerWorldQuaternion)
     }
   }
 
@@ -287,3 +332,9 @@ export class HandleStore<T> {
 }
 
 function noop() {}
+
+function defaultApply(state: HandleState<unknown>, target: Object3D): any {
+  target.position.copy(state.current.position)
+  target.quaternion.copy(state.current.quaternion)
+  target.scale.copy(state.current.scale)
+}

@@ -41,8 +41,8 @@ function Cube() {
   const xHandleRef = useRef<Mesh>(null)
   const yHandleRef = useRef<Mesh>(null)
   const zHandleRef = useRef<Mesh>(null)
-  useHandle(
-    (state) => {
+  useHandle(ref, {
+    apply: (state) => {
       const mesh = ref.current
       if (mesh == null) {
         return
@@ -58,15 +58,12 @@ function Cube() {
         zHandleRef.current.scale.x = 0.1 / mesh.scale.x
       }
     },
-    {
-      target: ref,
-      handle: xHandleRef,
-      translate: 'as-scale',
-      scale: 'x',
-    },
-  )
-  useHandle(
-    (state) => {
+    handle: xHandleRef,
+    translate: 'as-scale',
+    scale: 'x',
+  })
+  useHandle(ref, {
+    apply: (state) => {
       const mesh = ref.current
       if (mesh == null) {
         return
@@ -82,30 +79,24 @@ function Cube() {
         zHandleRef.current.scale.y = 0.1 / mesh.scale.y
       }
     },
-    {
-      target: ref,
-      handle: yHandleRef,
-      translate: 'as-scale',
-      scale: 'y',
-    },
-  )
-  useHandle(
-    (state) => {
+    handle: yHandleRef,
+    translate: 'as-scale',
+    scale: 'y',
+  })
+  useHandle(ref, {
+    apply: (state) => {
       const mesh = ref.current
       if (mesh == null) {
         return
       }
       mesh.rotation.x = state.current.rotation.x
     },
-    {
-      target: ref,
-      handle: zHandleRef,
-      translate: 'as-rotate',
-      rotate: 'x',
-    },
-  )
-  useHandle(
-    (state) => {
+    handle: zHandleRef,
+    translate: 'as-rotate',
+    rotate: 'x',
+  })
+  useHandle(ref, {
+    apply: (state) => {
       ref.current?.position.copy(state.current.position)
       ref.current?.quaternion.copy(state.current.quaternion)
       if (state.current.pointerAmount > 1) {
@@ -117,12 +108,7 @@ function Cube() {
         }
       }
     },
-    {
-      target: ref,
-      translate: 'x',
-      rotate: false,
-    },
-  )
+  })
   return (
     <group position-y={-2}>
       <mesh
