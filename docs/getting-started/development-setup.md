@@ -23,6 +23,8 @@ export default defineConfig({
 })
 ```
 
+Now with vite and ssl setup, we can host out application by starting executing `vite --host`. The `--host` argument makes sure that the server is exposed to your local network, so you can access the app from your headset or smartphone. When starting the server, vite also shows you your local IP. Now type in this IP including the port number into your smartphone's or headset's browser (e.g. `https://192.168.0.43:5173`).
+
 ## 2. emulator: [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md)
 
 Developing WebXR experiences often requires testing WebXR-specific features, which either require an actual device or an emulator. An emulator allows testing without a specific device and without continuously switching a headset on and off.
