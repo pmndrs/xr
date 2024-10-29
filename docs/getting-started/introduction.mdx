@@ -13,14 +13,25 @@ npm install three @react-three/fiber @react-three/xr@latest
 | A simple scene with a mesh that toggles its material color between `"red"` and `"blue"` when clicked through touching or pointing. | ![recording of interacting with the code below](./basic-example.gif) |
 |-|-|
 
-```tsx
-import { Canvas } from '@react-three/fiber'
+<Sandpack
+  template="react-ts"
+  customSetup={{
+    dependencies: {
+      'three': 'latest',
+      '@react-three/fiber': 'latest',
+      '@react-three/drei': 'latest',
+      '@react-three/xr': 'latest'
+    },
+  }}
+  files={{
+    '/styles.css': `html,body,#root {height:100%;margin:unset;}`,
+    '/App.tsx': `import { Canvas } from '@react-three/fiber'
 import { XR, createXRStore } from '@react-three/xr'
 import { useState } from 'react'
 
 const store = createXRStore()
 
-export function App() {
+export default function App() {
   const [red, setRed] = useState(false)
   return <>
     <button onClick={() => store.enterAR()}>Enter AR</button>
@@ -34,7 +45,9 @@ export function App() {
     </Canvas>
   </>
 }
-```
+    `,
+  }}
+/>
 
 ### Turn any @react-three/fiber app into an XR experience
 
