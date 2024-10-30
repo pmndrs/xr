@@ -89,6 +89,9 @@ declare module 'three' {
     setPointerCapture(pointerId: number): void
     releasePointerCapture(pointerId: number): void
     hasPointerCapture(pointerId: number): boolean
+
+    intersectChildren?: boolean
+    interactableDescendants?: Array<Object3D>
   }
 }
 

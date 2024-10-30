@@ -80,10 +80,15 @@ export function intersectPointerEventTargets(
     }
   }
 
-  const childrenLength = object.children.length
-  for (let i = 0; i < childrenLength; i++) {
+  if (object.intersectChildren === false) {
+    return
+  }
+
+  const descendants = object.interactableDescendants ?? object.children
+  const descendantsLength = descendants.length
+  for (let i = 0; i < descendantsLength; i++) {
     intersectPointerEventTargets(
-      object.children[i],
+      descendants[i],
       pointers,
       hasListener,
       pointerEvents,
