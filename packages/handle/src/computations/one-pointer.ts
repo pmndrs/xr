@@ -1,16 +1,16 @@
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
-import { Axis, HandleTransformState } from '../state.js'
+import { HandleTransformState } from '../state.js'
 import { HandleOptions, HandleTransformOptions } from '../store.js'
-import { computeHandleTransformState } from './utils.js'
-import { getSpaceFromOptions, projectOntoSpace } from '../utils.js'
+import { computeHandleTransformState, addSpaceFromTransformOptions, projectOntoSpace } from './utils.js'
 
 const matrixHelper1 = new Matrix4()
 const matrixHelper2 = new Matrix4()
-const vectorHelper = new Vector3()
+const vectorHelper1 = new Vector3()
+const vectorHelper2 = new Vector3()
 const quaternionHelper = new Quaternion()
 
 const OneVector = new Vector3(1, 1, 1)
-const spaceHelper = new Set<Axis>()
+const spaceHelper: Array<Vector3> = []
 
 export type OnePointerHandlePointerData = {
   initialPointerWorldPoint: Vector3
@@ -36,21 +36,35 @@ export function computeOnePointerHandleTransformState(
   targetParentWorldMatrix: Matrix4 | undefined,
   options: HandleOptions<any> & { translate?: HandleTransformOptions },
 ): HandleTransformState {
-  spaceHelper.clear()
-  getSpaceFromOptions(spaceHelper, options, 1)
+  //compute target parent world quaternion
+  if (targetParentWorldMatrix == null) {
+    quaternionHelper.identity()
+  } else {
+    targetParentWorldMatrix.decompose(vectorHelper1, quaternionHelper, vectorHelper2)
+  }
+  //compute space
+  spaceHelper.length = 0
+  addSpaceFromTransformOptions(
+    spaceHelper,
+    quaternionHelper,
+    storeData.initialTargetRotation,
+    options.translate ?? true,
+    'translate',
+  )
+  //project into space
   projectOntoSpace(
     spaceHelper,
     pointerData.initialPointerWorldPoint,
-    vectorHelper.copy(pointerData.initialPointerWorldPoint),
+    vectorHelper1.copy(pointerData.initialPointerWorldPoint),
     pointerData.initialPointerWorldDirection,
   )
   //pointerWorldMatrix * pointerToTargetParentOffset = TargetParentWorldMatrix =>
   //initialPointerToTargetParentOffset = initialPointerWorldMatrix-1 * initialTargetParentWorldMatrix
 
-  //same as: matrixHelper2.compose(vectorHelper, pointerData.initialPointerWorldQuaternion, OneVector).invert()
+  //same as: matrixHelper2.compose(vectorHelper1, pointerData.initialPointerWorldQuaternion, OneVector).invert()
   matrixHelper2
     .makeRotationFromQuaternion(quaternionHelper.copy(pointerData.initialPointerWorldQuaternion).invert())
-    .multiply(matrixHelper1.makeTranslation(vectorHelper.negate()))
+    .multiply(matrixHelper1.makeTranslation(vectorHelper1.negate()))
   if (storeData.initialTargetParentWorldMatrix != null) {
     matrixHelper2.multiply(storeData.initialTargetParentWorldMatrix)
   }
@@ -59,11 +73,11 @@ export function computeOnePointerHandleTransformState(
   projectOntoSpace(
     spaceHelper,
     pointerData.initialPointerWorldPoint,
-    vectorHelper.copy(pointerData.pointerWorldPoint),
+    vectorHelper1.copy(pointerData.pointerWorldPoint),
     pointerData.pointerWorldDirection,
   )
   matrixHelper1
-    .compose(vectorHelper, pointerData.pointerWorldQuaternion, OneVector)
+    .compose(vectorHelper1, pointerData.pointerWorldQuaternion, OneVector)
     .multiply(matrixHelper2)
     .multiply(
       matrixHelper2.compose(

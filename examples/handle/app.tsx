@@ -48,6 +48,7 @@ function Cube() {
         return
       }
       mesh.scale.x = state.current.scale.x
+      console.log(state.current.scale.toArray())
       if (xHandleRef.current != null) {
         xHandleRef.current.scale.x = 0.1 / mesh.scale.x
       }
@@ -108,18 +109,13 @@ function Cube() {
         }
       }
     },
+    translate: {
+      z: false,
+    },
   })
   return (
-    <group position-y={-2}>
-      <mesh
-        rotation-x={Math.PI / 2}
-        rotation-y={Math.PI / 2}
-        rotation-z={Math.PI / 2}
-        rotation-order="XZY"
-        scale={1}
-        pointerEventsType={{ deny: 'touch' }}
-        ref={ref}
-      >
+    <group rotation-y={Math.PI / 4} position-y={-2}>
+      <mesh rotation-order="XZY" scale={1} pointerEventsType={{ deny: 'touch' }} ref={ref}>
         <boxGeometry />
         <meshPhongMaterial color="red" />
         <mesh

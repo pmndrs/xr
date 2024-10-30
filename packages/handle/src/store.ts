@@ -12,7 +12,11 @@ import {
   TwoPointerHandlePointerData,
   TwoPointerHandleStoreData,
 } from './computations/two-pointer.js'
-import { computeTranslateAsHandleTransformState } from './computations/index.js'
+import {
+  computeTranslateAsHandleTransformState,
+  TranslateAsHandlePointerData,
+  TranslateAsHandleStoreData,
+} from './computations/index.js'
 
 export type HandleOptions<T> = {
   /**
@@ -40,10 +44,6 @@ export type HandleOptions<T> = {
   /**
    * @default true
    */
-  translate?: HandleTransformOptions | 'as-rotate' | 'as-scale' | 'as-rotate-and-scale'
-  /**
-   * @default true
-   */
   scale?: HandleTransformOptions & {
     /**
      * @default false
@@ -55,7 +55,20 @@ export type HandleOptions<T> = {
    * @default true
    */
   stopPropagation?: boolean
-}
+} & (
+  | {
+      /**
+       * @default true
+       */
+      translate?: HandleTransformOptions
+    }
+  | {
+      /**
+       * @default true
+       */
+      translate?: 'as-rotate' | 'as-scale' | 'as-rotate-and-scale'
+    }
+)
 
 export type HandleTransformOptions =
   | {
@@ -68,25 +81,18 @@ export type HandleTransformOptions =
 
 const vectorHelper = new Vector3()
 
-/**
- * 2 ways of using HandleStore
- *
- * 1. bind it using "bind"
- * const handleStore = new HandleStore(() => {}, target)
- * const stop = handleStore.bind(handle)
- *
- * 2. capture it yourself
- * const handleStore = new HandleStore(() => {}, target)
- * const stop = handleStore.capture(pointerId, handle)
- */
-
-export class HandleStore<T> implements OnePointerHandleStoreData, TwoPointerHandleStoreData {
+export class HandleStore<T>
+  implements OnePointerHandleStoreData, TwoPointerHandleStoreData, TranslateAsHandleStoreData
+{
   //internal out state (will be used to output the state)
   private outputState: HandleStateImpl<T>
   private latestMoveEvent: PointerEvent | undefined
 
   //internal in state (will be written on save)
-  readonly inputState = new Map<number, OnePointerHandlePointerData & TwoPointerHandlePointerData>()
+  readonly inputState = new Map<
+    number,
+    OnePointerHandlePointerData & TwoPointerHandlePointerData & TranslateAsHandlePointerData
+  >()
   readonly capturedObjects = new Map<number, Object3D>()
   readonly initialTargetPosition = new Vector3()
   readonly initialTargetQuaternion = new Quaternion()
@@ -96,6 +102,7 @@ export class HandleStore<T> implements OnePointerHandleStoreData, TwoPointerHand
 
   //prev state
   prevTwoPointerDeltaRotation: Quaternion | undefined
+  prevTranslateAsDeltaRotation: Quaternion | undefined
   prevAngle: number | undefined
 
   public readonly handlers = {
@@ -214,16 +221,21 @@ export class HandleStore<T> implements OnePointerHandleStoreData, TwoPointerHand
       options.translate === 'as-rotate-and-scale' ||
       options.translate === 'as-scale'
     ) {
+      options.translate
       this.prevTwoPointerDeltaRotation = undefined
       this.prevAngle = undefined
       const [p1] = this.inputState.values()
-      transformState = computeTranslateAsHandleTransformState()
+      const matrixWorld = target.matrixWorld
+      const parentMatrixWorld = target.parent?.matrixWorld
+      transformState = computeTranslateAsHandleTransformState(time, p1, this, matrixWorld, parentMatrixWorld, options)
     } else if (this.inputState.size === 1) {
       this.prevTwoPointerDeltaRotation = undefined
       this.prevAngle = undefined
+      this.prevTranslateAsDeltaRotation = undefined
       const [p1] = this.inputState.values()
       transformState = computeOnePointerHandleTransformState(time, p1, this, target.parent?.matrixWorld, options)
     } else {
+      this.prevTranslateAsDeltaRotation = undefined
       const [p1, p2] = this.inputState.values()
       transformState = computeTwoPointerHandleTransformState(time, p1, p2, this, target.parent?.matrixWorld, options)
     }
@@ -290,6 +302,7 @@ export class HandleStore<T> implements OnePointerHandleStoreData, TwoPointerHand
     //reset prev
     this.prevAngle = undefined
     this.prevTwoPointerDeltaRotation = undefined
+    this.prevTranslateAsDeltaRotation = undefined
     //update initial
     this.initialTargetParentWorldMatrix = target.parent?.matrixWorld.clone()
     if (target.matrixAutoUpdate) {
