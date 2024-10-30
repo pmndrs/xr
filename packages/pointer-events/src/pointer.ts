@@ -127,7 +127,7 @@ export class Pointer {
   private buttonsDownTime: ButtonsTime = new Map()
   private readonly buttonsDown = new Set<number>()
 
-  //to handle interaction before first move
+  //to handle interaction before first move (after exit)
   private wasMoved = false
   private onFirstMove: Array<(camera: PerspectiveCamera | OrthographicCamera) => void> = []
 
@@ -392,18 +392,17 @@ export class Pointer {
   }
 
   exit(nativeEvent: NativeEvent): void {
-    if (!this.wasMoved) {
-      this.onFirstMove.push(this.exit.bind(this, nativeEvent))
-      return
+    if (this.wasMoved) {
+      //reset state
+      if (this.pointerCapture != null) {
+        this.parentReleasePointerCapture?.()
+        this.pointerCapture = undefined
+      }
+      this.intersection = undefined
+      this.commit(nativeEvent)
     }
-
-    //reset state
-    if (this.pointerCapture != null) {
-      this.parentReleasePointerCapture?.()
-      this.pointerCapture = undefined
-    }
-    this.intersection = undefined
-    this.commit(nativeEvent)
+    this.onFirstMove.length = 0
+    this.wasMoved = false
   }
 }
 
