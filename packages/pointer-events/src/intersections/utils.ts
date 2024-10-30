@@ -59,15 +59,16 @@ export function intersectPointerEventTargets(
   parentPointerEventsOrder?: number,
 ): void {
   const hasListener = parentHasListener || hasObjectListeners(object)
-  const pointerEvents = object.pointerEvents ?? parentPointerEvents ?? object.defaultPointerEvents ?? 'listener'
+  const pointerEvents = object.pointerEvents ?? parentPointerEvents
+  const pointerEventsOrDefault = pointerEvents ?? object.defaultPointerEvents ?? 'listener'
   const pointerEventsType = object.pointerEventsType ?? parentPointerEventsType ?? 'all'
   const pointerEventsOrder = object.pointerEventsOrder ?? parentPointerEventsOrder ?? 0
 
-  const isAllowed = isPointerEventsAllowed(hasListener, pointerEvents, pointerEventsType)
+  const isAllowed = isPointerEventsAllowed(hasListener, pointerEventsOrDefault, pointerEventsType)
   const length = pointers.length
   if (isAllowed === true) {
     for (let i = 0; i < length; i++) {
-      filterAndInteresct(pointers[i], object, pointerEvents, pointerEventsType, pointerEventsOrder)
+      filterAndInteresct(pointers[i], object, pointerEventsOrDefault, pointerEventsType, pointerEventsOrder)
     }
   } else if (typeof isAllowed === 'function') {
     for (let i = 0; i < length; i++) {
@@ -75,7 +76,7 @@ export function intersectPointerEventTargets(
       if (!isAllowed(pointer)) {
         continue
       }
-      filterAndInteresct(pointer, object, pointerEvents, pointerEventsType, pointerEventsOrder)
+      filterAndInteresct(pointer, object, pointerEventsOrDefault, pointerEventsType, pointerEventsOrder)
     }
   }
 
