@@ -27,9 +27,13 @@ declare module 'three' {
   interface Object3D {
     _listeners?: Record<string, Array<(event: unknown) => void> | undefined>
     /**
-     * @default "listener"
+     * @default parent.pointerEvents ?? this.defaultPointerEvents
      */
     pointerEvents?: AllowedPointerEvents
+    /**
+     * @default "listener"
+     */
+    defaultPointerEvents?: AllowedPointerEvents
     /**
      * @default "all"
      */

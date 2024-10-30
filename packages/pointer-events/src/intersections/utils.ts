@@ -59,7 +59,7 @@ export function intersectPointerEventTargets(
   parentPointerEventsOrder?: number,
 ): void {
   const hasListener = parentHasListener || hasObjectListeners(object)
-  const pointerEvents = object.pointerEvents ?? parentPointerEvents ?? 'listener'
+  const pointerEvents = object.pointerEvents ?? parentPointerEvents ?? object.defaultPointerEvents ?? 'listener'
   const pointerEventsType = object.pointerEventsType ?? parentPointerEventsType ?? 'all'
   const pointerEventsOrder = object.pointerEventsOrder ?? parentPointerEventsOrder ?? 0
 
