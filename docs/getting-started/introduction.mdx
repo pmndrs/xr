@@ -15,37 +15,14 @@ npm install three @react-three/fiber @react-three/xr@latest
 
 <Sandpack
   template="react-ts"
-  customSetup={{
-    dependencies: {
-      'three': 'latest',
-      '@react-three/fiber': 'latest',
-      '@react-three/drei': 'latest',
-      '@react-three/xr': 'latest'
-    },
-  }}
+  folder="introduction-basic-sandpack"
   files={{
-    '/styles.css': `html,body,#root {height:100%;margin:unset;}`,
-    '/App.tsx': `import { Canvas } from '@react-three/fiber'
-import { XR, createXRStore } from '@react-three/xr'
-import { useState } from 'react'
-
-const store = createXRStore()
-
-export default function App() {
-  const [red, setRed] = useState(false)
-  return <>
-    <button onClick={() => store.enterAR()}>Enter AR</button>
-    <Canvas>
-      <XR store={store}>
-        <mesh pointerEventsType={{ deny: 'grab' }} onClick={() => setRed(!red)} position={[0, 1, -1]}>
-          <boxGeometry />
-          <meshBasicMaterial color={red ? 'red' : 'blue'} />
-        </mesh>
-      </XR>
-    </Canvas>
-  </>
-}
-    `,
+    '/App.tsx': {
+      active: true,
+    },
+    '/styles.css': {
+      readOnly: true
+    }
   }}
 />
 
