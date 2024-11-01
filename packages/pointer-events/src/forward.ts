@@ -9,6 +9,7 @@ import { getClosestUV } from './utils.js'
 export type ForwardablePointerEvent = { pointerId?: number; pointerType?: string; pointerState?: any } & NativeEvent
 
 export type ForwardEventsOptions = {
+  alwaysUpdate?: boolean
   /**
    * @default true
    */
@@ -97,7 +98,7 @@ function forwardEvents(
   setPointerCapture: (pointerId: number) => void,
   releasePointerCapture: (ponterId: number) => void,
   options: ForwardEventsOptions = {},
-): () => void {
+): { destroy: () => void; update: () => void } {
   const forwardPointerCapture = options?.forwardPointerCapture ?? true
   const pointerMap = new Map<number, Pointer>()
   const pointerTypePrefix = options.pointerTypePrefix ?? 'forward-'
@@ -125,27 +126,49 @@ function forwardEvents(
     )
     return innerPointer
   }
-  const pointerMoveListener = (e: ForwardablePointerEvent) => getInnerPointer(e).move(scene, e)
+
+  const lastMoveEventMap: Map<Pointer, ForwardablePointerEvent | undefined> = new Map()
+
+  const pointerMoveListener = (e: ForwardablePointerEvent) => lastMoveEventMap.set(getInnerPointer(e), e)
   const pointerCancelListener = (e: ForwardablePointerEvent) => getInnerPointer(e).cancel(e)
   const pointerDownListener = (e: ForwardablePointerEvent) => void (hasButton(e) && getInnerPointer(e).down(e))
   const pointerUpListener = (e: ForwardablePointerEvent) => void (hasButton(e) && getInnerPointer(e).up(e))
-  const pointerLeaveListener = (e: ForwardablePointerEvent) => getInnerPointer(e).exit(e)
   const wheelListener = (e: ForwardablePointerEvent & NativeWheelEvent) => getInnerPointer(e).wheel(scene, e, false)
+  const pointerLeaveListener = (e: ForwardablePointerEvent) => {
+    const pointer = getInnerPointer(e)
+    pointer.exit(e)
+    lastMoveEventMap.delete(pointer)
+  }
 
   from.addEventListener('pointermove', pointerMoveListener)
   from.addEventListener('pointercancel', pointerCancelListener)
   from.addEventListener('pointerdown', pointerDownListener)
   from.addEventListener('pointerup', pointerUpListener)
-  from.addEventListener('pointerleave', pointerLeaveListener)
   from.addEventListener('wheel', wheelListener)
+  from.addEventListener('pointerleave', pointerLeaveListener)
 
-  return () => {
-    from.removeEventListener('pointermove', pointerMoveListener)
-    from.removeEventListener('pointercancel', pointerCancelListener)
-    from.removeEventListener('pointerdown', pointerDownListener)
-    from.removeEventListener('pointerup', pointerUpListener)
-    from.removeEventListener('pointerleave', pointerLeaveListener)
-    from.removeEventListener('wheel', wheelListener)
+  return {
+    destroy() {
+      from.removeEventListener('pointermove', pointerMoveListener)
+      from.removeEventListener('pointercancel', pointerCancelListener)
+      from.removeEventListener('pointerdown', pointerDownListener)
+      from.removeEventListener('pointerup', pointerUpListener)
+      from.removeEventListener('wheel', wheelListener)
+      from.removeEventListener('pointerleave', pointerLeaveListener)
+      lastMoveEventMap.clear()
+    },
+    update() {
+      for (const [pointer, lastMoveEvent] of lastMoveEventMap.entries()) {
+        if (lastMoveEvent == null) {
+          continue
+        }
+        pointer.move(scene, lastMoveEvent)
+        if (options.alwaysUpdate === true) {
+          continue
+        }
+        lastMoveEventMap.set(pointer, undefined)
+      }
+    },
   }
 }
 

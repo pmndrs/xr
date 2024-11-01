@@ -12,6 +12,7 @@ import {
   useXRAnchor,
   useXRInputSourceStateContext,
 } from '@react-three/xr'
+import { noEvents } from '@react-three/xr/src'
 import { useEffect, useRef } from 'react'
 import { Matrix4, Mesh, Vector3 } from 'three'
 import { create } from 'zustand'
@@ -78,7 +79,7 @@ export function App() {
   return (
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas style={{ width: '100%', flexGrow: 1 }}>
+      <Canvas events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
         <XR store={store}>
           <ambientLight />
           {new Array(leftLength).fill(undefined).map((_, i) => (

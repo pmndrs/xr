@@ -66,7 +66,11 @@ export function intersectPointerEventTargets(
 
   const isAllowed = isPointerEventsAllowed(hasListener, pointerEventsOrDefault, pointerEventsType)
   const length = pointers.length
-  if (isAllowed === true) {
+  if (length === 1) {
+    if (isAllowed === true || (typeof isAllowed === 'function' && isAllowed(pointers[0]))) {
+      filterAndInteresct(pointers[0], object, pointerEventsOrDefault, pointerEventsType, pointerEventsOrder)
+    }
+  } else if (isAllowed === true) {
     for (let i = 0; i < length; i++) {
       filterAndInteresct(pointers[i], object, pointerEventsOrDefault, pointerEventsType, pointerEventsOrder)
     }
@@ -80,7 +84,7 @@ export function intersectPointerEventTargets(
     }
   }
 
-  if (object.intersectChildren === false) {
+  if (object.children.length === 0 || object.intersectChildren === false) {
     return
   }
 
