@@ -141,7 +141,7 @@ Hook for getting the geometry from the detected plane.
 
 Hook for getting all detected planes with the provided semantic label.
 
-### `useControllerLocomotion`
+### `useXRControllerLocomotion`
 
 Hook for abstracting boilerplate needed to use controller based locomotion in XR.
 
@@ -159,7 +159,7 @@ Hook for abstracting boilerplate needed to use controller based locomotion in XR
 // Example showing basic usage
 export const userMovement = () => {
   const originRef = useRef<THREE.Group>(null);
-   useControllerLocomotion(originRef);
+   useXRControllerLocomotion(originRef);
   return <XROrigin ref={originRef} />
 }
 
@@ -176,7 +176,7 @@ export const userMovementWithPhysics = () => {
     }
   }
 
-  useControllerLocomotion(userMove)
+  useXRControllerLocomotion(userMove)
 
   return <>
     <RigidBody

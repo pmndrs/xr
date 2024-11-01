@@ -367,8 +367,8 @@ importers:
   packages/xr:
     dependencies:
       '@iwer/devui':
-        specifier: ^0.2.0
-        version: 0.2.0(iwer@1.0.4)
+        specifier: ^0.2.1
+        version: 0.2.1(iwer@1.0.4)
       '@pmndrs/pointer-events':
         specifier: workspace:^
         version: link:../pointer-events
@@ -974,8 +974,8 @@ packages:
       wrap-ansi-cjs: /wrap-ansi@7.0.0
     dev: false
 
-  /@iwer/devui@0.2.0(iwer@1.0.4):
-    resolution: {integrity: sha512-/D9QlbC+JGco0NuG2WiyVWo7SJatrNZ8kotS2rV1r/z4A+bcDbDfiU+PhOwz7oktwIzdr83cFK/V7IDUe0iSSg==}
+  /@iwer/devui@0.2.1(iwer@1.0.4):
+    resolution: {integrity: sha512-fS4dxZn7FqBg77f9zQJxufG7gR6r2Q0TjCaCqLM1z0Br1Q/z/FjBJhUMRbTT4aKNRJIHdkRdTxIMWu8sLWca8Q==}
     peerDependencies:
       iwer: ^1.0.3
     dependencies:
@@ -986,7 +986,7 @@ packages:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       styled-components: 6.1.13(react-dom@18.3.1)(react@18.3.1)
-      three: 0.169.0
+      three: 0.168.0
     dev: false
 
   /@jridgewell/gen-mapping@0.3.5:
@@ -5350,8 +5350,8 @@ packages:
   /three@0.167.1:
     resolution: {integrity: sha512-gYTLJA/UQip6J/tJvl91YYqlZF47+D/kxiWrbTon35ZHlXEN0VOo+Qke2walF1/x92v55H6enomymg4Dak52kw==}
 
-  /three@0.169.0:
-    resolution: {integrity: sha512-Ed906MA3dR4TS5riErd4QBsRGPcx+HBDX2O5yYE5GqJeFQTPU+M56Va/f/Oph9X7uZo3W3o4l2ZhBZ6f6qUv0w==}
+  /three@0.168.0:
+    resolution: {integrity: sha512-6m6jXtDwMJEK/GGMbAOTSAmxNdzKvvBzgd7q8bE/7Tr6m7PaBh5kKLrN7faWtlglXbzj7sVba48Idwx+NRsZXw==}
     dev: false
 
   /tiny-inflate@1.0.3:

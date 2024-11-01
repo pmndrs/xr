@@ -4,7 +4,7 @@ import { Physics, usePlane } from '@react-three/cannon'
 import { Cursor } from './helpers/Drag.js'
 import { Guy } from './components/Guy.jsx'
 import { Mug, Chair, Table, Lamp } from './components/Furniture.jsx'
-import { createXRStore, noEvents, useControllerLocomotion, XR, XROrigin, PointerEvents } from '@react-three/xr'
+import { createXRStore, noEvents, useXRControllerLocomotion, XR, XROrigin, PointerEvents } from '@react-three/xr'
 import { useRef, Suspense } from 'react'
 
 const store = createXRStore({
@@ -72,7 +72,7 @@ export function App() {
 
 function ControlledXROrigin() {
   const ref = useRef(null)
-  useControllerLocomotion(ref, { speed: 10 })
+  useXRControllerLocomotion(ref, { speed: 10 })
   return <XROrigin ref={ref} scale={10} />
 }
 
