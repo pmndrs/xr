@@ -135,7 +135,7 @@ function setupSyncInputSourceElements<K extends keyof XRInputSourceStateMap>(
       if (implementation === false) {
         return
       }
-      const spaceObject = new XRSpace(getSpace(key, state.inputSource))
+      const spaceObject = new XRSpace(state.inputSource.targetRaySpace)
       target.add(spaceObject)
       const customCleanup =
         typeof implementation === 'object'
@@ -193,19 +193,6 @@ function cleanup(map: Map<unknown, (() => void) | undefined>) {
     cleanup?.()
   }
   map.clear()
-}
-
-function getSpace(type: keyof XRInputSourceStateMap, inputSource: XRInputSource): XRSpaceType {
-  switch (type) {
-    case 'controller':
-      return inputSource.gripSpace!
-    case 'hand':
-      return inputSource.hand!.get('wrist')!
-    case 'gaze':
-    case 'screenInput':
-    case 'transientPointer':
-      return inputSource.targetRaySpace
-  }
 }
 
 export let xrUpdatesListContext: XRUpdatesList | undefined

@@ -25,7 +25,21 @@ function Light() {
   )
 }
 
-const store = createXRStore()
+const store = createXRStore({
+  emulate: {
+    headset: {
+      position: [0, 1, 0],
+    },
+    controller: {
+      left: {
+        position: [-0.2, 1, -0.3],
+      },
+      right: {
+        position: [0.2, 1, -0.3],
+      },
+    },
+  },
+})
 
 export default function App() {
   return (
@@ -66,7 +80,6 @@ export default function App() {
           <Sphere position={[2, 4, -8]} scale={0.9} />
           <Sphere position={[-2, 2, -8]} scale={0.8} />
           <Sky inclination={0.52} scale={20} />
-          <XROrigin scale={2} position={[-3.5, -1.85, 3.5]} />
         </XR>
       </Canvas>
     </>

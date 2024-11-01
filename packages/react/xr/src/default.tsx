@@ -29,7 +29,7 @@ import {
   useRayPointer,
   useTouchPointer,
 } from './pointer.js'
-import { XRSpace as XRSpaceImpl } from './space.js'
+import { XRSpace as XRSpaceImpl, XRSpaceType } from './space.js'
 import { xrInputSourceStateContext } from './contexts.js'
 import { TeleportPointerRayModel } from './teleport.js'
 import { createPortal, useFrame, useThree } from '@react-three/fiber'
@@ -51,7 +51,7 @@ export {
 
 function DefaultXRInputSourceGrabPointer(
   event: 'select' | 'squeeze',
-  getSpace: (source: XRInputSource) => XRSpace,
+  spaceType: XRSpaceType,
   options: DefaultXRInputSourceGrabPointerOptions,
 ) {
   const state = useContext(xrInputSourceStateContext)
@@ -63,7 +63,7 @@ function DefaultXRInputSourceGrabPointer(
   usePointerXRInputSourceEvents(pointer, state.inputSource, event, state.events)
   const cursorModelOptions = options.cursorModel
   return (
-    <XRSpaceImpl ref={ref} space={getSpace(state.inputSource)}>
+    <XRSpaceImpl ref={ref} space={spaceType}>
       {cursorModelOptions !== false && (
         <PointerCursorModel pointer={pointer} opacity={defaultGrabPointerOpacity} {...spreadable(cursorModelOptions)} />
       )}
@@ -82,11 +82,7 @@ function DefaultXRInputSourceGrabPointer(
  * - `cursorModel` properties for configuring how the cursor should look
  * - `radius` the size of the intersection sphere
  */
-export const DefaultXRHandGrabPointer = DefaultXRInputSourceGrabPointer.bind(
-  null,
-  'select',
-  (inputSource) => inputSource.hand!.get('index-finger-tip')!,
-)
+export const DefaultXRHandGrabPointer = DefaultXRInputSourceGrabPointer.bind(null, 'select', 'index-finger-tip')
 
 /**
  * grab pointer for the XRController
@@ -99,11 +95,7 @@ export const DefaultXRHandGrabPointer = DefaultXRInputSourceGrabPointer.bind(
  * - `cursorModel` properties for configuring how the cursor should look
  * - `radius` the size of the intersection sphere
  */
-export const DefaultXRControllerGrabPointer = DefaultXRInputSourceGrabPointer.bind(
-  null,
-  'squeeze',
-  (inputSource) => inputSource.gripSpace!,
-)
+export const DefaultXRControllerGrabPointer = DefaultXRInputSourceGrabPointer.bind(null, 'squeeze', 'grip-space')
 
 /**
  * ray pointer for the XRInputSource
@@ -128,7 +120,7 @@ export function DefaultXRInputSourceRayPointer(options: DefaultXRInputSourceRayP
   const rayModelOptions = options.rayModel
   const cursorModelOptions = options.cursorModel
   return (
-    <XRSpaceImpl ref={ref} space={state.inputSource.targetRaySpace}>
+    <XRSpaceImpl ref={ref} space="target-ray-space">
       {rayModelOptions !== false && (
         <PointerRayModel pointer={pointer} opacity={defaultRayPointerOpacity} {...spreadable(rayModelOptions)} />
       )}
@@ -345,7 +337,7 @@ export function DefaultXRInputSourceTeleportPointer(options: DefaultXRInputSourc
   })
   return (
     <>
-      <XRSpaceImpl ref={ref} space={state.inputSource.targetRaySpace} />
+      <XRSpaceImpl ref={ref} space="target-ray-space" />
       {createPortal(
         <group ref={groupRef}>
           {rayModelOptions !== false && (

@@ -38,7 +38,7 @@ const store = createXRStore({
     return (
       <>
         <XRHandModel />
-        <XRSpace space={state.inputSource.targetRaySpace}>
+        <XRSpace space="target-ray-space">
           <XRHitTest onResults={onResults.bind(null, state.inputSource.handedness)} />
         </XRSpace>
       </>

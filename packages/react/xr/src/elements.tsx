@@ -68,13 +68,13 @@ function XRControllers() {
           return null
         }
         return (
-          <XRSpace key={state.id} space={state.inputSource.gripSpace!}>
-            <xrInputSourceStateContext.Provider value={state}>
+          <xrInputSourceStateContext.Provider key={state.id} value={state}>
+            <XRSpace space="target-ray-space">
               <Suspense>
                 {typeof ResolvedImpl === 'function' ? <ResolvedImpl /> : <DefaultXRController {...ResolvedImpl} />}
               </Suspense>
-            </xrInputSourceStateContext.Provider>
-          </XRSpace>
+            </XRSpace>
+          </xrInputSourceStateContext.Provider>
         )
       })}
     </>
@@ -95,13 +95,13 @@ function XRHands() {
           return null
         }
         return (
-          <XRSpace key={objectToKey(state)} space={state.inputSource.hand.get('wrist')!}>
-            <xrInputSourceStateContext.Provider value={state}>
+          <xrInputSourceStateContext.Provider key={objectToKey(state)} value={state}>
+            <XRSpace space="target-ray-space">
               <Suspense>
                 {typeof ResolvedImpl === 'function' ? <ResolvedImpl /> : <DefaultXRHand {...ResolvedImpl} />}
               </Suspense>
-            </xrInputSourceStateContext.Provider>
-          </XRSpace>
+            </XRSpace>
+          </xrInputSourceStateContext.Provider>
         )
       })}
     </>
@@ -125,7 +125,7 @@ function XRTransientPointers() {
           return null
         }
         return (
-          <XRSpace key={objectToKey(state)} space={state.inputSource.targetRaySpace}>
+          <XRSpace key={objectToKey(state)} space="target-ray-space">
             <xrInputSourceStateContext.Provider value={state}>
               <Suspense>
                 {typeof ResolvedImpl === 'function' ? (
@@ -152,7 +152,7 @@ function XRGazes() {
     <>
       {gazeStates.map((state) => {
         return (
-          <XRSpace key={objectToKey(state)} space={state.inputSource.targetRaySpace}>
+          <XRSpace key={objectToKey(state)} space="target-ray-space">
             <xrInputSourceStateContext.Provider value={state}>
               <Suspense>
                 {typeof Implementation === 'function' ? (
@@ -179,7 +179,7 @@ function XRScreenInputs() {
     <>
       {screenInputStates.map((state) => {
         return (
-          <XRSpace key={objectToKey(state)} space={state.inputSource.targetRaySpace}>
+          <XRSpace key={objectToKey(state)} space="target-ray-space">
             <xrInputSourceStateContext.Provider value={state}>
               <Suspense>
                 {typeof Implementation === 'function' ? (

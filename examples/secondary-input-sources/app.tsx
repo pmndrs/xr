@@ -11,11 +11,9 @@ const store = createXRStore({
   controller: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const hasHands = useXR((xr) => xr.inputSourceStates.find((state) => state.type === 'hand') != null)
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const controllerState = useXRInputSourceStateContext()
     return (
       <>
-        <XRSpace space={controllerState.inputSource.targetRaySpace}>
+        <XRSpace space="target-ray-space">
           <Suspense>
             <Gltf
               rotation-x={(-20 / 180) * Math.PI}
