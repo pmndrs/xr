@@ -9,35 +9,37 @@ import {
   Intersection as ThreeIntersection,
   Object3D,
 } from 'three'
-import { computeIntersectionWorldPlane, getDominantIntersectionIndex, voidObjectIntersectionFromRay } from './utils.js'
+import {
+  computeIntersectionWorldPlane,
+  getDominantIntersectionIndex,
+  pushTimes,
+  voidObjectIntersectionFromRay,
+} from './utils.js'
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
 import { Intersection, IntersectionOptions } from '../index.js'
 import { updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()
-const intersectsHelper: Array<ThreeIntersection & { details: { distanceOnLine: number; lineIndex: number } }> = []
 const lineHelper = new Line3()
 const planeHelper = new Plane()
 const rayHelper = new Ray()
 const defaultLinePoints = [new Vector3(0, 0, 0), new Vector3(0, 0, 1)]
 
-export class LinesIntersector extends Intersector {
+export class LinesIntersector implements Intersector {
   private raycasters: Array<Raycaster> = []
   private fromMatrixWorld = new Matrix4()
 
-  //state
-  private intersectionLineIndex: number = 0
-  private intersectionDistanceOnLine: number = 0
-
   private ready?: boolean
+
+  private intersects: Array<ThreeIntersection> = []
+  private readonly pointerEventsOrders: Array<number | undefined> = []
+  private readonly raycasterIndices: Array<number> = []
 
   constructor(
     private readonly space: { current?: Object3D | null },
     private readonly options: IntersectionOptions & { linePoints?: Array<Vector3>; minDistance?: number },
-  ) {
-    super()
-  }
+  ) {}
 
   public isReady(): boolean {
     return this.ready ?? this.prepareTransformation()
@@ -81,7 +83,7 @@ export class LinesIntersector extends Intersector {
     }
   }
 
-  protected prepareIntersection(): void {
+  startIntersection(): void {
     if (!this.prepareTransformation()) {
       return
     }
@@ -110,37 +112,29 @@ export class LinesIntersector extends Intersector {
     if (!this.isReady()) {
       return
     }
-    let lineLengthSum = 0
+    const startOuter = this.intersects.length
     const length = this.raycasters.length
-    //TODO: optimize - we only need to intersect with raycasters before or equal to the raycaster that did the current intersection
     for (let i = 0; i < length; i++) {
       const raycaster = this.raycasters[i]
-      object.raycast(raycaster, intersectsHelper)
-      for (const intersection of intersectsHelper) {
-        intersection.distance += lineLengthSum
-      }
-      const index = getDominantIntersectionIndex(
-        this.intersection,
-        this.pointerEventsOrder,
-        intersectsHelper,
-        objectPointerEventsOrder,
-        this.options,
-      )
-      if (index != null) {
-        this.intersection = intersectsHelper[index]
-        this.intersectionLineIndex = i
-        this.intersectionDistanceOnLine = this.intersection.distance - raycaster.far
-        this.pointerEventsOrder = objectPointerEventsOrder
-      }
-      intersectsHelper.length = 0
-      lineLengthSum += raycaster.far
+      const startInner = this.intersects.length
+      object.raycast(raycaster, this.intersects)
+      pushTimes(this.raycasterIndices, i, this.intersects.length - startInner)
     }
+    pushTimes(this.pointerEventsOrders, objectPointerEventsOrder, this.intersects.length - startOuter)
   }
 
   public finalizeIntersection(scene: Object3D): Intersection {
     const pointerPosition = new Vector3().setFromMatrixPosition(this.fromMatrixWorld)
     const pointerQuaternion = new Quaternion().setFromRotationMatrix(this.fromMatrixWorld)
-    if (this.intersection == null) {
+
+    const index = getDominantIntersectionIndex(this.intersects, this.pointerEventsOrders, this.options)
+    const intersection = index == null ? undefined : this.intersects[index]
+    const raycasterIndex = index == null ? undefined : this.raycasterIndices[index]
+    this.intersects.length = 0
+    this.raycasterIndices.length = 0
+    this.pointerEventsOrders.length = 0
+
+    if (intersection == null || raycasterIndex == null) {
       const lastRaycasterIndex = this.raycasters.length - 1
       const prevDistance = this.raycasters.reduce(
         (prev, caster, i) => (i === lastRaycasterIndex ? prev : prev + caster.far),
@@ -160,19 +154,26 @@ export class LinesIntersector extends Intersector {
         prevDistance,
       )
     }
+
+    let distance = intersection.distance
+    for (let i = 0; i < raycasterIndex; i++) {
+      distance += this.raycasters[i].far
+    }
+
     //TODO: consider maxLength
-    return Object.assign(this.intersection, {
+    return Object.assign(intersection, {
       details: {
-        lineIndex: this.intersectionLineIndex,
-        distanceOnLine: this.intersectionDistanceOnLine,
+        lineIndex: raycasterIndex,
+        distanceOnLine: intersection.distance,
         type: 'lines' as const,
       },
+      distance,
       pointerPosition,
       pointerQuaternion,
-      pointOnFace: this.intersection.point,
-      localPoint: this.intersection.point
+      pointOnFace: intersection.point,
+      localPoint: intersection.point
         .clone()
-        .applyMatrix4(invertedMatrixHelper.copy(this.intersection.object.matrixWorld).invert()),
+        .applyMatrix4(invertedMatrixHelper.copy(intersection.object.matrixWorld).invert()),
     })
   }
 }

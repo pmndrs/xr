@@ -9,29 +9,29 @@ import {
   Intersection as ThreeIntersection,
   Plane,
 } from 'three'
-import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './utils.js'
+import { computeIntersectionWorldPlane, getDominantIntersectionIndex, pushTimes } from './utils.js'
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
 import { getVoidObject, Intersection, IntersectionOptions } from '../index.js'
 import { updateAndCheckWorldTransformation } from '../utils.js'
 
-const intersectsHelper: Array<ThreeIntersection> = []
 const scaleHelper = new Vector3()
 
-export class SphereIntersector extends Intersector {
+export class SphereIntersector implements Intersector {
   private readonly fromPosition = new Vector3()
   private readonly fromQuaternion = new Quaternion()
   private readonly collisionSphere = new Sphere()
 
   private ready?: boolean
 
+  private readonly intersects: Array<ThreeIntersection> = []
+  private readonly pointerEventsOrders: Array<number | undefined> = []
+
   constructor(
     private readonly space: { current?: Object3D | null },
     private readonly getSphereRadius: () => number,
     private readonly options: IntersectionOptions,
-  ) {
-    super()
-  }
+  ) {}
 
   public isReady(): boolean {
     return this.ready ?? this.prepareTransformation()
@@ -85,7 +85,7 @@ export class SphereIntersector extends Intersector {
     }
   }
 
-  protected prepareIntersection(): void {
+  startIntersection(): void {
     if (!this.prepareTransformation()) {
       return
     }
@@ -97,26 +97,21 @@ export class SphereIntersector extends Intersector {
     if (!this.isReady()) {
       return
     }
-    intersectsHelper.length = 0
-    intersectSphereWithObject(this.collisionSphere, object, intersectsHelper)
-    const index = getDominantIntersectionIndex(
-      this.intersection,
-      this.pointerEventsOrder,
-      intersectsHelper,
-      objectPointerEventsOrder,
-      this.options,
-    )
-    if (index != null) {
-      this.intersection = intersectsHelper[index]
-      this.pointerEventsOrder = objectPointerEventsOrder
-    }
-    intersectsHelper.length = 0
+    const start = this.intersects.length
+    intersectSphereWithObject(this.collisionSphere, object, this.intersects)
+    pushTimes(this.pointerEventsOrders, objectPointerEventsOrder, this.intersects.length - start)
   }
 
   public finalizeIntersection(scene: Object3D): Intersection {
     const pointerPosition = this.fromPosition.clone()
     const pointerQuaternion = this.fromQuaternion.clone()
-    if (this.intersection == null) {
+
+    const index = getDominantIntersectionIndex(this.intersects, this.pointerEventsOrders, this.options)
+    const intersection = index == null ? undefined : this.intersects[index]
+    this.intersects.length = 0
+    this.pointerEventsOrders.length = 0
+
+    if (intersection == null) {
       return {
         details: {
           type: 'sphere' as const,
@@ -131,16 +126,16 @@ export class SphereIntersector extends Intersector {
       }
     }
 
-    return Object.assign(this.intersection, {
+    return Object.assign(intersection, {
       details: {
         type: 'sphere' as const,
       },
-      pointOnFace: this.intersection.point,
+      pointOnFace: intersection.point,
       pointerPosition: this.fromPosition.clone(),
       pointerQuaternion: this.fromQuaternion.clone(),
-      localPoint: this.intersection.point
+      localPoint: intersection.point
         .clone()
-        .applyMatrix4(invertedMatrixHelper.copy(this.intersection.object.matrixWorld).invert()),
+        .applyMatrix4(invertedMatrixHelper.copy(intersection.object.matrixWorld).invert()),
     })
   }
 }

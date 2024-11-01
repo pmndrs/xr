@@ -1,14 +1,16 @@
 import { bench, describe } from 'vitest'
 import { createRayPointer } from '../src/pointer/index.js'
-import { BoxGeometry, Mesh, Object3D, Raycaster, Scene } from 'three'
+import { BoxGeometry, Mesh, Object3D, PerspectiveCamera, Raycaster, Scene } from 'three'
 import { CombinedPointer } from '../src/combine.js'
 
+const camera = new PerspectiveCamera()
 const combinedPointer = new CombinedPointer(true)
 const leftPointer = new CombinedPointer(false)
 combinedPointer.register(leftPointer)
 new Array(5).fill(undefined).forEach(() =>
   leftPointer.register(
     createRayPointer(
+      () => camera,
       {
         current: new Object3D(),
       },
@@ -21,6 +23,7 @@ combinedPointer.register(rightPointer)
 new Array(5).fill(undefined).forEach(() =>
   rightPointer.register(
     createRayPointer(
+      () => camera,
       {
         current: new Object3D(),
       },
@@ -30,6 +33,7 @@ new Array(5).fill(undefined).forEach(() =>
 )
 
 const singlePointer = createRayPointer(
+  () => camera,
   {
     current: new Object3D(),
   },

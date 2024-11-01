@@ -1,12 +1,4 @@
-import {
-  Camera,
-  Object3D,
-  OrthographicCamera,
-  PerspectiveCamera,
-  Quaternion,
-  Intersection as ThreeIntersection,
-  Vector3,
-} from 'three'
+import { Object3D, OrthographicCamera, PerspectiveCamera } from 'three'
 import { Intersection } from './intersections/index.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent, WheelEvent, emitPointerEvent } from './event.js'
 import { intersectPointerEventTargets } from './intersections/utils.js'

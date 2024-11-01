@@ -21,24 +21,10 @@ export function getVoidObject(scene: Object3D): Object3D {
   return entry
 }
 
-export abstract class Intersector {
-  //state of the current intersection
-  protected intersection: ThreeIntersection | undefined
-  protected pointerEventsOrder: number | undefined
-
-  public startIntersection(nativeEvent: unknown): void {
-    this.intersection = undefined
-    this.pointerEventsOrder = undefined
-    this.prepareIntersection(nativeEvent)
-  }
-
-  public abstract intersectPointerCapture(pointerCapture: PointerCapture, nativeEvent: unknown): Intersection
-
-  public abstract isReady(): boolean
-
-  protected abstract prepareIntersection(nativeEvent: unknown): void
-
-  public abstract executeIntersection(scene: Object3D, objectPointerEventsOrder: number): void
-
-  public abstract finalizeIntersection(scene: Object3D): Intersection
+export interface Intersector {
+  intersectPointerCapture(pointerCapture: PointerCapture, nativeEvent: unknown): Intersection
+  isReady(): boolean
+  startIntersection(nativeEvent: unknown): void
+  executeIntersection(scene: Object3D, objectPointerEventsOrder: number): void
+  finalizeIntersection(scene: Object3D): Intersection
 }

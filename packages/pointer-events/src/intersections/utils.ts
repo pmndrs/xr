@@ -105,7 +105,7 @@ function filterAndInteresct(
   pointerEventsType: AllowedPointerEventsType,
   pointerEventsOrder: number,
 ) {
-  if (options.filter != null && !options.filter(object, pointerEvents, pointerEventsType, pointerEventsOrder)) {
+  if (options.filter?.(object, pointerEvents, pointerEventsType, pointerEventsOrder) === false) {
     return
   }
   intersector.executeIntersection(object, pointerEventsOrder)
@@ -116,19 +116,25 @@ function filterAndInteresct(
  * @param i2DistanceOffset modifies i2 and adds the i2DistanceOffset to the current distance
  */
 export function getDominantIntersectionIndex<T extends ThreeIntersection>(
-  i1: T | undefined,
-  pointerEventsOrder1: number | undefined,
-  i2: Array<T>,
-  pointerEventsOrder2: number | undefined,
+  intersections: Array<T>,
+  pointerEventsOrders: Array<number | undefined>,
   { customSort: compare = defaultSort }: IntersectionOptions = {},
+  filter?: (intersection: ThreeIntersection) => boolean,
 ): number | undefined {
-  let index = undefined
-  const length = i2.length
+  let intersection: T | undefined = undefined
+  let pointerEventsOrder: number | undefined = undefined
+  let index: number | undefined = undefined
+  const length = intersections.length
   for (let i = 0; i < length; i++) {
-    const intersection = i2[i]
-    if (i1 == null || compare(i1, pointerEventsOrder1, intersection, pointerEventsOrder2) > 0) {
-      i1 = intersection
+    const newIntersection = intersections[i]
+    if (filter?.(newIntersection) === false) {
+      continue
+    }
+    const newPointerEventsOrder = pointerEventsOrders[i]
+    if (intersection == null || compare(newIntersection, newPointerEventsOrder, intersection, pointerEventsOrder) < 0) {
       index = i
+      intersection = newIntersection
+      pointerEventsOrder = newPointerEventsOrder
     }
   }
   return index
@@ -171,5 +177,12 @@ export function voidObjectIntersectionFromRay(
     pointerQuaternion,
     pointOnFace: point,
     localPoint: point,
+  }
+}
+
+export function pushTimes<T>(target: Array<T>, value: T, times: number): void {
+  while (times > 0) {
+    target.push(value)
+    --times
   }
 }

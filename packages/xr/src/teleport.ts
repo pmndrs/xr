@@ -3,7 +3,6 @@ import {
   Camera,
   ColorRepresentation,
   Euler,
-  Intersection,
   Mesh,
   Object3D,
   QuadraticBezierCurve3,
