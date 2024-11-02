@@ -1,4 +1,4 @@
-import { Camera, Mesh, Object3D, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
+import { Mesh, Object3D, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
 import { GetCamera, Pointer, PointerOptions } from './pointer.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
 import { CameraRayIntersector } from './intersections/ray.js'
@@ -6,10 +6,20 @@ import { generateUniquePointerId } from './pointer/index.js'
 import { IntersectionOptions } from './intersections/index.js'
 import { getClosestUV } from './utils.js'
 
-export type ForwardablePointerEvent = { pointerId?: number; pointerType?: string; pointerState?: any } & NativeEvent
+export type ForwardablePointerEvent = { pointerId: number; pointerType: string; pointerState?: any } & NativeEvent
 
 export type ForwardEventsOptions = {
-  alwaysUpdate?: boolean
+  /**
+   * @default true
+   * batches events per frame and limits scene intersections to one intersection per frame per pointer
+   * if the scene is not rendered on every frame. this option should be disabled so that events are emitted directly without waiting for the next frame
+   */
+  batchEvents?: boolean
+  /**
+   * @default false
+   * intersections can either be done when the pointer is moved, or on every frame
+   */
+  intersectEveryFrame?: boolean
   /**
    * @default true
    */
@@ -84,6 +94,8 @@ export function forwardObjectEvents(
   )
 }
 
+type InternalEventType = 'cancel' | 'down' | 'move' | 'up' | 'wheel' | 'exit'
+
 /**
  * @returns cleanup function
  */
@@ -127,18 +139,63 @@ function forwardEvents(
     return innerPointer
   }
 
-  const lastMoveEventMap: Map<Pointer, ForwardablePointerEvent | undefined> = new Map()
+  const latestWheelEventMap: Map<Pointer, ForwardablePointerEvent> = new Map()
+  const latestMoveEventMap: Map<Pointer, ForwardablePointerEvent> = new Map()
+  const movedPointerList: Array<Pointer> = []
+  const eventList: Array<{ type: InternalEventType; event: ForwardablePointerEvent }> = []
 
-  const pointerMoveListener = (e: ForwardablePointerEvent) => lastMoveEventMap.set(getInnerPointer(e), e)
-  const pointerCancelListener = (e: ForwardablePointerEvent) => getInnerPointer(e).cancel(e)
-  const pointerDownListener = (e: ForwardablePointerEvent) => void (hasButton(e) && getInnerPointer(e).down(e))
-  const pointerUpListener = (e: ForwardablePointerEvent) => void (hasButton(e) && getInnerPointer(e).up(e))
-  const wheelListener = (e: ForwardablePointerEvent & NativeWheelEvent) => getInnerPointer(e).wheel(scene, e, false)
-  const pointerLeaveListener = (e: ForwardablePointerEvent) => {
-    const pointer = getInnerPointer(e)
-    pointer.exit(e)
-    lastMoveEventMap.delete(pointer)
+  const emitEvent = (type: InternalEventType, event: ForwardablePointerEvent, pointer: Pointer) => {
+    switch (type) {
+      case 'move':
+        pointer.move(scene, event)
+        return
+      case 'wheel':
+        pointer.wheel(scene, event as any)
+        return
+      case 'cancel':
+        pointer.cancel(event)
+        return
+      case 'down':
+        if (!hasButton(event)) {
+          return
+        }
+        pointer.down(event)
+        return
+      case 'up':
+        if (!hasButton(event)) {
+          return
+        }
+        pointer.up(event)
+        return
+      case 'exit':
+        latestMoveEventMap.delete(pointer)
+        latestWheelEventMap.delete(pointer)
+        pointer.exit(event)
+        return
+    }
   }
+
+  const onEvent = (type: InternalEventType, event: ForwardablePointerEvent) => {
+    const pointer = getInnerPointer(event)
+    if (type === 'move') {
+      latestMoveEventMap.set(pointer, event)
+    }
+    if (type === 'wheel') {
+      latestWheelEventMap.set(pointer, event)
+    }
+    if (options.batchEvents ?? true) {
+      eventList.push({ type, event })
+    } else {
+      emitEvent(type, event, pointer)
+    }
+  }
+
+  const pointerMoveListener = onEvent.bind(null, 'move')
+  const pointerCancelListener = onEvent.bind(null, 'cancel')
+  const pointerDownListener = onEvent.bind(null, 'down')
+  const pointerUpListener = onEvent.bind(null, 'up')
+  const wheelListener = onEvent.bind(null, 'wheel')
+  const pointerLeaveListener = onEvent.bind(null, 'exit')
 
   from.addEventListener('pointermove', pointerMoveListener)
   from.addEventListener('pointercancel', pointerCancelListener)
@@ -155,19 +212,38 @@ function forwardEvents(
       from.removeEventListener('pointerup', pointerUpListener)
       from.removeEventListener('wheel', wheelListener)
       from.removeEventListener('pointerleave', pointerLeaveListener)
-      lastMoveEventMap.clear()
+      latestMoveEventMap.clear()
+      latestWheelEventMap.clear()
     },
     update() {
-      for (const [pointer, lastMoveEvent] of lastMoveEventMap.entries()) {
-        if (lastMoveEvent == null) {
+      const length = eventList.length
+      for (let i = 0; i < length; i++) {
+        const { type, event } = eventList[i]
+        const pointer = getInnerPointer(event)
+        if (type === 'move') {
+          movedPointerList.push(pointer)
+          if (latestMoveEventMap.get(pointer) != event) {
+            //not the last move => move wihout recomputing the intersection
+            pointer.emitMove(event)
+            continue
+          }
+        }
+        if (type === 'wheel' && latestWheelEventMap.get(pointer) != event) {
+          pointer.emitWheel(event as any)
           continue
         }
-        pointer.move(scene, lastMoveEvent)
-        if (options.alwaysUpdate === true) {
-          continue
-        }
-        lastMoveEventMap.set(pointer, undefined)
+        emitEvent(type, event, pointer)
       }
+      eventList.length = 0
+      if (options.intersectEveryFrame ?? false) {
+        for (const [pointer, event] of latestMoveEventMap.entries()) {
+          if (movedPointerList.includes(pointer)) {
+            continue
+          }
+          pointer.move(scene, event)
+        }
+      }
+      movedPointerList.length = 0
     },
   }
 }

@@ -115,6 +115,7 @@ export class Pointer {
   private intersection: Intersection | undefined
   private prevEnabled = true
   private enabled = true
+  private wheelIntersection: Intersection | undefined
 
   //derived state
   /**
@@ -280,6 +281,17 @@ export class Pointer {
     this.commit(nativeEvent)
   }
 
+  /**
+   * emits a move without (re-)computing the intersection
+   * just emitting a move event to the current intersection
+   */
+  emitMove(nativeEvent: NativeEvent) {
+    if (this.intersection == null) {
+      return
+    }
+    emitPointerEvent(new PointerEvent('pointermove', true, nativeEvent, this, this.intersection, this.getCamera()))
+  }
+
   down(nativeEvent: NativeEvent & { button: number }): void {
     this.buttonsDown.add(nativeEvent.button)
     if (!this.enabled) {
@@ -371,18 +383,34 @@ export class Pointer {
     emitPointerEvent(new PointerEvent('pointercancel', true, nativeEvent, this, this.intersection, this.getCamera()))
   }
 
-  wheel(scene: Object3D, nativeEvent: NativeWheelEvent, useCurrentIntersection: boolean): void {
+  wheel(scene: Object3D, nativeEvent: NativeWheelEvent, useMoveIntersection: boolean = false): void {
     if (!this.enabled) {
       return
     }
-    let intersection = this.intersection
-    if (!useCurrentIntersection) {
-      intersection = this.computeIntersection(scene, nativeEvent)
-    }
-    if (!this.wasMoved && useCurrentIntersection) {
-      this.onFirstMove.push(this.cancel.bind(this, nativeEvent))
+    if (!this.wasMoved && useMoveIntersection) {
+      this.onFirstMove.push(this.wheel.bind(this, scene, nativeEvent, useMoveIntersection))
       return
     }
+    if (!useMoveIntersection) {
+      this.wheelIntersection = this.computeIntersection(scene, nativeEvent)
+    }
+    const intersection = useMoveIntersection ? this.intersection : this.wheelIntersection
+    if (intersection == null) {
+      return
+    }
+    //wheel
+    emitPointerEvent(new WheelEvent(nativeEvent, this, intersection, this.getCamera()))
+  }
+
+  emitWheel(nativeEvent: NativeWheelEvent, useMoveIntersection: boolean = false): void {
+    if (!this.enabled) {
+      return
+    }
+    if (!this.wasMoved && useMoveIntersection) {
+      this.onFirstMove.push(this.emitWheel.bind(this, nativeEvent, useMoveIntersection))
+      return
+    }
+    const intersection = useMoveIntersection ? this.intersection : this.wheelIntersection
     if (intersection == null) {
       return
     }

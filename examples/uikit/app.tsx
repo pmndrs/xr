@@ -32,7 +32,7 @@ export function App() {
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
-        <PointerEvents />
+        <PointerEvents batchEvents={false} />
         <XR store={store}>
           <XROrigin visible={visible} />
           <Environment preset="city" />
