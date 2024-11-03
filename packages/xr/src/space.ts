@@ -54,10 +54,14 @@ export function getSpaceFromAncestors(
 }
 
 function computeOriginReferenceSpaceOffset(object: Object3D, origin: Object3D | undefined, target: Matrix4): void {
+  object.updateWorldMatrix(true, false)
   if (origin == null) {
     target.copy(object.matrixWorld)
     return
   }
+  origin.updateWorldMatrix(true, false)
+  //origin * offset = space <=>
+  //target = origin.matrixWorld-1 * object.matrixWorld
   target.copy(origin.matrixWorld).invert().multiply(object.matrixWorld)
 }
 

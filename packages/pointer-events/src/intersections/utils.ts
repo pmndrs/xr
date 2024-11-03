@@ -1,16 +1,20 @@
-import { Plane, Intersection as ThreeIntersection, Object3D, Vector3, Ray, Quaternion } from 'three'
+import { Plane, Intersection as ThreeIntersection, Object3D, Vector3, Ray, Quaternion, Matrix4 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { AllowedPointerEventsType, Pointer, type AllowedPointerEvents } from '../pointer.js'
 import { getVoidObject, VoidObjectCollider } from './intersector.js'
 import { listenerNames } from '../event.js'
 
-export function computeIntersectionWorldPlane(target: Plane, intersection: Intersection, object: Object3D): boolean {
+export function computeIntersectionWorldPlane(
+  target: Plane,
+  intersection: Intersection,
+  objectMatrixWorld: Matrix4,
+): boolean {
   const normal = intersection.normal ?? intersection.face?.normal
   if (normal == null) {
     return false
   }
   target.setFromNormalAndCoplanarPoint(normal, intersection.localPoint)
-  target.applyMatrix4(object.matrixWorld)
+  target.applyMatrix4(objectMatrixWorld)
   return true
 }
 

@@ -46,6 +46,7 @@ const quaternionHelper = new Quaternion()
  * @param rayGroup must be placed directly into the scene
  */
 export function syncTeleportPointerRayGroup(space: Object3D, rayGroup: Object3D, deltaTimeMs: number) {
+  space.updateWorldMatrix(true, false)
   space.matrixWorld.decompose(rayGroup.position, quaternionHelper, rayGroup.scale)
   eulerHelper.setFromQuaternion(quaternionHelper)
   eulerHelper.z = 0

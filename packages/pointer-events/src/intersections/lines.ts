@@ -75,7 +75,8 @@ export class LinesIntersector implements Intersector {
     lineHelper.set(linePoints[details.lineIndex], linePoints[details.lineIndex + 1]).applyMatrix4(this.fromMatrixWorld)
 
     const point = lineHelper.at(details.distanceOnLine / lineHelper.distance(), new Vector3())
-    computeIntersectionWorldPlane(planeHelper, intersection, object)
+    intersection.object.updateWorldMatrix(true, false)
+    computeIntersectionWorldPlane(planeHelper, intersection, intersection.object.matrixWorld)
     const pointOnFace = rayHelper.intersectPlane(planeHelper, new Vector3()) ?? point
     let uv = intersection.uv
     if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
@@ -83,6 +84,7 @@ export class LinesIntersector implements Intersector {
     }
     return {
       ...intersection,
+      object,
       uv,
       pointOnFace,
       point,
@@ -167,6 +169,8 @@ export class LinesIntersector implements Intersector {
     for (let i = 0; i < raycasterIndex; i++) {
       distance += this.raycasters[i].far
     }
+
+    intersection.object.updateWorldMatrix(true, false)
 
     //TODO: consider maxLength
     return Object.assign(intersection, {

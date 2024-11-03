@@ -71,7 +71,8 @@ export class RayIntersector implements Intersector {
     if (!this.prepareTransformation()) {
       return intersection
     }
-    computeIntersectionWorldPlane(planeHelper, intersection, object)
+    intersection.object.updateWorldMatrix(true, false)
+    computeIntersectionWorldPlane(planeHelper, intersection, intersection.object.matrixWorld)
     const { ray } = this.raycaster
     const pointOnFace = ray.intersectPlane(planeHelper, new Vector3()) ?? intersection.point
     const point = ray.direction.clone().multiplyScalar(intersection.distance).add(ray.origin)
@@ -127,6 +128,7 @@ export class RayIntersector implements Intersector {
         pointerQuaternion,
       )
     }
+    intersection.object.updateWorldMatrix(true, false)
     return Object.assign(intersection, {
       details: {
         type: 'ray' as const,
@@ -180,7 +182,8 @@ export class CameraRayIntersector implements Intersector {
       return intersection
     }
 
-    computeIntersectionWorldPlane(this.viewPlane, intersection, object)
+    intersection.object.updateWorldMatrix(true, false)
+    computeIntersectionWorldPlane(this.viewPlane, intersection, intersection.object.matrixWorld)
     let uv = intersection.uv
     if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
       uv = point2Helper.clone()
@@ -201,8 +204,8 @@ export class CameraRayIntersector implements Intersector {
     if (from == null) {
       return false
     }
-    from.matrixWorld.decompose(this.fromPosition, this.fromQuaternion, scaleHelper)
     from.updateWorldMatrix(true, false)
+    from.matrixWorld.decompose(this.fromPosition, this.fromQuaternion, scaleHelper)
     this.raycaster.setFromCamera(this.coords, from)
     this.viewPlane.setFromNormalAndCoplanarPoint(from.getWorldDirection(directionHelper), this.raycaster.ray.origin)
     return true
@@ -233,6 +236,7 @@ export class CameraRayIntersector implements Intersector {
       )
     }
 
+    intersection.object.updateWorldMatrix(true, false)
     invertedMatrixHelper.copy(intersection.object.matrixWorld).invert()
 
     return Object.assign(intersection, {

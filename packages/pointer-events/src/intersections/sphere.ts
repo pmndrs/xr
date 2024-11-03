@@ -68,7 +68,8 @@ export class SphereIntersector implements Intersector {
     //apply quaternion offset to old inputDevicePosition-point offset and add to new inputDevicePosition
     const point = oldInputDevicePointOffset.clone().applyQuaternion(inputDeviceQuaternionOffset).add(this.fromPosition)
 
-    computeIntersectionWorldPlane(planeHelper, intersection, object)
+    intersection.object.updateWorldMatrix(true, false)
+    computeIntersectionWorldPlane(planeHelper, intersection, intersection.object.matrixWorld)
 
     const pointOnFace = planeHelper.projectPoint(this.fromPosition, new Vector3())
 
@@ -133,6 +134,8 @@ export class SphereIntersector implements Intersector {
         localPoint: pointerPosition,
       }
     }
+
+    intersection.object.updateWorldMatrix(true, false)
 
     return Object.assign(intersection, {
       details: {

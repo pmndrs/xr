@@ -4,7 +4,6 @@ import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
 import { CameraRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
 import { IntersectionOptions } from './intersections/index.js'
-import { getClosestUV } from './utils.js'
 
 export type ForwardablePointerEvent = { pointerId: number; pointerType: string; pointerState?: any } & NativeEvent
 

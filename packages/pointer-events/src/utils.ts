@@ -1,17 +1,18 @@
 import { BufferAttribute, Matrix4, Mesh, Object3D, Triangle, Vector2, Vector3 } from 'three'
-import { PointerEventsMap } from './event.js'
 
-export function updateAndCheckWorldTransformation({ transformReady, parent, matrix, matrixWorld }: Object3D): boolean {
-  if (transformReady === false) {
+export function updateAndCheckWorldTransformation(object: Object3D): boolean {
+  if (object.transformReady === false) {
     return false
   }
-  if (parent == null) {
+  if (object.parent == null) {
+    object.matrixWorld.copy(object.matrix)
     return true
   }
-  if (!updateAndCheckWorldTransformation(parent)) {
+  if (!updateAndCheckWorldTransformation(object.parent)) {
     return false
   }
-  matrixWorld.multiplyMatrices(parent.matrixWorld, matrix)
+  //we can just use parent.matrixWorld here because we already executed `updateAndCheckWorldTransformation` before which has updated parent.matrixWorld
+  object.matrixWorld.multiplyMatrices(object.parent.matrixWorld, object.matrix)
   return true
 }
 
@@ -24,6 +25,9 @@ const pointHelper = new Vector3()
 const inverseMatrix = new Matrix4()
 const localPointHelper = new Vector3()
 
+/**
+ * @requires that `mesh.updateWorldMatrix(true, false)` was executed beforehand
+ */
 export function getClosestUV(target: Vector2, point: Vector3, mesh: Mesh): boolean {
   localPointHelper.copy(point).applyMatrix4(inverseMatrix.copy(mesh.matrixWorld).invert())
   const uv = mesh.geometry.attributes.uv

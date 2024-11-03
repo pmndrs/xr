@@ -100,6 +100,7 @@ function computeWorldMatrixFromXRHitTestResult(
   //target = ObjectMatrixWorld? * HitTestMatrix
   target.fromArray(pose.transform.matrix)
   if (object != null) {
+    object.updateWorldMatrix(true, false)
     target.premultiply(object.matrixWorld)
   }
   return true

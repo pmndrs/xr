@@ -126,6 +126,54 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
     return this.currentObject
   }
 
+  private _pointer: Vector2 | undefined
+  get pointer(): Vector2 {
+    if (this._pointer == null) {
+      helperVector.copy(this.intersection.point).project(this.camera)
+      this._pointer = new Vector2(helperVector.x, helperVector.y)
+    }
+    return this._pointer
+  }
+
+  private _ray: Ray | undefined
+  get ray(): Ray {
+    if (this._ray == null) {
+      this._ray = new Ray()
+      this._ray.origin.setFromMatrixPosition(this.camera.matrixWorld)
+      this._ray.lookAt(this.point)
+    }
+    return this._ray
+  }
+
+  private _intersections: Array<Intersection> = []
+  get intersections(): Intersection[] {
+    if (this._intersections == null) {
+      this._intersections = [{ ...this.intersection, eventObject: this.currentObject }]
+    }
+    return this._intersections
+  }
+
+  private _unprojectedPoint: Vector3 | undefined
+  get unprojectedPoint(): Vector3 {
+    if (this._unprojectedPoint == null) {
+      const p = this.pointer
+      this._unprojectedPoint = new Vector3(p.x, p.y, 0).unproject(this.camera)
+    }
+    return this._unprojectedPoint
+  }
+
+  get stopped(): boolean {
+    return this.propagationState.stoppedImmediate || this.propagationState.stopped
+  }
+
+  get stoppedImmediate(): boolean {
+    return this.propagationState.stoppedImmediate
+  }
+
+  get delta(): number {
+    throw new Error(`not supported`)
+  }
+
   constructor(
     public readonly type: keyof PointerEventsMap,
     public readonly bubbles: boolean,
@@ -141,39 +189,6 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
     },
   ) {
     super(nativeEvent)
-  }
-
-  get pointer(): Vector2 {
-    helperVector.copy(this.intersection.point).project(this.camera)
-    return new Vector2(helperVector.x, helperVector.y)
-  }
-
-  get ray(): Ray {
-    const ray = new Ray()
-    ray.origin.setFromMatrixPosition(this.camera.matrixWorld)
-    ray.lookAt(this.point)
-    return ray
-  }
-
-  get intersections(): Intersection[] {
-    return [{ ...this.intersection, eventObject: this.currentObject }]
-  }
-
-  get unprojectedPoint(): Vector3 {
-    const p = this.pointer
-    return new Vector3(p.x, p.y, 0).unproject(this.camera)
-  }
-
-  get stopped(): boolean {
-    return this.propagationState.stoppedImmediate || this.propagationState.stopped
-  }
-
-  get stoppedImmediate(): boolean {
-    return this.propagationState.stoppedImmediate
-  }
-
-  get delta(): number {
-    throw new Error(`not supported`)
   }
 
   stopPropagation(): void {
