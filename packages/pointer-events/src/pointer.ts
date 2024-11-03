@@ -17,28 +17,8 @@ export type AllowedPointerEventsType =
 
 declare module 'three' {
   interface Object3D {
-    _listeners?: Record<string, Array<(event: unknown) => void> | undefined>
-    /**
-     * @default parent.pointerEvents ?? this.defaultPointerEvents
-     */
-    pointerEvents?: AllowedPointerEvents
-    /**
-     * @default "listener"
-     */
-    defaultPointerEvents?: AllowedPointerEvents
-    /**
-     * @default "all"
-     */
-    pointerEventsType?: AllowedPointerEventsType
-    /**
-     * @default 0
-     * sorted by highest number first
-     * (just like a higher renderOrder number will result in rendering over the previous - if depthTest is false)
-     */
-    pointerEventsOrder?: number
     [buttonsDownTimeKey]?: ButtonsTime
     [buttonsClickTimeKey]?: ButtonsTime
-    isVoidObject?: boolean
   }
 }
 

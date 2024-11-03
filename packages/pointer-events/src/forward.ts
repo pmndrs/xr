@@ -69,12 +69,10 @@ function portalEventToCoords(e: unknown, target: Vector2): Vector2 {
   if (!(e instanceof PointerEvent)) {
     return target.set(0, 0)
   }
-  if (!(e.object instanceof Mesh)) {
+  if (e.uv == null) {
     return target.set(0, 0)
   }
-  getClosestUV(target, e.point, e.object)
-  target.multiplyScalar(2).addScalar(-1)
-  return target
+  return target.copy(e.uv).multiplyScalar(2).addScalar(-1)
 }
 
 export function forwardObjectEvents(

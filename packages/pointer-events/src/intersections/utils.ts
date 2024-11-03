@@ -1,8 +1,8 @@
 import { Plane, Intersection as ThreeIntersection, Object3D, Vector3, Ray, Quaternion } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { AllowedPointerEventsType, Pointer, type AllowedPointerEvents } from '../pointer.js'
-import { hasObjectListeners } from '../utils.js'
 import { getVoidObject, VoidObjectCollider } from './intersector.js'
+import { listenerNames } from '../event.js'
 
 export function computeIntersectionWorldPlane(target: Plane, intersection: Intersection, object: Object3D): boolean {
   const normal = intersection.normal ?? intersection.face?.normal
@@ -100,6 +100,27 @@ export function intersectPointerEventTargets(
       pointerEventsOrder,
     )
   }
+}
+
+function hasObjectListeners({ _listeners, __r3f }: Object3D): boolean {
+  if (__r3f != null && __r3f?.eventCount > 0) {
+    return true
+  }
+  if (_listeners == null) {
+    return false
+  }
+  const entries = Object.entries(_listeners)
+  const length = entries.length
+  for (let i = 0; i < length; i++) {
+    const entry = entries[i]
+    if (!listenerNames.includes(entry[0])) {
+      continue
+    }
+    if (entry[1] != null && entry[1].length > 0) {
+      return true
+    }
+  }
+  return false
 }
 
 function filterAndInteresct(

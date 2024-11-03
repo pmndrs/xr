@@ -8,6 +8,8 @@ import {
   Vector3,
   Intersection as ThreeIntersection,
   Object3D,
+  Mesh,
+  Vector2,
 } from 'three'
 import {
   computeIntersectionWorldPlane,
@@ -18,12 +20,13 @@ import {
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
 import { Intersection, IntersectionOptions } from '../index.js'
-import { updateAndCheckWorldTransformation } from '../utils.js'
+import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()
 const lineHelper = new Line3()
 const planeHelper = new Plane()
 const rayHelper = new Ray()
+const point2Helper = new Vector2()
 const defaultLinePoints = [new Vector3(0, 0, 0), new Vector3(0, 0, 1)]
 
 export class LinesIntersector implements Intersector {
@@ -74,8 +77,13 @@ export class LinesIntersector implements Intersector {
     const point = lineHelper.at(details.distanceOnLine / lineHelper.distance(), new Vector3())
     computeIntersectionWorldPlane(planeHelper, intersection, object)
     const pointOnFace = rayHelper.intersectPlane(planeHelper, new Vector3()) ?? point
+    let uv = intersection.uv
+    if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
+      uv = point2Helper.clone()
+    }
     return {
       ...intersection,
+      uv,
       pointOnFace,
       point,
       pointerPosition: new Vector3().setFromMatrixPosition(this.fromMatrixWorld),

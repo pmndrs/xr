@@ -8,14 +8,16 @@ import {
   Quaternion,
   Intersection as ThreeIntersection,
   Plane,
+  Vector2,
 } from 'three'
 import { computeIntersectionWorldPlane, getDominantIntersectionIndex, pushTimes } from './utils.js'
 import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
 import { getVoidObject, Intersection, IntersectionOptions } from '../index.js'
-import { updateAndCheckWorldTransformation } from '../utils.js'
+import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
 
 const scaleHelper = new Vector3()
+const point2Helper = new Vector2()
 
 export class SphereIntersector implements Intersector {
   private readonly fromPosition = new Vector3()
@@ -70,10 +72,16 @@ export class SphereIntersector implements Intersector {
 
     const pointOnFace = planeHelper.projectPoint(this.fromPosition, new Vector3())
 
+    let uv = intersection.uv
+    if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
+      uv = point2Helper.clone()
+    }
+
     return {
       details: {
         type: 'sphere',
       },
+      uv,
       distance: intersection.distance,
       pointerPosition: this.fromPosition.clone(),
       pointerQuaternion: this.fromQuaternion.clone(),

@@ -1,7 +1,6 @@
 import { BaseEvent, Face, Object3D, Quaternion, Ray, Vector2, Vector3 } from 'three'
 import { Intersection as ThreeIntersection } from './intersections/index.js'
 import { Pointer } from './pointer.js'
-import { getObjectListeners } from './utils.js'
 import type { Camera, IntersectionEvent, Intersection } from '@react-three/fiber/dist/declarations/src/core/events.js'
 import { HtmlEvent, Properties } from './html-event.js'
 
@@ -267,4 +266,50 @@ function emitPointerEventRec(baseEvent: PointerEvent<NativeEvent>, currentObject
     return
   }
   emitPointerEventRec(baseEvent, currentObject.parent)
+}
+
+const r3fEventToHandlerMap: Record<keyof PointerEventsMap, string> = {
+  click: 'onClick',
+  contextmenu: 'onContextMenu',
+  dblclick: 'onDoubleClick',
+  pointercancel: 'onPointerCancel',
+  pointerdown: 'onPointerDown',
+  pointerenter: 'onPointerEnter',
+  pointerleave: 'onPointerLeave',
+  pointermove: 'onPointerMove',
+  pointerout: 'onPointerOut',
+  pointerover: 'onPointerOver',
+  pointerup: 'onPointerUp',
+  wheel: 'onWheel',
+}
+
+export const listenerNames = Object.keys(r3fEventToHandlerMap)
+
+declare module 'three' {
+  interface Object3D {
+    _listeners?: Record<string, Array<(event: unknown) => void> | undefined>
+  }
+}
+
+function getObjectListeners<E>(
+  object: Object3D,
+  forEvent: keyof PointerEventsMap,
+): Array<(event: E) => void> | undefined {
+  if (object._listeners != null && forEvent in object._listeners) {
+    return object._listeners[forEvent]
+  }
+
+  //R3F compatibility
+  let handler: ((e: any) => void) | undefined
+  if (object.isVoidObject && forEvent === 'click' && object.parent?.__r3f != null) {
+    handler = object.parent.__r3f.root.getState().onPointerMissed
+  }
+  if (object.__r3f != null) {
+    handler = object.__r3f.handlers[r3fEventToHandlerMap[forEvent]]
+  }
+
+  if (handler == null) {
+    return undefined
+  }
+  return [handler]
 }

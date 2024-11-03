@@ -8,6 +8,7 @@ import {
   Object3D,
   Camera,
   Vector2,
+  Mesh,
 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { type PointerCapture } from '../pointer.js'
@@ -18,13 +19,14 @@ import {
   voidObjectIntersectionFromRay,
 } from './utils.js'
 import { Intersector } from './intersector.js'
-import { updateAndCheckWorldTransformation } from '../utils.js'
+import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()
 const scaleHelper = new Vector3()
 const NegZAxis = new Vector3(0, 0, -1)
 const directionHelper = new Vector3()
 const planeHelper = new Plane()
+const point2Helper = new Vector2()
 
 export class RayIntersector implements Intersector {
   private readonly raycaster = new Raycaster()
@@ -72,11 +74,17 @@ export class RayIntersector implements Intersector {
     computeIntersectionWorldPlane(planeHelper, intersection, object)
     const { ray } = this.raycaster
     const pointOnFace = ray.intersectPlane(planeHelper, new Vector3()) ?? intersection.point
+    const point = ray.direction.clone().multiplyScalar(intersection.distance).add(ray.origin)
+    let uv = intersection.uv
+    if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
+      uv = point2Helper.clone()
+    }
     return {
       ...intersection,
+      uv,
       object,
       pointOnFace,
-      point: ray.direction.clone().multiplyScalar(intersection.distance).add(ray.origin),
+      point,
       pointerPosition: ray.origin.clone(),
       pointerQuaternion: this.raycasterQuaternion.clone(),
     }
@@ -173,8 +181,13 @@ export class CameraRayIntersector implements Intersector {
     }
 
     computeIntersectionWorldPlane(this.viewPlane, intersection, object)
+    let uv = intersection.uv
+    if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
+      uv = point2Helper.clone()
+    }
     return {
       ...intersection,
+      uv,
       object,
       point,
       pointOnFace: point,
