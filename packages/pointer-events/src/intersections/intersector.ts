@@ -1,9 +1,8 @@
-import { Mesh, Object3D, Sphere, SphereGeometry, Intersection as ThreeIntersection } from 'three'
+import { Mesh, Object3D, Sphere, SphereGeometry } from 'three'
 import { Intersection } from '../index.js'
 import { PointerCapture } from '../pointer.js'
 
-const VoidObjectRadius = 1000000
-export const VoidObjectCollider = new Sphere(undefined, VoidObjectRadius)
+const VoidObjectRadius = 10000000000
 const VoidObjectGeometry = new SphereGeometry(VoidObjectRadius)
 
 const sceneVoidObjectMap = new Map<Object3D, Object3D>()
