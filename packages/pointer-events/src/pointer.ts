@@ -64,6 +64,7 @@ declare module 'three' {
 
     intersectChildren?: boolean
     interactableDescendants?: Array<Object3D>
+    ancestorsHaveListeners?: boolean
   }
 }
 

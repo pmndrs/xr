@@ -106,14 +106,17 @@ export function intersectPointerEventTargets(
   }
 }
 
-function hasObjectListeners({ _listeners, __r3f }: Object3D): boolean {
-  if (__r3f != null && __r3f?.eventCount > 0) {
+function hasObjectListeners(object: Object3D): boolean {
+  if (object.ancestorsHaveListeners) {
     return true
   }
-  if (_listeners == null) {
+  if (object.__r3f != null && object.__r3f?.eventCount > 0) {
+    return true
+  }
+  if (object._listeners == null) {
     return false
   }
-  const entries = Object.entries(_listeners)
+  const entries = Object.entries(object._listeners)
   const length = entries.length
   for (let i = 0; i < length; i++) {
     const entry = entries[i]
