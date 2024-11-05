@@ -14,7 +14,16 @@ useFrame((state) => console.log(state.camera.getWorldPosition(new Vector3())))
 
 ## How can I change the camera position in XR?
 
-In contrast to non-immersive 3D applications, the camera transformation in MR/VR/AR applications should never be directly controlled by the developer since the user's head movement must control the camera's transformation. Therefore, pmndrs/xr provides the XROrigin component, which allows to control where the session's origin is placed inside the 3D scene. The session origin is at the users' feet once they recenter their session. This allows to implicitly control the camera position but prevents the user from getting motion sick when their movement is not reflected in the camera's movement.
+XR provides its own camera, which becomes the `default` one, once xr-session starts.
+
+In contrast to non-immersive 3D applications, the camera transformation in MR/VR/AR applications should never be directly controlled by the developer since the user's head movement must control the camera's transformation.
+
+Therefore, pmndrs/xr provides the `XROrigin` component, which allows to control where the session's origin is placed inside the 3D scene. The session origin is at the users' feet once they recenter their session. This allows to implicitly control the camera position but prevents the user from getting motion sick when their movement is not reflected in the camera's movement.
+
+> [!IMPORTANT]
+> Hence:
+> - don't touch the position/rotation of the XR camera
+> - don't change its fov (it is handled by the device)
 
 ## Having problems accessing the camera position or rotation.
 
