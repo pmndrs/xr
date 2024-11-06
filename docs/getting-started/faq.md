@@ -74,3 +74,8 @@ WebXR is not supported on iOS Safari yet. The alternative is to use products suc
 ## XRSpace
 
 If you are placing `<XRSpace>` components outside of the `<XROrigin>` while changing the transformation of the `<XROrigin>` (e.g. by setting `<XROrigin position={[0,1,0]} />`), the elements rendered inside of the `<XRSpace>` will not be transformed with the origin. If the transformations of the origin should be applied to the `<XRSpace>`, make sure to place those components inside the `<XROrigin>`. Not placing `<XRSpace>` components into the `<XROrigin>` can be useful in scenarios where you want to move the `<XROrigin>` independently from the `<XRSpace>`. For instance, building a virtual elevator where your actual room is duplicated into the x-axis so that you can use the elevator to travel between multiple instances of your room.
+
+## `onClick` does not play video or allow file uploading (in certain browsers)
+
+As a performance optimization the react-three/xr event system batches html user events per frame. This only applies if you are using `PointerEvents`, `forwardHtmlEvents`, or `forwardObjectEvents`. This can cause issue when executing functions that require a user action. For instance, uploading a file through a input element in a safari can only be triggered manually when immediately caused by a user input. For these use cases, please disable the event batching performance optimization through the options by setting `batchEvents` to `false`.
+

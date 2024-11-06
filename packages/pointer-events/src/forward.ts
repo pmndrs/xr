@@ -12,6 +12,8 @@ export type ForwardEventsOptions = {
    * @default true
    * batches events per frame and limits scene intersections to one intersection per frame per pointer
    * if the scene is not rendered on every frame. this option should be disabled so that events are emitted directly without waiting for the next frame
+   *
+   * If you are having issues when executing functions that require a user action, e.g., uploading a file through a input element in a safari, please set this to `false`.
    */
   batchEvents?: boolean
   /**
