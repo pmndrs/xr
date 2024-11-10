@@ -125,8 +125,8 @@ function XRTransientPointers() {
           return null
         }
         return (
-          <XRSpace key={objectToKey(state)} space="target-ray-space">
-            <xrInputSourceStateContext.Provider value={state}>
+          <xrInputSourceStateContext.Provider value={state}>
+            <XRSpace key={objectToKey(state)} space="target-ray-space">
               <Suspense>
                 {typeof ResolvedImpl === 'function' ? (
                   <ResolvedImpl />
@@ -134,8 +134,8 @@ function XRTransientPointers() {
                   <DefaultXRTransientPointer {...ResolvedImpl} />
                 )}
               </Suspense>
-            </xrInputSourceStateContext.Provider>
-          </XRSpace>
+            </XRSpace>
+          </xrInputSourceStateContext.Provider>
         )
       })}
     </>
@@ -152,8 +152,8 @@ function XRGazes() {
     <>
       {gazeStates.map((state) => {
         return (
-          <XRSpace key={objectToKey(state)} space="target-ray-space">
-            <xrInputSourceStateContext.Provider value={state}>
+          <xrInputSourceStateContext.Provider value={state}>
+            <XRSpace key={objectToKey(state)} space="target-ray-space">
               <Suspense>
                 {typeof Implementation === 'function' ? (
                   <Implementation />
@@ -161,8 +161,8 @@ function XRGazes() {
                   <DefaultXRGaze {...spreadable(Implementation)} />
                 )}
               </Suspense>
-            </xrInputSourceStateContext.Provider>
-          </XRSpace>
+            </XRSpace>
+          </xrInputSourceStateContext.Provider>
         )
       })}
     </>
@@ -179,8 +179,8 @@ function XRScreenInputs() {
     <>
       {screenInputStates.map((state) => {
         return (
-          <XRSpace key={objectToKey(state)} space="target-ray-space">
-            <xrInputSourceStateContext.Provider value={state}>
+          <xrInputSourceStateContext.Provider value={state}>
+            <XRSpace key={objectToKey(state)} space="target-ray-space">
               <Suspense>
                 {typeof Implementation === 'function' ? (
                   <Implementation />
@@ -188,8 +188,8 @@ function XRScreenInputs() {
                   <DefaultXRScreenInput {...spreadable(Implementation)} />
                 )}
               </Suspense>
-            </xrInputSourceStateContext.Provider>
-          </XRSpace>
+            </XRSpace>
+          </xrInputSourceStateContext.Provider>
         )
       })}
     </>
