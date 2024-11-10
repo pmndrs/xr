@@ -168,10 +168,10 @@ export function projectOntoSpace(
     case 3:
       return
     case 1:
-      projectOntoAxis(initialWorldPoint, worldPoint, worldDirection, ...(space as [Vector3]))
+      projectOntoAxis(initialWorldPoint, ...(space as [Vector3]), worldPoint, worldDirection)
       return
     case 2:
-      projectOntoPlane(initialWorldPoint, worldPoint, worldDirection, ...(space as [Vector3, Vector3]))
+      projectOntoPlane(initialWorldPoint, ...(space as [Vector3, Vector3]), worldPoint, worldDirection)
       return
   }
   throw new Error(
@@ -289,10 +289,10 @@ const normalHelper = new Vector3()
 
 function projectOntoPlane(
   initialWorldPoint: Vector3,
-  worldPoint: Vector3,
-  worldDirection: Vector3 | undefined,
   _axis1: Vector3,
   _axis2: Vector3,
+  worldPoint: Vector3,
+  worldDirection: Vector3 | undefined,
 ): void {
   normalHelper.crossVectors(_axis1, _axis2).normalize()
   planeHelper.setFromNormalAndCoplanarPoint(normalHelper, initialWorldPoint)
@@ -305,16 +305,18 @@ function projectOntoPlane(
   worldPoint.addScaledVector(worldDirection, -distanceAlongDirection)
 }
 
-const projectHelper = new Vector3()
+const vectorHelper = new Vector3()
 const crossVectorHelper = new Vector3()
+const offsetHelper = new Vector3()
+
 /**
  * finds the intersection between the given axis (infinite line) and another infinite line provided with point and direction
  */
 function projectOntoAxis(
   initialWorldPoint: Vector3,
+  axis: Vector3,
   worldPoint: Vector3,
   worldDirection: Vector3 | undefined,
-  axis: Vector3,
 ): void {
   if (worldDirection == null || Math.abs(axis.dot(worldDirection)) > 0.999) {
     worldPoint.sub(initialWorldPoint)
@@ -322,13 +324,30 @@ function projectOntoAxis(
     worldPoint.add(initialWorldPoint)
     return
   }
-  console.log('x')
-  projectPointOntoNormal(
-    projectHelper.copy(worldPoint).sub(initialWorldPoint),
-    crossVectorHelper.crossVectors(axisHelper, worldDirection).normalize(),
-  )
-  projectPointOntoNormal(worldPoint.sub(initialWorldPoint).sub(projectHelper), axis)
-  console.log(worldPoint.toArray())
+  //1. find orthogonal vector between axis and worldDirection
+  crossVectorHelper.crossVectors(axis, worldDirection).normalize()
+  //2. project the distance from worldPoint to initialWorldPoint onto that orthognal vector
+  projectPointOntoNormal(vectorHelper.copy(initialWorldPoint).sub(worldPoint), crossVectorHelper)
+  //3. add the worldPoint to that vectorHelper, so that that normals of worldPoint and initialWorldPoint are meeting if applied to vectorHelper and initialWorldPoint
+  vectorHelper.add(worldPoint)
+  //4. calculate the offset from worldPoint to vectorHelper projected onto the line starting from initialWorldPoint along
+  offsetHelper.copy(vectorHelper).sub(initialWorldPoint)
+  projectPointOntoNormal(offsetHelper, axis)
+  offsetHelper.add(initialWorldPoint).sub(worldPoint)
+  //5. calculate the the angle between worldDirection and offsetHelper
+  let angle = Math.acos(offsetHelper.dot(worldDirection) / (offsetHelper.length() * worldDirection.length()))
+  let isAlongWorldDirection: boolean = true
+  if (angle > Math.PI / 2) {
+    angle = Math.PI - angle
+    isAlongWorldDirection = false
+  }
+  console.log('angle', (180 * angle) / Math.PI)
+  //6. calculate the hypothenuse of the triangle between the target point, vectorHelper, and vectorHelper + offsetHelper
+  const hypothenuse = offsetHelper.length() / Math.sin(Math.PI / 2 - angle)
+  //7. calculate the final point by adding -worldDirection with the length of the hypothenuse to the worldPoint
+  vectorHelper.addScaledVector(worldDirection, isAlongWorldDirection ? hypothenuse : -hypothenuse)
+  //8. write to target (worldPoint)
+  worldPoint.copy(vectorHelper)
 }
 
 function projectPointOntoNormal(point: Vector3, normal: Vector3) {

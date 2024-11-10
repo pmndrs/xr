@@ -51,20 +51,13 @@ export function computeOnePointerHandleTransformState(
     options.translate ?? true,
     'translate',
   )
-  //project into space
-  projectOntoSpace(
-    spaceHelper,
-    pointerData.initialPointerWorldPoint,
-    vectorHelper1.copy(pointerData.initialPointerWorldPoint),
-    pointerData.initialPointerWorldDirection,
-  )
   //pointerWorldMatrix * pointerToTargetParentOffset = TargetParentWorldMatrix =>
   //initialPointerToTargetParentOffset = initialPointerWorldMatrix-1 * initialTargetParentWorldMatrix
 
   //same as: matrixHelper2.compose(vectorHelper1, pointerData.initialPointerWorldQuaternion, OneVector).invert()
   matrixHelper2
     .makeRotationFromQuaternion(quaternionHelper.copy(pointerData.initialPointerWorldQuaternion).invert())
-    .multiply(matrixHelper1.makeTranslation(vectorHelper1.negate()))
+    .multiply(matrixHelper1.makeTranslation(vectorHelper1.copy(pointerData.initialPointerWorldPoint).negate()))
   if (storeData.initialTargetParentWorldMatrix != null) {
     matrixHelper2.multiply(storeData.initialTargetParentWorldMatrix)
   }

@@ -70,31 +70,19 @@ export function computeTwoPointerHandleTransformState(
   projectOntoSpace(
     space,
     pointer1Data.initialPointerWorldPoint,
-    vectorHelper1.copy(pointer1Data.initialPointerWorldPoint),
-    pointer1Data.initialPointerWorldDirection,
-  )
-  projectOntoSpace(
-    space,
-    pointer2Data.initialPointerWorldPoint,
-    vectorHelper2.copy(pointer2Data.initialPointerWorldPoint),
-    pointer2Data.initialPointerWorldDirection,
-  )
-  projectOntoSpace(
-    space,
-    pointer1Data.initialPointerWorldPoint,
-    vectorHelper3.copy(pointer1Data.pointerWorldPoint),
+    vectorHelper1.copy(pointer1Data.pointerWorldPoint),
     pointer1Data.pointerWorldDirection,
   )
   projectOntoSpace(
     space,
     pointer2Data.initialPointerWorldPoint,
-    vectorHelper4.copy(pointer2Data.pointerWorldPoint),
+    vectorHelper2.copy(pointer2Data.pointerWorldPoint),
     pointer2Data.pointerWorldDirection,
   )
 
   //compute delta of pointers
-  deltaHelper1.copy(vectorHelper2).sub(vectorHelper1)
-  deltaHelper2.copy(vectorHelper4).sub(vectorHelper3)
+  deltaHelper1.copy(pointer2Data.initialPointerWorldPoint).sub(pointer1Data.initialPointerWorldPoint)
+  deltaHelper2.copy(vectorHelper2).sub(vectorHelper1)
 
   //compute delta rotation
   vectorHelper1.copy(deltaHelper1)

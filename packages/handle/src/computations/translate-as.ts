@@ -67,24 +67,7 @@ export function computeTranslateAsHandleTransformState(
   projectOntoSpace(
     space,
     pointerData.initialPointerWorldPoint,
-    vectorHelper1.copy(pointerData.initialPointerWorldPoint),
-    pointerData.initialPointerWorldDirection,
-  )
-
-  console.log(
-    'y',
-    ...space.map((x) => x.toArray()),
-    'x',
-    ...(pointerData.initialPointerWorldDirection?.toArray() ?? []),
-    'z',
-    pointerData.initialPointerWorldPoint.toArray(),
-    '/',
-    vectorHelper1.toArray(),
-  )
-  projectOntoSpace(
-    space,
-    pointerData.initialPointerWorldPoint,
-    vectorHelper2.copy(pointerData.pointerWorldPoint),
+    vectorHelper1.copy(pointerData.pointerWorldPoint),
     pointerData.pointerWorldDirection,
   )
 
@@ -92,10 +75,8 @@ export function computeTranslateAsHandleTransformState(
   if (storeData.initialTargetParentWorldMatrix != null) {
     matrixHelper.premultiply(storeData.initialTargetParentWorldMatrix)
   }
-  deltaHelper1.setFromMatrixPosition(matrixHelper).negate().add(vectorHelper1)
-  deltaHelper2.setFromMatrixPosition(targetWorldMatrix).negate().add(vectorHelper2)
-
-  console.log(deltaHelper1.toArray(), '/', deltaHelper2.toArray())
+  deltaHelper1.setFromMatrixPosition(matrixHelper).negate().add(pointerData.initialPointerWorldPoint)
+  deltaHelper2.setFromMatrixPosition(targetWorldMatrix).negate().add(vectorHelper1)
 
   //compute delta rotation
   if (options.translate === 'as-scale') {
@@ -159,7 +140,6 @@ export function computeTranslateAsHandleTransformState(
       quaterionHelper2.copy(storeData.initialTargetQuaternion)
     }
     vectorHelper2.copy(deltaHelper2).applyQuaternion(quaterionHelper2.invert())
-    console.log('!', vectorHelper1.toArray(), '->', vectorHelper2.toArray())
 
     scaleHelper.x = vectorHelper1.x === 0 ? 1 : Math.abs(vectorHelper2.x / vectorHelper1.x)
     scaleHelper.y = vectorHelper1.y === 0 ? 1 : Math.abs(vectorHelper2.y / vectorHelper1.y)
