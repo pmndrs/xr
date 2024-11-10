@@ -29,7 +29,7 @@ export const XRSpace = forwardRef<
 >(({ space, children }, ref) => {
   const internalRef = useRef<Group | null>(null)
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const resolvedSpace = useXRSpace(space as any)
+  const resolvedSpace = typeof space === 'string' ? useXRSpace(space) : space
   useImperativeHandle(ref, () => internalRef.current!, [])
   useApplyXRSpaceMatrix(internalRef, resolvedSpace)
   const setRef = useCallback((group: Group | null) => {
@@ -57,9 +57,11 @@ export type XRHandJointSpaceType = XRHandJoint
  */
 export function useXRSpace(): XRSpace
 
-export function useXRSpace(type: XRInputSourceSpaceType | XRHandJointSpaceType): XRSpace | undefined
-
 export function useXRSpace(type: XRReferenceSpaceType): XRReferenceSpace | undefined
+
+export function useXRSpace(
+  type: XRInputSourceSpaceType | XRHandJointSpaceType | XRReferenceSpaceType,
+): XRSpace | undefined
 
 export function useXRSpace(type?: XRSpaceType): XRSpace | XRReferenceSpace | undefined {
   switch (type) {
