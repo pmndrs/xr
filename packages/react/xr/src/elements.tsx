@@ -125,8 +125,8 @@ function XRTransientPointers() {
           return null
         }
         return (
-          <xrInputSourceStateContext.Provider value={state}>
-            <XRSpace key={objectToKey(state)} space="target-ray-space">
+          <xrInputSourceStateContext.Provider value={state} key={objectToKey(state)}>
+            <XRSpace space="target-ray-space">
               <Suspense>
                 {typeof ResolvedImpl === 'function' ? (
                   <ResolvedImpl />
@@ -152,8 +152,8 @@ function XRGazes() {
     <>
       {gazeStates.map((state) => {
         return (
-          <xrInputSourceStateContext.Provider value={state}>
-            <XRSpace key={objectToKey(state)} space="target-ray-space">
+          <xrInputSourceStateContext.Provider key={objectToKey(state)} value={state}>
+            <XRSpace space="target-ray-space">
               <Suspense>
                 {typeof Implementation === 'function' ? (
                   <Implementation />
@@ -179,8 +179,8 @@ function XRScreenInputs() {
     <>
       {screenInputStates.map((state) => {
         return (
-          <xrInputSourceStateContext.Provider value={state}>
-            <XRSpace key={objectToKey(state)} space="target-ray-space">
+          <xrInputSourceStateContext.Provider key={objectToKey(state)} value={state}>
+            <XRSpace space="target-ray-space">
               <Suspense>
                 {typeof Implementation === 'function' ? (
                   <Implementation />
