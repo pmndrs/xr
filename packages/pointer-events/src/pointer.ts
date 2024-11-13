@@ -179,7 +179,7 @@ export class Pointer {
     }
   }
 
-  private computeIntersection(scene: Object3D, nativeEvent: NativeEvent) {
+  computeIntersection(scene: Object3D, nativeEvent: NativeEvent) {
     if (this.pointerCapture != null) {
       return this.intersector.intersectPointerCapture(this.pointerCapture, nativeEvent)
     }
@@ -192,16 +192,7 @@ export class Pointer {
     this.intersection = intersection
   }
 
-  /**
-   * allows to separately compute and afterwards commit a move
-   * => do not forget to call commit after computeMove
-   * can be used to compute the current intersection and disable or enable the pointer before commiting the move
-   */
-  computeMove(scene: Object3D, nativeEvent: NativeEvent) {
-    this.intersection = this.computeIntersection(scene, nativeEvent)
-  }
-
-  commit(nativeEvent: NativeEvent) {
+  commit(nativeEvent: NativeEvent, emitMove: boolean = true) {
     const camera = this.getCamera()
     const prevIntersection = this.prevEnabled ? this.prevIntersection : undefined
     const intersection = this.enabled ? this.intersection : undefined
@@ -235,7 +226,7 @@ export class Pointer {
     }
 
     //pointer move
-    if (intersection != null) {
+    if (emitMove && intersection != null) {
       emitPointerEvent(new PointerEvent('pointermove', true, nativeEvent, this, intersection, camera))
     }
 
@@ -258,7 +249,7 @@ export class Pointer {
    * computes and commits a move
    */
   move(scene: Object3D, nativeEvent: NativeEvent): void {
-    this.computeMove(scene, nativeEvent)
+    this.intersection = this.computeIntersection(scene, nativeEvent)
     this.commit(nativeEvent)
   }
 

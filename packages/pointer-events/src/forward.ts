@@ -113,28 +113,32 @@ function forwardEvents(
   const forwardPointerCapture = options?.forwardPointerCapture ?? true
   const pointerMap = new Map<number, Pointer>()
   const pointerTypePrefix = options.pointerTypePrefix ?? 'forward-'
-  const getInnerPointer = ({ pointerId = -1, pointerType = 'mouse', pointerState }: ForwardablePointerEvent) => {
-    let innerPointer = pointerMap.get(pointerId)
+  const getInnerPointer = (event: ForwardablePointerEvent, eventType: InternalEventType) => {
+    let innerPointer = pointerMap.get(event.pointerId)
     if (innerPointer != null) {
       return innerPointer
     }
-    pointerMap.set(
-      pointerId,
-      (innerPointer = new Pointer(
-        generateUniquePointerId(),
-        `${pointerTypePrefix}${pointerType}`,
-        pointerState,
-        new CameraRayIntersector((nativeEvent, coords) => {
-          toCoords(nativeEvent, coords)
-          return getCamera()
-        }, options),
-        getCamera,
-        undefined,
-        forwardPointerCapture ? setPointerCapture.bind(null, pointerId) : undefined,
-        forwardPointerCapture ? releasePointerCapture.bind(null, pointerId) : undefined,
-        options,
-      )),
+    innerPointer = new Pointer(
+      generateUniquePointerId(),
+      `${pointerTypePrefix}${event.pointerType}`,
+      event.pointerState,
+      new CameraRayIntersector((nativeEvent, coords) => {
+        toCoords(nativeEvent, coords)
+        return getCamera()
+      }, options),
+      getCamera,
+      undefined,
+      forwardPointerCapture ? setPointerCapture.bind(null, event.pointerId) : undefined,
+      forwardPointerCapture ? releasePointerCapture.bind(null, event.pointerId) : undefined,
+      options,
     )
+    if (eventType != 'move' && eventType != 'wheel') {
+      //if we start with a non-move event no, we intersect and commit
+      //this allows enter, down, ... events to be forwarded to the scene even when they dont come with a move event
+      innerPointer.setIntersection(innerPointer.computeIntersection(scene, event))
+      innerPointer.commit(event, false)
+    }
+    pointerMap.set(event.pointerId, innerPointer)
     return innerPointer
   }
 
@@ -175,7 +179,7 @@ function forwardEvents(
   }
 
   const onEvent = (type: InternalEventType, event: ForwardablePointerEvent) => {
-    const pointer = getInnerPointer(event)
+    const pointer = getInnerPointer(event, type)
     if (type === 'move') {
       latestMoveEventMap.set(pointer, event)
     }
@@ -218,7 +222,7 @@ function forwardEvents(
       const length = eventList.length
       for (let i = 0; i < length; i++) {
         const { type, event } = eventList[i]
-        const pointer = getInnerPointer(event)
+        const pointer = getInnerPointer(event, type)
         if (type === 'move') {
           movedPointerList.push(pointer)
           if (latestMoveEventMap.get(pointer) != event) {
