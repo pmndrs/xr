@@ -175,7 +175,7 @@ export class Pointer {
     }
     this.enabled = enabled
     if (commit) {
-      this.commit(nativeEvent)
+      this.commit(nativeEvent, false)
     }
   }
 
@@ -192,7 +192,7 @@ export class Pointer {
     this.intersection = intersection
   }
 
-  commit(nativeEvent: NativeEvent, emitMove: boolean = true) {
+  commit(nativeEvent: NativeEvent, emitMove: boolean) {
     const camera = this.getCamera()
     const prevIntersection = this.prevEnabled ? this.prevIntersection : undefined
     const intersection = this.enabled ? this.intersection : undefined
@@ -250,7 +250,7 @@ export class Pointer {
    */
   move(scene: Object3D, nativeEvent: NativeEvent): void {
     this.intersection = this.computeIntersection(scene, nativeEvent)
-    this.commit(nativeEvent)
+    this.commit(nativeEvent, true)
   }
 
   /**
@@ -398,7 +398,7 @@ export class Pointer {
         this.pointerCapture = undefined
       }
       this.intersection = undefined
-      this.commit(nativeEvent)
+      this.commit(nativeEvent, false)
     }
     this.onFirstMove.length = 0
     this.wasMoved = false
