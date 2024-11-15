@@ -288,7 +288,7 @@ const baseInitialState: Omit<
   layerEntries: [],
 }
 
-function startEmulate(store: StoreApi<XRState<any>>, emulate: EmulatorOptions | true, alert: boolean) {
+function injectEmulator(store: StoreApi<XRState<any>>, emulate: EmulatorOptions | true, alert: boolean) {
   if (typeof navigator === 'undefined') {
     return
   }
@@ -332,12 +332,13 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   const emulate = options?.emulate ?? 'metaQuest3'
   let cleanupEmulate: (() => void) | undefined
   if (typeof window !== 'undefined' && emulate != false) {
-    if (window.location.hostname === 'localhost') {
-      startEmulate(store, emulate, false)
+    const inject = (typeof emulate === 'object' ? emulate.inject : undefined) ?? { hostname: 'localhost' }
+    if (inject === true || (typeof inject != 'boolean' && window.location.hostname === inject.hostname)) {
+      injectEmulator(store, emulate, false)
     }
     const keydownListener = (e: KeyboardEvent) => {
       if (e.altKey && e.metaKey && e.code === 'KeyE') {
-        startEmulate(store, emulate, true)
+        injectEmulator(store, emulate, true)
       }
     }
     window.addEventListener('keydown', keydownListener)

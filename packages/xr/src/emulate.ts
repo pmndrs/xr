@@ -19,6 +19,7 @@ export type EmulatorOptions =
       type?: EmulatorType
       primaryInputMode?: XRDevice['primaryInputMode']
       headset?: EmulatorTransformationOptions
+      inject?: boolean | { hostname: string }
       controller?: Partial<Record<XRHandedness, EmulatorTransformationOptions>>
       hand?: Partial<Record<XRHandedness, EmulatorTransformationOptions>>
     } & Partial<Pick<XRDeviceOptions, 'ipd' | 'fovy' | 'stereoEnabled' | 'canvasContainer'>>)
