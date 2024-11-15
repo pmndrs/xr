@@ -292,7 +292,16 @@ function injectEmulator(store: StoreApi<XRState<any>>, emulate: EmulatorOptions 
   if (typeof navigator === 'undefined') {
     return
   }
-  Promise.all([navigator.xr?.isSessionSupported('immersive-vr'), navigator.xr?.isSessionSupported('immersive-ar')])
+  Promise.all([
+    navigator.xr?.isSessionSupported('immersive-vr').catch((e) => {
+      console.error(e)
+      return false
+    }),
+    navigator.xr?.isSessionSupported('immersive-ar').catch((e) => {
+      console.error(e)
+      return false
+    }),
+  ])
     .then(([vr, ar]) => (!ar && !vr ? import('./emulate.js') : undefined))
     .then((pkg) => {
       if (pkg == null) {
