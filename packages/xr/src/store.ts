@@ -18,8 +18,104 @@ declare global {
   }
 }
 
+declare global {
+  type XRBodyJoint =
+    | 'root'
+    | 'hips'
+    | 'spine-lower'
+    | 'spine-middle'
+    | 'spine-upper'
+    | 'chest'
+    | 'neck'
+    | 'head'
+    | 'left-shoulder'
+    | 'left-scapula'
+    | 'left-arm-upper'
+    | 'left-arm-lower'
+    | 'left-hand-wrist-twist'
+    | 'right-shoulder'
+    | 'right-scapula'
+    | 'right-arm-upper'
+    | 'right-arm-lower'
+    | 'right-hand-wrist-twist'
+    | 'left-hand-palm'
+    | 'left-hand-wrist'
+    | 'left-hand-thumb-metacarpal'
+    | 'left-hand-thumb-phalanx-proximal'
+    | 'left-hand-thumb-phalanx-distal'
+    | 'left-hand-thumb-tip'
+    | 'left-hand-index-metacarpal'
+    | 'left-hand-index-phalanx-proximal'
+    | 'left-hand-index-phalanx-intermediate'
+    | 'left-hand-index-phalanx-distal'
+    | 'left-hand-index-tip'
+    | 'left-hand-middle-metacarpal'
+    | 'left-hand-middle-phalanx-proximal'
+    | 'left-hand-middle-phalanx-intermediate'
+    | 'left-hand-middle-phalanx-distal'
+    | 'left-hand-middle-tip'
+    | 'left-hand-ring-metacarpal'
+    | 'left-hand-ring-phalanx-proximal'
+    | 'left-hand-ring-phalanx-intermediate'
+    | 'left-hand-ring-phalanx-distal'
+    | 'left-hand-ring-tip'
+    | 'left-hand-little-metacarpal'
+    | 'left-hand-little-phalanx-proximal'
+    | 'left-hand-little-phalanx-intermediate'
+    | 'left-hand-little-phalanx-distal'
+    | 'left-hand-little-tip'
+    | 'right-hand-palm'
+    | 'right-hand-wrist'
+    | 'right-hand-thumb-metacarpal'
+    | 'right-hand-thumb-phalanx-proximal'
+    | 'right-hand-thumb-phalanx-distal'
+    | 'right-hand-thumb-tip'
+    | 'right-hand-index-metacarpal'
+    | 'right-hand-index-phalanx-proximal'
+    | 'right-hand-index-phalanx-intermediate'
+    | 'right-hand-index-phalanx-distal'
+    | 'right-hand-index-tip'
+    | 'right-hand-middle-metacarpal'
+    | 'right-hand-middle-phalanx-proximal'
+    | 'right-hand-middle-phalanx-intermediate'
+    | 'right-hand-middle-phalanx-distal'
+    | 'right-hand-middle-tip'
+    | 'right-hand-ring-metacarpal'
+    | 'right-hand-ring-phalanx-proximal'
+    | 'right-hand-ring-phalanx-intermediate'
+    | 'right-hand-ring-phalanx-distal'
+    | 'right-hand-ring-tip'
+    | 'right-hand-little-metacarpal'
+    | 'right-hand-little-phalanx-proximal'
+    | 'right-hand-little-phalanx-intermediate'
+    | 'right-hand-little-phalanx-distal'
+    | 'right-hand-little-tip'
+    | 'left-upper-leg'
+    | 'left-lower-leg'
+    | 'left-foot-ankle-twist'
+    | 'left-foot-ankle'
+    | 'left-foot-subtalar'
+    | 'left-foot-transverse'
+    | 'left-foot-ball'
+    | 'right-upper-leg'
+    | 'right-lower-leg'
+    | 'right-foot-ankle-twist'
+    | 'right-foot-ankle'
+    | 'right-foot-subtalar'
+    | 'right-foot-transverse'
+    | 'right-foot-ball'
+  interface XRBodySpace extends XRSpace {
+    readonly jointName: XRBodyJoint
+  }
+  interface XRBody extends Map<XRBodyJoint, XRBodySpace> {}
+  interface XRFrame {
+    readonly body?: XRBody
+  }
+}
+
 export type XRState<T extends XRElementImplementations> = Readonly<
   {
+    body?: XRBody
     /**
      * current `XRSession`
      */
@@ -510,6 +606,10 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
         if (state.session == null && referenceSpace != null && frame.session != null) {
           update ??= {}
           Object.assign(update, bindToSession(frame.session))
+        }
+        if (state.body != frame.body) {
+          update ??= {}
+          update.body = frame.body
         }
       }
 

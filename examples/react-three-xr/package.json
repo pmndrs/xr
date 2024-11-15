@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@react-three/drei": "^9.116.0",
         "@react-three/xr": "workspace:^"
     },
     "scripts": {
