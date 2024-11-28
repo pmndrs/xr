@@ -190,6 +190,10 @@ export class ScreenRayIntersector implements Intersector {
     }
     return {
       ...intersection,
+      details: {
+        ...details,
+        screenPoint: this.coords.clone(),
+      },
       uv,
       object,
       point,

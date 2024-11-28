@@ -179,7 +179,7 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
     public readonly bubbles: boolean,
     nativeEvent: E,
     protected internalPointer: Pointer,
-    protected readonly intersection: ThreeIntersection,
+    public readonly intersection: ThreeIntersection,
     public readonly camera: Camera,
     public readonly currentObject: Object3D = intersection.object,
     public readonly object: Object3D = currentObject,
