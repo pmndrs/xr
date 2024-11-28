@@ -143,7 +143,7 @@ export class RayIntersector implements Intersector {
   }
 }
 
-export class CameraRayIntersector implements Intersector {
+export class ScreenRayIntersector implements Intersector {
   private readonly raycaster = new Raycaster()
   private readonly fromPosition = new Vector3()
   private readonly fromQuaternion = new Quaternion()
@@ -165,7 +165,7 @@ export class CameraRayIntersector implements Intersector {
 
   public intersectPointerCapture({ intersection, object }: PointerCapture, nativeEvent: unknown): Intersection {
     const details = intersection.details
-    if (details.type != 'camera-ray') {
+    if (details.type != 'screen-ray') {
       throw new Error(
         `unable to process a pointer capture of type "${intersection.details.type}" with a camera ray intersector`,
       )
@@ -230,7 +230,7 @@ export class CameraRayIntersector implements Intersector {
       return voidObjectIntersectionFromRay(
         scene,
         this.raycaster.ray,
-        (distance) => ({ type: 'camera-ray', distanceViewPlane: distance }),
+        (distance) => ({ type: 'screen-ray', distanceViewPlane: distance, screenPoint: this.coords.clone() }),
         pointerPosition,
         pointerQuaternion,
       )
@@ -241,8 +241,9 @@ export class CameraRayIntersector implements Intersector {
 
     return Object.assign(intersection, {
       details: {
-        type: 'camera-ray' as const,
+        type: 'screen-ray' as const,
         distanceViewPlane: this.viewPlane.distanceToPoint(intersection.point),
+        screenPoint: this.coords.clone(),
       },
       pointOnFace: intersection.point,
       pointerPosition,

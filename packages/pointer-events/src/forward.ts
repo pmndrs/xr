@@ -1,7 +1,7 @@
-import { Mesh, Object3D, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
+import { Object3D, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
 import { GetCamera, Pointer, PointerOptions } from './pointer.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
-import { CameraRayIntersector } from './intersections/ray.js'
+import { ScreenRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
 import { IntersectionOptions } from './intersections/index.js'
 
@@ -122,7 +122,7 @@ function forwardEvents(
       generateUniquePointerId(),
       `${pointerTypePrefix}${event.pointerType}`,
       event.pointerState,
-      new CameraRayIntersector((nativeEvent, coords) => {
+      new ScreenRayIntersector((nativeEvent, coords) => {
         toCoords(nativeEvent, coords)
         return getCamera()
       }, options),
