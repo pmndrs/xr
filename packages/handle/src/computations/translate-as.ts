@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { HandleTransformState } from '../state.js'
 import { HandleOptions } from '../store.js'
 import {
@@ -57,26 +57,33 @@ export function computeTranslateAsHandleTransformState(
   }
   //compute space
   space.length = 0
-  if (options.translate != 'as-rotate') {
+  if (options.translate === 'as-scale') {
     addSpaceFromTransformOptions(space, qHelper1, storeData.initialTargetRotation, options.scale ?? true, 'scale')
   }
   if (options.translate != 'as-scale') {
     addSpaceFromTransformOptions(space, qHelper1, storeData.initialTargetRotation, options.rotate ?? true, 'rotate')
   }
-  //project into sapce
-  projectOntoSpace(
-    space,
-    pointerData.initialPointerWorldPoint,
-    vectorHelper1.copy(pointerData.pointerWorldPoint),
-    pointerData.pointerWorldDirection,
-  )
 
   matrixHelper.makeTranslation(storeData.initialTargetPosition)
   if (storeData.initialTargetParentWorldMatrix != null) {
     matrixHelper.premultiply(storeData.initialTargetParentWorldMatrix)
   }
-  deltaHelper1.setFromMatrixPosition(matrixHelper).negate().add(pointerData.initialPointerWorldPoint)
-  deltaHelper2.setFromMatrixPosition(targetWorldMatrix).negate().add(vectorHelper1)
+
+  //compute initial delta between point and target projected on space
+  deltaHelper1.setFromMatrixPosition(matrixHelper)
+  projectOntoSpace(space, pointerData.initialPointerWorldPoint, deltaHelper1, undefined)
+  deltaHelper1.negate().add(pointerData.initialPointerWorldPoint)
+
+  //compute current delta between point and target projected on space
+  deltaHelper2.setFromMatrixPosition(targetWorldMatrix)
+  projectOntoSpace(space, pointerData.initialPointerWorldPoint, deltaHelper2, undefined)
+  projectOntoSpace(
+    space,
+    pointerData.initialPointerWorldPoint,
+    vectorHelper2.copy(pointerData.pointerWorldPoint),
+    pointerData.pointerWorldDirection,
+  )
+  deltaHelper2.negate().add(vectorHelper2)
 
   //compute delta rotation
   if (options.translate === 'as-scale') {
@@ -141,10 +148,12 @@ export function computeTranslateAsHandleTransformState(
     }
     vectorHelper2.copy(deltaHelper2).applyQuaternion(quaterionHelper2.invert())
 
-    scaleHelper.x = vectorHelper1.x === 0 ? 1 : Math.abs(vectorHelper2.x / vectorHelper1.x)
-    scaleHelper.y = vectorHelper1.y === 0 ? 1 : Math.abs(vectorHelper2.y / vectorHelper1.y)
-    scaleHelper.z = vectorHelper1.z === 0 ? 1 : Math.abs(vectorHelper2.z / vectorHelper1.z)
+    scaleHelper.x = Math.abs(vectorHelper1.x) < 0.001 ? 1 : Math.abs(vectorHelper2.x / vectorHelper1.x)
+    scaleHelper.y = Math.abs(vectorHelper1.y) < 0.001 ? 1 : Math.abs(vectorHelper2.y / vectorHelper1.y)
+    scaleHelper.z = Math.abs(vectorHelper1.z) < 0.001 ? 1 : Math.abs(vectorHelper2.z / vectorHelper1.z)
   }
+
+  scaleHelper.multiply(storeData.initialTargetScale)
 
   matrixHelper.compose(storeData.initialTargetPosition, qHelper1, scaleHelper)
 

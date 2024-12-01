@@ -6,7 +6,8 @@
   "homepage": "https://github.com/pmndrs/xr",
   "version": "0.0.0",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "mocha ./tests/*.spec.ts"
   },
   "keywords": [
     "r3f",

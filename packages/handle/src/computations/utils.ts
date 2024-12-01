@@ -106,23 +106,34 @@ function getPerpendicular(target: Vector3, from: Vector3): void {
 const quaternionHelper = new Quaternion()
 const eulerHelper = new Euler()
 
-function applyTransformOptionsToRotation(
+export function applyTransformOptionsToRotation(
   currentRotation: Quaternion,
   initialRotation: Euler,
   options: HandleTransformOptions,
 ): Euler {
   const result = new Euler(0, 0, 0, initialRotation.order)
-  quaternionHelper.copy(currentRotation)
+  let inverted = false
   for (const axisElement of initialRotation.order) {
-    const axis = axisElement as Axis
-    const axisAngle = eulerHelper.setFromQuaternion(currentRotation, initialRotation.order)[axis]
-    result[axis] = axisAngle
-    quaternionHelper.setFromEuler(result).invert()
-    currentRotation.premultiply(quaternionHelper)
-    result[axis] = applyTransformOptionsToAxis(axis, axisAngle, initialRotation[axis], options)
-    currentRotation.setFromEuler(result)
-    currentRotation.multiply(quaternionHelper)
+    const axis = axisElement.toLowerCase() as Axis
+    const axisAngle =
+      eulerHelper.setFromQuaternion(currentRotation, initialRotation.order)[axis] + (inverted ? Math.PI : 0)
+    const transformedAxisAngle = applyTransformOptionsToAxis(axis, axisAngle, initialRotation[axis], options)
+
+    if (Math.abs(axisAngle - transformedAxisAngle) > Math.PI / 2) {
+      inverted = !inverted
+    }
+
+    if (axisAngle != transformedAxisAngle) {
+      //currentRotation = currentRotation * result-1 * delta * result
+      currentRotation.multiply(quaternionHelper.setFromEuler(result).invert())
+      const delta = axisAngle - transformedAxisAngle
+      result[axis] = delta
+      currentRotation.multiply(quaternionHelper.setFromEuler(result))
+    }
+
+    result[axis] = transformedAxisAngle
   }
+  currentRotation.setFromEuler(result)
   return result
 }
 
@@ -246,7 +257,7 @@ function addSpaceFromAxis(
   }
   eHelper.copy(initialTargetRotation)
   for (let i = 2; i >= 0; i--) {
-    const rotationAxis = initialTargetRotation.order[i]
+    const rotationAxis = initialTargetRotation.order[i].toLowerCase()
     eHelper[rotationAxis as Axis] = 0
     if (rotationAxis === axis) {
       break
@@ -307,12 +318,11 @@ function projectOntoPlane(
 
 const vectorHelper = new Vector3()
 const crossVectorHelper = new Vector3()
-const offsetHelper = new Vector3()
 
 /**
  * finds the intersection between the given axis (infinite line) and another infinite line provided with point and direction
  */
-function projectOntoAxis(
+export function projectOntoAxis(
   initialWorldPoint: Vector3,
   axis: Vector3,
   worldPoint: Vector3,
@@ -330,27 +340,15 @@ function projectOntoAxis(
   projectPointOntoNormal(vectorHelper.copy(initialWorldPoint).sub(worldPoint), crossVectorHelper)
   //3. add the worldPoint to that vectorHelper, so that that normals of worldPoint and initialWorldPoint are meeting if applied to vectorHelper and initialWorldPoint
   vectorHelper.add(worldPoint)
-  //4. calculate the offset from worldPoint to vectorHelper projected onto the line starting from initialWorldPoint along
-  offsetHelper.copy(vectorHelper).sub(initialWorldPoint)
-  projectPointOntoNormal(offsetHelper, axis)
-  offsetHelper.add(initialWorldPoint).sub(worldPoint)
-  //5. calculate the the angle between worldDirection and offsetHelper
-  let angle = Math.acos(offsetHelper.dot(worldDirection) / (offsetHelper.length() * worldDirection.length()))
-  let isAlongWorldDirection: boolean = true
-  if (angle > Math.PI / 2) {
-    angle = Math.PI - angle
-    isAlongWorldDirection = false
-  }
-  console.log('angle', (180 * angle) / Math.PI)
-  //6. calculate the hypothenuse of the triangle between the target point, vectorHelper, and vectorHelper + offsetHelper
-  const hypothenuse = offsetHelper.length() / Math.sin(Math.PI / 2 - angle)
-  //7. calculate the final point by adding -worldDirection with the length of the hypothenuse to the worldPoint
-  vectorHelper.addScaledVector(worldDirection, isAlongWorldDirection ? hypothenuse : -hypothenuse)
-  //8. write to target (worldPoint)
-  worldPoint.copy(vectorHelper)
+  projectPointOntoNormal(worldPoint.copy(vectorHelper).sub(initialWorldPoint), axis)
+  worldPoint.add(initialWorldPoint)
+  const angle = axis.angleTo(worldDirection)
+  const gegenkathete = vectorHelper.distanceTo(worldPoint) / Math.tan(angle)
+  const inverted = vectorHelper.subVectors(worldPoint, initialWorldPoint).dot(axis) > 0
+  worldPoint.addScaledVector(axis, (inverted ? -1 : 1) * gegenkathete)
 }
 
-function projectPointOntoNormal(point: Vector3, normal: Vector3) {
+export function projectPointOntoNormal(point: Vector3, normal: Vector3) {
   const dot = point.dot(normal)
   point.copy(normal).multiplyScalar(dot)
 }

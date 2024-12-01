@@ -146,8 +146,6 @@ export class HandleStore<T>
         rotation: this.initialTargetRotation.clone(),
         scale: this.initialTargetScale.clone(),
       })
-    } else {
-      //TODO: add
     }
     this.outputState.memo = this.apply(target)
   }

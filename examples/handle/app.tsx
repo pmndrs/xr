@@ -1,9 +1,10 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { createXRStore, XR } from '@react-three/xr'
-import { useEffect, useMemo, useRef } from 'react'
-import { Group, Mesh } from 'three'
-import { useHandle } from '@react-three/handle'
+import { useEffect, useRef } from 'react'
+import { BufferGeometry, Mesh, Vector3 } from 'three'
+import { Handle, HandleTarget, useHandle } from '@react-three/handle'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { Environment } from '@react-three/drei'
 
 const store = createXRStore()
 
@@ -19,7 +20,7 @@ export function App() {
       >
         <SwitchToXRPointerEvents />
         <XR store={store}>
-          <ambientLight />
+          <Environment preset="city" />
           <directionalLight position={[1, 1, 1]} />
           <Cube />
           <Cube />
@@ -27,7 +28,7 @@ export function App() {
           <TeleportTarget onTeleport={setPosition}>
             <mesh scale={[10, 1, 10]} position={[0, -0.5, 0]}>
               <boxGeometry />
-              <meshBasicMaterial color="green" />
+              <meshStandardMaterial color="green" />
             </mesh>
           </TeleportTarget>*/}
         </XR>
@@ -37,123 +38,54 @@ export function App() {
 }
 
 function Cube() {
-  const ref = useRef<Mesh>(null)
-  const xHandleRef = useRef<Mesh>(null)
-  const yHandleRef = useRef<Mesh>(null)
-  const zHandleRef = useRef<Mesh>(null)
-  useHandle(ref, {
-    apply: (state) => {
-      const mesh = ref.current
-      if (mesh == null) {
-        return
-      }
-      mesh.scale.x = state.current.scale.x
-      console.log(state.current.scale.toArray())
-      if (xHandleRef.current != null) {
-        xHandleRef.current.scale.x = 0.1 / mesh.scale.x
-      }
-      if (yHandleRef.current != null) {
-        yHandleRef.current.scale.x = 0.1 / mesh.scale.x
-      }
-      if (zHandleRef.current != null) {
-        zHandleRef.current.scale.x = 0.1 / mesh.scale.x
-      }
-    },
-    handle: xHandleRef,
-    translate: 'as-scale',
-    scale: 'x',
-  })
-  useHandle(ref, {
-    apply: (state) => {
-      const mesh = ref.current
-      if (mesh == null) {
-        return
-      }
-      mesh.scale.y = state.current.scale.y
-      if (xHandleRef.current != null) {
-        xHandleRef.current.scale.y = 0.1 / mesh.scale.y
-      }
-      if (yHandleRef.current != null) {
-        yHandleRef.current.scale.y = 0.1 / mesh.scale.y
-      }
-      if (zHandleRef.current != null) {
-        zHandleRef.current.scale.y = 0.1 / mesh.scale.y
-      }
-    },
-    handle: yHandleRef,
-    translate: 'as-scale',
-    scale: 'y',
-  })
-  useHandle(ref, {
-    apply: (state) => {
-      const mesh = ref.current
-      if (mesh == null) {
-        return
-      }
-      mesh.rotation.x = state.current.rotation.x
-    },
-    handle: zHandleRef,
-    translate: 'as-rotate',
-    rotate: 'x',
-  })
-  useHandle(ref, {
-    apply: (state) => {
-      ref.current?.position.copy(state.current.position)
-      ref.current?.quaternion.copy(state.current.quaternion)
-      if (state.current.pointerAmount > 1) {
-        ref.current?.scale.copy(state.current.scale)
-        if (ref.current != null) {
-          xHandleRef.current?.scale.setScalar(0.1).divide(ref.current.scale)
-          yHandleRef.current?.scale.setScalar(0.1).divide(ref.current.scale)
-          zHandleRef.current?.scale.setScalar(0.1).divide(ref.current.scale)
-        }
-      }
-    },
-    translate: {
-      z: false,
-    },
-  })
   return (
-    <group rotation-y={Math.PI / 4} position-y={-2}>
-      <mesh rotation-order="XZY" scale={1} pointerEventsType={{ deny: 'touch' }} ref={ref}>
-        <boxGeometry />
-        <meshPhongMaterial color="red" />
-        <mesh
-          pointerEventsOrder={1}
-          renderOrder={1}
-          scale={0.1}
-          position-x={0.7}
-          pointerEventsType={{ deny: 'touch' }}
-          ref={xHandleRef}
-        >
-          <boxGeometry />
-          <meshBasicMaterial depthTest={false} color="blue" />
-        </mesh>
+    <group position-y={-2}>
+      <HandleTarget>
+        <Handle>
+          <mesh rotation-order="XZY" scale={1} pointerEventsType={{ deny: 'touch' }}>
+            <boxGeometry />
+            <meshStandardMaterial color="red" />
+            <Handle scale="x" translate="as-scale">
+              <mesh
+                pointerEventsOrder={1}
+                renderOrder={1}
+                scale={0.1}
+                position-x={0.7}
+                pointerEventsType={{ deny: 'touch' }}
+              >
+                <boxGeometry />
+                <meshStandardMaterial depthTest={false} color="blue" />
+              </mesh>
+            </Handle>
 
-        <mesh
-          pointerEventsOrder={1}
-          renderOrder={1}
-          scale={0.1}
-          position-y={0.7}
-          pointerEventsType={{ deny: 'touch' }}
-          ref={yHandleRef}
-        >
-          <boxGeometry />
-          <meshBasicMaterial depthTest={false} color="yellow" />
-        </mesh>
+            <Handle translate="as-rotate" rotate="x">
+              <mesh
+                pointerEventsOrder={1}
+                renderOrder={1}
+                scale={0.1}
+                position-y={0.7}
+                pointerEventsType={{ deny: 'touch' }}
+              >
+                <boxGeometry />
+                <meshStandardMaterial depthTest={false} color="yellow" />
+              </mesh>
+            </Handle>
 
-        <mesh
-          pointerEventsOrder={1}
-          renderOrder={1}
-          scale={0.1}
-          position-z={0.7}
-          pointerEventsType={{ deny: 'touch' }}
-          ref={zHandleRef}
-        >
-          <boxGeometry />
-          <meshBasicMaterial depthTest={false} color="green" />
-        </mesh>
-      </mesh>
+            <Handle translate="as-rotate-and-scale">
+              <mesh
+                pointerEventsOrder={1}
+                renderOrder={1}
+                scale={0.1}
+                position-z={0.7}
+                pointerEventsType={{ deny: 'touch' }}
+              >
+                <boxGeometry />
+                <meshStandardMaterial depthTest={false} color="green" />
+              </mesh>
+            </Handle>
+          </mesh>
+        </Handle>
+      </HandleTarget>
     </group>
   )
 }
