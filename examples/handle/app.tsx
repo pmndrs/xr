@@ -1,10 +1,10 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { createXRStore, XR } from '@react-three/xr'
-import { useEffect, useRef } from 'react'
-import { BufferGeometry, Mesh, Vector3 } from 'three'
-import { Handle, HandleTarget, useHandle } from '@react-three/handle'
+import { Canvas, useThree } from '@react-three/fiber'
+import { createXRStore, XR, XROrigin } from '@react-three/xr'
+import { useEffect } from 'react'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { Environment } from '@react-three/drei'
+import { Door } from './door.js'
+import { Spaceship } from './spaceship.js'
 
 const store = createXRStore()
 
@@ -21,72 +21,12 @@ export function App() {
         <SwitchToXRPointerEvents />
         <XR store={store}>
           <Environment preset="city" />
-          <directionalLight position={[1, 1, 1]} />
-          <Cube />
-          <Cube />
-          {/*<Smoke count={100} maxSize={0.3} minSize={0.1} spawnRate={10} speed={0.1} />
-          <TeleportTarget onTeleport={setPosition}>
-            <mesh scale={[10, 1, 10]} position={[0, -0.5, 0]}>
-              <boxGeometry />
-              <meshStandardMaterial color="green" />
-            </mesh>
-          </TeleportTarget>*/}
+          <Door scale={0.01} />
+          <Spaceship scale={1.5} position-y={-2.7} position-z={-1} />
+          <XROrigin position={[0, 0, -2.7]} rotation-y={Math.PI} />
         </XR>
       </Canvas>
     </>
-  )
-}
-
-function Cube() {
-  return (
-    <group position-y={-2}>
-      <HandleTarget>
-        <Handle>
-          <mesh rotation-order="XZY" scale={1} pointerEventsType={{ deny: 'touch' }}>
-            <boxGeometry />
-            <meshStandardMaterial color="red" />
-            <Handle scale="x" translate="as-scale">
-              <mesh
-                pointerEventsOrder={1}
-                renderOrder={1}
-                scale={0.1}
-                position-x={0.7}
-                pointerEventsType={{ deny: 'touch' }}
-              >
-                <boxGeometry />
-                <meshStandardMaterial depthTest={false} color="blue" />
-              </mesh>
-            </Handle>
-
-            <Handle translate="as-rotate" rotate="x">
-              <mesh
-                pointerEventsOrder={1}
-                renderOrder={1}
-                scale={0.1}
-                position-y={0.7}
-                pointerEventsType={{ deny: 'touch' }}
-              >
-                <boxGeometry />
-                <meshStandardMaterial depthTest={false} color="yellow" />
-              </mesh>
-            </Handle>
-
-            <Handle translate="as-rotate-and-scale">
-              <mesh
-                pointerEventsOrder={1}
-                renderOrder={1}
-                scale={0.1}
-                position-z={0.7}
-                pointerEventsType={{ deny: 'touch' }}
-              >
-                <boxGeometry />
-                <meshStandardMaterial depthTest={false} color="green" />
-              </mesh>
-            </Handle>
-          </mesh>
-        </Handle>
-      </HandleTarget>
-    </group>
   )
 }
 
