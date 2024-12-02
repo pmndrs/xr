@@ -34,13 +34,13 @@ const canvas = document.getElementById('root') as HTMLCanvasElement
 const renderer = new WebGLRenderer({ antialias: true, canvas, alpha: true })
 renderer.xr.enabled = true
 
-const teleportTarget = new Mesh(new BoxGeometry(), new MeshBasicMaterial({ color: 'yellow' }))
+const teleportTarget = new Mesh(new BoxGeometry(), new MeshBasicMaterial({ color: 'black' }))
 teleportTarget.position.y = -0.5
 teleportTarget.scale.set(100, 1, 100)
 makeTeleportTarget(teleportTarget, camera, (point) => origin.position.copy(point))
 scene.add(teleportTarget)
 
-const store = createXRStore(canvas, scene, camera, renderer.xr, {
+const store = createXRStore(canvas, scene, () => camera, renderer.xr, {
   hand: {
     model: { colorWrite: false, renderOrder: -1 },
     grabPointer: false,
@@ -48,6 +48,7 @@ const store = createXRStore(canvas, scene, camera, renderer.xr, {
   },
   controller: {
     model: { colorWrite: false, renderOrder: -1 },
+    teleportPointer: true,
   },
 })
 document.getElementById('enter-ar')?.addEventListener('click', () => store.enterAR())

@@ -14,6 +14,8 @@ import {
 import { Group, Object3D } from 'three'
 import { xrSpaceContext } from './contexts.js'
 import { useXR } from './xr.js'
+import { useXRControllerButtonEvent } from './controller.js'
+import { useXRInputSourceStateContext } from './input.js'
 
 /**
  * component that puts its children at the provided space (or reference space type)
@@ -21,7 +23,7 @@ import { useXR } from './xr.js'
 export const XRSpace = forwardRef<
   Object3D,
   {
-    space: XRSpace | XRReferenceSpaceType
+    space: XRSpace | XRSpaceType
     children?: ReactNode
   }
 >(({ space, children }, ref) => {
@@ -44,6 +46,12 @@ export const XRSpace = forwardRef<
   )
 })
 
+export type XRSpaceType = XRReferenceSpaceType | XRInputSourceSpaceType | XRHandJointSpaceType
+
+export type XRInputSourceSpaceType = 'grip-space' | 'target-ray-space'
+
+export type XRHandJointSpaceType = XRHandJoint
+
 /**
  * hook for retrieving getting xr space from the context
  */
@@ -51,7 +59,46 @@ export function useXRSpace(): XRSpace
 
 export function useXRSpace(type: XRReferenceSpaceType): XRReferenceSpace | undefined
 
-export function useXRSpace(type?: XRReferenceSpaceType): XRSpace | XRReferenceSpace | undefined {
+export function useXRSpace(
+  type: XRInputSourceSpaceType | XRHandJointSpaceType | XRReferenceSpaceType,
+): XRSpace | undefined
+
+export function useXRSpace(type?: XRSpaceType): XRSpace | XRReferenceSpace | undefined {
+  switch (type) {
+    case 'grip-space':
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useXRInputSourceStateContext().inputSource.gripSpace
+    case 'target-ray-space':
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useXRInputSourceStateContext().inputSource.targetRaySpace
+    case 'wrist':
+    case 'thumb-metacarpal':
+    case 'thumb-phalanx-proximal':
+    case 'thumb-phalanx-distal':
+    case 'thumb-tip':
+    case 'index-finger-metacarpal':
+    case 'index-finger-phalanx-proximal':
+    case 'index-finger-phalanx-intermediate':
+    case 'index-finger-phalanx-distal':
+    case 'index-finger-tip':
+    case 'middle-finger-metacarpal':
+    case 'middle-finger-phalanx-proximal':
+    case 'middle-finger-phalanx-intermediate':
+    case 'middle-finger-phalanx-distal':
+    case 'middle-finger-tip':
+    case 'ring-finger-metacarpal':
+    case 'ring-finger-phalanx-proximal':
+    case 'ring-finger-phalanx-intermediate':
+    case 'ring-finger-phalanx-distal':
+    case 'ring-finger-tip':
+    case 'pinky-finger-metacarpal':
+    case 'pinky-finger-phalanx-proximal':
+    case 'pinky-finger-phalanx-intermediate':
+    case 'pinky-finger-phalanx-distal':
+    case 'pinky-finger-tip':
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useXRInputSourceStateContext('hand').inputSource.hand.get(type)
+  }
   if (type == null) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const context = useContext(xrSpaceContext)

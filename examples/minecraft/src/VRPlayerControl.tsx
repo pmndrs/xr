@@ -1,6 +1,6 @@
 import { useFrame } from '@react-three/fiber'
 import { Vector3Object } from '@react-three/rapier'
-import { useControllerLocomotion, useXRInputSourceState, XROrigin } from '@react-three/xr'
+import { useXRControllerLocomotion, useXRInputSourceState, XROrigin } from '@react-three/xr'
 import * as THREE from 'three'
 
 export function VRPlayerControl({
@@ -32,7 +32,7 @@ export function VRPlayerControl({
     })
   }
 
-  useControllerLocomotion(physicsMove, { speed: 5 })
+  useXRControllerLocomotion(physicsMove, { speed: 5 })
 
   useFrame(() => {
     if (controllerRight?.gamepad?.['a-button']?.state === 'pressed') {

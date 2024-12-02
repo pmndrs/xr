@@ -1,4 +1,4 @@
-import { Intersection as ThreeIntersection, Quaternion, Vector3, Line3, Ray, Raycaster } from 'three'
+import { Intersection as ThreeIntersection, Quaternion, Vector3, Line3, Vector2 } from 'three'
 
 export type Intersection = ThreeIntersection & {
   pointerPosition: Vector3
@@ -17,9 +17,16 @@ export type Intersection = ThreeIntersection & {
         line: Line3
       }
     | {
-        type: 'camera-ray'
+        type: 'screen-ray'
+        /**
+         * distance to the near plane of the camera of the screen
+         */
         distanceViewPlane: number
         direction: Vector3
+        /**
+         * point on the screen for x and y from -1 to 1
+         */
+        screenPoint: Vector2
       }
     | {
         type: 'ray'

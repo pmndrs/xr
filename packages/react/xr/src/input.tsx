@@ -36,8 +36,13 @@ export function useXRInputSourceStateContext<T extends keyof XRInputSourceStateM
   type?: T,
 ): XRInputSourceStateMap[T] {
   const state = useContext(xrInputSourceStateContext)
-  if (state == null || (type != null && state.type != type)) {
-    throw new Error(`useXRInputSourceStateContext() can only be used inside a the xr store config`)
+  if (state == null) {
+    throw new Error(`useXRInputSourceStateContext() can only be used inside the xr store config`)
+  }
+  if (type != null && state.type != type) {
+    throw new Error(
+      `useXRInputSourceStateContext(${type}) can not be used inside a component for input type "${state.type}"`,
+    )
   }
   return state as XRInputSourceStateMap[T]
 }

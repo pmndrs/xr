@@ -22,6 +22,7 @@ export const RayGrab = forwardRef<Group, ComponentPropsWithoutRef<typeof Interac
     if (!group || !controller) return
 
     group.applyMatrix4(previousTransform)
+    controller.updateWorldMatrix(true, false)
     group.applyMatrix4(controller.matrixWorld)
     group.updateMatrixWorld()
 
@@ -38,6 +39,7 @@ export const RayGrab = forwardRef<Group, ComponentPropsWithoutRef<typeof Interac
           e.target.object != null
         ) {
           grabbingController.current = e.target.object
+          e.target.object.updateWorldMatrix(true, false)
           previousTransform.copy(e.target.object.matrixWorld).invert()
           onSelectStart?.(e)
         }

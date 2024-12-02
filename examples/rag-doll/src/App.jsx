@@ -1,13 +1,11 @@
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { Physics, usePlane } from '@react-three/cannon'
 import { Cursor } from './helpers/Drag.js'
 import { Guy } from './components/Guy.jsx'
 import { Mug, Chair, Table, Lamp } from './components/Furniture.jsx'
-import { createXRStore, useControllerLocomotion, XR, XROrigin } from '@react-three/xr'
-import { useRef, Suspense, useEffect } from 'react'
-import { Group } from 'three'
-import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { createXRStore, noEvents, useXRControllerLocomotion, XR, XROrigin, PointerEvents } from '@react-three/xr'
+import { useRef, Suspense } from 'react'
 
 const store = createXRStore({
   hand: { touchPointer: false },
@@ -42,10 +40,10 @@ export function App() {
         onPointerMissed={() => console.log('missed')}
         dpr={[1, 2]}
         shadows
-        events={() => ({ enabled: false, priority: 0 })}
+        events={noEvents}
         camera={{ position: [-40, 40, 40], fov: 25 }}
       >
-        <SwitchToXRPointerEvents />
+        <PointerEvents />
         <OrbitControls />
         <XR store={store}>
           <color attach="background" args={['#171720']} />
@@ -74,7 +72,7 @@ export function App() {
 
 function ControlledXROrigin() {
   const ref = useRef(null)
-  useControllerLocomotion(ref, { speed: 10 })
+  useXRControllerLocomotion(ref, { speed: 10 })
   return <XROrigin ref={ref} scale={10} />
 }
 
@@ -96,12 +94,4 @@ function Floor(props) {
       />
     </mesh>
   )
-}
-
-export function SwitchToXRPointerEvents() {
-  const domElement = useThree((s) => s.gl.domElement)
-  const camera = useThree((s) => s.camera)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, () => camera, scene), [domElement, camera, scene])
-  return null
 }

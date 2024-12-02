@@ -1,14 +1,13 @@
-import { Canvas, useThree } from '@react-three/fiber'
-import { useEffect, useRef } from 'react'
-import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { Canvas } from '@react-three/fiber'
 import { useDrag } from '@use-gesture/react'
-import { Mesh } from 'three'
+import { noEvents, PointerEvents } from '@react-three/xr'
+import { useRef } from 'react'
 
 export function App() {
   return (
-    <Canvas style={{ width: '100%', flexGrow: 1 }} events={() => ({ enabled: false, priority: 0 })}>
+    <Canvas style={{ width: '100%', flexGrow: 1 }} events={noEvents}>
       <DragCube />
-      <SwitchToXRPointerEvents />
+      <PointerEvents />
     </Canvas>
   )
 }
@@ -22,12 +21,4 @@ function DragCube() {
       <meshBasicMaterial color="blue" />
     </mesh>
   )
-}
-
-export function SwitchToXRPointerEvents() {
-  const domElement = useThree((s) => s.gl.domElement)
-  const camera = useThree((s) => s.camera)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, () => camera, scene), [domElement, camera, scene])
-  return null
 }

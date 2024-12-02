@@ -15,6 +15,7 @@ import {
 import { createPortal, useFrame } from '@react-three/fiber'
 import { Object3D } from 'three'
 import { useXRInputSourceStateContext } from './input.js'
+import { XRSpace } from './space.js'
 
 /**
  * component for placing content in the controller anchored at a specific component such as the Thumbstick
@@ -88,7 +89,11 @@ export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>(
     [model, state.layout, state.gamepad],
   )
   useFrame(update)
-  return <primitive object={model} />
+  return (
+    <XRSpace space="grip-space">
+      <primitive object={model} />
+    </XRSpace>
+  )
 })
 
 const LoadXRControllerLayoutSymbol = Symbol('loadXRControllerLayout')

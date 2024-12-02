@@ -2,9 +2,9 @@ import { RootState, useFrame } from '@react-three/fiber'
 import { RefObject, useMemo } from 'react'
 import { Vector3, Object3D } from 'three'
 import {
-  type ControllerLocomotionRotationOptions,
-  type ControllerLocomotionTranslationOptions,
-  createControllerLocomotionUpdate,
+  type XRControllerLocomotionRotationOptions,
+  type XRControllerLocomotionTranslationOptions,
+  createXRControllerLocomotionUpdate,
 } from '@pmndrs/xr/internals'
 import { useXRStore } from './xr.js'
 
@@ -20,16 +20,16 @@ import { useXRStore } from './xr.js'
  * @param rotationOptions.speed If `type` is 'smooth', this specifies the speed at which the user's view rotates.
  * @param translationControllerHand Specifies which hand will control the movement. Can be either 'left' or 'right'.
  */
-export function useControllerLocomotion(
+export function useXRControllerLocomotion(
   target:
     | RefObject<Object3D>
     | ((velocity: Vector3, rotationVelocityY: number, deltaTime: number, state: RootState, frame?: XRFrame) => void),
-  translationOptions: ControllerLocomotionTranslationOptions = {},
-  rotationOptions: ControllerLocomotionRotationOptions = {},
+  translationOptions: XRControllerLocomotionTranslationOptions = {},
+  rotationOptions: XRControllerLocomotionRotationOptions = {},
   translationControllerHand: Exclude<XRHandedness, 'none'> = 'left',
 ) {
   const store = useXRStore()
-  const update = useMemo(() => createControllerLocomotionUpdate(), [])
+  const update = useMemo(() => createXRControllerLocomotionUpdate(), [])
   useFrame((state, delta, frame: XRFrame | undefined) =>
     update(
       typeof target === 'function' ? target : target.current,

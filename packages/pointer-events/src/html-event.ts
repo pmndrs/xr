@@ -116,10 +116,6 @@ export class HtmlEvent<E extends object>
     if (key in this.nativeEvent) {
       return this.nativeEvent[key as keyof E] as T
     }
-    console.warn(
-      `property "key" is not available on this pointer event because the property is not available on the following native event`,
-      this.nativeEvent,
-    )
     return defaultValue
   }
 }

@@ -5,8 +5,9 @@ import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './cont
 import { XRHandLoaderOptions } from './hand/index.js'
 import { XRInputSourceState, XRInputSourceStateMap, createSyncXRInputSourceStates } from './input.js'
 import { XRSessionInitOptions, buildXRSessionInit } from './init.js'
-import type { EmulatorType } from './emulate.js'
+import type { EmulatorOptions } from './emulate.js'
 import { XRLayerEntry } from './layer.js'
+import { XRDevice } from 'iwer'
 
 declare global {
   export interface XRSessionEventMap {
@@ -68,6 +69,10 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      * active additional webxr layers
      */
     layerEntries: ReadonlyArray<XRLayerEntry>
+    /**
+     * access to the emulator values to change the emulated input device imperatively
+     */
+    emulator?: XRDevice
   } & WithRecord<T>
 >
 
@@ -166,7 +171,7 @@ export type XRStoreOptions<T extends XRElementImplementations> = {
    * emulates a device if WebXR not supported and on localhost
    * @default "metaQuest3"
    */
-  emulate?: EmulatorType | boolean
+  emulate?: EmulatorOptions | boolean
   /**
    * sets the WebXR foveation between 0 and 1
    * undefined refers to the default foveation provided by the device/browser
@@ -283,35 +288,39 @@ const baseInitialState: Omit<
   layerEntries: [],
 }
 
-function startEmulate(emulate: EmulatorType | true, alert: boolean) {
+function injectEmulator(store: StoreApi<XRState<any>>, emulate: EmulatorOptions | true, alert: boolean) {
   if (typeof navigator === 'undefined') {
     return
   }
-  Promise.all([navigator.xr?.isSessionSupported('immersive-vr'), navigator.xr?.isSessionSupported('immersive-ar')])
+  Promise.all([
+    navigator.xr?.isSessionSupported('immersive-vr').catch((e) => {
+      console.error(e)
+      return false
+    }),
+    navigator.xr?.isSessionSupported('immersive-ar').catch((e) => {
+      console.error(e)
+      return false
+    }),
+  ])
     .then(([vr, ar]) => (!ar && !vr ? import('./emulate.js') : undefined))
     .then((pkg) => {
+      if (pkg == null) {
+        return
+      }
       if (alert) {
         window.alert(`emulator started`)
       }
-      pkg?.emulate(emulate === true ? 'metaQuest3' : emulate)
+      const emulator = pkg.emulate(emulate === true ? 'metaQuest3' : emulate)
+      if (emulator == null) {
+        return
+      }
+      store.setState({
+        emulator,
+      })
     })
 }
 
 export function createXRStore<T extends XRElementImplementations>(options?: XRStoreOptions<T>): XRStore<T> {
-  const emulate = options?.emulate ?? 'metaQuest3'
-  let cleanupEmulate: (() => void) | undefined
-  if (typeof window !== 'undefined' && emulate != false) {
-    if (window.location.hostname === 'localhost') {
-      startEmulate(emulate, false)
-    }
-    const keydownListener = (e: KeyboardEvent) => {
-      if (e.altKey && e.metaKey && e.code === 'KeyE') {
-        startEmulate(emulate, true)
-      }
-    }
-    window.addEventListener('keydown', keydownListener)
-    cleanupEmulate = () => window.removeEventListener('keydown', keydownListener)
-  }
   const domOverlayRoot =
     typeof HTMLElement === 'undefined'
       ? undefined
@@ -327,6 +336,23 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     transientPointer: options?.transientPointer,
     domOverlayRoot,
   }))
+
+  //setup emulate
+  const emulate = options?.emulate ?? 'metaQuest3'
+  let cleanupEmulate: (() => void) | undefined
+  if (typeof window !== 'undefined' && emulate != false) {
+    const inject = (typeof emulate === 'object' ? emulate.inject : undefined) ?? { hostname: 'localhost' }
+    if (inject === true || (typeof inject != 'boolean' && window.location.hostname === inject.hostname)) {
+      injectEmulator(store, emulate, false)
+    }
+    const keydownListener = (e: KeyboardEvent) => {
+      if (e.altKey && e.metaKey && e.code === 'KeyE') {
+        injectEmulator(store, emulate, true)
+      }
+    }
+    window.addEventListener('keydown', keydownListener)
+    cleanupEmulate = () => window.removeEventListener('keydown', keydownListener)
+  }
 
   let cleanupDomOverlayRoot: (() => void) | undefined
   if (domOverlayRoot != null) {
@@ -677,7 +703,10 @@ function createBindToSession(
     const onEnd = () => {
       cleanupSession?.()
       cleanupSession = undefined
-      store.setState(baseInitialState)
+      store.setState({
+        emulator: store.getState().emulator,
+        ...baseInitialState,
+      })
     }
     session.addEventListener('end', onEnd)
 

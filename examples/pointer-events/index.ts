@@ -50,12 +50,14 @@ getVoidObject(scene).addEventListener('click', () => console.log('click outer'))
 
 const canvas = document.getElementById('root') as HTMLCanvasElement
 
-forwardHtmlEvents(canvas, () => camera, scene)
-forwardObjectEvents(plane, () => innerCamera, innerScene)
+const { update: updateForwardHtmlEvents } = forwardHtmlEvents(canvas, () => camera, scene)
+const { update: updateForwardObjectEvents } = forwardObjectEvents(plane, () => innerCamera, innerScene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
 renderer.setAnimationLoop((time) => {
+  updateForwardHtmlEvents()
+  updateForwardObjectEvents()
   box.rotation.y = time * 0.0001
   plane.rotation.y = Math.sin(time * 0.001) * 0.3
   renderer.setRenderTarget(frambuffer)

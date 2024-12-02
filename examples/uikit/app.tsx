@@ -1,7 +1,7 @@
-import { Canvas, useThree } from '@react-three/fiber'
-import { createXRStore, XR, XRLayer, XROrigin } from '@react-three/xr'
+import { Canvas } from '@react-three/fiber'
+import { createXRStore, noEvents, PointerEvents, XR, XROrigin } from '@react-three/xr'
 import { Environment } from '@react-three/drei'
-import { Container, Text, Image, Root, setPreferredColorScheme, Fullscreen } from '@react-three/uikit'
+import { Container, Text, Image, Root, setPreferredColorScheme } from '@react-three/uikit'
 import { Button, Slider } from '@react-three/uikit-default'
 import {
   ArrowLeftIcon,
@@ -11,8 +11,7 @@ import {
   MenuIcon,
   PlayIcon,
 } from '@react-three/uikit-lucide'
-import { useEffect, useState } from 'react'
-import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { useState } from 'react'
 import { useControls } from 'leva'
 
 const store = createXRStore({
@@ -32,8 +31,8 @@ export function App() {
   return (
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas events={() => ({ enabled: false, priority: 0 })} style={{ width: '100%', flexGrow: 1 }}>
-        <SwitchToXRPointerEvents />
+      <Canvas events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
+        <PointerEvents batchEvents={false} />
         <XR store={store}>
           <XROrigin visible={visible} />
           <Environment preset="city" />
@@ -175,12 +174,4 @@ export function App() {
       </Canvas>
     </>
   )
-}
-
-export function SwitchToXRPointerEvents() {
-  const domElement = useThree((s) => s.gl.domElement)
-  const camera = useThree((s) => s.camera)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, () => camera, scene), [domElement, camera, scene])
-  return null
 }

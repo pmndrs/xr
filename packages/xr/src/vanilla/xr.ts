@@ -92,7 +92,7 @@ export function createXRStore(
   xr: WebXRManager,
   options?: XRStoreOptions<XRElementImplementations> & { htmlInput?: ForwardEventsOptions | false },
 ) {
-  const cleanupHtmlEventForward =
+  const htmlEventForward =
     options?.htmlInput === false ? undefined : forwardHtmlEvents(canvas, getCamera, scene, options?.htmlInput)
   const updatesList: XRUpdatesList = []
   const store = createXRStoreImpl<XRElementImplementations>(options)
@@ -109,11 +109,12 @@ export function createXRStore(
   return Object.assign(store, {
     destroy() {
       unsubscribeOrigin()
-      cleanupHtmlEventForward?.()
+      htmlEventForward?.destroy()
       cleanupSyncElements?.()
       store.destroy()
     },
     update(frame: XRFrame | undefined, delta: number) {
+      htmlEventForward?.update()
       if (frame == null) {
         return
       }

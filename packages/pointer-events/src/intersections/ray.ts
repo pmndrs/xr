@@ -8,32 +8,39 @@ import {
   Object3D,
   Camera,
   Vector2,
+  Mesh,
 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { type PointerCapture } from '../pointer.js'
-import { computeIntersectionWorldPlane, getDominantIntersectionIndex, voidObjectIntersectionFromRay } from './utils.js'
+import {
+  computeIntersectionWorldPlane,
+  getDominantIntersectionIndex,
+  pushTimes,
+  voidObjectIntersectionFromRay,
+} from './utils.js'
 import { Intersector } from './intersector.js'
-import { updateAndCheckWorldTransformation } from '../utils.js'
+import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()
-const intersectsHelper: Array<ThreeIntersection> = []
 const scaleHelper = new Vector3()
 const NegZAxis = new Vector3(0, 0, -1)
 const planeHelper = new Plane()
+const point2Helper = new Vector2()
 
-export class RayIntersector extends Intersector {
+export class RayIntersector implements Intersector {
   private readonly raycaster = new Raycaster()
   private readonly raycasterQuaternion = new Quaternion()
   private worldScale: number = 0
 
   private ready?: boolean
 
+  private readonly intersects: Array<ThreeIntersection> = []
+  private readonly pointerEventsOrders: Array<number | undefined> = []
+
   constructor(
     private readonly space: { current?: Object3D | null },
     private readonly options: IntersectionOptions & { minDistance?: number; direction?: Vector3 },
-  ) {
-    super()
-  }
+  ) {}
 
   public isReady(): boolean {
     return this.ready ?? this.prepareTransformation()
@@ -63,20 +70,27 @@ export class RayIntersector extends Intersector {
     if (!this.prepareTransformation()) {
       return intersection
     }
-    computeIntersectionWorldPlane(planeHelper, intersection, object)
+    intersection.object.updateWorldMatrix(true, false)
+    computeIntersectionWorldPlane(planeHelper, intersection, intersection.object.matrixWorld)
     const { ray } = this.raycaster
     const pointOnFace = ray.intersectPlane(planeHelper, new Vector3()) ?? intersection.point
+    const point = ray.direction.clone().multiplyScalar(intersection.distance).add(ray.origin)
+    let uv = intersection.uv
+    if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
+      uv = point2Helper.clone()
+    }
     return {
       ...intersection,
+      uv,
       object,
       pointOnFace,
-      point: ray.direction.clone().multiplyScalar(intersection.distance).add(ray.origin),
+      point,
       pointerPosition: ray.origin.clone(),
       pointerQuaternion: this.raycasterQuaternion.clone(),
     }
   }
 
-  protected prepareIntersection(): void {
+  startIntersection(): void {
     this.prepareTransformation()
   }
 
@@ -84,36 +98,27 @@ export class RayIntersector extends Intersector {
     if (!this.isReady()) {
       return
     }
-    object.raycast(this.raycaster, intersectsHelper)
-
-    //filtering out all intersections that are to near
-    if (this.options.minDistance != null) {
-      const length = intersectsHelper.length
-      const localMinDistance = this.options.minDistance / this.worldScale
-      for (let i = length - 1; i >= 0; i--) {
-        if (intersectsHelper[i].distance < localMinDistance) {
-          intersectsHelper.splice(i, 1)
-        }
-      }
-    }
-    const index = getDominantIntersectionIndex(
-      this.intersection,
-      this.pointerEventsOrder,
-      intersectsHelper,
-      objectPointerEventsOrder,
-      this.options,
-    )
-    if (index != null) {
-      this.intersection = intersectsHelper[index]
-      this.pointerEventsOrder = objectPointerEventsOrder
-    }
-    intersectsHelper.length = 0
+    const start = this.intersects.length
+    object.raycast(this.raycaster, this.intersects)
+    pushTimes(this.pointerEventsOrders, objectPointerEventsOrder, this.intersects.length - start)
   }
 
   public finalizeIntersection(scene: Object3D): Intersection {
     const pointerPosition = this.raycaster.ray.origin.clone()
     const pointerQuaternion = this.raycasterQuaternion.clone()
-    if (this.intersection == null) {
+
+    let filter: ((intersection: ThreeIntersection) => boolean) | undefined
+    if (this.options.minDistance != null) {
+      const localMinDistance = this.options.minDistance / this.worldScale
+      filter = (intersection) => intersection.distance >= localMinDistance
+    }
+
+    const index = getDominantIntersectionIndex(this.intersects, this.pointerEventsOrders, this.options, filter)
+    const intersection = index == null ? undefined : this.intersects[index]
+    this.intersects.length = 0
+    this.pointerEventsOrders.length = 0
+
+    if (intersection == null) {
       return voidObjectIntersectionFromRay(
         scene,
         this.raycaster.ray,
@@ -122,39 +127,38 @@ export class RayIntersector extends Intersector {
         pointerQuaternion,
       )
     }
-    return Object.assign(this.intersection, {
+    intersection.object.updateWorldMatrix(true, false)
+    return Object.assign(intersection, {
       details: {
         type: 'ray' as const,
       },
       pointerPosition,
       pointerQuaternion,
-      pointOnFace: this.intersection.point,
-      localPoint: this.intersection.point
+      pointOnFace: intersection.point,
+      localPoint: intersection.point
         .clone()
-        .applyMatrix4(invertedMatrixHelper.copy(this.intersection.object.matrixWorld).invert()),
+        .applyMatrix4(invertedMatrixHelper.copy(intersection.object.matrixWorld).invert()),
     })
   }
 }
 
-const coordsHelper = new Vector2()
-const vectorHelper = new Vector3()
-const viewplaneHelper = new Plane()
+const directionHelper = new Vector3()
 
-export class CameraRayIntersector extends Intersector {
+export class ScreenRayIntersector implements Intersector {
   private readonly raycaster = new Raycaster()
   private readonly cameraQuaternion = new Quaternion()
+  private readonly fromPosition = new Vector3()
+  private readonly fromQuaternion = new Quaternion()
+  private readonly coords = new Vector2()
+  private readonly viewPlane = new Plane()
+
+  private readonly intersects: Array<ThreeIntersection> = []
+  private readonly pointerEventsOrders: Array<number | undefined> = []
 
   constructor(
     private readonly prepareTransformation: (nativeEvent: unknown, coords: Vector2) => Camera | undefined,
     private readonly options: IntersectionOptions,
-  ) {
-    super()
-  }
-
-  private getViewPlane(target: Plane): void {
-    vectorHelper.set(0, 0, -1).applyQuaternion(this.cameraQuaternion)
-    target.setFromNormalAndCoplanarPoint(vectorHelper, this.raycaster.ray.origin)
-  }
+  ) {}
 
   public isReady(): boolean {
     return true
@@ -162,33 +166,38 @@ export class CameraRayIntersector extends Intersector {
 
   public intersectPointerCapture({ intersection, object }: PointerCapture, nativeEvent: unknown): Intersection {
     const details = intersection.details
-    if (details.type != 'camera-ray') {
+    if (details.type != 'screen-ray') {
       throw new Error(
         `unable to process a pointer capture of type "${intersection.details.type}" with a camera ray intersector`,
       )
     }
-    if (!this.prepareIntersection(nativeEvent)) {
+    if (!this.startIntersection(nativeEvent)) {
       return intersection
     }
 
-    this.getViewPlane(viewplaneHelper)
-    viewplaneHelper.constant -= details.distanceViewPlane
+    this.viewPlane.constant -= details.distanceViewPlane
 
     //find captured intersection point by intersecting the ray to the plane of the camera
-    const point = this.raycaster.ray.intersectPlane(viewplaneHelper, new Vector3())
+    const point = this.raycaster.ray.intersectPlane(this.viewPlane, new Vector3())
 
     if (point == null) {
       return intersection
     }
 
-    computeIntersectionWorldPlane(viewplaneHelper, intersection, object)
+    intersection.object.updateWorldMatrix(true, false)
+    computeIntersectionWorldPlane(this.viewPlane, intersection, intersection.object.matrixWorld)
+    let uv = intersection.uv
+    if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
+      uv = point2Helper.clone()
+    }
     return {
       ...intersection,
       details: {
-        type: 'camera-ray',
-        distanceViewPlane: details.distanceViewPlane,
+        ...details,
         direction: this.raycaster.ray.direction.clone(),
+        screenPoint: this.coords.clone(),
       },
+      uv,
       object,
       point,
       pointOnFace: point,
@@ -197,43 +206,42 @@ export class CameraRayIntersector extends Intersector {
     }
   }
 
-  protected prepareIntersection(nativeEvent: unknown): boolean {
-    const from = this.prepareTransformation(nativeEvent, coordsHelper)
+  startIntersection(nativeEvent: unknown): boolean {
+    const from = this.prepareTransformation(nativeEvent, this.coords)
     if (from == null) {
       return false
     }
-    from.matrixWorld.decompose(vectorHelper, this.cameraQuaternion, scaleHelper)
-    this.raycaster.setFromCamera(coordsHelper, from)
+    from.updateWorldMatrix(true, false)
+    from.matrixWorld.decompose(this.fromPosition, this.fromQuaternion, scaleHelper)
+    this.raycaster.setFromCamera(this.coords, from)
+    this.viewPlane.setFromNormalAndCoplanarPoint(from.getWorldDirection(directionHelper), this.raycaster.ray.origin)
     return true
   }
 
   public executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void {
-    object.raycast(this.raycaster, intersectsHelper)
-    const index = getDominantIntersectionIndex(
-      this.intersection,
-      this.pointerEventsOrder,
-      intersectsHelper,
-      objectPointerEventsOrder,
-      this.options,
-    )
-    if (index != null) {
-      this.intersection = intersectsHelper[index]
-      this.pointerEventsOrder = objectPointerEventsOrder
-    }
-    intersectsHelper.length = 0
+    const start = this.intersects.length
+    object.raycast(this.raycaster, this.intersects)
+    pushTimes(this.pointerEventsOrders, objectPointerEventsOrder, this.intersects.length - start)
   }
 
   public finalizeIntersection(scene: Object3D): Intersection {
-    const pointerPosition = this.raycaster.ray.origin.clone()
-    const pointerQuaternion = this.cameraQuaternion.clone()
+    const pointerPosition = this.fromPosition.clone()
+    const pointerQuaternion = this.fromQuaternion.clone()
     const pointerDirection = this.raycaster.ray.direction.clone()
-    if (this.intersection == null) {
+
+    const index = getDominantIntersectionIndex(this.intersects, this.pointerEventsOrders, this.options)
+    const intersection = index == null ? undefined : this.intersects[index]
+    this.intersects.length = 0
+    this.pointerEventsOrders.length = 0
+
+    if (intersection == null) {
       return voidObjectIntersectionFromRay(
         scene,
         this.raycaster.ray,
         (_point, distance) => ({
-          type: 'camera-ray',
+          type: 'screen-ray',
           distanceViewPlane: distance,
+          screenPoint: this.coords.clone(),
           direction: pointerDirection,
         }),
         pointerPosition,
@@ -241,20 +249,20 @@ export class CameraRayIntersector extends Intersector {
       )
     }
 
-    invertedMatrixHelper.copy(this.intersection.object.matrixWorld).invert()
-    this.getViewPlane(viewplaneHelper)
-    const distanceViewPlane = viewplaneHelper.distanceToPoint(this.intersection.point)
+    intersection.object.updateWorldMatrix(true, false)
+    invertedMatrixHelper.copy(intersection.object.matrixWorld).invert()
 
-    return Object.assign(this.intersection, {
+    return Object.assign(intersection, {
       details: {
-        type: 'camera-ray' as const,
-        distanceViewPlane,
+        type: 'screen-ray' as const,
+        distanceViewPlane: this.viewPlane.distanceToPoint(intersection.point),
+        screenPoint: this.coords.clone(),
         direction: pointerDirection,
       },
-      pointOnFace: this.intersection.point,
+      pointOnFace: intersection.point,
       pointerPosition,
       pointerQuaternion,
-      localPoint: this.intersection.point.clone().applyMatrix4(invertedMatrixHelper),
+      localPoint: intersection.point.clone().applyMatrix4(invertedMatrixHelper),
     })
   }
 }

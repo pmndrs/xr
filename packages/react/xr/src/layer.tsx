@@ -14,6 +14,7 @@ import {
   createXRLayerRenderTarget,
 } from '@pmndrs/xr'
 import {
+  addEffect,
   context,
   InjectState,
   MeshProps,
@@ -330,7 +331,12 @@ function useForwardEvents(store: UseBoundStore<StoreApi<RootState>>, ref: RefObj
         return
       }
       cleanup?.()
-      cleanup = forwardObjectEvents(current, () => state.camera, state.scene)
+      const { destroy, update } = forwardObjectEvents(current, () => state.camera, state.scene)
+      const cleanupUpdate = addEffect(update)
+      cleanup = () => {
+        destroy()
+        cleanupUpdate()
+      }
     }
     update(store.getState())
     const unsubscribe = store.subscribe(update)

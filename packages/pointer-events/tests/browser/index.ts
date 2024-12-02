@@ -19,14 +19,17 @@ const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const camera = new OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0, 200)
 camera.position.z = 100
 //setup threejs event forwarding
-forwardHtmlEvents(document.body, () => camera, scene, {
+const { update } = forwardHtmlEvents(document.body, () => camera, scene, {
   forwardPointerCapture: false,
   clickThesholdMs: 1000 /*increasing threshold for slow testing machines*/,
 })
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.setAnimationLoop(() => renderer.render(scene, camera))
+renderer.setAnimationLoop(() => {
+  update()
+  renderer.render(scene, camera)
+})
 
 const elements = e as Array<ElementInfo>
 

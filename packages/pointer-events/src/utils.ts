@@ -1,95 +1,20 @@
 import { BufferAttribute, Matrix4, Mesh, Object3D, Triangle, Vector2, Vector3 } from 'three'
-import { PointerEventsMap } from './event.js'
-import type { Root } from '@react-three/fiber/dist/declarations/src/core/renderer.js'
 
-declare module 'three' {
-  interface Object3D {
-    __r3f?: {
-      eventCount: number
-      handlers: Record<string, ((e: any) => void) | undefined>
-      root: Root['store']
-    }
-    /**
-     * undefined and true means the transformation is ready
-     * false means transformation is not ready
-     */
-    transformReady?: boolean
-  }
-}
-
-export function updateAndCheckWorldTransformation({ transformReady, parent, matrix, matrixWorld }: Object3D): boolean {
-  if (transformReady === false) {
+export function updateAndCheckWorldTransformation(object: Object3D): boolean {
+  if (object.transformReady === false) {
     return false
   }
-  if (parent == null) {
+  if (object.parent == null) {
+    object.matrixWorld.copy(object.matrix)
     return true
   }
-  if (!updateAndCheckWorldTransformation(parent)) {
+  if (!updateAndCheckWorldTransformation(object.parent)) {
     return false
   }
-  matrixWorld.multiplyMatrices(parent.matrixWorld, matrix)
+  //we can just use parent.matrixWorld here because we already executed `updateAndCheckWorldTransformation` before which has updated parent.matrixWorld
+  object.matrixWorld.multiplyMatrices(object.parent.matrixWorld, object.matrix)
   return true
 }
-
-export function hasObjectListeners({ _listeners, __r3f }: Object3D): boolean {
-  if (__r3f != null && __r3f?.eventCount > 0) {
-    return true
-  }
-  if (_listeners == null) {
-    return false
-  }
-  const entries = Object.entries(_listeners)
-  const length = entries.length
-  for (let i = 0; i < length; i++) {
-    const entry = entries[i]
-    if (!listenerNames.includes(entry[0])) {
-      continue
-    }
-    if (entry[1] != null && entry[1].length > 0) {
-      return true
-    }
-  }
-  return false
-}
-
-export function getObjectListeners<E>(
-  object: Object3D,
-  forEvent: keyof PointerEventsMap,
-): Array<(event: E) => void> | undefined {
-  if (object._listeners != null && forEvent in object._listeners) {
-    return object._listeners[forEvent]
-  }
-
-  //R3F compatibility
-  let handler: ((e: any) => void) | undefined
-  if (object.isVoidObject && forEvent === 'click' && object.parent?.__r3f != null) {
-    handler = object.parent.__r3f.root.getState().onPointerMissed
-  }
-  if (object.__r3f != null) {
-    handler = object.__r3f.handlers[r3fEventToHandlerMap[forEvent]]
-  }
-
-  if (handler == null) {
-    return undefined
-  }
-  return [handler]
-}
-
-const r3fEventToHandlerMap: Record<keyof PointerEventsMap, string> = {
-  click: 'onClick',
-  contextmenu: 'onContextMenu',
-  dblclick: 'onDoubleClick',
-  pointercancel: 'onPointerCancel',
-  pointerdown: 'onPointerDown',
-  pointerenter: 'onPointerEnter',
-  pointerleave: 'onPointerLeave',
-  pointermove: 'onPointerMove',
-  pointerout: 'onPointerOut',
-  pointerover: 'onPointerOver',
-  pointerup: 'onPointerUp',
-  wheel: 'onWheel',
-}
-const listenerNames = Object.keys(r3fEventToHandlerMap)
 
 const triangleHelper1 = new Triangle()
 const triangleHelper2 = new Triangle()
@@ -100,11 +25,14 @@ const pointHelper = new Vector3()
 const inverseMatrix = new Matrix4()
 const localPointHelper = new Vector3()
 
-export function getClosestUV(target: Vector2, point: Vector3, mesh: Mesh): void {
+/**
+ * @requires that `mesh.updateWorldMatrix(true, false)` was executed beforehand
+ */
+export function getClosestUV(target: Vector2, point: Vector3, mesh: Mesh): boolean {
   localPointHelper.copy(point).applyMatrix4(inverseMatrix.copy(mesh.matrixWorld).invert())
   const uv = mesh.geometry.attributes.uv
   if (uv == null || !(uv instanceof BufferAttribute)) {
-    return void target.set(0, 0)
+    return false
   }
   let clostestDistance: number | undefined
   loopThroughTriangles(mesh, (i1, i2, i3) => {
@@ -115,7 +43,7 @@ export function getClosestUV(target: Vector2, point: Vector3, mesh: Mesh): void 
     const distance = triangleHelper1.closestPointToPoint(localPointHelper, pointHelper).distanceTo(localPointHelper)
 
     if (clostestDistance != null && distance >= clostestDistance) {
-      return void target.set(0, 0)
+      return
     }
 
     clostestDistance = distance
@@ -126,12 +54,14 @@ export function getClosestUV(target: Vector2, point: Vector3, mesh: Mesh): void 
   })
 
   if (clostestDistance == null) {
-    return void target.set(0, 0)
+    return false
   }
 
   triangleHelper2.closestPointToPoint(localPointHelper, pointHelper)
 
   triangleHelper2.getInterpolation(pointHelper, aVec2Helper, bVec2Helper, cVec2Helper, target)
+
+  return true
 }
 
 function loopThroughTriangles(mesh: Mesh, fn: (i1: number, i2: number, i3: number) => void) {

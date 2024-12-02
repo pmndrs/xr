@@ -100,6 +100,7 @@ export async function requestXRAnchor(store: XRStore<any>, options: XRAnchorOpti
     const { worldPosition, worldQuaternion } = options
     if (origin != null) {
       //compute vectorHelper and quaternionHelper in the local space of the origin
+      origin.updateWorldMatrix(true, false)
       matrixHelper1.copy(origin.matrixWorld).invert()
       matrixHelper2.compose(worldPosition, worldQuaternion, OneVector).multiply(matrixHelper1)
       matrixHelper2.decompose(positionHelper, quaternionHelper, vectorHelper)

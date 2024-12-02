@@ -1,16 +1,20 @@
-import { Plane, Intersection as ThreeIntersection, Object3D, Vector3, Ray, Quaternion } from 'three'
+import { Plane, Intersection as ThreeIntersection, Object3D, Vector3, Ray, Quaternion, Matrix4 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { AllowedPointerEventsType, Pointer, type AllowedPointerEvents } from '../pointer.js'
-import { hasObjectListeners } from '../utils.js'
-import { getVoidObject, VoidObjectCollider } from './intersector.js'
+import { getVoidObject } from './intersector.js'
+import { listenerNames } from '../event.js'
 
-export function computeIntersectionWorldPlane(target: Plane, intersection: Intersection, object: Object3D): boolean {
+export function computeIntersectionWorldPlane(
+  target: Plane,
+  intersection: Intersection,
+  objectMatrixWorld: Matrix4,
+): boolean {
   const normal = intersection.normal ?? intersection.face?.normal
   if (normal == null) {
     return false
   }
   target.setFromNormalAndCoplanarPoint(normal, intersection.localPoint)
-  target.applyMatrix4(object.matrixWorld)
+  target.applyMatrix4(objectMatrixWorld)
   return true
 }
 
@@ -59,15 +63,20 @@ export function intersectPointerEventTargets(
   parentPointerEventsOrder?: number,
 ): void {
   const hasListener = parentHasListener || hasObjectListeners(object)
-  const pointerEvents = object.pointerEvents ?? parentPointerEvents ?? 'listener'
+  const pointerEvents = object.pointerEvents ?? parentPointerEvents
+  const pointerEventsOrDefault = pointerEvents ?? object.defaultPointerEvents ?? 'listener'
   const pointerEventsType = object.pointerEventsType ?? parentPointerEventsType ?? 'all'
   const pointerEventsOrder = object.pointerEventsOrder ?? parentPointerEventsOrder ?? 0
 
-  const isAllowed = isPointerEventsAllowed(hasListener, pointerEvents, pointerEventsType)
+  const isAllowed = isPointerEventsAllowed(hasListener, pointerEventsOrDefault, pointerEventsType)
   const length = pointers.length
-  if (isAllowed === true) {
+  if (length === 1) {
+    if (isAllowed === true || (typeof isAllowed === 'function' && isAllowed(pointers[0]))) {
+      filterAndInteresct(pointers[0], object, pointerEventsOrDefault, pointerEventsType, pointerEventsOrder)
+    }
+  } else if (isAllowed === true) {
     for (let i = 0; i < length; i++) {
-      filterAndInteresct(pointers[i], object, pointerEvents, pointerEventsType, pointerEventsOrder)
+      filterAndInteresct(pointers[i], object, pointerEventsOrDefault, pointerEventsType, pointerEventsOrder)
     }
   } else if (typeof isAllowed === 'function') {
     for (let i = 0; i < length; i++) {
@@ -75,14 +84,19 @@ export function intersectPointerEventTargets(
       if (!isAllowed(pointer)) {
         continue
       }
-      filterAndInteresct(pointer, object, pointerEvents, pointerEventsType, pointerEventsOrder)
+      filterAndInteresct(pointer, object, pointerEventsOrDefault, pointerEventsType, pointerEventsOrder)
     }
   }
 
-  const childrenLength = object.children.length
-  for (let i = 0; i < childrenLength; i++) {
+  if (object.children.length === 0 || object.intersectChildren === false) {
+    return
+  }
+
+  const descendants = object.interactableDescendants ?? object.children
+  const descendantsLength = descendants.length
+  for (let i = 0; i < descendantsLength; i++) {
     intersectPointerEventTargets(
-      object.children[i],
+      descendants[i],
       pointers,
       hasListener,
       pointerEvents,
@@ -92,6 +106,30 @@ export function intersectPointerEventTargets(
   }
 }
 
+function hasObjectListeners(object: Object3D): boolean {
+  if (object.ancestorsHaveListeners) {
+    return true
+  }
+  if (object.__r3f != null && object.__r3f?.eventCount > 0) {
+    return true
+  }
+  if (object._listeners == null) {
+    return false
+  }
+  const entries = Object.entries(object._listeners)
+  const length = entries.length
+  for (let i = 0; i < length; i++) {
+    const entry = entries[i]
+    if (!listenerNames.includes(entry[0])) {
+      continue
+    }
+    if (entry[1] != null && entry[1].length > 0) {
+      return true
+    }
+  }
+  return false
+}
+
 function filterAndInteresct(
   { intersector, options }: Pointer,
   object: Object3D,
@@ -99,7 +137,7 @@ function filterAndInteresct(
   pointerEventsType: AllowedPointerEventsType,
   pointerEventsOrder: number,
 ) {
-  if (options.filter != null && !options.filter(object, pointerEvents, pointerEventsType, pointerEventsOrder)) {
+  if (options.filter?.(object, pointerEvents, pointerEventsType, pointerEventsOrder) === false) {
     return
   }
   intersector.executeIntersection(object, pointerEventsOrder)
@@ -110,19 +148,25 @@ function filterAndInteresct(
  * @param i2DistanceOffset modifies i2 and adds the i2DistanceOffset to the current distance
  */
 export function getDominantIntersectionIndex<T extends ThreeIntersection>(
-  i1: T | undefined,
-  pointerEventsOrder1: number | undefined,
-  i2: Array<T>,
-  pointerEventsOrder2: number | undefined,
+  intersections: Array<T>,
+  pointerEventsOrders: Array<number | undefined>,
   { customSort: compare = defaultSort }: IntersectionOptions = {},
+  filter?: (intersection: ThreeIntersection) => boolean,
 ): number | undefined {
-  let index = undefined
-  const length = i2.length
+  let intersection: T | undefined = undefined
+  let pointerEventsOrder: number | undefined = undefined
+  let index: number | undefined = undefined
+  const length = intersections.length
   for (let i = 0; i < length; i++) {
-    const intersection = i2[i]
-    if (i1 == null || compare(i1, pointerEventsOrder1, intersection, pointerEventsOrder2) > 0) {
-      i1 = intersection
+    const newIntersection = intersections[i]
+    if (filter?.(newIntersection) === false) {
+      continue
+    }
+    const newPointerEventsOrder = pointerEventsOrders[i]
+    if (intersection == null || compare(newIntersection, newPointerEventsOrder, intersection, pointerEventsOrder) < 0) {
       index = i
+      intersection = newIntersection
+      pointerEventsOrder = newPointerEventsOrder
     }
   }
   return index
@@ -145,6 +189,8 @@ function defaultSort(
   return i1.distance - i2.distance
 }
 
+const VoidObjectDistance = 10000000
+
 export function voidObjectIntersectionFromRay(
   scene: Object3D,
   ray: Ray,
@@ -153,8 +199,8 @@ export function voidObjectIntersectionFromRay(
   pointerQuaternion: Quaternion,
   addToDistance: number = 0,
 ): Intersection {
-  const point = ray.intersectSphere(VoidObjectCollider, new Vector3())!
-  const distanceOnRay = point.distanceTo(ray.origin)
+  const point = ray.direction.clone().multiplyScalar(VoidObjectDistance)
+  const distanceOnRay = VoidObjectDistance
   return {
     distance: distanceOnRay + addToDistance,
     object: getVoidObject(scene),
@@ -165,5 +211,12 @@ export function voidObjectIntersectionFromRay(
     pointerQuaternion,
     pointOnFace: point,
     localPoint: point,
+  }
+}
+
+export function pushTimes<T>(target: Array<T>, value: T, times: number): void {
+  while (times > 0) {
+    target.push(value)
+    --times
   }
 }

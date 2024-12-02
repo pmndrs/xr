@@ -10,7 +10,7 @@ export function getWorldDirection(event: PointerEvent, target: Vector3): boolean
     target.copy(line.end).sub(line.start).normalize()
     return true
   }
-  if (event.details.type === 'camera-ray') {
+  if (event.details.type === 'screen-ray') {
     target.copy(event.details.direction)
     return true
   }

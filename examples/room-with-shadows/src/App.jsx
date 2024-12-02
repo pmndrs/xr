@@ -1,9 +1,10 @@
 import { useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { SoftShadows, Float, CameraControls, Sky, PerformanceMonitor } from '@react-three/drei'
+import { SoftShadows, Float, CameraControls, Sky } from '@react-three/drei'
 import { easing } from 'maath'
 import { Model as Room } from './Room.jsx'
-import { XR, XROrigin, createXRStore } from '@react-three/xr'
+import { XR, XROrigin, createXRStore, IfInSessionMode } from '@react-three/xr'
+import { Vector3 } from 'three'
 
 function Light() {
   const ref = useRef()
@@ -24,7 +25,21 @@ function Light() {
   )
 }
 
-const store = createXRStore()
+const store = createXRStore({
+  emulate: {
+    headset: {
+      position: [0, 1, 0],
+    },
+    controller: {
+      left: {
+        position: [-0.2, 1, -0.3],
+      },
+      right: {
+        position: [0.2, 1, -0.3],
+      },
+    },
+  },
+})
 
 export default function App() {
   return (
@@ -53,7 +68,9 @@ export default function App() {
       <Canvas shadows camera={{ position: [5, 2, 10], fov: 50 }}>
         <XR store={store}>
           <SoftShadows />
-          <CameraControls makeDefault />
+          <IfInSessionMode deny={['immersive-vr', 'immersive-ar']}>
+            <CameraControls makeDefault />
+          </IfInSessionMode>
           <color attach="background" args={['#d0d0d0']} />
           <fog attach="fog" args={['#d0d0d0', 8, 35]} />
           <ambientLight intensity={0.4} />
@@ -63,7 +80,6 @@ export default function App() {
           <Sphere position={[2, 4, -8]} scale={0.9} />
           <Sphere position={[-2, 2, -8]} scale={0.8} />
           <Sky inclination={0.52} scale={20} />
-          <XROrigin scale={2} position={[-3.5, -1.85, 3.5]} />
         </XR>
       </Canvas>
     </>
@@ -71,6 +87,9 @@ export default function App() {
 }
 
 function Sphere({ color = 'hotpink', floatIntensity = 15, position = [0, 5, -8], scale = 1 }) {
+  //logging the camera position
+  // eslint-disable-next-line @react-three/no-new-in-loop
+  useFrame((s) => console.log(...s.camera.getWorldPosition(new Vector3()).toArray()))
   return (
     <Float floatIntensity={floatIntensity}>
       <mesh castShadow position={position} scale={scale}>

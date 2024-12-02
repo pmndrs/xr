@@ -20,13 +20,13 @@ export function App() {
           <ambientLight />
           <XROrigin position={position} />
           <Cube />
-          {/*<Smoke count={100} maxSize={0.3} minSize={0.1} spawnRate={10} speed={0.1} />
+          <Smoke count={100} maxSize={0.3} minSize={0.1} spawnRate={10} speed={0.1} />
           <TeleportTarget onTeleport={setPosition}>
             <mesh scale={[10, 1, 10]} position={[0, -0.5, 0]}>
               <boxGeometry />
               <meshBasicMaterial color="green" />
             </mesh>
-          </TeleportTarget>*/}
+          </TeleportTarget>
         </XR>
       </Canvas>
     </>

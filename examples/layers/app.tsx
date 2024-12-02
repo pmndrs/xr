@@ -1,9 +1,8 @@
-import { Canvas, useThree } from '@react-three/fiber'
-import { createXRStore, useHover, XR, XRLayer, XROrigin } from '@react-three/xr'
+import { Canvas } from '@react-three/fiber'
+import { PointerEvents, noEvents, createXRStore, XR, XRLayer, XROrigin } from '@react-three/xr'
 import { Text } from '@react-three/drei'
-import { useEffect, useMemo, useRef } from 'react'
-import { Mesh, SRGBColorSpace, VideoTexture } from 'three'
-import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { useMemo } from 'react'
+import { SRGBColorSpace, VideoTexture } from 'three'
 
 const store = createXRStore({
   foveation: 0,
@@ -25,11 +24,11 @@ export function App() {
     <>
       <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas
-        events={() => ({ enabled: false, priority: 0 })}
+        events={noEvents}
         style={{ width: '100%', flexGrow: 1 }}
         camera={{ position: [0, 0, 0], rotation: [0, 0, 0] }}
       >
-        <SwitchToXRPointerEvents />
+        <PointerEvents />
         <XR store={store}>
           <Text scale={0.03} color="black" position={[-0.6, 0.28, -0.5]}>
             32x32 XRLayer with DPR=32
@@ -66,12 +65,4 @@ export function App() {
       </Canvas>
     </>
   )
-}
-
-export function SwitchToXRPointerEvents() {
-  const domElement = useThree((s) => s.gl.domElement)
-  const camera = useThree((s) => s.camera)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, () => camera, scene), [domElement, camera, scene])
-  return null
 }

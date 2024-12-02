@@ -23,11 +23,13 @@ export default defineConfig({
 })
 ```
 
+Now with vite and ssl setup, we can host out application by starting executing `vite --host`. The `--host` argument makes sure that the server is exposed to your local network, so you can access the app from your headset or smartphone. When starting the server, vite also shows you your local IP. Now type in this IP including the port number into your smartphone's or headset's browser (e.g. `https://192.168.0.43:5173`).
+
 ## 2. emulator: [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md)
 
 Developing WebXR experiences often requires testing WebXR-specific features, which either require an actual device or an emulator. An emulator allows testing without a specific device and without continuously switching a headset on and off.
 
-`react-three/xr` includes the [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md) emulator out of the box, which is in its 0.x status and very much experimental in its current stage. The emulator builds on [IWER by Meta Quest](https://github.com/meta-quest/immersive-web-emulation-runtime/) and adds a easy to use overlay on top of your application. The emulator is activated if no WebXR support is detected on `localhost` or by pressing `Window/Command + Alt/Option + E`.
+`react-three/xr` includes the [iwer/devui](https://github.com/meta-quest/immersive-web-emulation-runtime/blob/main/devui/README.md) emulator out of the box, which is in its 0.x status and very much experimental in its current stage. The emulator builds on [IWER by Meta Quest](https://github.com/meta-quest/immersive-web-emulation-runtime/) and adds a easy to use overlay on top of your application. The emulator is automatically injected if the `emulate` config has `inject` set to `true`, or if the app is served on `localhost` and if no WebXR support is detected. In case the emulator was not injected automatically, the user can inject it by pressing `Window/Command + Alt/Option + E`. After the emulator is injected, the user can press the button to enter the XR experience provided by the application.
 
 ![iwer/devui](./emulator.gif)
 

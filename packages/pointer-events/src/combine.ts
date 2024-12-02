@@ -93,11 +93,11 @@ export class CombinedPointer {
   /**
    * only for internal use
    */
-  commit(nativeEvent: NativeEvent, computeActivePointer: boolean = true): void {
+  commit(nativeEvent: NativeEvent, emitMove: boolean, computeActivePointer: boolean = true): void {
     if (this.enableMultiplePointers) {
       const length = this.pointers.length
       for (let i = 0; i < length; i++) {
-        this.pointers[i].commit(nativeEvent)
+        this.pointers[i].commit(nativeEvent, emitMove)
       }
       return
     }
@@ -111,7 +111,7 @@ export class CombinedPointer {
     for (let i = 0; i < length; i++) {
       const pointer = this.pointers[i]
       pointer.setEnabled(pointer === this.activePointer, nativeEvent, false)
-      pointer.commit(nativeEvent, false)
+      pointer.commit(nativeEvent, emitMove, false)
     }
   }
 
@@ -138,7 +138,7 @@ export class CombinedPointer {
     }
 
     //commit the intersection, compute active pointers, and enabling/disabling pointers
-    this.commit(nativeEvent)
+    this.commit(nativeEvent, true)
   }
 
   setEnabled(enabled: boolean, nativeEvent: NativeEvent): void {
