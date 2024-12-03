@@ -1,7 +1,5 @@
-import { Canvas, useThree } from '@react-three/fiber'
-import { createXRStore, XR, XROrigin } from '@react-three/xr'
-import { useEffect } from 'react'
-import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { Canvas } from '@react-three/fiber'
+import { createXRStore, noEvents, PointerEvents, XR, XROrigin } from '@react-three/xr'
 import { Environment } from '@react-three/drei'
 import { Door } from './door.js'
 import { Spaceship } from './spaceship.js'
@@ -13,12 +11,8 @@ export function App() {
     <>
       <button onClick={() => store.enterVR()}>Enter VR</button>
       <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas
-        camera={{ position: [1, 1, 1] }}
-        events={() => ({ enabled: false, priority: 0 })}
-        style={{ width: '100%', flexGrow: 1 }}
-      >
-        <SwitchToXRPointerEvents />
+      <Canvas camera={{ position: [1, 1, 1] }} events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
+        <PointerEvents />
         <XR store={store}>
           <Environment preset="city" />
           <Door scale={0.01} />
@@ -28,12 +22,4 @@ export function App() {
       </Canvas>
     </>
   )
-}
-
-export function SwitchToXRPointerEvents() {
-  const domElement = useThree((s) => s.gl.domElement)
-  const camera = useThree((s) => s.camera)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => forwardHtmlEvents(domElement, () => camera, scene), [domElement, camera, scene])
-  return null
 }
