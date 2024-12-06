@@ -593,7 +593,11 @@ async function enterXR(
     return Promise.reject(new Error(`WebXR not supported`))
   }
   if (xrManager == null) {
-    return Promise.reject(new Error(`not connected to three.js. Missing are <XR> component?`))
+    return Promise.reject(
+      new Error(
+        `not connected to three.js. You either might be missing the <XR> component or the canvas is not yet loaded?`,
+      ),
+    )
   }
   const session = await navigator.xr.requestSession(mode, buildXRSessionInit(mode, domOverlayRoot, options))
   setFrameRate(session, options?.frameRate ?? 'high')
