@@ -26,6 +26,9 @@
     "fix:prettier": "prettier --write src",
     "fix:eslint": "eslint 'src/**/*.ts' --fix"
   },
+  "devDependencies": {
+    "@types/node": "^22.10.2"
+  },
   "peerDependencies": {
     "three": "*"
   },
