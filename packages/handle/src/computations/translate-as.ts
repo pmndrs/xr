@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 import { HandleTransformState } from '../state.js'
 import { HandleOptions } from '../store.js'
 import {
@@ -16,7 +16,7 @@ const deltaHelper1 = new Vector3()
 const deltaHelper2 = new Vector3()
 
 const qHelper1 = new Quaternion()
-const quaterionHelper2 = new Quaternion()
+const qHelper2 = new Quaternion()
 
 const matrixHelper = new Matrix4()
 
@@ -96,12 +96,18 @@ export function computeTranslateAsHandleTransformState(
     vectorHelper1.normalize()
     vectorHelper2.copy(deltaHelper2).normalize()
     qHelper1.setFromUnitVectors(vectorHelper1, vectorHelper2)
-    if (storeData.prevTranslateAsDeltaRotation == null) {
+    /*if (storeData.prevTranslateAsDeltaRotation == null) {
       storeData.prevTranslateAsDeltaRotation = new Quaternion()
     } else {
       qHelper1.multiply(storeData.prevTranslateAsDeltaRotation)
     }
-    storeData.prevTranslateAsDeltaRotation.copy(qHelper1)
+    storeData.prevTranslateAsDeltaRotation.copy(qHelper1)*/
+
+    if (storeData.initialTargetParentWorldMatrix != null) {
+      qHelper2.setFromRotationMatrix(storeData.initialTargetParentWorldMatrix)
+      qHelper1.multiply(qHelper2.normalize())
+      qHelper1.premultiply(qHelper2.invert())
+    }
     qHelper1.multiply(storeData.initialTargetQuaternion)
   }
 
@@ -120,9 +126,9 @@ export function computeTranslateAsHandleTransformState(
     if (storeData.initialTargetParentWorldMatrix != null) {
       matrixHelper.premultiply(storeData.initialTargetParentWorldMatrix)
     }
-    matrixHelper.decompose(vectorHelper2, quaterionHelper2, vectorHelper3)
+    matrixHelper.decompose(vectorHelper2, qHelper2, vectorHelper3)
     //compute the initial scale axis
-    vectorHelper1.copy(deltaHelper1).applyQuaternion(quaterionHelper2.invert()).divide(vectorHelper3)
+    vectorHelper1.copy(deltaHelper1).applyQuaternion(qHelper2.invert()).divide(vectorHelper3)
     vectorHelper1.x = Math.abs(vectorHelper1.x)
     vectorHelper1.y = Math.abs(vectorHelper1.y)
     vectorHelper1.z = Math.abs(vectorHelper1.z)
@@ -133,20 +139,20 @@ export function computeTranslateAsHandleTransformState(
   } else {
     //as scale
     if (storeData.initialTargetParentWorldMatrix != null) {
-      storeData.initialTargetParentWorldMatrix.decompose(vectorHelper1, quaterionHelper2, vectorHelper2)
-      quaterionHelper2.multiply(storeData.initialTargetQuaternion)
+      storeData.initialTargetParentWorldMatrix.decompose(vectorHelper1, qHelper2, vectorHelper2)
+      qHelper2.multiply(storeData.initialTargetQuaternion)
     } else {
-      quaterionHelper2.copy(storeData.initialTargetQuaternion)
+      qHelper2.copy(storeData.initialTargetQuaternion)
     }
-    vectorHelper1.copy(deltaHelper1).applyQuaternion(quaterionHelper2.invert())
+    vectorHelper1.copy(deltaHelper1).applyQuaternion(qHelper2.invert())
 
     if (targetParentWorldMatrix != null) {
-      targetParentWorldMatrix.decompose(vectorHelper2, quaterionHelper2, vectorHelper3)
-      quaterionHelper2.multiply(storeData.initialTargetQuaternion)
+      targetParentWorldMatrix.decompose(vectorHelper2, qHelper2, vectorHelper3)
+      qHelper2.multiply(storeData.initialTargetQuaternion)
     } else {
-      quaterionHelper2.copy(storeData.initialTargetQuaternion)
+      qHelper2.copy(storeData.initialTargetQuaternion)
     }
-    vectorHelper2.copy(deltaHelper2).applyQuaternion(quaterionHelper2.invert())
+    vectorHelper2.copy(deltaHelper2).applyQuaternion(qHelper2.invert())
 
     scaleHelper.x = Math.abs(vectorHelper1.x) < 0.001 ? 1 : Math.abs(vectorHelper2.x / vectorHelper1.x)
     scaleHelper.y = Math.abs(vectorHelper1.y) < 0.001 ? 1 : Math.abs(vectorHelper2.y / vectorHelper1.y)

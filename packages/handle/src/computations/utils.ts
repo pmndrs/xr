@@ -34,6 +34,7 @@ export function computeHandleTransformState(
 
   //decompose
   matrixHelper1.decompose(position, quaternion, scale)
+
   //position and quaternion now contain the resulting transformation before applying the options
 
   //compute position
@@ -216,13 +217,13 @@ export function addSpaceFromTransformOptions(
     addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, options, type)
     return
   }
-  if ((options.x ?? true) === true) {
+  if (options.x !== false) {
     addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, 'x', type)
   }
-  if ((options.y ?? true) === true) {
+  if (options.y !== false) {
     addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, 'y', type)
   }
-  if ((options.z ?? true) === true) {
+  if (options.z !== false) {
     addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, 'z', type)
   }
 }
