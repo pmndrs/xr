@@ -226,7 +226,7 @@ export class ScreenRayIntersector implements Intersector {
 
   public finalizeIntersection(scene: Object3D): Intersection {
     const pointerPosition = this.fromPosition.clone()
-    const pointerQuaternion = this.fromQuaternion.clone()
+    const pointerQuaternion = this.cameraQuaternion.clone()
     const pointerDirection = this.raycaster.ray.direction.clone()
 
     const index = getDominantIntersectionIndex(this.intersects, this.pointerEventsOrders, this.options)

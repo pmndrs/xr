@@ -127,6 +127,7 @@ export class HandleStore<T>
       return
     }
     const pointerWorldDirection = getWorldDirection(event, vectorHelper) ? vectorHelper.clone() : undefined
+
     this.inputState.set(event.pointerId, {
       pointerWorldDirection,
       pointerWorldPoint: event.point,
@@ -321,15 +322,15 @@ export class HandleStore<T>
     }
   }
 
-  bind(object: Object3D<PointerEventsMap & Object3DEventMap>): () => void {
+  bind(handle: Object3D<PointerEventsMap & Object3DEventMap>): () => void {
     const { onPointerDown, onPointerMove, onPointerUp } = this.handlers
-    object.addEventListener('pointerdown', onPointerDown)
-    object.addEventListener('pointermove', onPointerMove)
-    object.addEventListener('pointerup', onPointerUp)
+    handle.addEventListener('pointerdown', onPointerDown)
+    handle.addEventListener('pointermove', onPointerMove)
+    handle.addEventListener('pointerup', onPointerUp)
     return () => {
-      object.removeEventListener('pointerdown', onPointerDown)
-      object.removeEventListener('pointermove', onPointerMove)
-      object.removeEventListener('pointerup', onPointerUp)
+      handle.removeEventListener('pointerdown', onPointerDown)
+      handle.removeEventListener('pointermove', onPointerMove)
+      handle.removeEventListener('pointerup', onPointerUp)
       this.cancel()
     }
   }

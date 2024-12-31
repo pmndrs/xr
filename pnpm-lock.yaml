@@ -97,6 +97,24 @@ importers:
         specifier: ^5.2.11
         version: 5.4.2(@types/node@22.10.2)
 
+  examples/controls:
+    dependencies:
+      '@pmndrs/handle':
+        specifier: workspace:^
+        version: link:../../packages/handle
+      '@pmndrs/pointer-events':
+        specifier: workspace:^
+        version: link:../../packages/pointer-events
+      '@react-three/drei':
+        specifier: ^9.118.0
+        version: 9.120.4(@react-three/fiber@8.17.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0))(@types/react@18.3.5)(@types/three@0.164.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.168.0)(use-sync-external-store@1.2.2(react@18.3.1))
+      '@react-three/handle':
+        specifier: workspace:^
+        version: link:../../packages/react/handle
+      '@react-three/xr':
+        specifier: workspace:^
+        version: link:../../packages/react/xr
+
   examples/demo-controller:
     dependencies:
       '@pmndrs/xr':
