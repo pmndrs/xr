@@ -1,6 +1,6 @@
 import { Axis } from '@pmndrs/handle'
 import { GroupProps, useFrame } from '@react-three/fiber'
-import { ColorRepresentation, Group, Quaternion, TorusGeometry, Vector3 } from 'three'
+import { ColorRepresentation, Group, Quaternion, TorusGeometry, Vector3, Vector3Tuple } from 'three'
 import { Control } from '../context.js'
 import { MeshControlsMaterial } from '../material.js'
 import { createCircleGeometry } from './index.js'
@@ -27,6 +27,7 @@ const config = {
       y: 0,
       z: 0,
     },
+    axis: [1, 0, 0] as Vector3Tuple,
   },
   y: {
     vector: new Vector3(0, 0, -1),
@@ -35,6 +36,7 @@ const config = {
       x: 0,
       z: Math.PI / 2,
     },
+    axis: [0, 1, 0] as Vector3Tuple,
   },
   z: {
     vector: new Vector3(-1, 0, 0),
@@ -43,6 +45,7 @@ const config = {
       x: 0,
       y: Math.PI / 2,
     },
+    axis: [0, 0, 1] as Vector3Tuple,
   },
 } as const
 
@@ -72,7 +75,7 @@ export function AxisRotateControl({
   return (
     <group {...props}>
       <group ref={ref}>
-        <Control tag={tag} scale={false} translate="as-rotate" rotate={tag} multitouch={false}>
+        <Control tag={tag} scale={false} translate="as-rotate" rotate={config[tag].axis} multitouch={false}>
           <mesh visible={false} rotation={[0, -Math.PI / 2, -Math.PI / 2]}>
             <torusGeometry args={[0.5, 0.1, 4, 24]} />
           </mesh>

@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Object3D, Object3DEventMap, Quaternion, Vector2Tuple, Vector3 } from 'three'
+import { Euler, Matrix4, Object3D, Object3DEventMap, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
 import type { PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
 import { Axis, HandleState, HandleStateImpl, HandleTransformState } from './state.js'
 import { getWorldDirection } from './utils.js'
@@ -78,6 +78,7 @@ export type HandleTransformOptions =
     }
   | boolean
   | Axis
+  | Vector3Tuple
 
 const vectorHelper = new Vector3()
 

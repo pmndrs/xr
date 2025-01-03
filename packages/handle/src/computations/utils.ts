@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Plane, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Plane, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { Axis, HandleTransformState } from '../state.js'
 import { HandleOptions, HandleTransformOptions } from '../store.js'
 import { clamp } from 'three/src/math/MathUtils.js'
@@ -49,6 +49,7 @@ export function computeHandleTransformState(
   } else if (
     rotateOptions === true ||
     (typeof rotateOptions != 'string' &&
+      !Array.isArray(rotateOptions) &&
       rotateOptions.x === true &&
       rotateOptions.y === true &&
       rotateOptions.z === true)
@@ -153,6 +154,9 @@ function applyTransformOptionsToAxis(
   neutralValue: number,
   options: HandleTransformOptions,
 ): number {
+  if (Array.isArray(options)) {
+    return value
+  }
   if (typeof options === 'boolean') {
     return options ? value : neutralValue
   }
@@ -217,6 +221,10 @@ export function addSpaceFromTransformOptions(
     addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, options, type)
     return
   }
+  if (Array.isArray(options)) {
+    addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, options, type)
+    return
+  }
   if (options.x !== false) {
     addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, 'x', type)
   }
@@ -228,48 +236,77 @@ export function addSpaceFromTransformOptions(
   }
 }
 
-const otherAxes = {
-  x: ['y', 'z'],
-  y: ['x', 'z'],
-  z: ['x', 'y'],
-} as const
-
 const rHelper = new Quaternion()
 const eHelper = new Euler()
 const axisHelper = new Vector3()
+const randomVectorHelper = new Vector3()
+const otherVectorHelper = new Vector3()
+const resultVectorHelper = new Vector3()
 
 function addSpaceFromAxis(
   target: Array<Vector3>,
   targetParentWorldQuaternion: Quaternion,
   initialTargetRotation: Euler,
-  axis: Axis,
+  axis: Axis | Vector3Tuple,
   type: 'translate' | 'rotate' | 'scale',
 ): void {
+  if (Array.isArray(axis)) {
+    axisHelper.set(...axis)
+  } else {
+    axisHelper.copy(axisVectorMap[axis])
+  }
   if (type === 'translate') {
-    axisHelper.copy(axisVectorMap[axis]).applyQuaternion(targetParentWorldQuaternion)
+    axisHelper.applyQuaternion(targetParentWorldQuaternion)
     addAxisToSpace(target, axisHelper)
     return
   }
   if (type === 'scale') {
-    rHelper.setFromEuler(initialTargetRotation).premultiply(targetParentWorldQuaternion)
-    axisHelper.copy(axisVectorMap[axis]).applyQuaternion(rHelper)
+    if (Array.isArray(axis)) {
+      rHelper.identity()
+    } else {
+      rHelper.setFromEuler(initialTargetRotation)
+    }
+    rHelper.premultiply(targetParentWorldQuaternion)
+    axisHelper.applyQuaternion(rHelper)
     addAxisToSpace(target, axisHelper)
     return
   }
-  eHelper.copy(initialTargetRotation)
-  for (let i = 2; i >= 0; i--) {
-    const rotationAxis = initialTargetRotation.order[i].toLowerCase()
-    eHelper[rotationAxis as Axis] = 0
-    if (rotationAxis === axis) {
-      break
+
+  if (Array.isArray(axis)) {
+    eHelper.set(0, 0, 0)
+  } else {
+    eHelper.copy(initialTargetRotation)
+    for (let i = 2; i >= 0; i--) {
+      const rotationAxis = initialTargetRotation.order[i].toLowerCase()
+      eHelper[rotationAxis as Axis] = 0
+      if (rotationAxis === axis) {
+        break
+      }
     }
   }
+
   rHelper.setFromEuler(eHelper).premultiply(targetParentWorldQuaternion)
-  const [axis1, axis2] = otherAxes[axis]
-  axisHelper.copy(axisVectorMap[axis1]).applyQuaternion(rHelper)
-  addAxisToSpace(target, axisHelper)
-  axisHelper.copy(axisVectorMap[axis2]).applyQuaternion(rHelper)
-  addAxisToSpace(target, axisHelper)
+
+  axisHelper.normalize()
+
+  // Step 1: Choose a random vector that is not parallel to the original
+  otherVectorHelper.set(0, 1, 0)
+  if (axisHelper.dot(otherVectorHelper) > 0.99) {
+    otherVectorHelper.set(0, 0, 1) // Change the random vector if it's too parallel
+  }
+
+  // Step 2: First perpendicular vector
+  resultVectorHelper.crossVectors(axisHelper, otherVectorHelper).normalize()
+  otherVectorHelper.copy(resultVectorHelper)
+
+  resultVectorHelper.applyQuaternion(rHelper)
+  addAxisToSpace(target, resultVectorHelper)
+
+  // Step 3: Second perpendicular vector
+  resultVectorHelper.crossVectors(axisHelper, otherVectorHelper).normalize()
+
+  resultVectorHelper.applyQuaternion(rHelper)
+  addAxisToSpace(target, resultVectorHelper)
 }
 
 const distanceToPlaneHelper = new Plane()
