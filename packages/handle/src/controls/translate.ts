@@ -5,59 +5,126 @@ import {
   CylinderGeometry,
   Float32BufferAttribute,
   Group,
+  Line,
+  LineBasicMaterial,
   Mesh,
+  MeshBasicMaterial,
   Object3D,
   OctahedronGeometry,
+  Vector3Tuple,
 } from 'three'
-import { ControlsElement, ControlsElementParts } from './element.js'
+import { ControlHandle, ControlHandleParts } from './handle.js'
 import { Axis } from '../state.js'
 import type { PointerEvent } from '@pmndrs/pointer-events'
 import { HandleOptions } from '../store.js'
 
-type ElementType = 'x' | 'y' | 'z' | 'xyz' //| 'xy' | 'yz' | 'xz' | 'xyz'
+//concept: transform control context (group, bind, onFrame, onHover, onApply(first, last))
 
-export function createTranslateControlsElements<T>(
+type ElementType = 'x' | 'y' | 'z' | 'xyz' | 'xy' | 'yz' | 'xz' | 'xyz'
+
+export function createTranslateControls<T>(
   group: Object3D,
   getOptions?: () => HandleOptions<T>,
-): Record<ElementType, ControlsElement<T>> {
-  const x = new AxisTranslateControls<T>(group, getOptions, 'x')
+): { handles: Record<ElementType, ControlHandle<T>>; lines: Record<Axis, Object3D> } {
+  const apply: HandleOptions<T>['apply'] = (state, target) => {
+    if(state.first) {
+      //set initial position
+    }
+
+    if(state.last) {
+      //set to invisible
+    } else {
+      //set to visible
+    }
+    return getOptions?.().apply?.(state, target) ?? (undefined as any)
+  }
+
+  const x = new AxisTranslateHandle<T>(group, getOptions, 'x')
   group.add(x)
 
-  const y = new AxisTranslateControls<T>(group, getOptions, 'y')
+  const y = new AxisTranslateHandle<T>(group, getOptions, 'y')
   group.add(y)
 
-  const z = new AxisTranslateControls<T>(group, getOptions, 'z')
+  const z = new AxisTranslateHandle<T>(group, getOptions, 'z')
   group.add(z)
 
-  const xyz = new FreeTranslateControls<T>(group, getOptions)
+  const yz = new PlaneTranslateControls<T>(group, getOptions, 'x')
+  group.add(yz)
+
+  const xz = new PlaneTranslateControls<T>(group, getOptions, 'y')
+  group.add(xz)
+
+  const xy = new PlaneTranslateControls<T>(group, getOptions, 'z')
+  group.add(xy)
+
+  const xyz = new FreeTranslateHandle<T>(group, getOptions)
   group.add(xyz)
 
-  return { x, y, z, xyz }
-}
-
-export function updateTranslateControlsElements(elements: Record<ElementType, ControlsElement<any>>, time: number) {
-  for (const key in elements) {
-    elements[key as keyof typeof elements].update(time)
+  return {
+    handles: { x, y, z, xyz, xy, xz, yz },
+    lines: {
+      x: new HelperLine(group, [-1e3, 0, 0], undefined, [1e6, 1, 1]),
+      y: new HelperLine(group, [0, -1e3, 0], [0, 0, Math.PI / 2], [1e6, 1, 1]),
+      z: new HelperLine(group, [0, 0, -1e3], [0, -Math.PI / 2, 0], [1e6, 1, 1]),
+    },
   }
 }
 
-export function bindTranslateControlsElements(elements: Record<ElementType, ControlsElement<any>>) {
+const lineMaterial = new LineBasicMaterial({
+  color: 'white',
+  toneMapped: false,
+  depthTest: false,
+  depthWrite: false,
+  fog: false,
+  transparent: true,
+})
+
+class HelperLine extends Line {
+  constructor(parent: Object3D, position?: Vector3Tuple, rotation?: Vector3Tuple, scale?: Vector3Tuple) {
+    super(lineGeometry, lineMaterial)
+    parent.add(this)
+    if (position != null) {
+      this.position.fromArray(position)
+    }
+    if (rotation != null) {
+      this.rotation.fromArray(rotation)
+    }
+    if (scale != null) {
+      this.scale.fromArray(scale)
+    }
+    this.visible = false
+  }
+}
+
+export function updateTranslateControlsHandles(handles: Record<ElementType, ControlHandle<any>>, time: number) {
+  for (const key in handles) {
+    handles[key as keyof typeof handles].update(time)
+  }
+}
+
+export function bindTranslateControls({ handles, lines }: ReturnType<typeof createTranslateControls<any>>) {
   const hoveredStateMap = new Map<number, ElementType>()
 
   const updateHover = () => {
-    for (const key in elements) {
-      elements[key as keyof typeof elements].setHighlighted(false)
+    for (const key in handles) {
+      handles[key as keyof typeof handles].setHighlighted(false)
+    }
+    for (const key in lines) {
+      lines[key as keyof typeof lines].visible = false
     }
     for (const type of hoveredStateMap.values()) {
-      for (const key in elements) {
+      for (const key in lines) {
+        lines[key as keyof typeof lines].visible = type.includes(key)
+      }
+      for (const key in handles) {
         if (type.includes(key) && (key.length != 2 || type.length != 3)) {
-          elements[key as keyof typeof elements].setHighlighted(true)
+          handles[key as keyof typeof handles].setHighlighted(true)
         }
       }
     }
   }
 
-  const cleanupFunctions = Object.entries(elements).map(([type, element]) => {
+  const cleanupFunctions = Object.entries(handles).map(([type, element]) => {
     const enterListener = (e: PointerEvent) => {
       hoveredStateMap.set(e.pointerId, type as ElementType)
       updateHover()
@@ -85,20 +152,18 @@ export function bindTranslateControlsElements(elements: Record<ElementType, Cont
 
 export class TranslateControls extends Object3D {
   public readonly dispose: () => void
-  private readonly elements: ReturnType<typeof createTranslateControlsElements>
+  private readonly elements: ReturnType<typeof createTranslateControls>
 
   constructor(getOptions?: () => HandleOptions<unknown>) {
     super()
-    this.elements = createTranslateControlsElements(this, getOptions)
-    this.dispose = bindTranslateControlsElements(this.elements)
+    this.elements = createTranslateControls(this, getOptions)
+    this.dispose = bindTranslateControls(this.elements)
   }
 
   update(time: number) {
-    updateTranslateControlsElements(this.elements, time)
+    updateTranslateControlsHandles(this.elements.handles, time)
   }
 }
-
-class PlaneTranslateControls {}
 
 const arrowGeometry = new CylinderGeometry(0, 0.04, 0.1, 12)
 arrowGeometry.translate(0, 0.05, 0)
@@ -112,7 +177,7 @@ lineGeometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 1, 0,
 const lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3)
 lineGeometry2.translate(0, 0.25, 0)
 
-const axisTranslateVisualizationParts: Record<Axis, ControlsElementParts> = {
+const axisTranslateVisualizationParts: Record<Axis, ControlHandleParts> = {
   x: [
     { geometry: arrowGeometry, position: [0.5, 0, 0], rotation: [0, 0, -Math.PI / 2] },
     { geometry: arrowGeometry, position: [-0.5, 0, 0], rotation: [0, 0, Math.PI / 2] },
@@ -130,7 +195,7 @@ const axisTranslateVisualizationParts: Record<Axis, ControlsElementParts> = {
   ],
 }
 
-const axisTranslateInteractionParts: Record<Axis, ControlsElementParts> = {
+const axisTranslateInteractionParts: Record<Axis, ControlHandleParts> = {
   x: [
     { geometry: new CylinderGeometry(0.2, 0, 0.6, 4), position: [0.3, 0, 0], rotation: [0, 0, -Math.PI / 2] },
     { geometry: new CylinderGeometry(0.2, 0, 0.6, 4), position: [-0.3, 0, 0], rotation: [0, 0, Math.PI / 2] },
@@ -151,7 +216,7 @@ const axisTranslateColor: Record<Axis, ColorRepresentation> = {
   z: 0x0000ff,
 }
 
-class AxisTranslateControls<T> extends ControlsElement<T> {
+class AxisTranslateHandle<T> extends ControlHandle<T> {
   constructor(target: Object3D, getOptions: (() => HandleOptions<T>) | undefined, axis: Axis) {
     super(
       target,
@@ -170,7 +235,7 @@ class AxisTranslateControls<T> extends ControlsElement<T> {
   }
 }
 
-class FreeTranslateControls<T> extends ControlsElement<T> {
+class FreeTranslateHandle<T> extends ControlHandle<T> {
   constructor(target: Object3D, getOptions: (() => HandleOptions<T>) | undefined) {
     super(
       target,
@@ -185,6 +250,73 @@ class FreeTranslateControls<T> extends ControlsElement<T> {
       0.25,
       [{ geometry: new OctahedronGeometry(0.1, 0), position: [0, 0, 0] }],
       [{ geometry: new OctahedronGeometry(0.2, 0) }],
+    )
+  }
+}
+
+const notAxisTranslateVisualizationParts: Record<Axis, ControlHandleParts> = {
+  x: [
+    {
+      geometry: new BoxGeometry(0.15, 0.15, 0.01),
+      position: [0, 0.15, 0.15],
+      rotation: [0, Math.PI / 2, 0],
+    },
+  ],
+  y: [
+    {
+      geometry: new BoxGeometry(0.15, 0.15, 0.01),
+      position: [0.15, 0, 0.15],
+      rotation: [-Math.PI / 2, 0, 0],
+    },
+  ],
+  z: [
+    {
+      geometry: new BoxGeometry(0.15, 0.15, 0.01),
+      position: [0.15, 0.15, 0],
+    },
+  ],
+}
+
+const notAxisTranslateInteractionParts: Record<Axis, ControlHandleParts> = {
+  x: [
+    {
+      geometry: new BoxGeometry(0.2, 0.2, 0.01),
+      position: [0, 0.15, 0.15],
+      rotation: [0, Math.PI / 2, 0],
+    },
+  ],
+  y: [
+    {
+      geometry: new BoxGeometry(0.2, 0.2, 0.01),
+      position: [0.15, 0, 0.15],
+      rotation: [-Math.PI / 2, 0, 0],
+    },
+  ],
+  z: [
+    {
+      geometry: new BoxGeometry(0.2, 0.2, 0.01),
+      position: [0.15, 0.15, 0],
+    },
+  ],
+}
+
+class PlaneTranslateControls<T> extends ControlHandle<T> {
+  constructor(target: Object3D, getOptions: (() => HandleOptions<T>) | undefined, notAxis: Axis) {
+    super(
+      target,
+      () => ({
+        ...getOptions?.(),
+        multitouch: false,
+        rotate: false,
+        scale: false,
+        translate: {
+          [notAxis]: false,
+        },
+      }),
+      axisTranslateColor[notAxis],
+      0.5,
+      notAxisTranslateVisualizationParts[notAxis],
+      notAxisTranslateInteractionParts[notAxis],
     )
   }
 }

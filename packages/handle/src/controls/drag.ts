@@ -19,10 +19,6 @@ export class DragControls<T = unknown> {
     })
   }
 
-  /**
-   * only needs to be executed if `options.alwaysUpdate` is set to `true`
-   * @param time is the absolute time. NOT the delta time
-   */
   update(time: number): void {
     for (const { store } of this.connections) {
       store.update(time)

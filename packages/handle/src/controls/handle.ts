@@ -12,14 +12,14 @@ import {
 import { HandleOptions, HandleStore } from '../store.js'
 import { PointerEventsMap } from '@pmndrs/pointer-events'
 
-export type ControlsElementParts = Array<{
+export type ControlHandleParts = Array<{
   geometry: BufferGeometry
   position?: Vector3Tuple
   rotation?: Vector3Tuple
   scale?: Vector3Tuple
 }>
 
-export abstract class ControlsElement<T> extends Object3D<PointerEventsMap & Object3DEventMap> {
+export abstract class ControlHandle<T> extends Object3D<PointerEventsMap & Object3DEventMap> {
   private material: MeshBasicMaterial
 
   public readonly store: HandleStore<T>
@@ -30,8 +30,8 @@ export abstract class ControlsElement<T> extends Object3D<PointerEventsMap & Obj
     getOptions: (() => HandleOptions<T>) | undefined,
     private readonly color: ColorRepresentation,
     private readonly opacity: number,
-    visualizationParts: ControlsElementParts,
-    interactionParts: ControlsElementParts,
+    visualizationParts: ControlHandleParts,
+    interactionParts: ControlHandleParts,
   ) {
     super()
 
@@ -64,7 +64,7 @@ export abstract class ControlsElement<T> extends Object3D<PointerEventsMap & Obj
   }
 }
 
-function createParts(group: Object3D, parts: ControlsElementParts, material: Material | undefined, visible: boolean) {
+function createParts(group: Object3D, parts: ControlHandleParts, material: Material | undefined, visible: boolean) {
   for (const { geometry, position, rotation, scale } of parts) {
     const mesh = new Mesh(geometry, material)
     mesh.visible = visible

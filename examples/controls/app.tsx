@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { createXRStore, noEvents, PointerEvents, XR, XROrigin } from '@react-three/xr'
-import { Environment } from '@react-three/drei'
-import { TranslateControls } from '@react-three/handle'
+import { Environment, OrbitControls } from '@react-three/drei'
+import { RotateControls, TranslateControls } from '@react-three/handle'
 
 const store = createXRStore()
 
@@ -13,13 +13,14 @@ export function App() {
       <Canvas camera={{ position: [1, 1, 1] }} events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
         <PointerEvents />
         <XR store={store}>
+          <color args={[0x0]} attach="background" />
           <Environment preset="city" />
-          <TranslateControls>
+          <RotateControls>
             <mesh>
               <boxGeometry />
               <meshStandardMaterial color="red" />
             </mesh>
-          </TranslateControls>
+          </RotateControls>
         </XR>
       </Canvas>
     </>

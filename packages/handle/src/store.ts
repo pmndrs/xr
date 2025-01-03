@@ -345,7 +345,7 @@ export class HandleStore<T>
 
 function noop() {}
 
-function defaultApply(state: HandleState<unknown>, target: Object3D): any {
+export function defaultApply(state: HandleState<unknown>, target: Object3D): any {
   target.position.copy(state.current.position)
   target.quaternion.copy(state.current.quaternion)
   target.scale.copy(state.current.scale)
