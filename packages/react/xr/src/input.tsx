@@ -48,7 +48,11 @@ export function useXRInputSourceStateContext<T extends keyof XRInputSourceStateM
 }
 
 /**
- * hook for listening to xr input source events
+ * Hook for listening to xr input source events
+ * @param inputSource The input source to listen to, or 'all' to listen to all input sources
+ * @param event The event to listen to. ([List of events](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceEvent))
+ * @param fn Callback function called when the event is triggered.
+ * @param deps Retriggers the binding of the event when the dependencies change.
  */
 export function useXRInputSourceEvent(
   inputSource: XRInputSource | 'all' | undefined,
