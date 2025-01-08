@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
 import { HandleTransformState } from '../state.js'
 import { HandleOptions } from '../store.js'
 import {
@@ -96,12 +96,12 @@ export function computeTranslateAsHandleTransformState(
     vectorHelper1.normalize()
     vectorHelper2.copy(deltaHelper2).normalize()
     qHelper1.setFromUnitVectors(vectorHelper1, vectorHelper2)
-    /*if (storeData.prevTranslateAsDeltaRotation == null) {
+    if (storeData.prevTranslateAsDeltaRotation == null) {
       storeData.prevTranslateAsDeltaRotation = new Quaternion()
     } else {
       qHelper1.multiply(storeData.prevTranslateAsDeltaRotation)
     }
-    storeData.prevTranslateAsDeltaRotation.copy(qHelper1)*/
+    storeData.prevTranslateAsDeltaRotation.copy(qHelper1)
 
     if (storeData.initialTargetParentWorldMatrix != null) {
       qHelper2.setFromRotationMatrix(storeData.initialTargetParentWorldMatrix)

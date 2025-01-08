@@ -107,6 +107,7 @@ export const TranslateControls: ForwardRefExoticComponent<
   },
 )
 
+export * from './free.js'
 export * from './axis.js'
 export * from './delta.js'
 export * from './plane.js'

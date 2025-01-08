@@ -71,7 +71,6 @@ export function AxisRotateControl({
       ref.current.rotation[key as keyof typeof set] = set[key as keyof typeof set]
     }
   })
-  useFrame(() => {})
   return (
     <group {...props}>
       <group ref={ref}>

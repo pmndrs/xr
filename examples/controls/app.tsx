@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
-import { createXRStore, noEvents, PointerEvents, XR, XROrigin } from '@react-three/xr'
-import { Environment, OrbitControls } from '@react-three/drei'
-import { RotateControls, TranslateControls } from '@react-three/handle'
+import { createXRStore, noEvents, PointerEvents, XR } from '@react-three/xr'
+import { Environment } from '@react-three/drei'
+import { RotateControls, OrbitHandles, ScaleControls } from '@react-three/handle'
 
 const store = createXRStore()
 
@@ -12,15 +12,25 @@ export function App() {
       <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas camera={{ position: [1, 1, 1] }} events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
         <PointerEvents />
+        <OrbitHandles />
         <XR store={store}>
           <color args={[0x0]} attach="background" />
           <Environment preset="city" />
-          <RotateControls>
+          <mesh position-z={-3}>
+            <boxGeometry />
+            <meshStandardMaterial color="green" />
+          </mesh>
+          <ScaleControls>
             <mesh>
               <boxGeometry />
               <meshStandardMaterial color="red" />
             </mesh>
-          </RotateControls>
+          </ScaleControls>
+
+          <mesh position={[0, -1, 0]} rotation-x={-Math.PI / 2} scale={10}>
+            <planeGeometry />
+            <meshStandardMaterial color="blue" />
+          </mesh>
         </XR>
       </Canvas>
     </>

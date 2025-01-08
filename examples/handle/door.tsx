@@ -41,7 +41,13 @@ export function Door(props: JSX.IntrinsicElements['group']) {
               material={materials.Door}
               position={[0.852, 0.017, 0.782]}
             />
-            <Handle translate="as-rotate" rotate={{ x: false, y: false, z: [-Math.PI, 0] }}>
+            <Handle
+              apply={(state, target) => {
+                target.rotation.z = Math.round(state.current.rotation.z / 0.1) * 0.1
+              }}
+              translate="as-rotate"
+              rotate={{ x: false, y: false, z: [-Math.PI, 0] }}
+            >
               <HandleTarget position={[0.81, 0.043, 0.803]}>
                 <Handle
                   stopPropagation={false}

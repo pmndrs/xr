@@ -64,3 +64,7 @@ export const RotateControls: ForwardRefExoticComponent<
     )
   },
 )
+
+export * from './axis.js'
+export * from './free.js'
+export * from './screen.js'

@@ -239,7 +239,6 @@ export function addSpaceFromTransformOptions(
 const rHelper = new Quaternion()
 const eHelper = new Euler()
 const axisHelper = new Vector3()
-const randomVectorHelper = new Vector3()
 const otherVectorHelper = new Vector3()
 const resultVectorHelper = new Vector3()
 

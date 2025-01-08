@@ -390,6 +390,9 @@ importers:
       '@pmndrs/handle':
         specifier: workspace:^
         version: link:../../handle
+      '@pmndrs/pointer-events':
+        specifier: workspace:^
+        version: link:../../pointer-events
       '@react-three/fiber':
         specifier: '>=8'
         version: 8.17.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.167.1)
@@ -399,6 +402,9 @@ importers:
       three:
         specifier: '*'
         version: 0.167.1
+      zustand:
+        specifier: ^4.5.2
+        version: 4.5.5(@types/react@18.3.5)(react@18.3.1)
 
   packages/react/xr:
     dependencies:
@@ -2092,6 +2098,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
