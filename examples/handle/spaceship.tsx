@@ -79,7 +79,7 @@ export function Spaceship(props: JSX.IntrinsicElements['group']) {
             rotation={[-Math.PI / 2, 0, 0]}
           />
           <group position={[0, 33.857, -11.623]}>
-            <Handle translate="as-rotate" rotate={{ z: false }} multitouch={false}>
+            <Handle translate="as-rotate" rotate={{ y: false }} multitouch={false}>
               <mesh
                 geometry={nodes.steering_center_0.geometry}
                 material={materials.center}

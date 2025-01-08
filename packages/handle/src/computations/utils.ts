@@ -308,7 +308,7 @@ function addSpaceFromAxis(
   addAxisToSpace(target, resultVectorHelper)
 }
 
-const distanceToPlaneHelper = new Plane()
+const crossHelper = new Vector3()
 
 function addAxisToSpace(target: Array<Vector3>, axis: Vector3): void {
   if (target.length === 3) {
@@ -319,14 +319,13 @@ function addAxisToSpace(target: Array<Vector3>, axis: Vector3): void {
     return
   }
   if (target.length === 1) {
-    if (target[0].dot(axis) < 0.999) {
+    if (Math.abs(target[0].dot(axis)) < 0.999) {
       target.push(axis.clone())
     }
     return
   }
-  distanceToPlaneHelper.normal.crossVectors(target[0], target[1])
-  distanceToPlaneHelper.constant = 0
-  if (distanceToPlaneHelper.distanceToPoint(axis) < 0.001) {
+  crossHelper.crossVectors(target[0], target[1])
+  if (Math.abs(crossHelper.dot(axis)) < 0.001) {
     return
   }
   target.push(axis.clone())
