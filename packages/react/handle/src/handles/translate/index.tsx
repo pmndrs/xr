@@ -16,29 +16,19 @@ import { Group, Vector3Tuple } from 'three'
 import { PlaneTranslateHandle } from './plane.js'
 import { FreeTranslateHandle } from './free.js'
 
-export type TranslateHandlesProperties = Omit<GroupProps, 'scale'> &
-  HandleOptions<any> & { enabled?: Exclude<HandleTransformOptions, Vector3Tuple> }
+export type TranslateHandlesProperties = GroupProps &
+  Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
+    enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  }
 
 export const TranslateHandles: ForwardRefExoticComponent<
   PropsWithoutRef<TranslateHandlesProperties> & RefAttributes<Group>
 > = forwardRef<Group, TranslateHandlesProperties>(
-  (
-    { children, alwaysUpdate, scale, rotate, translate, multitouch, apply, stopPropagation, enabled, ...props },
-    ref,
-  ) => {
+  ({ children, alwaysUpdate, apply, stopPropagation, enabled, ...props }, ref) => {
     const groupRef = useRef<Group>(null)
     useImperativeHandle(ref, () => groupRef.current!, [])
     return (
-      <HandlesContext
-        alwaysUpdate={alwaysUpdate}
-        scale={scale}
-        rotate={rotate}
-        translate={translate}
-        multitouch={multitouch}
-        apply={apply}
-        stopPropagation={stopPropagation}
-        targetRef={groupRef}
-      >
+      <HandlesContext alwaysUpdate={alwaysUpdate} apply={apply} stopPropagation={stopPropagation} targetRef={groupRef}>
         <group ref={groupRef} {...props}>
           {/** XY */}
           <PlaneTranslateHandle

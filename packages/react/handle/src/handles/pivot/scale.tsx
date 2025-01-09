@@ -1,0 +1,43 @@
+import { Axis, HandleTransformOptions } from '@pmndrs/handle'
+import { ColorRepresentation, Vector3Tuple } from 'three'
+import { useExtractHandleTransformOptions } from '../utils.js'
+import { MeshHandlesContextMaterial } from '../material.js'
+import { RegisteredHandle } from '../context.js'
+
+export type PivotAxisScaleHandleProperties = {
+  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  tag: Axis
+  color: ColorRepresentation
+  opacity: number
+  hoverColor?: ColorRepresentation
+  hoverOpacity?: number
+}
+
+export function PivotAxisScaleHandle({
+  color,
+  opacity,
+  tag,
+  hoverColor,
+  hoverOpacity,
+  enabled,
+  ...props
+}: PivotAxisScaleHandleProperties) {
+  const scaleOptions = useExtractHandleTransformOptions(tag, enabled)
+  if (scaleOptions === false) {
+    return null
+  }
+  return (
+    <RegisteredHandle tag={tag} scale={scaleOptions} rotate={false} translate="as-scale" multitouch={false} {...props}>
+      <mesh position-x={0.68}>
+        <sphereGeometry args={[0.04]} />
+        <MeshHandlesContextMaterial
+          tag={tag}
+          color={color}
+          opacity={opacity}
+          hoverOpacity={hoverOpacity}
+          hoverColor={hoverColor}
+        />
+      </mesh>
+    </RegisteredHandle>
+  )
+}

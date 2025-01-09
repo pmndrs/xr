@@ -19,7 +19,7 @@ import { Group, Object3D } from 'three'
 
 const handlesContext = createContext<HandlesContextImpl | undefined>(undefined)
 
-export type HandlesContextProperties = HandleOptions<any> & {
+export type HandlesContextProperties = Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
   targetRef: RefObject<Object3D | undefined>
   children?: ReactNode
 }
@@ -28,21 +28,14 @@ export function HandlesContext({
   children,
   alwaysUpdate,
   apply,
-  multitouch,
-  scale,
-  rotate,
-  translate,
   stopPropagation,
   targetRef,
 }: HandlesContextProperties) {
   const options: HandleOptions<any> = {
     alwaysUpdate,
     apply,
-    multitouch,
-    rotate,
-    scale,
+    multitouch: false,
     stopPropagation,
-    translate,
   }
   const optionsRef = useRef(options)
   optionsRef.current = options

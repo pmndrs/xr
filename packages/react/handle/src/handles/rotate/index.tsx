@@ -15,8 +15,8 @@ import { HandlesAxisHighlight } from '../axis.js'
 import { FreeRotateHandle } from './free.js'
 import { ScreenSpaceRotateHandle } from './screen.js'
 
-export type RotateHandlesProperties = Omit<GroupProps, 'scale'> &
-  HandleOptions<any> & {
+export type RotateHandlesProperties = GroupProps &
+  Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
     enabled?:
       | Exclude<HandleTransformOptions, Vector3Tuple>
       | 'e'
@@ -37,19 +37,12 @@ export function createCircleGeometry(radius: number, arc: number) {
 
 export const RotateHandles: ForwardRefExoticComponent<PropsWithoutRef<RotateHandlesProperties> & RefAttributes<Group>> =
   forwardRef<Group, RotateHandlesProperties>(
-    (
-      { children, alwaysUpdate, scale, rotate, translate, multitouch, apply, stopPropagation, enabled, ...props },
-      ref,
-    ) => {
+    ({ children, alwaysUpdate, apply, stopPropagation, enabled, ...props }, ref) => {
       const groupRef = useRef<Group>(null)
       useImperativeHandle(ref, () => groupRef.current!, [])
       return (
         <HandlesContext
           alwaysUpdate={alwaysUpdate}
-          scale={scale}
-          rotate={rotate}
-          translate={translate}
-          multitouch={multitouch}
           apply={apply}
           stopPropagation={stopPropagation}
           targetRef={groupRef}

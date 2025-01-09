@@ -6,8 +6,8 @@ import { HandleOptions, HandleTransformOptions } from '@pmndrs/handle'
 import { Group, Vector3Tuple } from 'three'
 import { forwardRef, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react'
 
-export type TransformHandlesProperties = Omit<GroupProps, 'scale'> &
-  HandleOptions<any> &
+export type TransformHandlesProperties = GroupProps &
+  Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> &
   (
     | {
         enabled?: RotateHandlesProperties['enabled']
@@ -22,25 +22,9 @@ export type TransformHandlesProperties = Omit<GroupProps, 'scale'> &
 export const TransformHandles: ForwardRefExoticComponent<
   PropsWithoutRef<TransformHandlesProperties> & RefAttributes<Group>
 > = forwardRef<Group, TransformHandlesProperties>((props, ref) => {
-  const {
-    children,
+  const { children, alwaysUpdate, apply, stopPropagation, enabled, mode, ...rest } = props
+  const forwardedProperties: Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> = {
     alwaysUpdate,
-    scale,
-    rotate,
-    translate,
-    multitouch,
-    apply,
-    stopPropagation,
-    enabled,
-    mode,
-    ...rest
-  } = props
-  const forwardedProperties: HandleOptions<any> = {
-    alwaysUpdate,
-    scale,
-    rotate,
-    translate,
-    multitouch,
     apply,
     stopPropagation,
   }

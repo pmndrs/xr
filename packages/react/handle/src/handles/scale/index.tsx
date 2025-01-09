@@ -15,24 +15,19 @@ import { HandlesAxisHighlight } from '../axis.js'
 import { AxisScaleHande } from './axis.js'
 import { PlaneScaleHandle } from './plane.js'
 
-export type ScaleHandlesProperties = Omit<GroupProps, 'scale'> &
-  HandleOptions<any> & { enabled?: Exclude<HandleTransformOptions, Vector3Tuple> }
+export type ScaleHandlesProperties = GroupProps &
+  Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
+    enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  }
 
 export const ScaleHandles: ForwardRefExoticComponent<PropsWithoutRef<ScaleHandlesProperties> & RefAttributes<Group>> =
   forwardRef<Group, ScaleHandlesProperties>(
-    (
-      { children, alwaysUpdate, scale, rotate, translate, multitouch, apply, stopPropagation, enabled, ...props },
-      ref,
-    ) => {
+    ({ children, alwaysUpdate, apply, stopPropagation, enabled, ...props }, ref) => {
       const groupRef = useRef<Group>(null)
       useImperativeHandle(ref, () => groupRef.current!, [])
       return (
         <HandlesContext
           alwaysUpdate={alwaysUpdate}
-          scale={scale}
-          rotate={rotate}
-          translate={translate}
-          multitouch={multitouch}
           apply={apply}
           stopPropagation={stopPropagation}
           targetRef={groupRef}
