@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { createXRStore, noEvents, PointerEvents, XR } from '@react-three/xr'
 import { Environment } from '@react-three/drei'
-import { RotateControls, OrbitHandles, ScaleControls } from '@react-three/handle'
+import { OrbitHandles, ScaleHandles, TransformControls } from '@react-three/handle'
 
 const store = createXRStore()
 
@@ -20,12 +20,12 @@ export function App() {
             <boxGeometry />
             <meshStandardMaterial color="green" />
           </mesh>
-          <ScaleControls>
+          <TransformControls enabled={{ x: [-1, 1], y: [-1, 1], z: [-1, 1] }}>
             <mesh>
               <boxGeometry />
               <meshStandardMaterial color="red" />
             </mesh>
-          </ScaleControls>
+          </TransformControls>
 
           <mesh position={[0, -1, 0]} rotation-x={-Math.PI / 2} scale={10}>
             <planeGeometry />

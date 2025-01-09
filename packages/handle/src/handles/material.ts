@@ -1,7 +1,7 @@
 import { ColorRepresentation, LineBasicMaterial, MeshBasicMaterial } from 'three'
-import { ControlsContext } from './context.js'
+import { HandlesContext } from './context.js'
 
-export const controlsMaterialProperties = {
+export const handleXRayMaterialProperties = {
   depthTest: false,
   depthWrite: false,
   fog: false,
@@ -9,8 +9,8 @@ export const controlsMaterialProperties = {
   transparent: true,
 }
 
-export function setupControlsMaterial(
-  context: ControlsContext,
+export function setupHandlesContextHoverMaterial(
+  context: HandlesContext,
   material: MeshBasicMaterial | LineBasicMaterial,
   tag: string,
   color: ColorRepresentation,

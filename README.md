@@ -84,7 +84,6 @@ export function App() {
 
 - 🤳 XR Gestures
 - 🕺 Tracked Body
-- ↕ react-three/controls
 
 ## Migration guides
 

@@ -2,7 +2,7 @@ import type { Object3D, Object3DEventMap } from 'three'
 import { HandleOptions, HandleStore } from '../store.js'
 import type { PointerEventsMap } from '@pmndrs/pointer-events'
 
-export class DragControls<T = unknown> {
+export class DragHandle<T = unknown> {
   private connections: Array<{ store: HandleStore<T>; unbind: () => void }>
 
   constructor(objects: Array<Object3D>, getOptions?: () => HandleOptions<T>) {

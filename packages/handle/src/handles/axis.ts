@@ -1,7 +1,7 @@
 import { Object3D } from 'three'
-import { ControlsContext } from './context.js'
+import { HandlesContext } from './context.js'
 
-export function setupControlsAxis(object: Object3D, context: ControlsContext, tag: string): () => void {
+export function setupHandlesAxisHighlight(object: Object3D, context: HandlesContext, tag: string): () => void {
   const unsubscribeHover = context.subscribeHover((tags) => {
     const isHovered = tags.some((activeTag) => activeTag.includes(tag))
     object.visible = isHovered

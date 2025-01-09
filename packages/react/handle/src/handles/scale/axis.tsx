@@ -1,10 +1,12 @@
-import { Axis } from '@pmndrs/handle'
+import { Axis, HandleTransformOptions } from '@pmndrs/handle'
 import { GroupProps } from '@react-three/fiber'
-import { ColorRepresentation, CylinderGeometry, Euler } from 'three'
-import { MeshControlsMaterial } from '../material.js'
-import { Control } from '../context.js'
+import { ColorRepresentation, Euler, Vector2Tuple, Vector3Tuple } from 'three'
+import { MeshHandlesContextMaterial } from '../material.js'
+import { RegisteredHandle } from '../context.js'
+import { useExtractHandleTransformOptions } from '../utils.js'
 
 export type AxisScaleHandleProperties = {
+  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
   invert?: boolean
   showHandleLine?: boolean
   tag: Axis
@@ -12,7 +14,7 @@ export type AxisScaleHandleProperties = {
   opacity: number
   hoverColor?: ColorRepresentation
   hoverOpacity?: number
-} & GroupProps
+}
 
 const normalRotation = new Euler(0, 0, -Math.PI / 2)
 const invertedRotation = new Euler(0, 0, Math.PI / 2)
@@ -25,22 +27,27 @@ export function AxisScaleHande({
   hoverOpacity,
   invert = false,
   showHandleLine = true,
+  enabled,
   ...props
 }: AxisScaleHandleProperties) {
   const rotation = invert ? invertedRotation : normalRotation
+  const scaleOptions = useExtractHandleTransformOptions(tag, enabled)
+  if (scaleOptions === false) {
+    return null
+  }
   return (
     <group {...props}>
-      <Control tag={tag} scale={tag} rotate={false} translate="as-scale" multitouch={false}>
+      <RegisteredHandle tag={tag} scale={scaleOptions} rotate={false} translate="as-scale" multitouch={false}>
         <group visible={false} position-x={invert ? -0.3 : 0.3} rotation={rotation}>
           <mesh position-y={0.04}>
             <cylinderGeometry args={[0.2, 0, 0.6, 4]} />
           </mesh>
         </group>
-      </Control>
+      </RegisteredHandle>
       <group position-x={invert ? -0.5 : 0.5} rotation={rotation}>
         <mesh position-y={0.04}>
           <boxGeometry args={[0.08, 0.08, 0.08]} />
-          <MeshControlsMaterial
+          <MeshHandlesContextMaterial
             tag={tag}
             color={color}
             opacity={opacity}
@@ -53,7 +60,7 @@ export function AxisScaleHande({
         <group rotation={rotation}>
           <mesh position-y={0.25}>
             <cylinderGeometry args={[0.0075, 0.0075, 0.5, 3]} />
-            <MeshControlsMaterial
+            <MeshHandlesContextMaterial
               tag={tag}
               color={color}
               opacity={opacity}

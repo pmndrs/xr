@@ -1,9 +1,9 @@
-import { controlsMaterialProperties, setupControlsMaterial } from '@pmndrs/handle'
+import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '@pmndrs/handle'
 import { useEffect, useRef } from 'react'
 import { ColorRepresentation, LineBasicMaterial, MeshBasicMaterial } from 'three'
-import { useControlsContext } from './context.js'
+import { useHandlesContext } from './context.js'
 
-export type ControlsMaterialProperties = {
+export type MeshHeandlesContextMaterialProperties = {
   tag: string
   color: ColorRepresentation
   opacity: number
@@ -11,14 +11,14 @@ export type ControlsMaterialProperties = {
   hoverOpacity?: number
 }
 
-export function MeshControlsMaterial(props: ControlsMaterialProperties) {
+export function MeshHandlesContextMaterial(props: MeshHeandlesContextMaterialProperties) {
   const ref = useRef<MeshBasicMaterial>(null)
-  const context = useControlsContext()
+  const context = useHandlesContext()
   useEffect(() => {
     if (ref.current == null) {
       return
     }
-    return setupControlsMaterial(
+    return setupHandlesContextHoverMaterial(
       context,
       ref.current,
       props.tag,
@@ -28,17 +28,17 @@ export function MeshControlsMaterial(props: ControlsMaterialProperties) {
       props.hoverOpacity,
     )
   }, [context, props.tag, props.color, props.opacity, props.hoverColor, props.hoverOpacity])
-  return <meshBasicMaterial ref={ref} {...controlsMaterialProperties} />
+  return <meshBasicMaterial ref={ref} {...handleXRayMaterialProperties} />
 }
 
-export function LineControlsMaterial(props: ControlsMaterialProperties) {
+export function LineHandlesContextMaterial(props: MeshHeandlesContextMaterialProperties) {
   const ref = useRef<LineBasicMaterial>(null)
-  const context = useControlsContext()
+  const context = useHandlesContext()
   useEffect(() => {
     if (ref.current == null) {
       return
     }
-    return setupControlsMaterial(
+    return setupHandlesContextHoverMaterial(
       context,
       ref.current,
       props.tag,
@@ -48,5 +48,5 @@ export function LineControlsMaterial(props: ControlsMaterialProperties) {
       props.hoverOpacity,
     )
   }, [context, props.tag, props.color, props.opacity, props.hoverColor, props.hoverOpacity])
-  return <lineBasicMaterial ref={ref} {...controlsMaterialProperties} />
+  return <lineBasicMaterial ref={ref} {...handleXRayMaterialProperties} />
 }

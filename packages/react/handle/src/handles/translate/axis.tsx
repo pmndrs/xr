@@ -1,8 +1,9 @@
-import { Axis } from '@pmndrs/handle'
-import { Control } from '../context.js'
-import { ColorRepresentation, CylinderGeometry, Euler } from 'three'
-import { MeshControlsMaterial } from '../material.js'
+import { Axis, HandleTransformOptions } from '@pmndrs/handle'
+import { RegisteredHandle } from '../context.js'
+import { ColorRepresentation, CylinderGeometry, Euler, Vector2Tuple, Vector3Tuple } from 'three'
+import { MeshHandlesContextMaterial } from '../material.js'
 import { GroupProps } from '@react-three/fiber'
+import { useExtractHandleTransformOptions } from '../utils.js'
 
 const arrowHeadGeometry = new CylinderGeometry(0, 0.04, 0.1, 12)
 arrowHeadGeometry.translate(0, 0.05, 0)
@@ -12,6 +13,7 @@ arrowBodyGeometry.translate(0, 0.25, 0)
 
 export type AxisTranslateControlProperties = {
   tag: Axis
+  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
   invert?: boolean
   showArrowBody?: boolean
   color: ColorRepresentation
@@ -23,10 +25,11 @@ export type AxisTranslateControlProperties = {
 const normalRotation = new Euler(0, 0, -Math.PI / 2)
 const invertedRotation = new Euler(0, 0, Math.PI / 2)
 
-export function AxisTranslateControl({
+export function AxisTranslateHandle({
   tag,
   invert = false,
   showArrowBody = true,
+  enabled,
   color,
   opacity,
   hoverColor,
@@ -34,15 +37,19 @@ export function AxisTranslateControl({
   ...props
 }: AxisTranslateControlProperties) {
   const rotation = invert ? invertedRotation : normalRotation
+  const translateOptions = useExtractHandleTransformOptions(tag, enabled)
+  if (translateOptions === false) {
+    return null
+  }
   return (
     <group {...props}>
-      <Control tag={tag} scale={false} rotate={false} translate={tag} multitouch={false}>
+      <RegisteredHandle tag={tag} scale={false} rotate={false} translate={translateOptions} multitouch={false}>
         <mesh visible={false} position-x={invert ? -0.3 : 0.3} rotation={rotation}>
           <cylinderGeometry args={[0.2, 0, 0.6, 4]} />
         </mesh>
-      </Control>
+      </RegisteredHandle>
       <mesh geometry={arrowHeadGeometry} position-x={invert ? -0.5 : 0.5} rotation={rotation}>
-        <MeshControlsMaterial
+        <MeshHandlesContextMaterial
           tag={tag}
           color={color}
           opacity={opacity}
@@ -52,7 +59,7 @@ export function AxisTranslateControl({
       </mesh>
       {showArrowBody && (
         <mesh geometry={arrowBodyGeometry} rotation={rotation}>
-          <MeshControlsMaterial
+          <MeshHandlesContextMaterial
             tag={tag}
             color={color}
             opacity={opacity}

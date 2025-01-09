@@ -1,40 +1,40 @@
 import {
-  setupTranslateControlsDelta,
-  createTranslateControlsDeltaLineGeometry,
-  controlsMaterialProperties,
+  setupTranslateHandleDelta,
+  createTranslateHandleDeltaLineGeometry,
+  handleXRayMaterialProperties,
 } from '@pmndrs/handle'
 import { useEffect, useRef } from 'react'
 import { LineSegments, Mesh } from 'three'
-import { useControlsContext } from '../context.js'
+import { useHandlesContext } from '../context.js'
 
-const geometry = createTranslateControlsDeltaLineGeometry()
+const geometry = createTranslateHandleDeltaLineGeometry()
 
-export function TranslateControlsDelta() {
+export function TranslateHandleDelta() {
   const startRef = useRef<Mesh>(null)
   const endRef = useRef<Mesh>(null)
   const lineRef = useRef<LineSegments>(null)
 
-  const context = useControlsContext()
+  const context = useHandlesContext()
 
   useEffect(() => {
     if (startRef.current == null || endRef.current == null || lineRef.current == null) {
       return
     }
-    return setupTranslateControlsDelta(context, startRef.current, lineRef.current, endRef.current)
+    return setupTranslateHandleDelta(context, startRef.current, lineRef.current, endRef.current)
   }, [context])
 
   return (
     <>
       <mesh ref={startRef}>
         <octahedronGeometry args={[0.01, 2]} />
-        <meshBasicMaterial {...controlsMaterialProperties} />
+        <meshBasicMaterial {...handleXRayMaterialProperties} />
       </mesh>
       <mesh ref={endRef}>
         <octahedronGeometry args={[0.01, 2]} />
-        <meshBasicMaterial {...controlsMaterialProperties} />
+        <meshBasicMaterial {...handleXRayMaterialProperties} />
       </mesh>
       <lineSegments ref={lineRef} geometry={geometry}>
-        <lineBasicMaterial {...controlsMaterialProperties} />
+        <lineBasicMaterial {...handleXRayMaterialProperties} />
       </lineSegments>
     </>
   )

@@ -1,18 +1,20 @@
-import { Axis } from '@pmndrs/handle'
+import { Axis, HandleTransformOptions } from '@pmndrs/handle'
 import { GroupProps, useFrame } from '@react-three/fiber'
 import { ColorRepresentation, Group, Quaternion, TorusGeometry, Vector3, Vector3Tuple } from 'three'
-import { Control } from '../context.js'
-import { MeshControlsMaterial } from '../material.js'
-import { createCircleGeometry } from './index.js'
+import { RegisteredHandle } from '../context.js'
+import { MeshHandlesContextMaterial } from '../material.js'
+import { createCircleGeometry, RotateHandlesProperties } from './index.js'
 import { useRef } from 'react'
+import { useExtractHandleTransformOptions } from '../utils.js'
 
 const axisCircleGeometry = createCircleGeometry(0.5, 0.5)
 const vector1Helper = new Vector3()
 const vector2Helper = new Vector3()
 const quaternionHelper = new Quaternion()
 
-export type AxisRotateControlProperties = {
+export type AxisRotateHandleProperties = {
   tag: Axis
+  enabled?: RotateHandlesProperties['enabled']
   color: ColorRepresentation
   opacity: number
   hoverColor?: ColorRepresentation
@@ -49,14 +51,15 @@ const config = {
   },
 } as const
 
-export function AxisRotateControl({
+export function AxisRotateHandle({
   color,
   opacity,
   tag,
   hoverColor,
   hoverOpacity,
+  enabled,
   ...props
-}: AxisRotateControlProperties) {
+}: AxisRotateHandleProperties) {
   const ref = useRef<Group>(null)
   useFrame((state) => {
     if (ref.current == null) {
@@ -71,16 +74,20 @@ export function AxisRotateControl({
       ref.current.rotation[key as keyof typeof set] = set[key as keyof typeof set]
     }
   })
+  const rotateOptions = useExtractHandleTransformOptions(tag, enabled)
+  if (rotateOptions === false) {
+    return null
+  }
   return (
     <group {...props}>
       <group ref={ref}>
-        <Control tag={tag} scale={false} translate="as-rotate" rotate={config[tag].axis} multitouch={false}>
+        <RegisteredHandle tag={tag} scale={false} translate="as-rotate" rotate={config[tag].axis} multitouch={false}>
           <mesh visible={false} rotation={[0, -Math.PI / 2, -Math.PI / 2]}>
             <torusGeometry args={[0.5, 0.1, 4, 24]} />
           </mesh>
-        </Control>
+        </RegisteredHandle>
         <mesh geometry={axisCircleGeometry}>
-          <MeshControlsMaterial
+          <MeshHandlesContextMaterial
             color={color}
             opacity={opacity}
             tag={tag}

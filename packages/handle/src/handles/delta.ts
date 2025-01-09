@@ -1,7 +1,7 @@
 import { BufferGeometry, Float32BufferAttribute, Object3D } from 'three'
-import { ControlsContext } from './context.js'
+import { HandlesContext } from './context.js'
 
-export function createTranslateControlsDeltaLineGeometry() {
+export function createTranslateHandleDeltaLineGeometry() {
   // from https://github.com/mrdoob/three.js/blob/master/examples/jsm/controls/TransformControls.js
   // Special geometry for transform helper. If scaled with position vector it spans from [0,0,0] to position
   const geometry = new BufferGeometry()
@@ -9,7 +9,7 @@ export function createTranslateControlsDeltaLineGeometry() {
   return geometry
 }
 
-export function setupTranslateControlsDelta(context: ControlsContext, start: Object3D, line: Object3D, end: Object3D) {
+export function setupTranslateHandleDelta(context: HandlesContext, start: Object3D, line: Object3D, end: Object3D) {
   const hideObjects = () => {
     start.visible = false
     line.visible = false
