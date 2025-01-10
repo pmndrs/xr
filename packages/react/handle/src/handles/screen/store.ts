@@ -3,7 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
 import { Object3D, Object3DEventMap, Scene, Vector2 } from 'three'
 
-export class ScreenHandleStore<T> {
+export class ScreenHandleStore<T = unknown> {
   private map = new Map<
     number,
     { latestEvent: PointerEvent; initialScreenPosition: Vector2; currentScreenPosition: Vector2 }
@@ -11,7 +11,7 @@ export class ScreenHandleStore<T> {
   private initial: T
 
   constructor(
-    private apply: (initial: T, map: ScreenHandleStore<T>['map']) => void,
+    private apply: (initial: T, map: ScreenHandleStore['map']) => void,
     private getInitial: () => T,
   ) {
     this.initial = getInitial()
@@ -80,7 +80,7 @@ export class ScreenHandleStore<T> {
 }
 
 export function useScreenHandleStore<T>(
-  apply: (initial: T, map: ScreenHandleStore<T>['map']) => void,
+  apply: (initial: T, map: ScreenHandleStore['map']) => void,
   getInitial: () => T,
   deps: Array<any>,
   enabled: boolean,
