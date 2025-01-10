@@ -6,6 +6,7 @@ import { MeshHandlesContextMaterial } from '../material.js'
 import { useExtractHandleTransformOptions } from '../utils.js'
 
 export type PivotAxisScaleHandleProperties = {
+  axis?: Vector3Tuple
   enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
   tag: Axis
   color: ColorRepresentation
@@ -21,6 +22,7 @@ export function PivotAxisRotateHandle({
   hoverColor,
   hoverOpacity,
   enabled,
+  axis,
   ...props
 }: PivotAxisScaleHandleProperties) {
   const rotateOptions = useExtractHandleTransformOptions(tag, enabled)
@@ -29,7 +31,7 @@ export function PivotAxisRotateHandle({
   }
   return (
     <group {...props}>
-      <RegisteredHandle tag={tag} scale={false} translate="as-rotate" rotate={rotateOptions} multitouch={false}>
+      <RegisteredHandle tag={tag} scale={false} translate="as-rotate" rotate={axis} multitouch={false}>
         <mesh visible={false} rotation={[0, Math.PI / 2, Math.PI / 2]}>
           <torusGeometry args={[0.45, 0.1, 4, 24, Math.PI / 2]} />
         </mesh>

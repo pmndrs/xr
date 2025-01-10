@@ -20,7 +20,7 @@ export function App() {
             <boxGeometry />
             <meshStandardMaterial color="green" />
           </mesh>
-          <PivotControls scale={false} rotate={false}>
+          <PivotControls>
             <mesh>
               <boxGeometry />
               <meshStandardMaterial color="red" />

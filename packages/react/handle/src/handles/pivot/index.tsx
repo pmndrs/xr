@@ -2,14 +2,16 @@ import {
   ForwardRefExoticComponent,
   PropsWithoutRef,
   RefAttributes,
+  RefObject,
   forwardRef,
   useImperativeHandle,
+  useMemo,
   useRef,
 } from 'react'
-import { Group, Vector3Tuple } from 'three'
+import { Group, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { AxisTranslateHandle, PlaneTranslateHandle } from '../translate/index.js'
 import { HandlesContext } from '../context.js'
-import { GroupProps } from '@react-three/fiber'
+import { GroupProps, useFrame } from '@react-three/fiber'
 import { HandleOptions, HandleTransformOptions } from '@pmndrs/handle'
 import { PivotAxisScaleHandle } from './scale.js'
 import { PivotAxisRotateHandle } from './rotate.js'
@@ -26,6 +28,11 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
     ({ children, alwaysUpdate, apply, stopPropagation, translate, scale, rotate, ...props }, ref) => {
       const groupRef = useRef<Group>(null)
       useImperativeHandle(ref, () => groupRef.current!, [])
+
+      const xAxis = useLocalAxis(groupRef, 1, 0, 0)
+      const yAxis = useLocalAxis(groupRef, 0, 1, 0)
+      const zAxis = useLocalAxis(groupRef, 0, 0, 1)
+
       return (
         <HandlesContext
           alwaysUpdate={alwaysUpdate}
@@ -35,8 +42,16 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
         >
           <group ref={groupRef} {...props}>
             {/** Translate */}
-            <AxisTranslateHandle color={0xff2060} opacity={1} hoverColor={0xffff40} tag="x" enabled={translate} />
             <AxisTranslateHandle
+              axis={xAxis}
+              color={0xff2060}
+              opacity={1}
+              hoverColor={0xffff40}
+              tag="x"
+              enabled={translate}
+            />
+            <AxisTranslateHandle
+              axis={yAxis}
               color={0x20df80}
               opacity={1}
               hoverColor={0xffff40}
@@ -45,6 +60,7 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
               rotation-z={Math.PI / 2}
             />
             <AxisTranslateHandle
+              axis={zAxis}
               color={0x2080ff}
               opacity={1}
               hoverColor={0xffff40}
@@ -70,9 +86,17 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
               rotation-y={-Math.PI / 2}
             />
             {/** Rotate */}
-            <PivotAxisRotateHandle tag="x" color={0xff2060} hoverColor={0xffff40} opacity={1} enabled={rotate} />
+            <PivotAxisRotateHandle
+              axis={xAxis}
+              tag="x"
+              color={0xff2060}
+              hoverColor={0xffff40}
+              opacity={1}
+              enabled={rotate}
+            />
             <PivotAxisRotateHandle
               tag="y"
+              axis={yAxis}
               color={0x20df80}
               hoverColor={0xffff40}
               opacity={1}
@@ -81,6 +105,7 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
             />
             <PivotAxisRotateHandle
               tag="z"
+              axis={zAxis}
               color={0x2080fff}
               hoverColor={0xffff40}
               opacity={1}
@@ -111,6 +136,25 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
       )
     },
   )
+
+const vectorHelper = new Vector3()
+const quaternionHelper = new Quaternion()
+const scaleHelper = new Vector3()
+
+function useLocalAxis(ref: RefObject<Object3D>, ...[x, y, z]: Vector3Tuple) {
+  const result = useMemo<Vector3Tuple>(() => [0, 0, 0], [])
+  useFrame(() => {
+    if (ref.current == null) {
+      return
+    }
+
+    ref.current.matrixWorld.decompose(vectorHelper, quaternionHelper, scaleHelper)
+    vectorHelper.set(x, y, z)
+    vectorHelper.applyQuaternion(quaternionHelper)
+    vectorHelper.toArray(result)
+  })
+  return result
+}
 
 /**
  * @deprecated use PivotHandles instead

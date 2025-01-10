@@ -20,6 +20,7 @@ export type AxisTranslateControlProperties = {
   opacity: number
   hoverColor?: ColorRepresentation
   hoverOpacity?: number
+  axis?: Vector3Tuple
 } & GroupProps
 
 const normalRotation = new Euler(0, 0, -Math.PI / 2)
@@ -34,6 +35,7 @@ export function AxisTranslateHandle({
   opacity,
   hoverColor,
   hoverOpacity,
+  axis,
   ...props
 }: AxisTranslateControlProperties) {
   const rotation = invert ? invertedRotation : normalRotation
@@ -43,7 +45,7 @@ export function AxisTranslateHandle({
   }
   return (
     <group {...props}>
-      <RegisteredHandle tag={tag} scale={false} rotate={false} translate={translateOptions} multitouch={false}>
+      <RegisteredHandle tag={tag} scale={false} rotate={false} translate={axis ?? translateOptions} multitouch={false}>
         <mesh visible={false} position-x={invert ? -0.3 : 0.3} rotation={rotation}>
           <cylinderGeometry args={[0.2, 0, 0.6, 4]} />
         </mesh>
