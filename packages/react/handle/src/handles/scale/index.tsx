@@ -14,15 +14,18 @@ import { FreeScaleControl } from './free.js'
 import { HandlesAxisHighlight } from '../axis.js'
 import { AxisScaleHande } from './axis.js'
 import { PlaneScaleHandle } from './plane.js'
+import { HandlesSize } from '../size.js'
 
 export type ScaleHandlesProperties = GroupProps &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
     enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
+    size?: number
+    fixed?: boolean
   }
 
 export const ScaleHandles: ForwardRefExoticComponent<PropsWithoutRef<ScaleHandlesProperties> & RefAttributes<Group>> =
   forwardRef<Group, ScaleHandlesProperties>(
-    ({ children, alwaysUpdate, apply, stopPropagation, enabled, ...props }, ref) => {
+    ({ children, alwaysUpdate, apply, stopPropagation, enabled, size, fixed, ...props }, ref) => {
       const groupRef = useRef<Group>(null)
       useImperativeHandle(ref, () => groupRef.current!, [])
       return (
@@ -33,94 +36,96 @@ export const ScaleHandles: ForwardRefExoticComponent<PropsWithoutRef<ScaleHandle
           targetRef={groupRef}
         >
           <group {...props}>
-            {/** XY */}
-            <PlaneScaleHandle
-              enabled={enabled}
-              color={0x0000ff}
-              hoverColor={0xffff00}
-              opacity={0.5}
-              hoverOpacity={1}
-              tag="xy"
-            />
+            <HandlesSize size={size} fixed={fixed}>
+              {/** XY */}
+              <PlaneScaleHandle
+                enabled={enabled}
+                color={0x0000ff}
+                hoverColor={0xffff00}
+                opacity={0.5}
+                hoverOpacity={1}
+                tag="xy"
+              />
 
-            {/** XZ */}
-            <PlaneScaleHandle
-              enabled={enabled}
-              rotation-x={Math.PI / 2}
-              color={0x00ff00}
-              hoverColor={0xffff00}
-              opacity={0.5}
-              hoverOpacity={1}
-              tag="xz"
-            />
+              {/** XZ */}
+              <PlaneScaleHandle
+                enabled={enabled}
+                rotation-x={Math.PI / 2}
+                color={0x00ff00}
+                hoverColor={0xffff00}
+                opacity={0.5}
+                hoverOpacity={1}
+                tag="xz"
+              />
 
-            {/** YZ */}
-            <PlaneScaleHandle
-              enabled={enabled}
-              rotation-y={-Math.PI / 2}
-              color={0xff0000}
-              hoverColor={0xffff00}
-              opacity={0.5}
-              hoverOpacity={1}
-              tag="yz"
-            />
+              {/** YZ */}
+              <PlaneScaleHandle
+                enabled={enabled}
+                rotation-y={-Math.PI / 2}
+                color={0xff0000}
+                hoverColor={0xffff00}
+                opacity={0.5}
+                hoverOpacity={1}
+                tag="yz"
+              />
 
-            {/** X */}
-            <AxisScaleHande enabled={enabled} color={0xff0000} hoverColor={0xffff00} opacity={1} tag="x" />
-            <AxisScaleHande
-              enabled={enabled}
-              color={0xff0000}
-              hoverColor={0xffff00}
-              opacity={1}
-              invert
-              showHandleLine={false}
-              tag="x"
-            />
-            <HandlesAxisHighlight tag="x" enabled={enabled} />
+              {/** X */}
+              <AxisScaleHande enabled={enabled} color={0xff0000} hoverColor={0xffff00} opacity={1} tag="x" />
+              <AxisScaleHande
+                enabled={enabled}
+                color={0xff0000}
+                hoverColor={0xffff00}
+                opacity={1}
+                invert
+                showHandleLine={false}
+                tag="x"
+              />
+              <HandlesAxisHighlight tag="x" enabled={enabled} />
 
-            {/** Y */}
-            <AxisScaleHande
-              enabled={enabled}
-              rotation-z={Math.PI / 2}
-              color={0x00ff00}
-              hoverColor={0xffff00}
-              opacity={1}
-              tag="y"
-            />
-            <AxisScaleHande
-              enabled={enabled}
-              rotation-z={Math.PI / 2}
-              color={0x00ff00}
-              hoverColor={0xffff00}
-              opacity={1}
-              invert
-              showHandleLine={false}
-              tag="y"
-            />
-            <HandlesAxisHighlight enabled={enabled} rotation-z={Math.PI / 2} tag="y" />
+              {/** Y */}
+              <AxisScaleHande
+                enabled={enabled}
+                rotation-z={Math.PI / 2}
+                color={0x00ff00}
+                hoverColor={0xffff00}
+                opacity={1}
+                tag="y"
+              />
+              <AxisScaleHande
+                enabled={enabled}
+                rotation-z={Math.PI / 2}
+                color={0x00ff00}
+                hoverColor={0xffff00}
+                opacity={1}
+                invert
+                showHandleLine={false}
+                tag="y"
+              />
+              <HandlesAxisHighlight enabled={enabled} rotation-z={Math.PI / 2} tag="y" />
 
-            {/** Z */}
-            <AxisScaleHande
-              rotation-y={-Math.PI / 2}
-              enabled={enabled}
-              color={0x0000ff}
-              hoverColor={0xffff00}
-              opacity={1}
-              tag="z"
-            />
-            <AxisScaleHande
-              rotation-y={-Math.PI / 2}
-              enabled={enabled}
-              color={0x0000ff}
-              hoverColor={0xffff00}
-              opacity={1}
-              invert
-              showHandleLine={false}
-              tag="z"
-            />
-            <HandlesAxisHighlight rotation-y={-Math.PI / 2} enabled={enabled} tag="z" />
+              {/** Z */}
+              <AxisScaleHande
+                rotation-y={-Math.PI / 2}
+                enabled={enabled}
+                color={0x0000ff}
+                hoverColor={0xffff00}
+                opacity={1}
+                tag="z"
+              />
+              <AxisScaleHande
+                rotation-y={-Math.PI / 2}
+                enabled={enabled}
+                color={0x0000ff}
+                hoverColor={0xffff00}
+                opacity={1}
+                invert
+                showHandleLine={false}
+                tag="z"
+              />
+              <HandlesAxisHighlight rotation-y={-Math.PI / 2} enabled={enabled} tag="z" />
 
-            <FreeScaleControl enabled={enabled} />
+              <FreeScaleControl enabled={enabled} />
+            </HandlesSize>
 
             <group ref={groupRef}>{children}</group>
           </group>

@@ -9,6 +9,7 @@ export type PivotAxisScaleHandleProperties = {
   axis?: Vector3Tuple
   enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   tag: Axis
+  tagPrefix?: string
   color: ColorRepresentation
   opacity: number
   hoverColor?: ColorRepresentation
@@ -16,6 +17,7 @@ export type PivotAxisScaleHandleProperties = {
 }
 
 export function PivotAxisRotateHandle({
+  tagPrefix = '',
   color,
   opacity,
   tag,
@@ -32,7 +34,7 @@ export function PivotAxisRotateHandle({
   return (
     <group {...props}>
       <RegisteredHandle
-        tag={tag}
+        tag={tagPrefix + tag}
         scale={false}
         translate="as-rotate"
         rotate={axis != null ? [axis] : rotateOptions}
@@ -47,7 +49,7 @@ export function PivotAxisRotateHandle({
         <MeshHandlesContextMaterial
           color={color}
           opacity={opacity}
-          tag={tag}
+          tag={tagPrefix + tag}
           hoverColor={hoverColor}
           hoverOpacity={hoverOpacity}
         />

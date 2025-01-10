@@ -35,10 +35,12 @@ export function useScreenCameraZoomHandle(
     }
 
     const onWheel = (e: WheelEvent) => {
-      let origin: Vector3Tuple | undefined
       const zoomFactor = Math.pow(0.95, speedRef.current * e.deltaY * 0.01)
+      const update: Partial<ScreenCameraState> = {
+        distance: store.getState().distance / zoomFactor,
+      }
       if (e.intersection.details.type === 'screen-ray' && zoomToPointerRef.current) {
-        origin = computeOriginFromZoomToPoint(
+        update.origin = computeOriginFromZoomToPoint(
           e.intersection.details.screenPoint,
           store.getState(),
           fiberStore.getState().camera,
@@ -46,13 +48,7 @@ export function useScreenCameraZoomHandle(
         )
       }
 
-      applyRef.current(
-        {
-          origin,
-          distance: store.getState().distance / zoomFactor,
-        },
-        store,
-      )
+      applyRef.current(update, store)
     }
     voidObject.addEventListener('wheel', onWheel)
     return () => voidObject.removeEventListener('wheel', onWheel)
@@ -69,20 +65,21 @@ export function useScreenCameraZoomHandle(
 
       const zoomFactor = initialPointerDistance / currentPointerDistance
 
-      let origin: Vector3Tuple | undefined
+      const update: Partial<ScreenCameraState> = {
+        distance: initialDistance * zoomFactor,
+      }
 
       if (zoomToPointerRef.current) {
         centerHelper.copy(p1.currentScreenPosition).add(p2.currentScreenPosition).multiplyScalar(0.5)
-        origin = computeOriginFromZoomToPoint(centerHelper, store.getState(), fiberStore.getState().camera, zoomFactor)
+        update.origin = computeOriginFromZoomToPoint(
+          centerHelper,
+          store.getState(),
+          fiberStore.getState().camera,
+          zoomFactor,
+        )
       }
 
-      applyRef.current(
-        {
-          distance: initialDistance * zoomFactor,
-          origin,
-        },
-        store,
-      )
+      applyRef.current(update, store)
     },
     () => ({ distance: store.getState().distance, origin: store.getState().origin }),
     [store],

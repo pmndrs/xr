@@ -13,6 +13,7 @@ arrowBodyGeometry.translate(0, 0.25, 0)
 
 export type AxisTranslateControlProperties = {
   tag: Axis
+  tagPrefix?: string
   enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   invert?: boolean
   showArrowBody?: boolean
@@ -28,6 +29,7 @@ const invertedRotation = new Euler(0, 0, Math.PI / 2)
 
 export function AxisTranslateHandle({
   tag,
+  tagPrefix = '',
   invert = false,
   showArrowBody = true,
   enabled,
@@ -46,7 +48,7 @@ export function AxisTranslateHandle({
   return (
     <group {...props}>
       <RegisteredHandle
-        tag={tag}
+        tag={tagPrefix + tag}
         scale={false}
         rotate={false}
         translate={axis != null ? [axis] : translateOptions}
@@ -58,7 +60,7 @@ export function AxisTranslateHandle({
       </RegisteredHandle>
       <mesh geometry={arrowHeadGeometry} position-x={invert ? -0.5 : 0.5} rotation={rotation}>
         <MeshHandlesContextMaterial
-          tag={tag}
+          tag={tagPrefix + tag}
           color={color}
           opacity={opacity}
           hoverOpacity={hoverOpacity}
@@ -68,7 +70,7 @@ export function AxisTranslateHandle({
       {showArrowBody && (
         <mesh geometry={arrowBodyGeometry} rotation={rotation}>
           <MeshHandlesContextMaterial
-            tag={tag}
+            tag={tagPrefix + tag}
             color={color}
             opacity={opacity}
             hoverOpacity={hoverOpacity}

@@ -7,6 +7,7 @@ import { RegisteredHandle } from '../context.js'
 export type PivotAxisScaleHandleProperties = {
   enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   tag: Axis
+  tagPrefix?: string
   color: ColorRepresentation
   opacity: number
   hoverColor?: ColorRepresentation
@@ -17,6 +18,8 @@ export function PivotAxisScaleHandle({
   color,
   opacity,
   tag,
+
+  tagPrefix = '',
   hoverColor,
   hoverOpacity,
   enabled,
@@ -27,11 +30,18 @@ export function PivotAxisScaleHandle({
     return null
   }
   return (
-    <RegisteredHandle tag={tag} scale={scaleOptions} rotate={false} translate="as-scale" multitouch={false} {...props}>
+    <RegisteredHandle
+      tag={tagPrefix + tag}
+      scale={scaleOptions}
+      rotate={false}
+      translate="as-scale"
+      multitouch={false}
+      {...props}
+    >
       <mesh position-x={0.68}>
         <sphereGeometry args={[0.04]} />
         <MeshHandlesContextMaterial
-          tag={tag}
+          tag={tagPrefix + tag}
           color={color}
           opacity={opacity}
           hoverOpacity={hoverOpacity}

@@ -14,6 +14,7 @@ import { AxisRotateHandle } from './axis.js'
 import { HandlesAxisHighlight } from '../axis.js'
 import { FreeRotateHandle } from './free.js'
 import { ScreenSpaceRotateHandle } from './screen.js'
+import { HandlesSize } from '../size.js'
 
 export type RotateHandlesProperties = GroupProps &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
@@ -26,6 +27,8 @@ export type RotateHandlesProperties = GroupProps &
           z?: boolean | Vector2Tuple
           e?: boolean | Vector2Tuple
         }
+    size?: number
+    fixed?: boolean
   }
 
 export function createCircleGeometry(radius: number, arc: number) {
@@ -37,7 +40,7 @@ export function createCircleGeometry(radius: number, arc: number) {
 
 export const RotateHandles: ForwardRefExoticComponent<PropsWithoutRef<RotateHandlesProperties> & RefAttributes<Group>> =
   forwardRef<Group, RotateHandlesProperties>(
-    ({ children, alwaysUpdate, apply, stopPropagation, enabled, ...props }, ref) => {
+    ({ children, alwaysUpdate, apply, stopPropagation, enabled, size, fixed, ...props }, ref) => {
       const groupRef = useRef<Group>(null)
       useImperativeHandle(ref, () => groupRef.current!, [])
       return (
@@ -48,21 +51,23 @@ export const RotateHandles: ForwardRefExoticComponent<PropsWithoutRef<RotateHand
           targetRef={groupRef}
         >
           <group {...props}>
-            {/* X */}
-            <AxisRotateHandle enabled={enabled} color={0xff0000} opacity={1} tag="x" hoverColor={0xffff00} />
-            <HandlesAxisHighlight enabled={enabled} tag="x" />
+            <HandlesSize size={size} fixed={fixed}>
+              {/* X */}
+              <AxisRotateHandle enabled={enabled} color={0xff0000} opacity={1} tag="x" hoverColor={0xffff00} />
+              <HandlesAxisHighlight enabled={enabled} tag="x" />
 
-            {/* Y */}
-            <AxisRotateHandle enabled={enabled} color={0x00ff00} opacity={1} tag="y" hoverColor={0xffff00} />
-            <HandlesAxisHighlight enabled={enabled} rotation-z={-Math.PI / 2} tag="y" />
+              {/* Y */}
+              <AxisRotateHandle enabled={enabled} color={0x00ff00} opacity={1} tag="y" hoverColor={0xffff00} />
+              <HandlesAxisHighlight enabled={enabled} rotation-z={-Math.PI / 2} tag="y" />
 
-            {/* Z */}
-            <AxisRotateHandle enabled={enabled} color={0x0000ff} opacity={1} tag="z" hoverColor={0xffff00} />
-            <HandlesAxisHighlight enabled={enabled} rotation-y={Math.PI / 2} tag="z" />
+              {/* Z */}
+              <AxisRotateHandle enabled={enabled} color={0x0000ff} opacity={1} tag="z" hoverColor={0xffff00} />
+              <HandlesAxisHighlight enabled={enabled} rotation-y={Math.PI / 2} tag="z" />
 
-            <FreeRotateHandle enabled={enabled} />
+              <FreeRotateHandle enabled={enabled} />
 
-            <ScreenSpaceRotateHandle enabled={enabled} />
+              <ScreenSpaceRotateHandle enabled={enabled} />
+            </HandlesSize>
 
             <group ref={groupRef}>{children}</group>
           </group>
