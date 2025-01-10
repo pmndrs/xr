@@ -30,7 +30,7 @@ export function ScreenSpaceRotateHandle({ enabled }: { enabled?: RotateHandlesPr
   }
   return (
     <>
-      <RegisteredHandle tag="e" scale={false} translate="as-rotate" rotate={direction} multitouch={false}>
+      <RegisteredHandle tag="e" scale={false} translate="as-rotate" rotate={[direction]} multitouch={false}>
         <mesh visible={false}>
           <torusGeometry args={[0.75, 0.1, 2, 24]} />
         </mesh>

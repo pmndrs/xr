@@ -7,11 +7,12 @@ import { useExtractHandleTransformOptions } from '../utils.js'
 
 export type PlaneTranslateHandleProperties = {
   tag: 'xy' | 'yz' | 'xz'
-  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   color: ColorRepresentation
   opacity: number
   hoverColor?: ColorRepresentation
   hoverOpacity?: number
+  axes?: [Vector3Tuple, Vector3Tuple]
 } & GroupProps
 
 export function PlaneTranslateHandle({
@@ -21,6 +22,7 @@ export function PlaneTranslateHandle({
   opacity,
   hoverOpacity,
   enabled,
+  axes,
   ...props
 }: PlaneTranslateHandleProperties) {
   const translateOptions = useExtractHandleTransformOptions(tag, enabled)
@@ -28,7 +30,14 @@ export function PlaneTranslateHandle({
     return null
   }
   return (
-    <RegisteredHandle {...props} translate={translateOptions} tag={tag} scale={false} rotate={false} multitouch={false}>
+    <RegisteredHandle
+      {...props}
+      translate={axes ?? translateOptions}
+      tag={tag}
+      scale={false}
+      rotate={false}
+      multitouch={false}
+    >
       <mesh position={[0.15, 0.15, 0]}>
         <boxGeometry args={[0.2, 0.2, 0.01]} />
         <MeshHandlesContextMaterial

@@ -81,7 +81,7 @@ export function AxisRotateHandle({
   return (
     <group {...props}>
       <group ref={ref}>
-        <RegisteredHandle tag={tag} scale={false} translate="as-rotate" rotate={config[tag].axis} multitouch={false}>
+        <RegisteredHandle tag={tag} scale={false} translate="as-rotate" rotate={[config[tag].axis]} multitouch={false}>
           <mesh visible={false} rotation={[0, -Math.PI / 2, -Math.PI / 2]}>
             <torusGeometry args={[0.5, 0.1, 4, 24]} />
           </mesh>

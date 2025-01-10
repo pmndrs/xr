@@ -222,7 +222,9 @@ export function addSpaceFromTransformOptions(
     return
   }
   if (Array.isArray(options)) {
-    addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, options, type)
+    for (const axis of options) {
+      addSpaceFromAxis(target, parentWorldQuaternion, initialLocalRotation, axis, type)
+    }
     return
   }
   if (options.x !== false) {

@@ -5,7 +5,7 @@ import { MeshHandlesContextMaterial } from '../material.js'
 import { RegisteredHandle } from '../context.js'
 
 export type PivotAxisScaleHandleProperties = {
-  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   tag: Axis
   color: ColorRepresentation
   opacity: number

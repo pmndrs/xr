@@ -14,7 +14,7 @@ export type TransformHandlesProperties = GroupProps &
         mode: 'rotate'
       }
     | {
-        enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+        enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
         mode?: 'translate' | 'scale'
       }
   )

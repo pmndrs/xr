@@ -7,7 +7,7 @@ import { useExtractHandleTransformOptions } from '../utils.js'
 
 export type PivotAxisScaleHandleProperties = {
   axis?: Vector3Tuple
-  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   tag: Axis
   color: ColorRepresentation
   opacity: number
@@ -31,7 +31,13 @@ export function PivotAxisRotateHandle({
   }
   return (
     <group {...props}>
-      <RegisteredHandle tag={tag} scale={false} translate="as-rotate" rotate={axis} multitouch={false}>
+      <RegisteredHandle
+        tag={tag}
+        scale={false}
+        translate="as-rotate"
+        rotate={axis != null ? [axis] : rotateOptions}
+        multitouch={false}
+      >
         <mesh visible={false} rotation={[0, Math.PI / 2, Math.PI / 2]}>
           <torusGeometry args={[0.45, 0.1, 4, 24, Math.PI / 2]} />
         </mesh>

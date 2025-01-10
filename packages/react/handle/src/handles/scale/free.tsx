@@ -4,7 +4,7 @@ import { MeshHandlesContextMaterial } from '../material.js'
 import { Vector3Tuple } from 'three'
 import { useExtractHandleTransformOptions } from '../utils.js'
 
-export function FreeScaleControl({ enabled }: { enabled?: Exclude<HandleTransformOptions, Vector3Tuple> }) {
+export function FreeScaleControl({ enabled }: { enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>> }) {
   const scaleOptions = useExtractHandleTransformOptions('xyz', enabled)
   if (scaleOptions === false) {
     return null

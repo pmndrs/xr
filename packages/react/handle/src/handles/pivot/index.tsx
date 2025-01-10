@@ -18,9 +18,9 @@ import { PivotAxisRotateHandle } from './rotate.js'
 
 export type PivotHandlesProperties = Omit<GroupProps, 'scale'> &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
-    translate?: Exclude<HandleTransformOptions, Vector3Tuple>
-    scale?: Exclude<HandleTransformOptions, Vector3Tuple>
-    rotate?: Exclude<HandleTransformOptions, Vector3Tuple>
+    translate?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
+    scale?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
+    rotate?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   }
 
 export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandlesProperties> & RefAttributes<Group>> =
@@ -68,8 +68,16 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
               enabled={translate}
               rotation-y={-Math.PI / 2}
             />
-            <PlaneTranslateHandle color={0xff2060} opacity={1} hoverColor={0xffff40} tag="xy" enabled={translate} />
             <PlaneTranslateHandle
+              axes={[xAxis, yAxis]}
+              color={0xff2060}
+              opacity={1}
+              hoverColor={0xffff40}
+              tag="xy"
+              enabled={translate}
+            />
+            <PlaneTranslateHandle
+              axes={[xAxis, zAxis]}
               color={0x20df80}
               opacity={1}
               hoverColor={0xffff40}
@@ -78,6 +86,7 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
               rotation-x={Math.PI / 2}
             />
             <PlaneTranslateHandle
+              axes={[yAxis, zAxis]}
               color={0x2080ff}
               opacity={1}
               hoverColor={0xffff40}

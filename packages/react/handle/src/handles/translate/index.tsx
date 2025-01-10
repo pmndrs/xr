@@ -18,7 +18,7 @@ import { FreeTranslateHandle } from './free.js'
 
 export type TranslateHandlesProperties = GroupProps &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
-    enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+    enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   }
 
 export const TranslateHandles: ForwardRefExoticComponent<

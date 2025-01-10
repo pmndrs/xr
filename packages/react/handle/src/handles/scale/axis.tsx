@@ -1,12 +1,11 @@
 import { Axis, HandleTransformOptions } from '@pmndrs/handle'
-import { GroupProps } from '@react-three/fiber'
-import { ColorRepresentation, Euler, Vector2Tuple, Vector3Tuple } from 'three'
+import { ColorRepresentation, Euler, Vector3Tuple } from 'three'
 import { MeshHandlesContextMaterial } from '../material.js'
 import { RegisteredHandle } from '../context.js'
 import { useExtractHandleTransformOptions } from '../utils.js'
 
 export type AxisScaleHandleProperties = {
-  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   invert?: boolean
   showHandleLine?: boolean
   tag: Axis

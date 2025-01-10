@@ -18,7 +18,7 @@ import { ScreenSpaceRotateHandle } from './screen.js'
 export type RotateHandlesProperties = GroupProps &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
     enabled?:
-      | Exclude<HandleTransformOptions, Vector3Tuple>
+      | Exclude<HandleTransformOptions, Array<Vector3Tuple>>
       | 'e'
       | {
           x?: boolean | Vector2Tuple

@@ -4,7 +4,7 @@ import { MeshHandlesContextMaterial } from '../material.js'
 import { Vector3Tuple } from 'three'
 import { useExtractHandleTransformOptions } from '../utils.js'
 
-export function FreeTranslateHandle({ enabled }: { enabled?: Exclude<HandleTransformOptions, Vector3Tuple> }) {
+export function FreeTranslateHandle({ enabled }: { enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>> }) {
   const translateOptions = useExtractHandleTransformOptions('xyz', enabled)
   if (translateOptions === false) {
     return null

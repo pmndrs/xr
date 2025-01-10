@@ -6,7 +6,7 @@ import { HandleTransformOptions } from '@pmndrs/handle'
 import { useExtractHandleTransformOptions } from '../utils.js'
 
 export type PlaneScaleHandleProperties = {
-  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   tag: 'xy' | 'yz' | 'xz'
   color: ColorRepresentation
   opacity: number

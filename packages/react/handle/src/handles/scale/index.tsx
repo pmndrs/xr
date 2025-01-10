@@ -17,7 +17,7 @@ import { PlaneScaleHandle } from './plane.js'
 
 export type ScaleHandlesProperties = GroupProps &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
-    enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+    enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   }
 
 export const ScaleHandles: ForwardRefExoticComponent<PropsWithoutRef<ScaleHandlesProperties> & RefAttributes<Group>> =

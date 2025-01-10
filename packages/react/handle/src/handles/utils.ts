@@ -11,7 +11,7 @@ export function extractHandleTransformOptions(
     return false
   }
   if (enabled === true) {
-    const result: Exclude<HandleTransformOptions, Vector3Tuple | boolean | Axis> = {
+    const result: Exclude<HandleTransformOptions, Array<Vector3Tuple> | boolean | Axis> = {
       x: false,
       y: false,
       z: false,
@@ -31,7 +31,7 @@ export function extractHandleTransformOptions(
         }
       : false
   }
-  const result: Exclude<HandleTransformOptions, Vector3Tuple | boolean | Axis> = {
+  const result: Exclude<HandleTransformOptions, Array<Vector3Tuple> | boolean | Axis> = {
     x: false,
     y: false,
     z: false,

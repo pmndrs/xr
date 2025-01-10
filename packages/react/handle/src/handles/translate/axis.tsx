@@ -13,7 +13,7 @@ arrowBodyGeometry.translate(0, 0.25, 0)
 
 export type AxisTranslateControlProperties = {
   tag: Axis
-  enabled?: Exclude<HandleTransformOptions, Vector3Tuple>
+  enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
   invert?: boolean
   showArrowBody?: boolean
   color: ColorRepresentation
@@ -45,7 +45,13 @@ export function AxisTranslateHandle({
   }
   return (
     <group {...props}>
-      <RegisteredHandle tag={tag} scale={false} rotate={false} translate={axis ?? translateOptions} multitouch={false}>
+      <RegisteredHandle
+        tag={tag}
+        scale={false}
+        rotate={false}
+        translate={axis != null ? [axis] : translateOptions}
+        multitouch={false}
+      >
         <mesh visible={false} position-x={invert ? -0.3 : 0.3} rotation={rotation}>
           <cylinderGeometry args={[0.2, 0, 0.6, 4]} />
         </mesh>
