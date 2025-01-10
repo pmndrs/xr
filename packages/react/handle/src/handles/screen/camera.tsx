@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Camera, Euler, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { createStore, StoreApi } from 'zustand/vanilla'
 
-export const defaultScreenCameraApply = (update: Partial<ScreenCameraState>, store: StoreApi<ScreenCameraState>) => {
+export function defaultScreenCameraApply(update: Partial<ScreenCameraState>, store: StoreApi<ScreenCameraState>) {
   store.setState(update)
 }
 

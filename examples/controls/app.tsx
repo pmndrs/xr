@@ -10,9 +10,9 @@ export function App() {
     <>
       <button onClick={() => store.enterVR()}>Enter VR</button>
       <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas camera={{ position: [1, 1, 1] }} events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
+      <Canvas camera={{ position: [0, 3, 0] }} events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
         <PointerEvents />
-        <OrbitControls />
+        <MapControls />
         <XR store={store}>
           <color args={[0x0]} attach="background" />
           <Environment preset="city" />

@@ -11,6 +11,7 @@ import {
   useApplyScreenCameraState,
 } from './camera.js'
 import { filterForOnePointerLeftClick, filterForOnePointerRightClickOrTwoPointer } from './index.js'
+import { clamp } from 'three/src/math/MathUtils.js'
 
 export type MapHandlesProperties = {
   camera?: Camera
@@ -22,14 +23,24 @@ export type MapHandlesProperties = {
   enabled?: boolean
 }
 
+export function defaultMapHandlesScreenCameraApply(
+  update: Partial<ScreenCameraState>,
+  store: StoreApi<ScreenCameraState>,
+) {
+  if (update.rotationX != null) {
+    update.rotationX = clamp(update.rotationX, 0, Math.PI / 2)
+  }
+  store.setState(update)
+}
+
 export function useMapHandles({
-  apply = defaultScreenCameraApply,
+  apply = defaultMapHandlesScreenCameraApply,
   rotation,
   zoom,
   pan,
   store: providedStore,
   camera,
-  enabled,
+  enabled = true,
 }: MapHandlesProperties) {
   const fiberStore = useStore()
   const store = useMemo(() => {

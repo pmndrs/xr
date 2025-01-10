@@ -16,8 +16,8 @@ export function useScreenCameraPanHandle(
   filter: (map: ScreenHandleStore['map']) => boolean,
   speed: number = 1,
   enabled: boolean = true,
-  space: 'screen' | 'xz',
-  apply: typeof defaultScreenCameraApply,
+  space: 'screen' | 'xz' = 'screen',
+  apply = defaultScreenCameraApply,
 ) {
   const speedRef = useRef(speed)
   speedRef.current = speed

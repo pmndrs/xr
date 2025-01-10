@@ -11,6 +11,7 @@ import {
   useApplyScreenCameraState,
 } from './camera.js'
 import { filterForOnePointerLeftClick, filterForOnePointerRightClickOrTwoPointer } from './index.js'
+import { clamp } from 'three/src/math/MathUtils.js'
 
 export type OrbitHandlesProperties = {
   camera?: Camera
@@ -22,8 +23,18 @@ export type OrbitHandlesProperties = {
   enabled?: boolean
 }
 
+export function defaultOrbitHandlesScreenCameraApply(
+  update: Partial<ScreenCameraState>,
+  store: StoreApi<ScreenCameraState>,
+) {
+  if (update.rotationX != null) {
+    update.rotationX = clamp(update.rotationX, -Math.PI / 2, Math.PI / 2)
+  }
+  store.setState(update)
+}
+
 export function useOrbitHandles({
-  apply = defaultScreenCameraApply,
+  apply = defaultOrbitHandlesScreenCameraApply,
   rotation,
   zoom,
   pan,

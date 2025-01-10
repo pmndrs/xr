@@ -40,9 +40,11 @@ export function useScreenCameraZoomHandle(
         distance: store.getState().distance / zoomFactor,
       }
       if (e.intersection.details.type === 'screen-ray' && zoomToPointerRef.current) {
+        const state = store.getState()
         update.origin = computeOriginFromZoomToPoint(
           e.intersection.details.screenPoint,
-          store.getState(),
+          state,
+          state.origin,
           fiberStore.getState().camera,
           zoomFactor,
         )
@@ -63,10 +65,10 @@ export function useScreenCameraZoomHandle(
       const initialPointerDistance = p1.initialScreenPosition.distanceTo(p2.initialScreenPosition)
       const currentPointerDistance = p1.currentScreenPosition.distanceTo(p2.currentScreenPosition)
 
-      const zoomFactor = initialPointerDistance / currentPointerDistance
+      const zoomFactor = currentPointerDistance / initialPointerDistance
 
       const update: Partial<ScreenCameraState> = {
-        distance: initialDistance * zoomFactor,
+        distance: initialDistance / zoomFactor,
       }
 
       if (zoomToPointerRef.current) {
@@ -74,6 +76,7 @@ export function useScreenCameraZoomHandle(
         update.origin = computeOriginFromZoomToPoint(
           centerHelper,
           store.getState(),
+          initialOrigin,
           fiberStore.getState().camera,
           zoomFactor,
         )
@@ -89,10 +92,16 @@ export function useScreenCameraZoomHandle(
 
 const vector2Helper = new Vector2()
 
-function computeOriginFromZoomToPoint(point: Vector2, state: ScreenCameraState, camera: Camera, zoomFactor: number) {
+function computeOriginFromZoomToPoint(
+  point: Vector2,
+  state: ScreenCameraState,
+  origin: Readonly<Vector3Tuple>,
+  camera: Camera,
+  zoomFactor: number,
+) {
   vector2Helper.copy(point).multiplyScalar(-(zoomFactor - 1) / zoomFactor)
   convertScreenSpaceMovementToGlobalPan(state, camera, vector2Helper, resultHelper, 1, 'screen')
-  const [x, y, z] = state.origin
+  const [x, y, z] = origin
   resultHelper.x += x
   resultHelper.y += y
   resultHelper.z += z

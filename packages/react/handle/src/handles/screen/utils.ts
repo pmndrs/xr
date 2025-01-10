@@ -22,8 +22,9 @@ export function average(
 
 const vector2Helper = new Vector2()
 const quaternionHelper = new Quaternion()
-const eulerHelper = new Euler()
 const vectorHelper = new Vector3()
+const forwardHelper = new Vector3()
+const upwardHelper = new Vector3()
 
 export function convertScreenSpaceMovementToGlobalPan(
   state: ScreenCameraState,
@@ -58,17 +59,22 @@ export function convertScreenSpaceMovementToGlobalPan(
     vectorHelper.set(0, 1, 0).applyQuaternion(quaternionHelper).multiplyScalar(vector2Helper.y)
     target.add(vectorHelper)
   } else {
-    eulerHelper.setFromQuaternion(quaternionHelper, 'YXZ')
-    eulerHelper.x = 0
-    eulerHelper.z = 0
+    forwardHelper.set(0, 0, -1).applyQuaternion(quaternionHelper)
+    upwardHelper.set(0, 1, 0).applyQuaternion(quaternionHelper)
+
+    vectorHelper
+      .copy(Math.abs(forwardHelper.y) < Math.abs(upwardHelper.y) ? forwardHelper : upwardHelper)
+      .setComponent(1, 0)
+      .normalize()
+
+    target.addScaledVector(vectorHelper, vector2Helper.y)
 
     vectorHelper
       .set(1, 0, 0)
-      .applyEuler(eulerHelper)
+      .applyQuaternion(quaternionHelper)
+      .setComponent(1, 0)
+      .normalize()
       .multiplyScalar(vector2Helper.x * cameraRatio)
-    target.add(vectorHelper)
-
-    vectorHelper.set(0, 0, -1).applyEuler(eulerHelper).multiplyScalar(vector2Helper.y)
     target.add(vectorHelper)
   }
 }
