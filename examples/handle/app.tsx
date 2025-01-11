@@ -3,6 +3,7 @@ import { createXRStore, noEvents, PointerEvents, XR, XROrigin } from '@react-thr
 import { Environment } from '@react-three/drei'
 import { Door } from './door.js'
 import { Spaceship } from './spaceship.js'
+import { OrbitHandles } from '@react-three/handle'
 
 const store = createXRStore()
 
@@ -13,6 +14,7 @@ export function App() {
       <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas camera={{ position: [1, 1, 1] }} events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
         <PointerEvents />
+        <OrbitHandles />
         <XR store={store}>
           <Environment preset="city" />
           <Door scale={0.01} />

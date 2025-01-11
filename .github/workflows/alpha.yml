@@ -1,11 +1,9 @@
-name: Deploy Packages
+name: Deploy Beta Packages
 
 on:
   push:
-    tags:
-      - '*'
     branches:
-      - main
+      - develop
 
 jobs:
   deploy-packages:
@@ -71,7 +69,18 @@ jobs:
       - name: Deploy pointer events Package
         if: steps.check-pointer-events.outputs.is-new-version == 'true'
         working-directory: ./packages/pointer-events
-        run: pnpm publish --access public --no-git-checks --tag latest
+        run: pnpm publish --access public --no-git-checks --tag alpha
+
+      
+      - id: check-handle-vanilla
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./packages/handle/
+
+      - name: Deploy Handle Vanilla Package
+        if: steps.check-handle-vanilla.outputs.is-new-version == 'true'
+        working-directory: ./packages/handle
+        run: pnpm publish --access public --no-git-checks --tag alpha
 
       - id: check-xr-vanilla
         uses: PostHog/check-package-version@v2
@@ -81,7 +90,17 @@ jobs:
       - name: Deploy XR Vanilla Package
         if: steps.check-xr-vanilla.outputs.is-new-version == 'true'
         working-directory: ./packages/xr
-        run: pnpm publish --access public --no-git-checks --tag latest
+        run: pnpm publish --access public --no-git-checks --tag alpha
+
+      - id: check-handle-react
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./packages/react/handle/
+
+      - name: Deploy Handle React Package
+        if: steps.check-handle-react.outputs.is-new-version == 'true'
+        working-directory: ./packages/react/handle
+        run: pnpm publish --access public --no-git-checks --tag alpha
 
       - id: check-xr-react
         uses: PostHog/check-package-version@v2
@@ -91,4 +110,4 @@ jobs:
       - name: Deploy XR React Package
         if: steps.check-xr-react.outputs.is-new-version == 'true'
         working-directory: ./packages/react/xr
-        run: pnpm publish --access public --no-git-checks --tag latest
+        run: pnpm publish --access public --no-git-checks --tag alpha
