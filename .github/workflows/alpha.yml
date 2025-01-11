@@ -72,13 +72,13 @@ jobs:
         run: pnpm publish --access public --no-git-checks --tag alpha
 
       
-      - id: check-handle-vanilla
-        uses: PostHog/check-package-version@v2
-        with:
-          path: ./packages/handle/
+#      - id: check-handle-vanilla
+#        uses: PostHog/check-package-version@v2
+#        with:
+#          path: ./packages/handle/
 
       - name: Deploy Handle Vanilla Package
-        if: steps.check-handle-vanilla.outputs.is-new-version == 'true'
+#        if: steps.check-handle-vanilla.outputs.is-new-version == 'true'
         working-directory: ./packages/handle
         run: pnpm publish --access public --no-git-checks --tag alpha
 
@@ -92,13 +92,13 @@ jobs:
         working-directory: ./packages/xr
         run: pnpm publish --access public --no-git-checks --tag alpha
 
-      - id: check-handle-react
-        uses: PostHog/check-package-version@v2
-        with:
-          path: ./packages/react/handle/
+#      - id: check-handle-react
+#        uses: PostHog/check-package-version@v2
+#        with:
+#          path: ./packages/react/handle/
 
       - name: Deploy Handle React Package
-        if: steps.check-handle-react.outputs.is-new-version == 'true'
+#        if: steps.check-handle-react.outputs.is-new-version == 'true'
         working-directory: ./packages/react/handle
         run: pnpm publish --access public --no-git-checks --tag alpha
 
