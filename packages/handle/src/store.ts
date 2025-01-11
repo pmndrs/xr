@@ -132,6 +132,7 @@ export class HandleStore<T>
     this.inputState.set(event.pointerId, {
       pointerWorldDirection,
       pointerWorldPoint: event.point,
+      pointerWorldOrigin: event.pointerPosition,
       pointerWorldQuaternion: event.pointerQuaternion,
       initialPointerWorldPoint: event.point.clone(),
       initialPointerWorldDirection: pointerWorldDirection?.clone(),
@@ -174,6 +175,7 @@ export class HandleStore<T>
     entry.pointerWorldPoint = event.point
     entry.prevPointerWorldQuaternion = entry.pointerWorldQuaternion
     entry.pointerWorldQuaternion = event.pointerQuaternion
+    entry.pointerWorldOrigin = event.pointerPosition
     if (entry.pointerWorldDirection != null) {
       getWorldDirection(event, entry.pointerWorldDirection)
     }

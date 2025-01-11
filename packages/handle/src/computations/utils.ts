@@ -163,8 +163,7 @@ function applyTransformOptionsToVector(target: Vector3, initialVector: Vector3, 
           applyTransformCross2.fromArray(options[1]),
         )
         applyTransformPlane.setFromNormalAndCoplanarPoint(applyTransformNormal, initialVector)
-        const distanceToPlane = planeHelper.distanceToPoint(target)
-        target.addScaledVector(applyTransformNormal, -distanceToPlane)
+        applyTransformPlane.projectPoint(target, target)
         return
     }
     //3 or more, we do nothing
@@ -203,6 +202,7 @@ function applyTransformOptionsToAxis(
 export function projectOntoSpace(
   space: Array<Vector3>,
   initialWorldPoint: Vector3,
+  worldPointerOrigin: Vector3,
   worldPoint: Vector3,
   worldDirection: Vector3 | undefined,
 ): void {
@@ -211,10 +211,16 @@ export function projectOntoSpace(
     case 3:
       return
     case 1:
-      projectOntoAxis(initialWorldPoint, ...(space as [Vector3]), worldPoint, worldDirection)
+      projectOntoAxis(initialWorldPoint, ...(space as [Vector3]), worldPointerOrigin, worldPoint, worldDirection)
       return
     case 2:
-      projectOntoPlane(initialWorldPoint, ...(space as [Vector3, Vector3]), worldPoint, worldDirection)
+      projectOntoPlane(
+        ...(space as [Vector3, Vector3]),
+        initialWorldPoint,
+        worldPointerOrigin,
+        worldPoint,
+        worldDirection,
+      )
       return
   }
   throw new Error(
@@ -362,26 +368,50 @@ function addAxisToSpace(target: Array<Vector3>, axis: Vector3): void {
 
 const planeHelper = new Plane()
 const normalHelper = new Vector3()
+const vectorHelper = new Vector3()
+
+const _3Degree = (3 / 180) * Math.PI
+const _6Degree = (6 / 180) * Math.PI
 
 function projectOntoPlane(
-  initialWorldPoint: Vector3,
   _axis1: Vector3,
   _axis2: Vector3,
+  initialWorldPoint: Vector3,
+  worldPointerOrigin: Vector3,
   worldPoint: Vector3,
   worldDirection: Vector3 | undefined,
 ): void {
   normalHelper.crossVectors(_axis1, _axis2).normalize()
   planeHelper.setFromNormalAndCoplanarPoint(normalHelper, initialWorldPoint)
-  if (worldDirection == null || Math.abs(normalHelper.dot(worldDirection)) < 0.001) {
+
+  const angleDifference = worldDirection == null ? 0 : Math.abs(normalHelper.dot(worldDirection))
+
+  if (worldDirection == null || angleDifference < _3Degree) {
+    //project point onto plane
     planeHelper.projectPoint(worldPoint, worldPoint)
     return
   }
-  const distanceToPlane = planeHelper.distanceToPoint(worldPoint)
-  let distanceAlongDirection = distanceToPlane / worldDirection.dot(planeHelper.normal)
-  worldPoint.addScaledVector(worldDirection, -distanceAlongDirection)
-}
+  //project ray onto plane
+  const distanceToPlane = planeHelper.distanceToPoint(worldPointerOrigin)
+  const distanceAlongDirection = -distanceToPlane / worldDirection.dot(planeHelper.normal)
 
-const vectorHelper = new Vector3()
+  if (distanceAlongDirection < 0) {
+    //project point onto plane
+    planeHelper.projectPoint(worldPoint, worldPoint)
+    return
+  }
+
+  vectorHelper.copy(worldPoint)
+  worldPoint.copy(worldPointerOrigin).addScaledVector(worldDirection, distanceAlongDirection)
+
+  if (angleDifference < _6Degree) {
+    //angleDifference is between 3° and 6°
+    //factor = 1 means that we want 100% from worldPoint and 0 from project point
+    const factor = (angleDifference - _3Degree) / _3Degree
+    planeHelper.projectPoint(vectorHelper, vectorHelper)
+    worldPoint.multiplyScalar(factor).addScaledVector(vectorHelper, 1 - factor)
+  }
+}
 
 /**
  * finds the intersection between the given axis (infinite line) and another infinite line provided with point and direction
@@ -389,17 +419,17 @@ const vectorHelper = new Vector3()
 export function projectOntoAxis(
   initialWorldPoint: Vector3,
   axis: Vector3,
+  worldPointerOrigin: Vector3,
   worldPoint: Vector3,
   worldDirection: Vector3 | undefined,
 ): void {
-  if (worldDirection == null || Math.abs(axis.dot(worldDirection)) > 0.999) {
-    worldPoint.sub(initialWorldPoint)
-    projectPointOntoNormal(worldPoint, axis)
-    worldPoint.add(initialWorldPoint)
+  const angleDifference = worldDirection == null ? 0 : 1 - Math.abs(axis.dot(worldDirection))
+  if (worldDirection == null || angleDifference < _3Degree) {
+    projectPointOntoAxis(worldPoint, initialWorldPoint, axis)
     return
   }
 
-  vectorHelper.subVectors(worldPoint, initialWorldPoint)
+  vectorHelper.subVectors(worldPointerOrigin, initialWorldPoint)
 
   // 2. Calculate the dot products needed
   const d1d2 = axis.dot(worldDirection)
@@ -409,9 +439,30 @@ export function projectOntoAxis(
   // 3. Calculate the parameters t for the closest points
   const denominator = 1 - d1d2 * d1d2
   const t = (d1p1p2 - d1d2 * d2p1p2) / denominator
+  const s = (d1d2 * d1p1p2 - d2p1p2) / denominator
 
+  if (s < 0) {
+    projectPointOntoAxis(worldPoint, initialWorldPoint, axis)
+    return
+  }
+
+  vectorHelper.copy(worldPoint)
   // 4. Calculate the nearest point on the first line
   worldPoint.copy(initialWorldPoint).addScaledVector(axis, t)
+  if (angleDifference < _6Degree) {
+    //angleDifference is between 3° and 6°
+    //factor = 1 means that we want 100% from worldPoint and 0 from project point
+    const factor = (angleDifference - _3Degree) / _3Degree
+    console.log(factor)
+    projectPointOntoAxis(vectorHelper, initialWorldPoint, axis)
+    worldPoint.multiplyScalar(factor).addScaledVector(vectorHelper, 1 - factor)
+  }
+}
+
+export function projectPointOntoAxis(target: Vector3, axisOrigin: Vector3, axisNormal: Vector3) {
+  target.sub(axisOrigin)
+  projectPointOntoNormal(target, axisNormal)
+  target.add(axisOrigin)
 }
 
 export function projectPointOntoNormal(point: Vector3, normal: Vector3) {

@@ -28,6 +28,7 @@ export type TranslateAsHandlePointerData = {
   pointerWorldPoint: Vector3
   pointerWorldDirection: Vector3 | undefined
   pointerWorldQuaternion: Quaternion
+  pointerWorldOrigin: Vector3
   prevPointerWorldQuaternion: Quaternion
   initialPointerWorldPoint: Vector3
   initialPointerWorldDirection: Vector3 | undefined
@@ -71,15 +72,16 @@ export function computeTranslateAsHandleTransformState(
 
   //compute initial delta between point and target projected on space
   deltaHelper1.setFromMatrixPosition(matrixHelper)
-  projectOntoSpace(space, pointerData.initialPointerWorldPoint, deltaHelper1, undefined)
+  projectOntoSpace(space, pointerData.initialPointerWorldPoint, pointerData.pointerWorldOrigin, deltaHelper1, undefined)
   deltaHelper1.negate().add(pointerData.initialPointerWorldPoint)
 
   //compute current delta between point and target projected on space
   deltaHelper2.setFromMatrixPosition(targetWorldMatrix)
-  projectOntoSpace(space, pointerData.initialPointerWorldPoint, deltaHelper2, undefined)
+  projectOntoSpace(space, pointerData.initialPointerWorldPoint, pointerData.pointerWorldOrigin, deltaHelper2, undefined)
   projectOntoSpace(
     space,
     pointerData.initialPointerWorldPoint,
+    pointerData.pointerWorldOrigin,
     vectorHelper2.copy(pointerData.pointerWorldPoint),
     pointerData.pointerWorldDirection,
   )

@@ -17,6 +17,7 @@ export type OnePointerHandlePointerData = {
   initialPointerWorldDirection: Vector3 | undefined
   initialPointerWorldQuaternion: Quaternion
   pointerWorldPoint: Vector3
+  pointerWorldOrigin: Vector3
   pointerWorldDirection: Vector3 | undefined
   pointerWorldQuaternion: Quaternion
 }
@@ -66,6 +67,7 @@ export function computeOnePointerHandleTransformState(
   projectOntoSpace(
     spaceHelper,
     pointerData.initialPointerWorldPoint,
+    pointerData.pointerWorldOrigin,
     vectorHelper1.copy(pointerData.pointerWorldPoint),
     pointerData.pointerWorldDirection,
   )

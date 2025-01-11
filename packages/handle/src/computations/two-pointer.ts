@@ -32,6 +32,7 @@ export type TwoPointerHandlePointerData = {
   initialPointerWorldDirection: Vector3 | undefined
   initialPointerWorldQuaternion: Quaternion
   pointerWorldPoint: Vector3
+  pointerWorldOrigin: Vector3
   pointerWorldDirection: Vector3 | undefined
   pointerWorldQuaternion: Quaternion
   prevPointerWorldQuaternion: Quaternion
@@ -70,12 +71,14 @@ export function computeTwoPointerHandleTransformState(
   projectOntoSpace(
     space,
     pointer1Data.initialPointerWorldPoint,
+    pointer1Data.pointerWorldOrigin,
     vectorHelper1.copy(pointer1Data.pointerWorldPoint),
     pointer1Data.pointerWorldDirection,
   )
   projectOntoSpace(
     space,
     pointer2Data.initialPointerWorldPoint,
+    pointer2Data.pointerWorldOrigin,
     vectorHelper2.copy(pointer2Data.pointerWorldPoint),
     pointer2Data.pointerWorldDirection,
   )
