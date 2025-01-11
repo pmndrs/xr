@@ -15,10 +15,19 @@ export type HandleOptions<T> = {
   bind?: boolean
 } & BaseHandleOptions<T>
 
-export function useHandle<T>(target: RefObject<Object3D>, options: HandleOptions<T> = {}): HandleStore<T> {
+export function useHandle<T>(
+  target: RefObject<Object3D>,
+  options: HandleOptions<T> = {},
+  getHandleOptions?: () => HandleOptions<T>,
+): HandleStore<T> {
   const optionsRef = useRef(options)
   optionsRef.current = options
-  const store = useMemo(() => new HandleStore(target, () => optionsRef.current), [target])
+  const getHandleOptionsRef = useRef(getHandleOptions)
+  getHandleOptionsRef.current = getHandleOptions
+  const store = useMemo(
+    () => new HandleStore(target, () => ({ ...getHandleOptionsRef.current?.(), ...optionsRef.current })),
+    [target],
+  )
   useFrame((state) => store.update(state.clock.getElapsedTime()))
   const handleRef = options.handle ?? target
   useEffect(() => {

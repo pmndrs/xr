@@ -69,8 +69,15 @@ export function computeOnePointerHandleTransformState(
     vectorHelper1.copy(pointerData.pointerWorldPoint),
     pointerData.pointerWorldDirection,
   )
+
+  quaternionHelper.copy(pointerData.pointerWorldQuaternion)
+  if ((options.rotate ?? true) === false) {
+    //TODO: this should actually directly apply all options.rotate (including projecting the rotation onto certain axes) but in local space
+    quaternionHelper.copy(pointerData.initialPointerWorldQuaternion)
+  }
+
   matrixHelper1
-    .compose(vectorHelper1, pointerData.pointerWorldQuaternion, OneVector)
+    .compose(vectorHelper1, quaternionHelper, OneVector)
     .multiply(matrixHelper2)
     .multiply(
       matrixHelper2.compose(

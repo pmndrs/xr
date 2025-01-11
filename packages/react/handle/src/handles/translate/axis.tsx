@@ -55,7 +55,7 @@ export function AxisTranslateHandle({
         multitouch={false}
       >
         <mesh visible={false} position-x={invert ? -0.3 : 0.3} rotation={rotation}>
-          <cylinderGeometry args={[0.2, 0, 0.6, 4]} />
+          <cylinderGeometry args={[0.13, 0, 0.6, 4]} />
         </mesh>
       </RegisteredHandle>
       <mesh geometry={arrowHeadGeometry} position-x={invert ? -0.5 : 0.5} rotation={rotation}>

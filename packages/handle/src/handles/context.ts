@@ -13,31 +13,26 @@ export class HandlesContext {
   private hoverSubscriptions: Array<(tags: Array<string>) => void> = []
   private applySubscriptions: Array<(tag: string, state: HandleState<unknown>, target: Object3D) => void> = []
 
-  constructor(
-    private target: Object3D | { current?: Object3D | null },
-    private readonly getOptions?: () => HandleOptions<unknown>,
-  ) {}
+  constructor(private readonly getOptions?: () => HandleOptions<unknown>) {}
 
-  registerControl(
+  getHandleOptions<T>(tag: string, getOverrideOptions?: () => HandleOptions<unknown>): HandleOptions<T> {
+    const providedOptions = this.getOptions?.()
+    const overrideOptions = getOverrideOptions?.()
+    return {
+      ...providedOptions,
+      ...overrideOptions,
+      apply: (state, target) => {
+        this.onApply(tag, state, target)
+        return (overrideOptions?.apply ?? providedOptions?.apply ?? defaultApply)?.(state, target)
+      },
+    }
+  }
+
+  registerHandle(
+    store: HandleStore<unknown>,
     object: Object3D<PointerEventsMap & Object3DEventMap>,
     tag: string,
-    getOverrideOptions?: () => HandleOptions<any>,
   ): () => void {
-    const store = new HandleStore(this.target, () => {
-      const providedOptions = this.getOptions?.()
-      const overrideOptions = getOverrideOptions?.()
-      return {
-        ...providedOptions,
-        ...overrideOptions,
-        apply: (state, target) => {
-          this.onApply(tag, state, target)
-          return (overrideOptions?.apply ?? providedOptions?.apply ?? defaultApply)?.(state, target)
-        },
-      }
-    })
-
-    const unbind = store.bind(object)
-
     const entry: (typeof this.handles)[number] = {
       object,
       store,
@@ -56,7 +51,6 @@ export class HandlesContext {
         this.handles.splice(index, 1)
       }
       store.cancel()
-      unbind()
     }
   }
 

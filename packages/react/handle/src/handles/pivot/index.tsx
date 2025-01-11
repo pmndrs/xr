@@ -1,5 +1,6 @@
 import {
   ForwardRefExoticComponent,
+  MutableRefObject,
   PropsWithoutRef,
   RefAttributes,
   RefObject,
@@ -12,7 +13,7 @@ import { Group, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { AxisTranslateHandle, PlaneTranslateHandle } from '../translate/index.js'
 import { HandlesContext } from '../context.js'
 import { GroupProps, useFrame } from '@react-three/fiber'
-import { HandleOptions, HandleTransformOptions } from '@pmndrs/handle'
+import { HandleOptions, HandleStore, HandleTransformOptions } from '@pmndrs/handle'
 import { PivotAxisScaleHandle } from './scale.js'
 import { PivotAxisRotateHandle } from './rotate.js'
 import { HandlesSize } from '../size.js'
@@ -32,9 +33,16 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
       const groupRef = useRef<Group>(null)
       useImperativeHandle(ref, () => groupRef.current!, [])
 
-      const xAxis = useLocalAxis(groupRef, 1, 0, 0)
-      const yAxis = useLocalAxis(groupRef, 0, 1, 0)
-      const zAxis = useLocalAxis(groupRef, 0, 0, 1)
+      const xAxis = useLocalAxis(groupRef, undefined, 1, 0, 0)
+      const yAxis = useLocalAxis(groupRef, undefined, 0, 1, 0)
+      const zAxis = useLocalAxis(groupRef, undefined, 0, 0, 1)
+
+      const xRotationHandleStoreRef = useRef<HandleStore<unknown>>(null)
+      const yRotationHandleStoreRef = useRef<HandleStore<unknown>>(null)
+      const zRotationHandleStoreRef = useRef<HandleStore<unknown>>(null)
+      const xRotationAxis = useLocalAxis(groupRef, xRotationHandleStoreRef, 1, 0, 0)
+      const yRotationAxis = useLocalAxis(groupRef, yRotationHandleStoreRef, 0, 1, 0)
+      const zRotationAxis = useLocalAxis(groupRef, zRotationHandleStoreRef, 0, 0, 1)
 
       return (
         <HandlesContext
@@ -106,7 +114,8 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
               />
               {/** Rotate */}
               <PivotAxisRotateHandle
-                axis={xAxis}
+                axis={xRotationAxis}
+                ref={xRotationHandleStoreRef}
                 tag="x"
                 tagPrefix="r"
                 color={0xff2060}
@@ -115,9 +124,10 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
                 enabled={rotate}
               />
               <PivotAxisRotateHandle
+                axis={yRotationAxis}
+                ref={yRotationHandleStoreRef}
                 tag="y"
                 tagPrefix="r"
-                axis={yAxis}
                 color={0x20df80}
                 hoverColor={0xffff40}
                 opacity={1}
@@ -125,9 +135,10 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
                 rotation-z={-Math.PI / 2}
               />
               <PivotAxisRotateHandle
+                axis={zRotationAxis}
+                ref={zRotationHandleStoreRef}
                 tag="z"
                 tagPrefix="r"
-                axis={zAxis}
                 color={0x2080fff}
                 hoverColor={0xffff40}
                 opacity={1}
@@ -170,19 +181,24 @@ export const PivotHandles: ForwardRefExoticComponent<PropsWithoutRef<PivotHandle
   )
 
 const vectorHelper = new Vector3()
-const quaternionHelper = new Quaternion()
-const scaleHelper = new Vector3()
 
-function useLocalAxis(ref: RefObject<Object3D>, ...[x, y, z]: Vector3Tuple) {
+function useLocalAxis(
+  ref: RefObject<Object3D>,
+  handleStoreRef: RefObject<HandleStore<unknown>> | undefined,
+  ...[x, y, z]: Vector3Tuple
+) {
   const result = useMemo<Vector3Tuple>(() => [0, 0, 0], [])
   useFrame(() => {
+    //if the ref is not yet set or the we are currently interacting with the handle through the handle store (and therefore the state is set) we are not updating the result array
     if (ref.current == null) {
       return
     }
+    if (handleStoreRef?.current?.getState() != null) {
+      return
+    }
 
-    ref.current.matrixWorld.decompose(vectorHelper, quaternionHelper, scaleHelper)
     vectorHelper.set(x, y, z)
-    vectorHelper.applyQuaternion(quaternionHelper)
+    vectorHelper.applyQuaternion(ref.current.quaternion)
     vectorHelper.toArray(result)
   })
   return result

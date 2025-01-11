@@ -119,7 +119,9 @@ export function applyTransformOptionsToRotation(
     const axis = axisElement.toLowerCase() as Axis
     const axisAngle =
       eulerHelper.setFromQuaternion(currentRotation, initialRotation.order)[axis] + (inverted ? Math.PI : 0)
-    const transformedAxisAngle = applyTransformOptionsToAxis(axis, axisAngle, initialRotation[axis], options)
+    const transformedAxisAngle = Array.isArray(options)
+      ? axisAngle
+      : applyTransformOptionsToAxis(axis, axisAngle, initialRotation[axis], options)
 
     if (Math.abs(axisAngle - transformedAxisAngle) > Math.PI / 2) {
       inverted = !inverted
@@ -139,7 +141,35 @@ export function applyTransformOptionsToRotation(
   return result
 }
 
+const applyTransformNormal = new Vector3()
+const applyTransformPlane = new Plane()
+const applyTransformCross1 = new Vector3()
+const applyTransformCross2 = new Vector3()
+
 function applyTransformOptionsToVector(target: Vector3, initialVector: Vector3, options: HandleTransformOptions): void {
+  if (Array.isArray(options)) {
+    switch (options.length) {
+      case 0:
+        target.copy(initialVector)
+        return
+      case 1:
+        target.sub(initialVector)
+        projectPointOntoNormal(target, applyTransformNormal.fromArray(options[0]))
+        target.add(initialVector)
+        return
+      case 2:
+        applyTransformNormal.crossVectors(
+          applyTransformCross1.fromArray(options[0]),
+          applyTransformCross2.fromArray(options[1]),
+        )
+        applyTransformPlane.setFromNormalAndCoplanarPoint(applyTransformNormal, initialVector)
+        const distanceToPlane = planeHelper.distanceToPoint(target)
+        target.addScaledVector(applyTransformNormal, -distanceToPlane)
+        return
+    }
+    //3 or more, we do nothing
+    return
+  }
   target.x = applyTransformOptionsToAxis('x', target.x, initialVector.x, options)
   target.y = applyTransformOptionsToAxis('y', target.y, initialVector.y, options)
   target.z = applyTransformOptionsToAxis('z', target.z, initialVector.z, options)
@@ -152,11 +182,8 @@ function applyTransformOptionsToAxis(
   axis: Axis,
   value: number,
   neutralValue: number,
-  options: HandleTransformOptions,
+  options: Exclude<HandleTransformOptions, Array<Vector3Tuple>>,
 ): number {
-  if (Array.isArray(options)) {
-    return value
-  }
   if (typeof options === 'boolean') {
     return options ? value : neutralValue
   }
@@ -355,7 +382,6 @@ function projectOntoPlane(
 }
 
 const vectorHelper = new Vector3()
-const crossVectorHelper = new Vector3()
 
 /**
  * finds the intersection between the given axis (infinite line) and another infinite line provided with point and direction
@@ -372,18 +398,20 @@ export function projectOntoAxis(
     worldPoint.add(initialWorldPoint)
     return
   }
-  //1. find orthogonal vector between axis and worldDirection
-  crossVectorHelper.crossVectors(axis, worldDirection).normalize()
-  //2. project the distance from worldPoint to initialWorldPoint onto that orthognal vector
-  projectPointOntoNormal(vectorHelper.copy(initialWorldPoint).sub(worldPoint), crossVectorHelper)
-  //3. add the worldPoint to that vectorHelper, so that that normals of worldPoint and initialWorldPoint are meeting if applied to vectorHelper and initialWorldPoint
-  vectorHelper.add(worldPoint)
-  projectPointOntoNormal(worldPoint.copy(vectorHelper).sub(initialWorldPoint), axis)
-  worldPoint.add(initialWorldPoint)
-  const angle = axis.angleTo(worldDirection)
-  const gegenkathete = vectorHelper.distanceTo(worldPoint) / Math.tan(angle)
-  const inverted = vectorHelper.subVectors(worldPoint, initialWorldPoint).dot(axis) > 0
-  worldPoint.addScaledVector(axis, (inverted ? -1 : 1) * gegenkathete)
+
+  vectorHelper.subVectors(worldPoint, initialWorldPoint)
+
+  // 2. Calculate the dot products needed
+  const d1d2 = axis.dot(worldDirection)
+  const d1p1p2 = axis.dot(vectorHelper)
+  const d2p1p2 = worldDirection.dot(vectorHelper)
+
+  // 3. Calculate the parameters t for the closest points
+  const denominator = 1 - d1d2 * d1d2
+  const t = (d1p1p2 - d1d2 * d2p1p2) / denominator
+
+  // 4. Calculate the nearest point on the first line
+  worldPoint.copy(initialWorldPoint).addScaledVector(axis, t)
 }
 
 export function projectPointOntoNormal(point: Vector3, normal: Vector3) {

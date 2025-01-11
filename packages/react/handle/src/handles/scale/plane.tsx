@@ -4,6 +4,7 @@ import { RegisteredHandle } from '../context.js'
 import { MeshHandlesContextMaterial } from '../material.js'
 import { HandleTransformOptions } from '@pmndrs/handle'
 import { useExtractHandleTransformOptions } from '../utils.js'
+import { PropsWithoutRef } from 'react'
 
 export type PlaneScaleHandleProperties = {
   enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
@@ -12,7 +13,7 @@ export type PlaneScaleHandleProperties = {
   opacity: number
   hoverColor?: ColorRepresentation
   hoverOpacity?: number
-} & GroupProps
+} & PropsWithoutRef<Omit<GroupProps, 'children'>>
 
 export function PlaneScaleHandle({
   tag,

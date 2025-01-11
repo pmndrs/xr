@@ -4,6 +4,7 @@ import { RegisteredHandle } from '../context.js'
 import { MeshHandlesContextMaterial } from '../material.js'
 import { HandleTransformOptions } from '@pmndrs/handle'
 import { useExtractHandleTransformOptions } from '../utils.js'
+import { PropsWithoutRef } from 'react'
 
 export type PlaneTranslateHandleProperties = {
   tag: 'xy' | 'yz' | 'xz'
@@ -14,7 +15,7 @@ export type PlaneTranslateHandleProperties = {
   hoverColor?: ColorRepresentation
   hoverOpacity?: number
   axes?: [Vector3Tuple, Vector3Tuple]
-} & GroupProps
+} & PropsWithoutRef<Omit<GroupProps, 'children'>>
 
 export function PlaneTranslateHandle({
   tagPrefix = '',

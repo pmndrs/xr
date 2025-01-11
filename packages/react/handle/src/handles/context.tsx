@@ -1,4 +1,4 @@
-import { HandlesContext as HandlesContextImpl, HandleOptions } from '@pmndrs/handle'
+import { HandlesContext as HandlesContextImpl, HandleOptions, HandleStore } from '@pmndrs/handle'
 import { GroupProps, useFrame } from '@react-three/fiber'
 import {
   createContext,
@@ -16,11 +16,12 @@ import {
   useRef,
 } from 'react'
 import { Group, Object3D } from 'three'
+import { Handle, HandleTarget } from '../component.js'
 
 const handlesContext = createContext<HandlesContextImpl | undefined>(undefined)
 
 export type HandlesContextProperties = Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
-  targetRef: RefObject<Object3D | undefined>
+  targetRef: RefObject<Object3D>
   children?: ReactNode
 }
 
@@ -39,9 +40,13 @@ export function HandlesContext({
   }
   const optionsRef = useRef(options)
   optionsRef.current = options
-  const impl = useMemo(() => new HandlesContextImpl(targetRef, () => optionsRef.current), [])
+  const impl = useMemo(() => new HandlesContextImpl(() => optionsRef.current), [])
   useFrame((state) => impl.update(state.clock.getElapsedTime()))
-  return <handlesContext.Provider value={impl}>{children}</handlesContext.Provider>
+  return (
+    <handlesContext.Provider value={impl}>
+      <HandleTarget targetRef={targetRef}>{children}</HandleTarget>
+    </handlesContext.Provider>
+  )
 }
 
 export function useHandlesContext(): HandlesContextImpl {
@@ -55,11 +60,9 @@ export function useHandlesContext(): HandlesContextImpl {
 export type RegisteredHandleProperties = Omit<GroupProps, 'scale'> & HandleOptions<any> & { tag: string }
 
 export const RegisteredHandle: ForwardRefExoticComponent<
-  PropsWithoutRef<RegisteredHandleProperties> & RefAttributes<Group>
-> = forwardRef<Group, RegisteredHandleProperties>(
+  PropsWithoutRef<RegisteredHandleProperties> & RefAttributes<HandleStore<unknown>>
+> = forwardRef<HandleStore<unknown>, RegisteredHandleProperties>(
   ({ children, tag, alwaysUpdate, apply, multitouch, scale, rotate, translate, stopPropagation, ...props }, ref) => {
-    const internalRef = useRef<Group>(null)
-    useImperativeHandle(ref, () => internalRef.current!, [])
     const context = useHandlesContext()
     const overrideOptions: HandleOptions<any> = {
       alwaysUpdate,
@@ -72,13 +75,24 @@ export const RegisteredHandle: ForwardRefExoticComponent<
     }
     const overrideOptionsRef = useRef(overrideOptions)
     overrideOptionsRef.current = overrideOptions
-    useEffect(
-      () => context.registerControl(internalRef.current!, tag, () => overrideOptionsRef.current),
+    const handleStoreRef = useRef<HandleStore<unknown>>(null)
+    const handleRef = useRef<Group>(null)
+    const getHandleOptions = useMemo(
+      () => context.getHandleOptions.bind(context, tag, () => overrideOptionsRef.current),
       [context, tag],
     )
+    useEffect(() => {
+      if (handleStoreRef.current == null || handleRef.current == null) {
+        return
+      }
+      return context.registerHandle(handleStoreRef.current, handleRef.current, tag)
+    }, [context, tag])
+    useImperativeHandle(ref, () => handleStoreRef.current!, [])
     return (
-      <group {...props} ref={internalRef}>
-        {children}
+      <group {...props} ref={handleRef}>
+        <Handle getHandleOptions={getHandleOptions} handleRef={handleRef} ref={handleStoreRef}>
+          {children}
+        </Handle>
       </group>
     )
   },
