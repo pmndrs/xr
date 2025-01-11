@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Plane, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { Euler, EulerOrder, Matrix4, Plane, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { Axis, HandleTransformState } from '../state.js'
 import { HandleOptions, HandleTransformOptions } from '../store.js'
 import { clamp } from 'three/src/math/MathUtils.js'
@@ -11,6 +11,12 @@ export type BaseHandleStoreData = {
   initialTargetRotation: Euler
   initialTargetPosition: Vector3
   initialTargetScale: Vector3
+}
+
+const axisFirstOrder = {
+  x: 'XYZ',
+  y: 'YXZ',
+  z: 'ZXY',
 }
 
 export function computeHandleTransformState(
@@ -47,6 +53,7 @@ export function computeHandleTransformState(
     quaternion.copy(storeData.initialTargetQuaternion)
     rotation = storeData.initialTargetRotation.clone()
   } else if (
+    Array.isArray(rotateOptions) ||
     rotateOptions === true ||
     (typeof rotateOptions != 'string' &&
       !Array.isArray(rotateOptions) &&
@@ -55,6 +62,18 @@ export function computeHandleTransformState(
       rotateOptions.z === true)
   ) {
     rotation = new Euler().setFromQuaternion(quaternion, storeData.initialTargetRotation.order)
+  } else if (typeof rotateOptions === 'string') {
+    const order = axisFirstOrder[rotateOptions]
+    rotation = new Euler().setFromQuaternion(quaternion)
+    for (const orderElement of order) {
+      const axis = orderElement.toLowerCase() as Axis
+      if (axis === rotateOptions) {
+        continue
+      }
+      rotation[axis] = 0
+    }
+    rotation.order = storeData.initialTargetRotation.order
+    quaternion.setFromEuler(rotation)
   } else {
     rotation = applyTransformOptionsToRotation(quaternion, storeData.initialTargetRotation, rotateOptions)
   }
@@ -105,39 +124,28 @@ function getPerpendicular(target: Vector3, from: Vector3): void {
   target.set(-from.y, from.x, 0)
 }
 
-const quaternionHelper = new Quaternion()
-const eulerHelper = new Euler()
-
 export function applyTransformOptionsToRotation(
   currentRotation: Quaternion,
   initialRotation: Euler,
-  options: HandleTransformOptions,
+  options: Exclude<HandleTransformOptions, boolean | Array<Vector3Tuple> | Axis>,
 ): Euler {
-  const result = new Euler(0, 0, 0, initialRotation.order)
-  let inverted = false
-  for (const axisElement of initialRotation.order) {
-    const axis = axisElement.toLowerCase() as Axis
-    const axisAngle =
-      eulerHelper.setFromQuaternion(currentRotation, initialRotation.order)[axis] + (inverted ? Math.PI : 0)
-    const transformedAxisAngle = Array.isArray(options)
-      ? axisAngle
-      : applyTransformOptionsToAxis(axis, axisAngle, initialRotation[axis], options)
-
-    if (Math.abs(axisAngle - transformedAxisAngle) > Math.PI / 2) {
-      inverted = !inverted
+  let orderEnabledAxis = ''
+  let orderDisabledAxis = ''
+  for (const orderElement of initialRotation.order) {
+    if (options[orderElement.toLowerCase() as Axis] === false) {
+      orderDisabledAxis += orderElement
+    } else {
+      orderEnabledAxis += orderElement
     }
-
-    if (axisAngle != transformedAxisAngle) {
-      //currentRotation = currentRotation * result-1 * delta * result
-      currentRotation.multiply(quaternionHelper.setFromEuler(result).invert())
-      const delta = axisAngle - transformedAxisAngle
-      result[axis] = delta
-      currentRotation.multiply(quaternionHelper.setFromEuler(result))
-    }
-
-    result[axis] = transformedAxisAngle
+  }
+  const order = (orderEnabledAxis + orderDisabledAxis) as EulerOrder
+  const result = new Euler().setFromQuaternion(currentRotation, order)
+  for (const orderElement of order) {
+    const axis = orderElement.toLowerCase() as Axis
+    result[axis] = applyTransformOptionsToAxis(axis, result[axis], initialRotation[axis], options)
   }
   currentRotation.setFromEuler(result)
+  result.setFromQuaternion(currentRotation, initialRotation.order)
   return result
 }
 
@@ -453,7 +461,6 @@ export function projectOntoAxis(
     //angleDifference is between 3° and 6°
     //factor = 1 means that we want 100% from worldPoint and 0 from project point
     const factor = (angleDifference - _3Degree) / _3Degree
-    console.log(factor)
     projectPointOntoAxis(vectorHelper, initialWorldPoint, axis)
     worldPoint.multiplyScalar(factor).addScaledVector(vectorHelper, 1 - factor)
   }
