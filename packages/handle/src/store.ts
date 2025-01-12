@@ -350,6 +350,7 @@ function noop() {}
 
 export function defaultApply(state: HandleState<unknown>, target: Object3D): any {
   target.position.copy(state.current.position)
+  target.rotation.order = state.current.rotation.order
   target.quaternion.copy(state.current.quaternion)
   target.scale.copy(state.current.scale)
 }

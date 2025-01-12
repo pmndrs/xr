@@ -1,4 +1,3 @@
-import { Vector2, Vector3 } from 'three'
 import type { ScreenHandleStore } from './store.js'
 
 export function filterForOnePointerRightClickOrTwoPointer(map: ScreenHandleStore['map']): boolean {
@@ -6,7 +5,7 @@ export function filterForOnePointerRightClickOrTwoPointer(map: ScreenHandleStore
     return map.size === 2
   }
   const [p] = map.values()
-  return p.latestEvent.buttons === 2
+  return p.initialEvent.button === 2
 }
 
 export function filterForOnePointerLeftClick(map: ScreenHandleStore['map']): boolean {
@@ -14,7 +13,7 @@ export function filterForOnePointerLeftClick(map: ScreenHandleStore['map']): boo
     return false
   }
   const [p] = map.values()
-  return p.latestEvent.buttons === 1
+  return p.initialEvent.button === 0
 }
 
 export * from './camera.js'

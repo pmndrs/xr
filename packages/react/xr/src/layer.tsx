@@ -51,6 +51,8 @@ import {
   Scene,
   Vector2,
   Vector3,
+  Vector4,
+  WebGLRenderer,
   WebGLRenderTarget,
 } from 'three'
 import { create, StoreApi, UseBoundStore } from 'zustand'
@@ -65,6 +67,7 @@ export type XRLayerProperties = XRLayerOptions &
     pixelHeight?: number
     dpr?: number
     src?: Exclude<XRLayerSrc, WebGLRenderTarget>
+    customRender?: (target: WebGLRenderTarget, state: RootState, delta: number, frame: XRFrame | undefined) => void
   }
 
 export function XRLayer({
@@ -74,6 +77,7 @@ export function XRLayer({
   dpr = 1,
   renderPriority = 0,
   children,
+  customRender,
   ...props
 }: XRLayerProperties) {
   const [hasSize, setHasSize] = useState(false)
@@ -106,6 +110,7 @@ export function XRLayer({
     <>
       {src == null && (
         <ChildrenToRenderTarget
+          customRender={customRender}
           store={store}
           renderPriority={renderPriority}
           renderTargetRef={renderTargetRef}
@@ -449,18 +454,32 @@ export function useLayerStore(width: number, height: number, dpr: number) {
   return layerStore
 }
 
+const v4Helper = new Vector4()
+
+//required hack to support pmndrs/postprocessing
+function getSize(this: WebGLRenderer, target: Vector2) {
+  this.getViewport(v4Helper)
+  target.x = v4Helper.z - v4Helper.x
+  target.y = v4Helper.w - v4Helper.y
+  return target
+}
+
+const viewportHelper = new Vector4()
+
 function ChildrenToRenderTarget({
   renderPriority,
   children,
   layerEntryRef,
   renderTargetRef,
   store,
+  customRender,
 }: {
   renderPriority: number
   children: ReactNode
   layerEntryRef: RefObject<XRLayerEntry | undefined> | undefined
   renderTargetRef: RefObject<WebGLRenderTarget | undefined>
   store: UseBoundStore<StoreApi<RootState>>
+  customRender?: (target: WebGLRenderTarget, state: RootState, delta: number, frame: XRFrame | undefined) => void
 }) {
   useEffect(() => {
     const update = (state: RootState, prevState?: RootState) => {
@@ -488,29 +507,45 @@ function ChildrenToRenderTarget({
   let oldXrEnabled
   let oldIsPresenting
   let oldRenderTarget
+  let oldGetDrawingBufferSize: WebGLRenderer['getDrawingBufferSize']
+  let oldGetSize: WebGLRenderer['getSize']
   //TODO: support frameloop="demand"
-  useFrame((_state, _delta, frame: XRFrame | undefined) => {
+  useFrame((_, delta, frame: XRFrame | undefined) => {
     if (
       renderTargetRef.current == null ||
       (layerEntryRef != null && (layerEntryRef.current == null || frame == null))
     ) {
       return
     }
-    const { gl, scene, camera } = store.getState()
+    const state = store.getState()
+    const { gl, scene, camera } = state
     oldAutoClear = gl.autoClear
     oldXrEnabled = gl.xr.enabled
     oldIsPresenting = gl.xr.isPresenting
     oldRenderTarget = gl.getRenderTarget()
+    oldGetSize = gl.getSize
+    oldGetDrawingBufferSize = gl.getDrawingBufferSize
+    gl.getViewport(viewportHelper)
     gl.autoClear = true
     gl.xr.enabled = false
     gl.xr.isPresenting = false
     const renderTarget = renderTargetRef.current
+    gl.setViewport(0, 0, renderTarget.width, renderTarget.height)
+    gl.getSize = getSize
+    gl.getDrawingBufferSize = getSize
     setXRLayerRenderTarget(gl, renderTarget, layerEntryRef?.current, frame)
-    gl.render(scene, camera)
+    if (customRender != null) {
+      customRender(renderTarget, state, delta, frame)
+    } else {
+      gl.render(scene, camera)
+    }
     gl.setRenderTarget(oldRenderTarget)
+    gl.setViewport(viewportHelper)
     gl.autoClear = oldAutoClear
     gl.xr.enabled = oldXrEnabled
     gl.xr.isPresenting = oldIsPresenting
+    gl.getSize = oldGetSize
+    gl.getDrawingBufferSize = oldGetDrawingBufferSize
   }, renderPriority)
   return <>{reconciler.createPortal(<context.Provider value={store}>{children}</context.Provider>, store, null)}</>
 }

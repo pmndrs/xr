@@ -1,6 +1,7 @@
 import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { Object3D } from 'three'
+import { Object3D, Object3DEventMap } from 'three'
 import { useXR } from './xr.js'
+import { PointerEventsMap } from '@pmndrs/pointer-events'
 
 export function useHover(ref: RefObject<Object3D>): boolean
 
@@ -18,7 +19,7 @@ export function useHover(ref: RefObject<Object3D>, onChange?: (hover: boolean) =
     setHover = onChange
   }
   useEffect(() => {
-    const { current } = ref
+    const { current } = ref as RefObject<Object3D<PointerEventsMap & Object3DEventMap>>
     if (current == null) {
       return
     }

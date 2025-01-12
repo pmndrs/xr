@@ -48,7 +48,9 @@ export function useOrbitHandles({
       return providedStore
     }
     const newStore = createScreenCameraStore()
-    newStore.getState().setPositionAndOrigin((camera ?? fiberStore.getState().camera).position.toArray(), [0, 0, 0])
+    const state = newStore.getState()
+    state.setCameraPosition(...(camera ?? fiberStore.getState().camera).position.toArray())
+    state.setOriginPosition(0, 0, 0)
     return newStore
   }, [camera, fiberStore, providedStore])
   useScreenCameraRotateHandle(

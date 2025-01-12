@@ -17,7 +17,7 @@ const axisFirstOrder = {
   x: 'XYZ',
   y: 'YXZ',
   z: 'ZXY',
-}
+} as const
 
 export function computeHandleTransformState(
   time: number,
@@ -64,7 +64,7 @@ export function computeHandleTransformState(
     rotation = new Euler().setFromQuaternion(quaternion, storeData.initialTargetRotation.order)
   } else if (typeof rotateOptions === 'string') {
     const order = axisFirstOrder[rotateOptions]
-    rotation = new Euler().setFromQuaternion(quaternion)
+    rotation = new Euler().setFromQuaternion(quaternion, order)
     for (const orderElement of order) {
       const axis = orderElement.toLowerCase() as Axis
       if (axis === rotateOptions) {
@@ -145,7 +145,6 @@ export function applyTransformOptionsToRotation(
     result[axis] = applyTransformOptionsToAxis(axis, result[axis], initialRotation[axis], options)
   }
   currentRotation.setFromEuler(result)
-  result.setFromQuaternion(currentRotation, initialRotation.order)
   return result
 }
 

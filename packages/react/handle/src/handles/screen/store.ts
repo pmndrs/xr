@@ -6,7 +6,12 @@ import { Object3D, Object3DEventMap, Scene, Vector2 } from 'three'
 export class ScreenHandleStore<T = unknown> {
   private map = new Map<
     number,
-    { latestEvent: PointerEvent; initialScreenPosition: Vector2; currentScreenPosition: Vector2 }
+    {
+      initialEvent: PointerEvent
+      latestEvent: PointerEvent
+      initialScreenPosition: Vector2
+      currentScreenPosition: Vector2
+    }
   >()
   private initial: T
 
@@ -40,6 +45,7 @@ export class ScreenHandleStore<T = unknown> {
     this.map.set(e.pointerId, {
       initialScreenPosition: new Vector2(),
       currentScreenPosition: e.intersection.details.screenPoint.clone(),
+      initialEvent: e,
       latestEvent: e,
     })
     this.save()

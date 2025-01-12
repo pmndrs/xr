@@ -84,6 +84,10 @@ Component for rendering high quality quad, cylinder, or equirectangular layers i
 
 The component also accepts properties for changing the scale, position, rotation, and more.
 
+### `NotInXR`
+
+Component for hiding the xr context to all children component. Can be used to create virtual displays and similar allowing the components inside the display to think they are not inside an XR environment, making them behave like when outside XR.
+
 ## Pointer
 
 The core interaction concept is based on (touch/grab/ray) pointers.

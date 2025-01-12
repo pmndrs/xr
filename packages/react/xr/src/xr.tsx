@@ -107,6 +107,11 @@ export function XR({ children, store }: XRProperties) {
   )
 }
 
+export function NotInXR({ children }: { children?: ReactNode }) {
+  const emptyStore = useMemo(() => createXRStore(), [])
+  return <xrContext.Provider value={emptyStore}>{children}</xrContext.Provider>
+}
+
 export function RootCombinedPointer({ children }: { children?: ReactNode }) {
   const store = useXRStore()
   const pointer = useMemo(() => new CombinedPointer(true), [])
