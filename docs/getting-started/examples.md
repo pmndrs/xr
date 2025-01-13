@@ -29,4 +29,7 @@ nav: 3
   <li>
     [![Screenshot from Secondary Input Sources demo](./secondary-input-sources.gif)](https://pmndrs.github.io/xr/examples/secondary-input-sources/)
   </li>
+  <li>
+    [![Screenshot from the React-three-handle Editor demo](./editor.gif)](https://pmndrs.github.io/xr/examples/editor/)
+  </li>
 </Grid>

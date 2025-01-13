@@ -72,7 +72,7 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
   get face(): Face | null | undefined {
     return this.intersection.face
   }
-  get faceIndex(): number | undefined {
+  get faceIndex(): number | null | undefined {
     return this.intersection.faceIndex
   }
   get uv(): Vector2 | undefined {

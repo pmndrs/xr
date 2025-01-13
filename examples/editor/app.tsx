@@ -1,4 +1,4 @@
-import { Canvas, Color, extend, MeshProps, RootState, useFrame, useThree } from '@react-three/fiber'
+import { Canvas, Color, extend, RootState, useFrame, useThree } from '@react-three/fiber'
 import {
   createXRStore,
   isXRInputSourceState,
@@ -37,21 +37,19 @@ import {
   DirectionalLight,
   Euler,
   Group,
-  Matrix4,
   Mesh,
   Object3D,
   Object3DEventMap,
-  OrthographicCamera,
   Quaternion,
   Scene as SceneImpl,
   ShaderMaterial,
   Uniform,
-  Vector2,
   Vector3,
   Vector3Tuple,
   WebGLRenderer,
   WebGLRenderTarget,
   PositionalAudio as PAudio,
+  BackSide,
 } from 'three'
 import { create } from 'zustand'
 import { defaultApply, HandleState, HandleStore } from '@pmndrs/handle'
@@ -122,12 +120,15 @@ export function App() {
         events={noEvents}
         style={{ width: '100%', flexGrow: 1 }}
       >
-        <color args={['black']} attach="background" />
-        <group pointerEventsType={{ deny: 'touch' }}>
-          <AudioEffects />
-          <PointerEvents />
-          <OrbitHandles />
-          <XR store={store}>
+        <XR store={store}>
+          <mesh scale={1000}>
+            <meshBasicMaterial side={BackSide} color="black" />
+            <sphereGeometry />
+          </mesh>
+          <group pointerEventsType={{ deny: 'touch' }}>
+            <AudioEffects />
+            <PointerEvents />
+            <OrbitHandles />
             <XROrigin position={[0, -1, 0.5]} />
             <HandleTarget>
               <Scene addSunHandle />
@@ -177,8 +178,8 @@ export function App() {
               <CameraHelper />
             </HandleTarget>
             <Screen />
-          </XR>
-        </group>
+          </group>
+        </XR>
       </Canvas>
     </>
   )
@@ -291,8 +292,8 @@ function Screen() {
               </mesh>
               <XRLayer
                 pointerEventsType={{ deny: 'grab' }}
-                customRender={isInXR ? renderFunction : undefined}
                 position-y={0.15}
+                customRender={isInXR ? renderFunction : undefined}
                 scale={[(0.3 * 16) / 9, 0.3, 0.3]}
                 pixelWidth={1920 / 2}
                 pixelHeight={1080 / 2}

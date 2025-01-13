@@ -48,6 +48,7 @@ jobs:
           mkdir -p public/examples/room-with-shadows
           mkdir -p public/examples/layers
           mkdir -p public/examples/secondary-input-sources
+          mkdir -p public/examples/editor
           cp -r ./examples/minecraft/dist/* ./public/examples/minecraft
           cp -r ./examples/pingpong/dist/* ./public/examples/pingpong
           cp -r ./examples/rag-doll/dist/* ./public/examples/rag-doll
@@ -56,6 +57,7 @@ jobs:
           cp -r ./examples/room-with-shadows/dist/* ./public/examples/room-with-shadows
           cp -r ./examples/layers/dist/* ./public/examples/layers
           cp -r ./examples/secondary-input-sources/dist/* ./public/examples/secondary-input-sources
+          cp -r ./examples/editor/dist/* ./public/examples/editor
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
