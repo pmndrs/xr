@@ -1,6 +1,7 @@
 import { Canvas, Color, extend, RootState, useFrame, useThree } from '@react-three/fiber'
 import {
   createXRStore,
+  IfInSessionMode,
   isXRInputSourceState,
   noEvents,
   NotInXR,
@@ -121,10 +122,12 @@ export function App() {
         style={{ width: '100%', flexGrow: 1 }}
       >
         <XR store={store}>
-          <mesh scale={1000}>
-            <meshBasicMaterial side={BackSide} color="black" />
-            <sphereGeometry />
-          </mesh>
+          <IfInSessionMode deny="immersive-ar">
+            <mesh scale={1000}>
+              <meshBasicMaterial side={BackSide} color="black" />
+              <sphereGeometry />
+            </mesh>
+          </IfInSessionMode>
           <group pointerEventsType={{ deny: 'touch' }}>
             <AudioEffects />
             <PointerEvents />
