@@ -10,6 +10,7 @@ on:
 jobs:
   deploy-packages:
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/') && github.ref_name == 'refs/heads/main'
     permissions:
       contents: read
     steps:
