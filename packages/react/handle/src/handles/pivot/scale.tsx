@@ -38,7 +38,7 @@ export function PivotAxisScaleHandle({
       multitouch={false}
       {...props}
     >
-      <mesh position-x={0.68}>
+      <mesh renderOrder={Infinity} pointerEventsOrder={Infinity} position-x={0.68}>
         <sphereGeometry args={[0.04]} />
         <MeshHandlesContextMaterial
           tag={tagPrefix + tag}

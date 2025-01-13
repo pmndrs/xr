@@ -41,7 +41,7 @@ export function PlaneTranslateHandle({
       rotate={false}
       multitouch={false}
     >
-      <mesh position={[0.15, 0.15, 0]}>
+      <mesh renderOrder={Infinity} pointerEventsOrder={Infinity} position={[0.15, 0.15, 0]}>
         <boxGeometry args={[0.2, 0.2, 0.01]} />
         <MeshHandlesContextMaterial
           tag={tagPrefix + tag}

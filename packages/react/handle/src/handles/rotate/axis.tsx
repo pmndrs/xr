@@ -82,11 +82,11 @@ export function AxisRotateHandle({
     <group {...props}>
       <group ref={ref}>
         <RegisteredHandle tag={tag} scale={false} translate="as-rotate" rotate={[config[tag].axis]} multitouch={false}>
-          <mesh visible={false} rotation={[0, -Math.PI / 2, -Math.PI / 2]}>
+          <mesh pointerEventsOrder={Infinity} visible={false} rotation={[0, -Math.PI / 2, -Math.PI / 2]}>
             <torusGeometry args={[0.5, 0.1, 4, 24]} />
           </mesh>
         </RegisteredHandle>
-        <mesh geometry={axisCircleGeometry}>
+        <mesh renderOrder={Infinity} geometry={axisCircleGeometry}>
           <MeshHandlesContextMaterial
             color={color}
             opacity={opacity}

@@ -12,11 +12,11 @@ export function FreeTranslateHandle({ enabled }: { enabled?: Exclude<HandleTrans
   return (
     <>
       <RegisteredHandle tag="xyz" translate={translateOptions} scale={false} rotate={false} multitouch={false}>
-        <mesh visible={false}>
+        <mesh pointerEventsOrder={Infinity} visible={false}>
           <octahedronGeometry args={[0.2, 0]} />
         </mesh>
       </RegisteredHandle>
-      <mesh>
+      <mesh renderOrder={Infinity}>
         <octahedronGeometry args={[0.1, 0]} />
         <MeshHandlesContextMaterial tag="xyz" color={0xffffff} opacity={0.25} hoverOpacity={1} hoverColor={0xffff00} />
       </mesh>

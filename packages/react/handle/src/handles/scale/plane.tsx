@@ -31,7 +31,7 @@ export function PlaneScaleHandle({
   }
   return (
     <RegisteredHandle {...props} tag={tag} scale={scaleOptions} rotate={false} translate="as-scale" multitouch={false}>
-      <mesh position={[0.15, 0.15, 0]}>
+      <mesh pointerEventsOrder={Infinity} renderOrder={Infinity} position={[0.15, 0.15, 0]}>
         <boxGeometry args={[0.2, 0.2, 0.01]} />
         <MeshHandlesContextMaterial
           tag={tag}

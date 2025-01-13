@@ -25,15 +25,15 @@ export function TranslateHandleDelta() {
 
   return (
     <>
-      <mesh ref={startRef}>
+      <mesh renderOrder={Infinity} ref={startRef}>
         <octahedronGeometry args={[0.01, 2]} />
         <meshBasicMaterial {...handleXRayMaterialProperties} />
       </mesh>
-      <mesh ref={endRef}>
+      <mesh renderOrder={Infinity} ref={endRef}>
         <octahedronGeometry args={[0.01, 2]} />
         <meshBasicMaterial {...handleXRayMaterialProperties} />
       </mesh>
-      <lineSegments ref={lineRef} geometry={geometry}>
+      <lineSegments renderOrder={Infinity} ref={lineRef} geometry={geometry}>
         <lineBasicMaterial {...handleXRayMaterialProperties} />
       </lineSegments>
     </>

@@ -38,13 +38,13 @@ export function AxisScaleHande({
     <group {...props}>
       <RegisteredHandle tag={tag} scale={scaleOptions} rotate={false} translate="as-scale" multitouch={false}>
         <group visible={false} position-x={invert ? -0.3 : 0.3} rotation={rotation}>
-          <mesh position-y={0.04}>
+          <mesh pointerEventsOrder={Infinity} position-y={0.04}>
             <cylinderGeometry args={[0.2, 0, 0.6, 4]} />
           </mesh>
         </group>
       </RegisteredHandle>
       <group position-x={invert ? -0.5 : 0.5} rotation={rotation}>
-        <mesh position-y={0.04}>
+        <mesh renderOrder={Infinity} position-y={0.04}>
           <boxGeometry args={[0.08, 0.08, 0.08]} />
           <MeshHandlesContextMaterial
             tag={tag}
@@ -57,7 +57,7 @@ export function AxisScaleHande({
       </group>
       {showHandleLine && (
         <group rotation={rotation}>
-          <mesh position-y={0.25}>
+          <mesh renderOrder={Infinity} position-y={0.25}>
             <cylinderGeometry args={[0.0075, 0.0075, 0.5, 3]} />
             <MeshHandlesContextMaterial
               tag={tag}

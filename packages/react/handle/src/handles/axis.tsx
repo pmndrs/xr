@@ -30,7 +30,7 @@ export function HandlesAxisHighlight({ tag, color, opacity, enabled, ...props }:
     return null
   }
   return (
-    <lineSegments {...props} geometry={lineGeometry} ref={ref}>
+    <lineSegments {...props} renderOrder={Infinity} geometry={lineGeometry} ref={ref}>
       <lineBasicMaterial {...handleXRayMaterialProperties} color={color ?? 'white'} opacity={opacity ?? 1} />
     </lineSegments>
   )

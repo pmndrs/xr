@@ -129,6 +129,9 @@ importers:
       '@react-three/xr':
         specifier: workspace:^
         version: link:../../packages/react/xr
+      meshline:
+        specifier: ^3.3.1
+        version: 3.3.1(three@0.172.0)
       postprocessing:
         specifier: ^6.36.6
         version: 6.36.6(three@0.172.0)

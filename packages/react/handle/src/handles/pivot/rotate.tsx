@@ -49,11 +49,11 @@ export const PivotAxisRotateHandle: ForwardRefExoticComponent<
           rotate={axis != null ? [axis] : rotateOptions}
           multitouch={false}
         >
-          <mesh visible={false} rotation={[0, Math.PI / 2, Math.PI / 2]}>
+          <mesh pointerEventsOrder={Infinity} visible={false} rotation={[0, Math.PI / 2, Math.PI / 2]}>
             <torusGeometry args={[0.45, 0.05, 4, 24, Math.PI / 2]} />
           </mesh>
         </RegisteredHandle>
-        <mesh rotation={[0, Math.PI / 2, Math.PI / 2]}>
+        <mesh renderOrder={Infinity} rotation={[0, Math.PI / 2, Math.PI / 2]}>
           <torusGeometry args={[0.45, 0.0075, 3, 64, Math.PI / 2]} />
           <MeshHandlesContextMaterial
             color={color}

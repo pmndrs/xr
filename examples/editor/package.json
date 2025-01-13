@@ -5,6 +5,7 @@
     "@react-three/drei": "^9.118.0",
     "@react-three/handle": "workspace:^",
     "@react-three/xr": "workspace:^",
+    "meshline": "^3.3.1",
     "postprocessing": "^6.36.6",
     "zustand": "^4.5.2"
   },

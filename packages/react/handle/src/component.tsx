@@ -1,7 +1,6 @@
 import { createContext, forwardRef, ReactNode, RefObject, useContext, useImperativeHandle, useRef } from 'react'
 import { HandleOptions, useHandle } from './hook.js'
 import { Group, Object3D } from 'three'
-import { GroupProps } from '@react-three/fiber'
 import { HandleStore } from '@pmndrs/handle'
 
 const HandleTargetRefContext = createContext<RefObject<Object3D> | undefined>(undefined)
@@ -26,11 +25,21 @@ export const Handle = forwardRef<
   {
     children?: ReactNode
     handleRef?: RefObject<Object3D>
+    useTargetFromContext?: boolean
     getHandleOptions?: () => HandleOptions<unknown>
   } & HandleOptions<unknown>
->(({ children, handleRef: providedHandleRef, getHandleOptions, ...props }, ref) => {
+>(({ children, handleRef: providedHandleRef, useTargetFromContext = false, getHandleOptions, ...props }, ref) => {
   const handleRef = useRef<Group>(null)
-  const handleTargetRef = useContext(HandleTargetRefContext) ?? providedHandleRef ?? handleRef
+  let contextHandleTargetRef = useContext(HandleTargetRefContext)
+  if (useTargetFromContext && contextHandleTargetRef == null) {
+    throw new Error(
+      `no HandleTarget found in the context of this handle while 'useTargetFromContext' is set. Either wrap the Handle in a <HandleTarget> or remove the 'useTargetFromContext' flag.`,
+    )
+  }
+  if (!useTargetFromContext) {
+    contextHandleTargetRef = undefined
+  }
+  const handleTargetRef = contextHandleTargetRef ?? providedHandleRef ?? handleRef
   const store = useHandle(
     handleTargetRef,
     {

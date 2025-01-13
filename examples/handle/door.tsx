@@ -41,18 +41,16 @@ export function Door(props: JSX.IntrinsicElements['group']) {
               material={materials.Door}
               position={[0.852, 0.017, 0.782]}
             />
-            <Handle translate="as-rotate" rotate={{ x: false, y: false, z: [-Math.PI, 0] }}>
+            <Handle useTargetFromContext translate="as-rotate" rotate={{ x: false, y: false, z: [-Math.PI, 0] }}>
               <group position={[0.81, 0.043, 0.803]}>
-                <HandleTarget>
-                  <Handle
-                    stopPropagation={false}
-                    translate={false}
-                    scale={false}
-                    rotate={{ x: false, y: [-Math.PI / 2, 0], z: false }}
-                  >
-                    <mesh geometry={nodes.Circle002_Glossy_0.geometry} material={materials.Glossy} />
-                  </Handle>
-                </HandleTarget>
+                <Handle
+                  stopPropagation={false}
+                  translate={false}
+                  scale={false}
+                  rotate={{ x: false, y: [-Math.PI / 2, 0], z: false }}
+                >
+                  <mesh geometry={nodes.Circle002_Glossy_0.geometry} material={materials.Glossy} />
+                </Handle>
               </group>
             </Handle>
           </HandleTarget>

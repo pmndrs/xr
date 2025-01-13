@@ -1,14 +1,17 @@
 import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Object3D, Object3DEventMap } from 'three'
 import { useXR } from './xr.js'
-import { PointerEventsMap } from '@pmndrs/pointer-events'
+import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 
 export function useHover(ref: RefObject<Object3D>): boolean
 
-export function useHover(ref: RefObject<Object3D>, onChange: (hover: boolean) => void): void
+export function useHover(ref: RefObject<Object3D>, onChange: (hover: boolean, event: PointerEvent) => void): void
 
-export function useHover(ref: RefObject<Object3D>, onChange?: (hover: boolean) => void): boolean | undefined {
-  let setHover: (hover: boolean) => void
+export function useHover(
+  ref: RefObject<Object3D>,
+  onChange?: (hover: boolean, event: PointerEvent) => void,
+): boolean | undefined {
+  let setHover: (hover: boolean, event: PointerEvent) => void
   let hover: boolean | undefined
   if (onChange == null) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -24,16 +27,16 @@ export function useHover(ref: RefObject<Object3D>, onChange?: (hover: boolean) =
       return
     }
     const set = new Set<number>()
-    const enter = (e: { pointerId: number }) => {
+    const enter = (e: PointerEvent) => {
       if (set.size === 0) {
-        setHover(true)
+        setHover(true, e)
       }
       set.add(e.pointerId)
     }
-    const leave = (e: { pointerId: number }) => {
+    const leave = (e: PointerEvent) => {
       set.delete(e.pointerId)
       if (set.size === 0) {
-        setHover(false)
+        setHover(false, e)
       }
     }
     current.addEventListener('pointerenter', enter as any)

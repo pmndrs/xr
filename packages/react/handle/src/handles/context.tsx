@@ -90,7 +90,7 @@ export const RegisteredHandle: ForwardRefExoticComponent<
     useImperativeHandle(ref, () => handleStoreRef.current!, [])
     return (
       <group {...props} ref={handleRef}>
-        <Handle getHandleOptions={getHandleOptions} handleRef={handleRef} ref={handleStoreRef}>
+        <Handle useTargetFromContext getHandleOptions={getHandleOptions} handleRef={handleRef} ref={handleStoreRef}>
           {children}
         </Handle>
       </group>

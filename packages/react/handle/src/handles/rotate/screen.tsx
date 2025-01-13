@@ -31,11 +31,11 @@ export function ScreenSpaceRotateHandle({ enabled }: { enabled?: RotateHandlesPr
   return (
     <>
       <RegisteredHandle tag="e" scale={false} translate="as-rotate" rotate={[direction]} multitouch={false}>
-        <mesh visible={false}>
+        <mesh pointerEventsOrder={Infinity} visible={false}>
           <torusGeometry args={[0.75, 0.1, 2, 24]} />
         </mesh>
       </RegisteredHandle>
-      <mesh ref={ref} geometry={screenSpaceRotateCircleGeometry}>
+      <mesh renderOrder={Infinity} ref={ref} geometry={screenSpaceRotateCircleGeometry}>
         <MeshHandlesContextMaterial tag="e" color={0xffff00} opacity={0.5} hoverOpacity={1} hoverColor={0xffff00} />
       </mesh>
     </>

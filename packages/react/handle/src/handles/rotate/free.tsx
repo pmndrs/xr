@@ -28,11 +28,11 @@ export function FreeRotateHandle({ enabled }: { enabled?: RotateHandlesPropertie
   return (
     <>
       <RegisteredHandle tag="xyze" scale={false} translate="as-rotate" rotate={rotateOptions} multitouch={false}>
-        <mesh visible={false}>
+        <mesh pointerEventsOrder={Infinity} visible={false}>
           <sphereGeometry args={[0.25, 10, 8]} />
         </mesh>
       </RegisteredHandle>
-      <mesh ref={ref} geometry={freeRotateCircleGeometry}>
+      <mesh renderOrder={Infinity} ref={ref} geometry={freeRotateCircleGeometry}>
         <MeshHandlesContextMaterial tag="xyz" color={0xffffff} opacity={0.25} hoverOpacity={1} hoverColor={0xffff00} />
       </mesh>
     </>
