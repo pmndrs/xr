@@ -1,3 +1,5 @@
+import { isAppleVisionPro } from './misc.js'
+
 export type XRSessionFeatureRequest = 'required' | true | false
 
 export type XRSessionInitOptions = {
@@ -54,7 +56,7 @@ export function buildXRSessionInit(
   domOverlayRoot: Element | undefined,
   {
     anchors = true,
-    handTracking = true,
+    handTracking = isAppleVisionPro() ? false : true,
     layers = true,
     meshDetection = true,
     planeDetection = true,

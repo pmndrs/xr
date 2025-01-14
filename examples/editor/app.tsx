@@ -79,7 +79,7 @@ const useSceneStore = create(() => ({
 
 const cameraStore = createScreenCameraStore({ rotationY: Math.PI, distance: 0.5 })
 
-const store = createXRStore({ handTracking: false })
+const store = createXRStore()
 
 const buttonStyles: CSSProperties = {
   background: 'white',

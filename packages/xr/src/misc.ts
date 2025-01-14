@@ -18,3 +18,7 @@ export function isFacingCamera(camera: Camera, object: Object3D, direction: Vect
   //compute the angle between guardToCamera and object world direction
   return vectorHelper.angleTo(directionHelper) < angle / 2
 }
+
+export function isAppleVisionPro() {
+  return navigator.userAgent.includes('Macintosh') && navigator.xr != null
+}
