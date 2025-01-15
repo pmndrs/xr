@@ -1,7 +1,6 @@
-import { Euler, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
+import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
 import type { ScreenHandleStore } from './store.js'
-import { computeScreenCameraTransformation, ScreenCameraState } from './camera.js'
-import { Camera } from '@react-three/fiber'
+import type { ScreenCameraStateAndFunctions } from './camera.js'
 
 export function average(
   target: Vector2,
@@ -27,8 +26,8 @@ const forwardHelper = new Vector3()
 const upwardHelper = new Vector3()
 
 export function convertScreenSpaceMovementToGlobalPan(
-  state: ScreenCameraState,
-  camera: Camera,
+  state: ScreenCameraStateAndFunctions,
+  camera: PerspectiveCamera | OrthographicCamera,
   screenSpaceMovement: Vector2,
   target: Vector3,
   speed: number,
@@ -42,7 +41,7 @@ export function convertScreenSpaceMovementToGlobalPan(
       : (camera.top - camera.bottom) / camera.zoom
 
   vector2Helper.copy(screenSpaceMovement).multiplyScalar(-0.5 * speed * cameraHeightAtDistance)
-  computeScreenCameraTransformation(state, undefined, quaternionHelper)
+  state.getCameraTransformation(undefined, quaternionHelper)
 
   const cameraRatio =
     camera instanceof PerspectiveCamera ? camera.aspect : (camera.right - camera.left) / (camera.top - camera.bottom)

@@ -1,6 +1,4 @@
 import { getVoidObject, PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
-import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useMemo } from 'react'
 import { Object3D, Object3DEventMap, Scene, Vector2 } from 'three'
 
 export class ScreenHandleStore<T = unknown> {
@@ -37,7 +35,7 @@ export class ScreenHandleStore<T = unknown> {
     }
   }
 
-  onPointerDown(e: PointerEvent) {
+  private onPointerDown(e: PointerEvent) {
     if (e.intersection.details.type != 'screen-ray') {
       return
     }
@@ -51,14 +49,14 @@ export class ScreenHandleStore<T = unknown> {
     this.save()
   }
 
-  onPointerUp(e: PointerEvent) {
+  private onPointerUp(e: PointerEvent) {
     if (!this.map.delete(e.pointerId)) {
       return
     }
     this.save()
   }
 
-  onPointerMove(e: PointerEvent) {
+  private onPointerMove(e: PointerEvent) {
     if (e.intersection.details.type != 'screen-ray') {
       return
     }
@@ -83,17 +81,4 @@ export class ScreenHandleStore<T = unknown> {
     }
     this.apply(this.initial, this.map)
   }
-}
-
-export function useScreenHandleStore<T>(
-  apply: (initial: T, map: ScreenHandleStore['map']) => void,
-  getInitial: () => T,
-  deps: Array<any>,
-  enabled: boolean,
-) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const store = useMemo(() => new ScreenHandleStore(apply, getInitial), deps)
-  const scene = useThree((s) => s.scene)
-  useEffect(() => (enabled ? store.bind(scene) : undefined), [enabled, store, scene])
-  useFrame(() => enabled && store.update())
 }

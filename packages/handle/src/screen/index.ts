@@ -1,4 +1,4 @@
-import type { ScreenHandleStore } from './store.js'
+import { ScreenHandleStore } from './store.js'
 
 export function filterForOnePointerRightClickOrTwoPointer(map: ScreenHandleStore['map']): boolean {
   if (map.size != 1) {

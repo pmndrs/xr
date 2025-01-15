@@ -365,7 +365,7 @@ function CameraHelper() {
       if (ref.current == null) {
         return
       }
-      state.getCameraPosition(ref.current.position)
+      state.getCameraTransformation(ref.current.position)
       ref.current.rotation.set(state.rotationX, state.rotationY, 0, 'YXZ')
     }
     fn(cameraStore.getState())
