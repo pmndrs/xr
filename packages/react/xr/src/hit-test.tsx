@@ -1,8 +1,9 @@
 import { forwardRef, RefObject, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { createXRHitTestSource, GetWorldMatrixFromXRHitTest, requestXRHitTest } from '@pmndrs/xr'
-import { useXRStore } from './xr.js'
+import { useXR, useXRStore } from './xr.js'
 import { Group, Matrix4, Object3D } from 'three'
 import { GroupProps, useFrame } from '@react-three/fiber'
+import { useStore } from 'zustand'
 
 export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTest } from '@pmndrs/xr'
 
@@ -47,7 +48,11 @@ function useCreateXRHitTestSource(
   onLoad: (result: Awaited<ReturnType<typeof createXRHitTestSource>>) => void,
 ) {
   const store = useXRStore()
+  const session = useStore(store, (s) => s.session)
   useEffect(() => {
+    if (session == null) {
+      return
+    }
     let storedResult: Awaited<ReturnType<typeof createXRHitTestSource>>
     let cancelled = false
     const relativeToResolved =
@@ -55,7 +60,7 @@ function useCreateXRHitTestSource(
     if (relativeToResolved == null) {
       return
     }
-    createXRHitTestSource(store, relativeToResolved, trackableType).then((result) => {
+    createXRHitTestSource(store, session, relativeToResolved, trackableType).then((result) => {
       if (cancelled) {
         return
       }
@@ -67,7 +72,7 @@ function useCreateXRHitTestSource(
       cancelled = true
       storedResult?.source.cancel()
     }
-  }, [store, relativeTo, trackableType, onLoad])
+  }, [session, store, relativeTo, trackableType, onLoad])
 }
 
 /**

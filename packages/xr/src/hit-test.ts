@@ -11,15 +11,12 @@ export type GetWorldMatrixFromXRHitTest = (target: Matrix4, result: XRHitTestRes
 
 export async function createXRHitTestSource(
   store: XRStore<any>,
+  session: XRSession,
   relativeTo: Object3D | XRSpace | XRReferenceSpaceType,
   trackableType: XRHitTestTrackableType | Array<XRHitTestTrackableType> = ['point', 'plane', 'mesh'],
 ) {
-  const state = store.getState()
   if (typeof relativeTo === 'string') {
-    if (state.session == null) {
-      return undefined
-    }
-    relativeTo = await state.session.requestReferenceSpace(relativeTo)
+    relativeTo = await session.requestReferenceSpace(relativeTo)
   }
 
   const entityTypes = Array.isArray(trackableType) ? trackableType : [trackableType]
@@ -28,6 +25,8 @@ export async function createXRHitTestSource(
   let options: XRHitTestOptionsInit
   let baseSpace: XRSpace | undefined
   let object: Object3D | undefined
+
+  const state = store.getState()
 
   if (relativeTo instanceof XRSpace) {
     //configure for request and compute hit test results
@@ -52,7 +51,7 @@ export async function createXRHitTestSource(
     baseSpace = space
   }
 
-  const source = await store.getState().session?.requestHitTestSource?.(options)
+  const source = await session?.requestHitTestSource?.(options)
   if (source == null) {
     return undefined
   }
@@ -68,7 +67,11 @@ export async function requestXRHitTest(
   relativeTo: Object3D | XRSpace | XRReferenceSpaceType,
   trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
 ) {
-  const sourceData = await createXRHitTestSource(store, relativeTo, trackableType)
+  const session = store.getState().session
+  if (session == null) {
+    return
+  }
+  const sourceData = await createXRHitTestSource(store, session, relativeTo, trackableType)
   if (sourceData == null) {
     return undefined
   }
