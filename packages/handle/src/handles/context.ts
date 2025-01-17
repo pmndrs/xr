@@ -2,6 +2,7 @@ import { Object3D, Object3DEventMap } from 'three'
 import { HandleState } from '../state.js'
 import { defaultApply, HandleOptions, HandleStore } from '../store.js'
 import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
+import { TransformHandlesSpace } from './index.js'
 
 export class HandlesContext {
   private handles: Array<{
@@ -13,7 +14,23 @@ export class HandlesContext {
   private hoverSubscriptions: Array<(tags: Array<string>) => void> = []
   private applySubscriptions: Array<(tag: string, state: HandleState<unknown>, target: Object3D) => void> = []
 
-  constructor(private readonly getOptions?: () => HandleOptions<unknown>) {}
+  public space?: TransformHandlesSpace
+
+  constructor(
+    public readonly target: Object3D | { current?: Object3D | null },
+    private readonly getOptions?: () => HandleOptions<unknown>,
+  ) {}
+
+  public getSpace() {
+    return this.space ?? 'world'
+  }
+
+  public getTarget() {
+    if (this.target instanceof Object3D) {
+      return this.target
+    }
+    return this.target.current
+  }
 
   getHandleOptions<T>(tag: string, getOverrideOptions?: () => HandleOptions<unknown>): HandleOptions<T> {
     const providedOptions = this.getOptions?.()
@@ -39,6 +56,7 @@ export class HandlesContext {
       tag,
     }
     this.handles.push(entry)
+    const unbind = store.bind(object)
 
     const enterListener = this.onPointerEnter.bind(this, tag)
     const leaveListener = this.onPointerLeave.bind(this)
@@ -50,6 +68,7 @@ export class HandlesContext {
       if (index != -1) {
         this.handles.splice(index, 1)
       }
+      unbind()
       store.cancel()
     }
   }

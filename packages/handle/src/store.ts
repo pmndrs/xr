@@ -78,7 +78,7 @@ export type HandleTransformOptions =
     }
   | boolean
   | Axis
-  | Array<Vector3Tuple>
+  | Array<Vector3Tuple | Vector3>
 
 const vectorHelper = new Vector3()
 

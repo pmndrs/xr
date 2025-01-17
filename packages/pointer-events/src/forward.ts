@@ -37,8 +37,8 @@ function htmlEventToCoords(element: HTMLElement, e: unknown, target: Vector2): V
     return target.set(0, 0)
   }
   const { width, height, top, left } = element.getBoundingClientRect()
-  const x = e.pageX - left
-  const y = e.pageY - top
+  const x = e.clientX - left
+  const y = e.clientY - top
   return target.set((x / width) * 2 - 1, -(y / height) * 2 + 1)
 }
 

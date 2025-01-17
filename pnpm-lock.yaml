@@ -166,6 +166,15 @@ importers:
         specifier: workspace:^
         version: link:../../packages/react/xr
 
+  examples/handle-vanilla:
+    dependencies:
+      '@pmndrs/handle':
+        specifier: workspace:^
+        version: link:../../packages/handle
+      '@pmndrs/pointer-events':
+        specifier: workspace:^
+        version: link:../../packages/pointer-events
+
   examples/hit-test-anchor:
     dependencies:
       '@react-three/xr':
@@ -339,6 +348,9 @@ importers:
 
   examples/vanilla:
     dependencies:
+      '@pmndrs/pointer-events':
+        specifier: workspace:^
+        version: link:../../packages/pointer-events
       '@pmndrs/uikit':
         specifier: ^0.4.4
         version: 0.4.4(three@0.172.0)(ts-node@10.9.2(@types/node@22.10.5)(typescript@5.7.3))

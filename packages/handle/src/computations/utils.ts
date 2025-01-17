@@ -127,7 +127,7 @@ function getPerpendicular(target: Vector3, from: Vector3): void {
 export function applyTransformOptionsToRotation(
   currentRotation: Quaternion,
   initialRotation: Euler,
-  options: Exclude<HandleTransformOptions, boolean | Array<Vector3Tuple> | Axis>,
+  options: Exclude<HandleTransformOptions, boolean | Array<Vector3Tuple | Vector3> | Axis>,
 ): Euler {
   let orderEnabledAxis = ''
   let orderDisabledAxis = ''
@@ -161,13 +161,16 @@ function applyTransformOptionsToVector(target: Vector3, initialVector: Vector3, 
         return
       case 1:
         target.sub(initialVector)
-        projectPointOntoNormal(target, applyTransformNormal.fromArray(options[0]))
+        projectPointOntoNormal(
+          target,
+          options[0] instanceof Vector3 ? options[0] : applyTransformNormal.fromArray(options[0]),
+        )
         target.add(initialVector)
         return
       case 2:
         applyTransformNormal.crossVectors(
-          applyTransformCross1.fromArray(options[0]),
-          applyTransformCross2.fromArray(options[1]),
+          options[0] instanceof Vector3 ? options[0] : applyTransformCross1.fromArray(options[0]),
+          options[1] instanceof Vector3 ? options[1] : applyTransformCross2.fromArray(options[1]),
         )
         applyTransformPlane.setFromNormalAndCoplanarPoint(applyTransformNormal, initialVector)
         applyTransformPlane.projectPoint(target, target)
@@ -188,7 +191,7 @@ function applyTransformOptionsToAxis(
   axis: Axis,
   value: number,
   neutralValue: number,
-  options: Exclude<HandleTransformOptions, Array<Vector3Tuple>>,
+  options: Exclude<HandleTransformOptions, Array<Vector3Tuple | Vector3>>,
 ): number {
   if (typeof options === 'boolean') {
     return options ? value : neutralValue
@@ -288,11 +291,13 @@ function addSpaceFromAxis(
   target: Array<Vector3>,
   targetParentWorldQuaternion: Quaternion,
   initialTargetRotation: Euler,
-  axis: Axis | Vector3Tuple,
+  axis: Axis | Vector3Tuple | Vector3,
   type: 'translate' | 'rotate' | 'scale',
 ): void {
   if (Array.isArray(axis)) {
     axisHelper.set(...axis)
+  } else if (axis instanceof Vector3) {
+    axisHelper.copy(axis)
   } else {
     axisHelper.copy(axisVectorMap[axis])
   }
