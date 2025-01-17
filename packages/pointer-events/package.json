@@ -28,7 +28,11 @@
     "bench-write": "vitest bench --output-json bench.json --run",
     "bench-compare": "vitest bench --compare bench.json --run",
     "example": "vite example --host",
-    "example:build": "vite build example"
+    "example:build": "vite build example",
+    "check:prettier": "prettier --check src",
+    "check:eslint": "eslint 'src/**/*.ts'",
+    "fix:prettier": "prettier --write src",
+    "fix:eslint": "eslint 'src/**/*.ts' --fix"
   },
   "dependencies": {},
   "devDependencies": {
