@@ -181,6 +181,10 @@ export function applyDampedScreenCameraState(
       pitch: targetPitch,
     } = store.getState()
     distance = damp(distance, targetDistance, damping, deltaTime)
+    let angleDistance: number
+    while (Math.abs((angleDistance = targetYaw - yaw)) > Math.PI) {
+      yaw += (angleDistance > 0 ? 2 : -2) * Math.PI
+    }
     yaw = damp(yaw, targetYaw, damping, deltaTime)
     pitch = damp(pitch, targetPitch, damping, deltaTime)
     originX = damp(originX, targetOriginX, damping, deltaTime)
