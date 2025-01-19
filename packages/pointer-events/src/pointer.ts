@@ -64,7 +64,12 @@ declare module 'three' {
 
     intersectChildren?: boolean
     interactableDescendants?: Array<Object3D>
+    /**
+     * @deprecated
+     */
     ancestorsHaveListeners?: boolean
+    ancestorsHavePointerListeners?: boolean
+    ancestorsHaveWheelListeners?: boolean
   }
 }
 
@@ -179,12 +184,12 @@ export class Pointer {
     }
   }
 
-  computeIntersection(scene: Object3D, nativeEvent: NativeEvent) {
+  computeIntersection(type: 'wheel' | 'pointer', scene: Object3D, nativeEvent: NativeEvent) {
     if (this.pointerCapture != null) {
       return this.intersector.intersectPointerCapture(this.pointerCapture, nativeEvent)
     }
     this.intersector.startIntersection(nativeEvent)
-    intersectPointerEventTargets(scene, [this])
+    intersectPointerEventTargets(type, scene, [this])
     return this.intersector.finalizeIntersection(scene)
   }
 
@@ -249,7 +254,7 @@ export class Pointer {
    * computes and commits a move
    */
   move(scene: Object3D, nativeEvent: NativeEvent): void {
-    this.intersection = this.computeIntersection(scene, nativeEvent)
+    this.intersection = this.computeIntersection('pointer', scene, nativeEvent)
     this.commit(nativeEvent, true)
   }
 
@@ -364,7 +369,7 @@ export class Pointer {
       return
     }
     if (!useMoveIntersection) {
-      this.wheelIntersection = this.computeIntersection(scene, nativeEvent)
+      this.wheelIntersection = this.computeIntersection('wheel', scene, nativeEvent)
     }
     const intersection = useMoveIntersection ? this.intersection : this.wheelIntersection
     if (intersection == null) {

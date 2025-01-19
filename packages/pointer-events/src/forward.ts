@@ -135,7 +135,7 @@ function forwardEvents(
     if (eventType != 'move' && eventType != 'wheel') {
       //if we start with a non-move event no, we intersect and commit
       //this allows enter, down, ... events to be forwarded to the scene even when they dont come with a move event
-      innerPointer.setIntersection(innerPointer.computeIntersection(scene, event))
+      innerPointer.setIntersection(innerPointer.computeIntersection('pointer', scene, event))
       innerPointer.commit(event, false)
     }
     pointerMap.set(event.pointerId, innerPointer)
