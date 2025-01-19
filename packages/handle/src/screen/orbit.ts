@@ -18,7 +18,6 @@ export function defaultOrbitHandlesScreenCameraApply(
   store: StoreApi<ScreenCameraState>,
 ) {
   if (update.pitch != null) {
-    console.log(update.pitch)
     update.pitch = clamp(update.pitch, -Math.PI / 2, Math.PI / 2)
   }
   store.setState(update)

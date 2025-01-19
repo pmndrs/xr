@@ -376,7 +376,7 @@ function CameraHelper() {
       ),
     [],
   )
-  useFrame((_, dt) => update(dt * 1000))
+  useFrame((state, dt) => update(dt * 1000))
   const cameraGeometry = (useGLTF('camera.glb').scene.children[0] as Mesh).geometry
   const hoverTargetRef = useRef<Mesh>(null)
   return (

@@ -83,7 +83,7 @@ export class SphereIntersector implements Intersector {
         type: 'sphere',
       },
       uv,
-      distance: intersection.distance,
+      distance: point.distanceTo(pointOnFace),
       pointerPosition: this.fromPosition.clone(),
       pointerQuaternion: this.fromQuaternion.clone(),
       object,
@@ -153,15 +153,15 @@ export class SphereIntersector implements Intersector {
 
 const matrixHelper = new Matrix4()
 
-function isSpherecastable(obj: Object3D): obj is Object3D & {
-  spherecast(sphere: Sphere, intersects: Array<ThreeIntersection>): void
-} {
-  return 'spherecast' in obj
+declare module 'three' {
+  export interface Object3D {
+    spherecast?(sphere: Sphere, intersects: Array<ThreeIntersection>): void
+  }
 }
 
 function intersectSphereWithObject(pointerSphere: Sphere, object: Object3D, target: Array<ThreeIntersection>): void {
   object.updateWorldMatrix(true, false)
-  if (isSpherecastable(object)) {
+  if (object.spherecast != null) {
     object.spherecast(pointerSphere, target)
     return
   }
@@ -258,6 +258,11 @@ function intersectSphereMesh(
 
   const point = vectorHelper.clone()
 
+  let uv: Vector2 | undefined
+  if (getClosestUV(point2Helper, point, mesh)) {
+    uv = point2Helper.clone()
+  }
+
   return {
     distance: Math.sqrt(distanceToSphereCenterSquared),
     face: {
@@ -267,6 +272,7 @@ function intersectSphereMesh(
       materialIndex: 0,
       normal,
     },
+    uv,
     normal,
     point,
     instanceId,

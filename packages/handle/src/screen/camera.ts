@@ -1,4 +1,4 @@
-import { Camera, Euler, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { ArrayCamera, Camera, Euler, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { damp } from 'three/src/math/MathUtils.js'
 import { createStore, StoreApi } from 'zustand/vanilla'
 
@@ -162,6 +162,11 @@ export function applyDampedScreenCameraState(
   } = store.getState()
 
   return (deltaTime: number) => {
+    const target = getTarget()
+    //if the target is a array camera (which is used for XR stuff, we dont apply)
+    if (target == null || target instanceof ArrayCamera) {
+      return
+    }
     let damping = getDamping()
     if (damping === false) {
       return
@@ -181,10 +186,6 @@ export function applyDampedScreenCameraState(
     originX = damp(originX, targetOriginX, damping, deltaTime)
     originY = damp(originY, targetOriginY, damping, deltaTime)
     originZ = damp(originZ, targetOriginZ, damping, deltaTime)
-    const target = getTarget()
-    if (target == null) {
-      return
-    }
     computeScreenCameraStoreTransformation(
       pitch,
       yaw,
