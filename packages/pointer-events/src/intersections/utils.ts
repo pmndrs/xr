@@ -149,7 +149,7 @@ function filterAndInteresct(
  */
 export function getDominantIntersectionIndex<T extends ThreeIntersection>(
   intersections: Array<T>,
-  pointerEventsOrders: Array<number | undefined>,
+  pointerEventsOrders: Array<number | undefined> | undefined,
   { customSort: compare = defaultSort }: IntersectionOptions = {},
   filter?: (intersection: ThreeIntersection) => boolean,
 ): number | undefined {
@@ -162,7 +162,7 @@ export function getDominantIntersectionIndex<T extends ThreeIntersection>(
     if (filter?.(newIntersection) === false) {
       continue
     }
-    const newPointerEventsOrder = pointerEventsOrders[i]
+    const newPointerEventsOrder = pointerEventsOrders?.[i]
     if (intersection == null || compare(newIntersection, newPointerEventsOrder, intersection, pointerEventsOrder) < 0) {
       index = i
       intersection = newIntersection
