@@ -3,7 +3,6 @@ import { StoreApi } from 'zustand/vanilla'
 import { defaultScreenCameraApply, ScreenCameraStateAndFunctions } from './camera.js'
 import { ScreenHandleStore } from './store.js'
 import { average, convertScreenSpaceMovementToGlobalPan } from './utils.js'
-import { HtmlEvent } from '@pmndrs/pointer-events/dist/html-event.js'
 
 const vector2Helper = new Vector2()
 const initialHelper = new Vector2()

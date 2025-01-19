@@ -18,8 +18,8 @@ export function defaultMapHandlesScreenCameraApply(
   update: Partial<ScreenCameraState>,
   store: StoreApi<ScreenCameraState>,
 ) {
-  if (update.rotationX != null) {
-    update.rotationX = clamp(update.rotationX, 0, Math.PI / 2)
+  if (update.pitch != null) {
+    update.pitch = clamp(update.pitch, 0, Math.PI / 2)
   }
   store.setState(update)
 }

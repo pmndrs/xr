@@ -1,7 +1,7 @@
-import { Camera, Euler, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { Camera, Euler, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { createStore, StoreApi } from 'zustand/vanilla'
 
-const negZAxis = new Vector3(0, 0, -1)
+const zAxis = new Vector3(0, 0, 1)
 
 export function defaultScreenCameraApply(update: Partial<ScreenCameraState>, store: StoreApi<ScreenCameraState>) {
   store.setState(update)
@@ -10,8 +10,8 @@ export function defaultScreenCameraApply(update: Partial<ScreenCameraState>, sto
 export type ScreenCameraState = {
   distance: number
   origin: Readonly<Vector3Tuple>
-  rotationY: number
-  rotationX: number
+  yaw: number
+  pitch: number
 }
 
 const v1Helper = new Vector3()
@@ -25,8 +25,13 @@ export type ScreenCameraStateAndFunctions = ScreenCameraState & {
   setOriginPosition(x: number, y: number, z: number, keepOffsetToCamera?: boolean): void
 }
 
-function computeOriginToCameraOffset(target: Vector3, state: ScreenCameraState, cameraRotation: Euler): void {
-  target.copy(negZAxis).applyEuler(cameraRotation).multiplyScalar(state.distance)
+function computeOriginToCameraOffset(
+  target: Vector3,
+  state: ScreenCameraState,
+  cameraRotation: Euler,
+  zToUp: Quaternion,
+): void {
+  target.copy(zAxis).applyEuler(cameraRotation).applyQuaternion(zToUp).multiplyScalar(state.distance)
 }
 
 function buildCameraPositionUpdate(
@@ -35,55 +40,56 @@ function buildCameraPositionUpdate(
   y: number,
   z: number,
   origin: Readonly<Vector3Tuple>,
+  upToZ: Quaternion,
 ): void {
   v1Helper.set(x, y, z)
   v2Helper.set(...origin)
   v1Helper.sub(v2Helper)
+  v1Helper.applyQuaternion(upToZ)
   const distance = v1Helper.length()
   v1Helper.divideScalar(distance)
-  qHelper.setFromUnitVectors(negZAxis, v1Helper)
+  qHelper.setFromUnitVectors(zAxis, v1Helper)
   eHelper.setFromQuaternion(qHelper, 'YXZ')
   update.distance = distance
-  update.rotationX = eHelper.x
-  update.rotationY = eHelper.y
+  update.pitch = eHelper.x
+  update.yaw = eHelper.y
 }
 
 const offsetHelper = new Vector3()
-const cameraRotationOffset = new Quaternion().setFromAxisAngle({ x: 0, y: 1, z: 0 }, Math.PI)
 
-export function createScreenCameraStore({
-  distance = 5,
-  origin = [0, 0, 0],
-  rotationX = 0,
-  rotationY = 0,
-}: Partial<ScreenCameraState> = {}) {
+export function createScreenCameraStore(
+  { distance = 5, origin = [0, 0, 0], pitch: rotationX = 0, yaw: rotationY = 0 }: Partial<ScreenCameraState> = {},
+  up = Object3D.DEFAULT_UP,
+) {
+  const upToZ = new Quaternion().setFromUnitVectors(up, new Vector3(0, 1, 0))
+  const zToUp = upToZ.clone().invert()
   return createStore<ScreenCameraStateAndFunctions>((set, get) => ({
     distance,
     origin,
-    rotationX,
-    rotationY,
+    pitch: rotationX,
+    yaw: rotationY,
     activeHandle: undefined,
     getCameraTransformation(position, rotation) {
       const state = get()
-      eHelper.set(state.rotationX, state.rotationY, 0, 'YXZ')
+      eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
       if (position != null) {
-        computeOriginToCameraOffset(position, state, eHelper)
+        computeOriginToCameraOffset(position, state, eHelper, zToUp)
         const [x, y, z] = state.origin
         position.x += x
         position.y += y
         position.z += z
       }
       if (rotation != null) {
-        rotation.setFromEuler(eHelper).multiply(cameraRotationOffset)
+        rotation.setFromEuler(eHelper).premultiply(zToUp)
       }
     },
     setCameraPosition(x, y, z, keepOffsetToOrigin) {
       const update: Partial<ScreenCameraState> = {}
-      buildCameraPositionUpdate(update, x, y, z, get().origin)
+      buildCameraPositionUpdate(update, x, y, z, get().origin, upToZ)
       if (keepOffsetToOrigin === true) {
         const state = get()
-        eHelper.set(state.rotationX, state.rotationY, 0, 'YXZ')
-        computeOriginToCameraOffset(offsetHelper, state, eHelper)
+        eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
+        computeOriginToCameraOffset(offsetHelper, state, eHelper, zToUp)
         offsetHelper.x -= x
         offsetHelper.y -= y
         offsetHelper.z -= z
@@ -98,12 +104,12 @@ export function createScreenCameraStore({
       }
       if (keepOffsetToCamera === true) {
         const state = get()
-        eHelper.set(state.rotationX, state.rotationY, 0, 'YXZ')
-        computeOriginToCameraOffset(offsetHelper, state, eHelper)
+        eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
+        computeOriginToCameraOffset(offsetHelper, state, eHelper, zToUp)
         offsetHelper.x += x
         offsetHelper.y += y
         offsetHelper.z += z
-        buildCameraPositionUpdate(update, offsetHelper.x, offsetHelper.y, offsetHelper.z, origin)
+        buildCameraPositionUpdate(update, offsetHelper.x, offsetHelper.y, offsetHelper.z, origin, upToZ)
       }
       set(update)
     },

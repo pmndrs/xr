@@ -16,7 +16,7 @@ export class RotateScreenHandleStore extends ScreenHandleStore<Readonly<Vector2T
     public speed?: number,
   ) {
     super(
-      ([initialRotationX, initialRotationY], map) => {
+      ([initialPitch, initialYaw], map) => {
         if (!this.filter(map)) {
           return
         }
@@ -33,13 +33,13 @@ export class RotateScreenHandleStore extends ScreenHandleStore<Readonly<Vector2T
             : (camera.right - camera.left) / (camera.top - camera.bottom)
         ;(this.customApply ?? defaultScreenCameraApply)(
           {
-            rotationX: vector2Helper.y + initialRotationX,
-            rotationY: vector2Helper.x * aspect + initialRotationY,
+            pitch: initialPitch - vector2Helper.y,
+            yaw: initialYaw + vector2Helper.x * aspect,
           },
           store,
         )
       },
-      () => [store.getState().rotationX, store.getState().rotationY],
+      () => [store.getState().pitch, store.getState().yaw],
     )
   }
 }

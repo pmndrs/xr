@@ -1,5 +1,7 @@
 import {
   applyScreenCameraState,
+  defaultMapHandlesScreenCameraApply,
+  defaultOrbitHandlesScreenCameraApply,
   defaultScreenCameraApply,
   filterForOnePointerLeftClick,
   filterForOnePointerRightClickOrTwoPointer,
@@ -25,6 +27,7 @@ function useScreenHandles(
   HandlesClass: typeof OrbitHandlesImpl | typeof MapHandlesImpl,
   defaultRotateFilter: typeof filterForOnePointerLeftClick,
   defaultPanFilter: typeof filterForOnePointerLeftClick,
+  defaultRotateCustomApply: typeof defaultOrbitHandlesScreenCameraApply,
   { apply, rotate, zoom, pan, store: providedStore, camera: providedCamera, enabled = true }: ScreenHandlesProperties,
 ) {
   const fiberStore = useStore()
@@ -51,7 +54,7 @@ function useScreenHandles(
   //rotate
   const rotateEnabled = enabled && (typeof rotate === 'boolean' ? rotate : true)
   useEffect(() => (rotateEnabled ? handles.rotate.bind(scene) : undefined), [handles, rotateEnabled, scene])
-  handles.rotate.customApply = apply
+  handles.rotate.customApply = apply ?? defaultRotateCustomApply
   handles.rotate.speed = typeof rotate === 'boolean' ? undefined : rotate?.speed
   handles.rotate.filter = (typeof rotate === 'boolean' ? undefined : rotate?.filter) ?? defaultRotateFilter
 
@@ -80,6 +83,7 @@ export const useMapHandles = useScreenHandles.bind(
   MapHandlesImpl,
   filterForOnePointerRightClickOrTwoPointer,
   filterForOnePointerLeftClick,
+  defaultMapHandlesScreenCameraApply,
 )
 
 export function MapHandles(props: ScreenHandlesProperties) {
@@ -97,6 +101,7 @@ export const useOrbitHandles = useScreenHandles.bind(
   OrbitHandlesImpl,
   filterForOnePointerLeftClick,
   filterForOnePointerRightClickOrTwoPointer,
+  defaultOrbitHandlesScreenCameraApply,
 )
 
 export function OrbitHandles(props: ScreenHandlesProperties) {

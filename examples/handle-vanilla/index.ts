@@ -3,16 +3,18 @@ import {
   Group,
   Mesh,
   MeshBasicMaterial,
+  Object3D,
   Object3DEventMap,
   PerspectiveCamera,
   Scene,
+  Vector3,
   WebGLRenderer,
 } from 'three'
 import { PointerEventsMap, forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles, PivotHandles, RotateHandles, TransformHandles, TranslateHandles } from '@pmndrs/handle'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
-camera.position.z = 2
+camera.position.set(0, 0, 2)
 
 const scene = new Scene()
 
@@ -58,6 +60,7 @@ renderer.setAnimationLoop((time) => {
   pivot.update(time, camera)
   transform.update(time, camera)
   renderer.render(scene, camera)
+  console.log(...camera.getWorldPosition(new Vector3()).toArray())
 })
 
 function updateSize() {

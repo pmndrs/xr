@@ -7,6 +7,7 @@ import {
   NotInXR,
   PointerEvents,
   useHover,
+  useSessionFeatureEnabled,
   useXR,
   XR,
   XRLayer,
@@ -53,7 +54,7 @@ import {
   BackSide,
 } from 'three'
 import { create } from 'zustand'
-import { defaultApply, HandleState, HandleStore } from '@pmndrs/handle'
+import { defaultApply, defaultOrbitHandlesScreenCameraApply, HandleState, HandleStore } from '@pmndrs/handle'
 import { damp } from 'three/src/math/MathUtils.js'
 import { getVoidObject, PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 import { CopyPass, EffectComposer, RenderPass, ShaderPass } from 'postprocessing'
@@ -77,7 +78,7 @@ const useSceneStore = create(() => ({
   selected: undefined as ElementType | undefined,
 }))
 
-const cameraStore = createScreenCameraStore({ rotationY: Math.PI, distance: 0.5 })
+const cameraStore = createScreenCameraStore({ yaw: 0, distance: 0.5 })
 
 const store = createXRStore()
 
@@ -117,7 +118,7 @@ export function App() {
       </div>
       <Canvas
         shadows="soft"
-        camera={{ position: [0, 0.5, 0] }}
+        camera={{ position: [-0.5, 0.5, 0.5] }}
         events={noEvents}
         style={{ width: '100%', flexGrow: 1 }}
       >
@@ -134,7 +135,7 @@ export function App() {
             <OrbitHandles />
             <XROrigin position={[0, -1, 0.5]} />
             <HandleTarget>
-              <Scene addSunHandle />
+              <Scene isNotInRT />
 
               <HandleWithAudio useTargetFromContext scale={false} multitouch={false} rotate={false}>
                 <Hover>
@@ -243,7 +244,7 @@ function Screen() {
     eulerHelper.setFromQuaternion(quaternionHelper, 'YXZ')
     ref.current.rotation.y = damp(ref.current.rotation.y, eulerHelper.y, 10, dt)
   })
-  const isInXR = useXR((s) => s.session != null)
+  const isInXR = useSessionFeatureEnabled('layers')
   const renderFunction = useMemo(() => {
     let cache:
       | {
@@ -365,8 +366,7 @@ function CameraHelper() {
       if (ref.current == null) {
         return
       }
-      state.getCameraTransformation(ref.current.position)
-      ref.current.rotation.set(state.rotationX, state.rotationY, 0, 'YXZ')
+      state.getCameraTransformation(ref.current.position, ref.current.quaternion)
     }
     fn(cameraStore.getState())
     return cameraStore.subscribe(fn)
@@ -395,7 +395,7 @@ function CameraHelper() {
                 />
               </mesh>
             </HandleWithAudio>
-            <group scale-x={16 / 9}>
+            <group scale-x={16 / 9} rotation-y={Math.PI}>
               <mesh position-z={0.1} scale={hovered ? 0.025 : 0.02}>
                 <primitive attach="geometry" object={cameraGeometry} />
                 <meshStandardMaterial
@@ -413,7 +413,7 @@ function CameraHelper() {
   )
 }
 
-function Scene({ addSunHandle = false }: { addSunHandle?: boolean }) {
+function Scene({ isNotInRT = false }: { isNotInRT?: boolean }) {
   const lightTarget = useMemo(() => new Object3D(), [])
   const light = useMemo(() => new DirectionalLight(), [])
   light.castShadow = true
@@ -445,13 +445,15 @@ function Scene({ addSunHandle = false }: { addSunHandle?: boolean }) {
 
   const sunHoverTargetRef = useRef<Mesh>(null)
 
+  const pivotSize = isNotInRT ? 1 : 2
+
   return (
     <>
       <ambientLight intensity={0.6} />
       <Hover hoverTargetRef={sunHoverTargetRef}>
         {(hovered) => (
           <>
-            {addSunHandle && (
+            {isNotInRT && (
               <StripedLineToCenter
                 color={hovered ? 'white' : 'gray'}
                 width={hovered ? 0.008 : 0.005}
@@ -460,7 +462,7 @@ function Scene({ addSunHandle = false }: { addSunHandle?: boolean }) {
             )}
             <HandleTarget ref={lightGroupRef}>
               <primitive object={light} />
-              {addSunHandle && (
+              {isNotInRT && (
                 <>
                   <HandleWithAudio
                     useTargetFromContext
@@ -494,7 +496,7 @@ function Scene({ addSunHandle = false }: { addSunHandle?: boolean }) {
           </>
         )}
       </Hover>
-      <CustomTransformHandles target="cone">
+      <CustomTransformHandles size={pivotSize} target="cone">
         <Hover>
           {(hovered) => (
             <mesh castShadow receiveShadow scale={0.1}>
@@ -510,7 +512,7 @@ function Scene({ addSunHandle = false }: { addSunHandle?: boolean }) {
         </Hover>
       </CustomTransformHandles>
 
-      <CustomTransformHandles target="sphere">
+      <CustomTransformHandles size={pivotSize} target="sphere">
         <Hover>
           {(hovered) => (
             <mesh castShadow receiveShadow scale={0.1}>
@@ -525,7 +527,7 @@ function Scene({ addSunHandle = false }: { addSunHandle?: boolean }) {
           )}
         </Hover>
       </CustomTransformHandles>
-      <CustomTransformHandles target="cube">
+      <CustomTransformHandles size={pivotSize} target="cube">
         <Hover>
           {(hovered) => (
             <mesh castShadow receiveShadow scale={0.1}>
@@ -549,7 +551,15 @@ function Scene({ addSunHandle = false }: { addSunHandle?: boolean }) {
   )
 }
 
-function CustomTransformHandles({ target, children }: { target: ElementType; children?: ReactNode }) {
+function CustomTransformHandles({
+  target,
+  children,
+  size,
+}: {
+  size?: number
+  target: ElementType
+  children?: ReactNode
+}) {
   const isInXR = useXR((s) => s.session != null)
   const targetRef = useRef<Group>(null)
   useEffect(() => {
@@ -586,7 +596,7 @@ function CustomTransformHandles({ target, children }: { target: ElementType; chi
     )
   }
   return (
-    <SelectablePivotHandles target={target} apply={apply} ref={targetRef}>
+    <SelectablePivotHandles size={size} target={target} apply={apply} ref={targetRef}>
       {children}
     </SelectablePivotHandles>
   )
@@ -594,8 +604,13 @@ function CustomTransformHandles({ target, children }: { target: ElementType; chi
 
 const SelectablePivotHandles = forwardRef<
   Group,
-  { target: ElementType; apply?: (state: HandleState<unknown>, target: Object3D) => unknown; children?: ReactNode }
->(({ children, apply, target }, ref) => {
+  {
+    size?: number
+    target: ElementType
+    apply?: (state: HandleState<unknown>, target: Object3D) => unknown
+    children?: ReactNode
+  }
+>(({ children, size, apply, target }, ref) => {
   const isSelected = useSceneStore((state) => state.selected === target)
   const groupRef = useRef<Group>(null)
   useHover(groupRef, (hover, e) => {
@@ -606,6 +621,7 @@ const SelectablePivotHandles = forwardRef<
   return (
     <group ref={groupRef} onClick={() => useSceneStore.setState({ selected: target })}>
       <PivotHandles
+        size={size}
         enabled={isSelected}
         apply={(state, target) => applyWithAudioEffect(state, target, apply)}
         ref={ref}

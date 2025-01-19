@@ -16,8 +16,9 @@ export function defaultOrbitHandlesScreenCameraApply(
   update: Partial<ScreenCameraState>,
   store: StoreApi<ScreenCameraState>,
 ) {
-  if (update.rotationX != null) {
-    update.rotationX = clamp(update.rotationX, -Math.PI / 2, Math.PI / 2)
+  if (update.pitch != null) {
+    console.log(update.pitch)
+    update.pitch = clamp(update.pitch, -Math.PI / 2, Math.PI / 2)
   }
   store.setState(update)
 }
@@ -84,4 +85,7 @@ export class OrbitHandles {
   }
 }
 
+/**
+ * @deprecated use OrbitHandles instead
+ */
 export const OrbitControls = OrbitHandles
