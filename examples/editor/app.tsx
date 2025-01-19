@@ -54,7 +54,13 @@ import {
   BackSide,
 } from 'three'
 import { create } from 'zustand'
-import { defaultApply, defaultOrbitHandlesScreenCameraApply, HandleState, HandleStore } from '@pmndrs/handle'
+import {
+  applyDampedScreenCameraState,
+  defaultApply,
+  defaultOrbitHandlesScreenCameraApply,
+  HandleState,
+  HandleStore,
+} from '@pmndrs/handle'
 import { damp } from 'three/src/math/MathUtils.js'
 import { getVoidObject, PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 import { CopyPass, EffectComposer, RenderPass, ShaderPass } from 'postprocessing'
@@ -132,7 +138,7 @@ export function App() {
           <group pointerEventsType={{ deny: 'touch' }}>
             <AudioEffects />
             <PointerEvents />
-            <OrbitHandles />
+            <OrbitHandles damping />
             <XROrigin position={[0, -1, 0.5]} />
             <HandleTarget>
               <Scene isNotInRT />
@@ -304,7 +310,7 @@ function Screen() {
               >
                 <NotInXR>
                   <color attach="background" args={['white']} />
-                  <OrbitHandles store={cameraStore} />
+                  <OrbitHandles damping store={cameraStore} />
                   <Scene />
                 </NotInXR>
               </XRLayer>
@@ -361,16 +367,16 @@ function Screen() {
 
 function CameraHelper() {
   const ref = useRef<Object3D>(null)
-  useEffect(() => {
-    const fn = (state: ScreenCameraStateAndFunctions) => {
-      if (ref.current == null) {
-        return
-      }
-      state.getCameraTransformation(ref.current.position, ref.current.quaternion)
-    }
-    fn(cameraStore.getState())
-    return cameraStore.subscribe(fn)
-  }, [])
+  const update = useMemo(
+    () =>
+      applyDampedScreenCameraState(
+        cameraStore,
+        () => ref.current,
+        () => true,
+      ),
+    [],
+  )
+  useFrame((_, dt) => update(dt * 1000))
   const cameraGeometry = (useGLTF('camera.glb').scene.children[0] as Mesh).geometry
   const hoverTargetRef = useRef<Mesh>(null)
   return (

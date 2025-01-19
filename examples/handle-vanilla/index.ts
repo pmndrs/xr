@@ -48,19 +48,21 @@ const canvas = document.getElementById('root') as HTMLCanvasElement
 
 //orbit (controls)
 const orbit = new OrbitHandles(canvas, camera)
-orbit.bind(scene)
+orbit.bind(scene, true)
 
 const { update: updateForwardHtmlEvents } = forwardHtmlEvents(canvas, () => camera, scene)
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
 
+let prevTime: number | undefined
 renderer.setAnimationLoop((time) => {
+  const deltaTime = prevTime == null ? 0 : time - prevTime
+  prevTime = time
   updateForwardHtmlEvents()
-  orbit.update()
+  orbit.update(deltaTime)
   pivot.update(time, camera)
   transform.update(time, camera)
   renderer.render(scene, camera)
-  console.log(...camera.getWorldPosition(new Vector3()).toArray())
 })
 
 function updateSize() {

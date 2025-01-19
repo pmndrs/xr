@@ -1,7 +1,9 @@
 import { Camera, Euler, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { damp } from 'three/src/math/MathUtils.js'
 import { createStore, StoreApi } from 'zustand/vanilla'
 
 const zAxis = new Vector3(0, 0, 1)
+const yAxis = new Vector3(0, 1, 0)
 
 export function defaultScreenCameraApply(update: Partial<ScreenCameraState>, store: StoreApi<ScreenCameraState>) {
   store.setState(update)
@@ -27,11 +29,11 @@ export type ScreenCameraStateAndFunctions = ScreenCameraState & {
 
 function computeOriginToCameraOffset(
   target: Vector3,
-  state: ScreenCameraState,
+  cameraDistanceToOrigin: number,
   cameraRotation: Euler,
   zToUp: Quaternion,
 ): void {
-  target.copy(zAxis).applyEuler(cameraRotation).applyQuaternion(zToUp).multiplyScalar(state.distance)
+  target.copy(zAxis).applyEuler(cameraRotation).applyQuaternion(zToUp).multiplyScalar(cameraDistanceToOrigin)
 }
 
 function buildCameraPositionUpdate(
@@ -57,11 +59,36 @@ function buildCameraPositionUpdate(
 
 const offsetHelper = new Vector3()
 
+const zToUpHelper = new Quaternion()
+
+export function computeScreenCameraStoreTransformation(
+  pitch: number,
+  yaw: number,
+  cameraDistanceToOrigin: number,
+  origin: Readonly<Vector3Tuple>,
+  position?: Vector3,
+  rotation?: Quaternion,
+  up = Object3D.DEFAULT_UP,
+) {
+  zToUpHelper.setFromUnitVectors(yAxis, up)
+  eHelper.set(pitch, yaw, 0, 'YXZ')
+  if (position != null) {
+    computeOriginToCameraOffset(position, cameraDistanceToOrigin, eHelper, zToUpHelper)
+    const [x, y, z] = origin
+    position.x += x
+    position.y += y
+    position.z += z
+  }
+  if (rotation != null) {
+    rotation.setFromEuler(eHelper).premultiply(zToUpHelper)
+  }
+}
+
 export function createScreenCameraStore(
   { distance = 5, origin = [0, 0, 0], pitch: rotationX = 0, yaw: rotationY = 0 }: Partial<ScreenCameraState> = {},
   up = Object3D.DEFAULT_UP,
 ) {
-  const upToZ = new Quaternion().setFromUnitVectors(up, new Vector3(0, 1, 0))
+  const upToZ = new Quaternion().setFromUnitVectors(up, yAxis)
   const zToUp = upToZ.clone().invert()
   return createStore<ScreenCameraStateAndFunctions>((set, get) => ({
     distance,
@@ -70,18 +97,8 @@ export function createScreenCameraStore(
     yaw: rotationY,
     activeHandle: undefined,
     getCameraTransformation(position, rotation) {
-      const state = get()
-      eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
-      if (position != null) {
-        computeOriginToCameraOffset(position, state, eHelper, zToUp)
-        const [x, y, z] = state.origin
-        position.x += x
-        position.y += y
-        position.z += z
-      }
-      if (rotation != null) {
-        rotation.setFromEuler(eHelper).premultiply(zToUp)
-      }
+      const { pitch, distance, yaw, origin } = get()
+      computeScreenCameraStoreTransformation(pitch, yaw, distance, origin, position, rotation, up)
     },
     setCameraPosition(x, y, z, keepOffsetToOrigin) {
       const update: Partial<ScreenCameraState> = {}
@@ -89,7 +106,7 @@ export function createScreenCameraStore(
       if (keepOffsetToOrigin === true) {
         const state = get()
         eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
-        computeOriginToCameraOffset(offsetHelper, state, eHelper, zToUp)
+        computeOriginToCameraOffset(offsetHelper, state.distance, eHelper, zToUp)
         offsetHelper.x -= x
         offsetHelper.y -= y
         offsetHelper.z -= z
@@ -105,7 +122,7 @@ export function createScreenCameraStore(
       if (keepOffsetToCamera === true) {
         const state = get()
         eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
-        computeOriginToCameraOffset(offsetHelper, state, eHelper, zToUp)
+        computeOriginToCameraOffset(offsetHelper, state.distance, eHelper, zToUp)
         offsetHelper.x += x
         offsetHelper.y += y
         offsetHelper.z += z
@@ -116,12 +133,66 @@ export function createScreenCameraStore(
   }))
 }
 
-//TODO: enable damping
-export function applyScreenCameraState(store: StoreApi<ScreenCameraStateAndFunctions>, getCamera: () => Camera) {
+export function applyScreenCameraState(
+  store: StoreApi<ScreenCameraStateAndFunctions>,
+  getTarget: () => Object3D | undefined | null,
+) {
   const fn = (state: ScreenCameraStateAndFunctions) => {
-    const camera = getCamera()
-    state.getCameraTransformation(camera.position, camera.quaternion)
+    const target = getTarget()
+    if (target == null) {
+      return
+    }
+    state.getCameraTransformation(target.position, target.quaternion)
   }
   fn(store.getState())
   return store.subscribe(fn)
+}
+
+export function applyDampedScreenCameraState(
+  store: StoreApi<ScreenCameraStateAndFunctions>,
+  getTarget: () => Object3D | undefined | null,
+  getDamping: () => number | boolean,
+  up = Object3D.DEFAULT_UP,
+) {
+  let {
+    distance,
+    yaw,
+    origin: [originX, originY, originZ],
+    pitch,
+  } = store.getState()
+
+  return (deltaTime: number) => {
+    let damping = getDamping()
+    if (damping === false) {
+      return
+    }
+    if (damping === true) {
+      damping = 0.01
+    }
+    const {
+      distance: targetDistance,
+      yaw: targetYaw,
+      origin: [targetOriginX, targetOriginY, targetOriginZ],
+      pitch: targetPitch,
+    } = store.getState()
+    distance = damp(distance, targetDistance, damping, deltaTime)
+    yaw = damp(yaw, targetYaw, damping, deltaTime)
+    pitch = damp(pitch, targetPitch, damping, deltaTime)
+    originX = damp(originX, targetOriginX, damping, deltaTime)
+    originY = damp(originY, targetOriginY, damping, deltaTime)
+    originZ = damp(originZ, targetOriginZ, damping, deltaTime)
+    const target = getTarget()
+    if (target == null) {
+      return
+    }
+    computeScreenCameraStoreTransformation(
+      pitch,
+      yaw,
+      distance,
+      [originX, originY, originZ],
+      target.position,
+      target.quaternion,
+      up,
+    )
+  }
 }

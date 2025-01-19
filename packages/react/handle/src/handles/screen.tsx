@@ -1,4 +1,5 @@
 import {
+  applyDampedScreenCameraState,
   applyScreenCameraState,
   defaultMapHandlesScreenCameraApply,
   defaultOrbitHandlesScreenCameraApply,
@@ -14,6 +15,7 @@ import { useRef, useCallback, useMemo, useEffect } from 'react'
 import type { StoreApi } from 'zustand'
 
 export type ScreenHandlesProperties = {
+  damping?: boolean | number
   camera?: Camera
   rotate?: { speed?: number; filter?: typeof filterForOnePointerLeftClick } | boolean
   zoom?: { speed?: number; filter?: typeof filterForOnePointerLeftClick } | boolean
@@ -28,7 +30,16 @@ function useScreenHandles(
   defaultRotateFilter: typeof filterForOnePointerLeftClick,
   defaultPanFilter: typeof filterForOnePointerLeftClick,
   defaultRotateCustomApply: typeof defaultOrbitHandlesScreenCameraApply,
-  { apply, rotate, zoom, pan, store: providedStore, camera: providedCamera, enabled = true }: ScreenHandlesProperties,
+  {
+    apply,
+    rotate,
+    zoom,
+    pan,
+    store: providedStore,
+    camera: providedCamera,
+    damping,
+    enabled = true,
+  }: ScreenHandlesProperties,
 ) {
   const fiberStore = useStore()
   const cameraRef = useRef(providedCamera)
@@ -40,9 +51,9 @@ function useScreenHandles(
     [canvas, HandlesClass, getCamera, providedStore],
   )
 
-  useApplyScreenCameraState(handles.getStore(), enabled, providedCamera)
+  useApplyScreenCameraState(handles.getStore(), enabled, damping, providedCamera)
 
-  useFrame(() => handles.update())
+  useFrame((_, deltaTime) => handles.update(deltaTime * 1000))
   const scene = useThree((s) => s.scene)
   //pan
   const panEnabled = enabled && (typeof pan === 'boolean' ? pan : true)
@@ -69,13 +80,25 @@ function useScreenHandles(
 export function useApplyScreenCameraState(
   store: StoreApi<ScreenCameraStateAndFunctions>,
   enabled: boolean = true,
+  damping: boolean | number = false,
   camera?: Camera,
 ) {
   const fiberStore = useStore()
   const cameraRef = useRef(camera)
   cameraRef.current = camera
   const getCamera = useCallback(() => cameraRef.current ?? fiberStore.getState().camera, [fiberStore])
-  useEffect(() => (enabled ? applyScreenCameraState(store, getCamera) : undefined), [enabled, getCamera, store])
+  const dampingEnabled = damping !== false
+  useEffect(
+    () => (enabled && !dampingEnabled ? applyScreenCameraState(store, getCamera) : undefined),
+    [dampingEnabled, enabled, getCamera, store],
+  )
+  const dampingRef = useRef(damping)
+  dampingRef.current = damping
+  const update = useMemo(
+    () => applyDampedScreenCameraState(store, getCamera, () => dampingRef.current),
+    [store, getCamera],
+  )
+  useFrame((_, deltaTime) => update(deltaTime * 1000))
 }
 
 export const useMapHandles = useScreenHandles.bind(

@@ -5,6 +5,7 @@ import { filterForOnePointerLeftClick, filterForOnePointerRightClickOrTwoPointer
 import { OrthographicCamera, PerspectiveCamera, Scene, Vector3 } from 'three'
 import { StoreApi } from 'zustand'
 import {
+  applyDampedScreenCameraState,
   applyScreenCameraState,
   createScreenCameraStore,
   ScreenCameraState,
@@ -32,6 +33,8 @@ export class OrbitHandles {
 
   private readonly store: StoreApi<ScreenCameraStateAndFunctions>
   private readonly getCamera: () => PerspectiveCamera | OrthographicCamera
+  private updateDamping: (deltaTime: number) => void
+  private damping: boolean | number = false
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -45,6 +48,7 @@ export class OrbitHandles {
     }
     this.store = store
     this.getCamera = typeof camera === 'function' ? camera : () => camera
+    this.updateDamping = applyDampedScreenCameraState(store, this.getCamera, () => this.damping)
     this.rotate = new RotateScreenHandleStore(
       store,
       this.getCamera,
@@ -65,22 +69,27 @@ export class OrbitHandles {
     return this.store
   }
 
-  update(): void {
+  update(deltaTime: number): void {
     this.rotate.update()
     this.pan.update()
     this.zoom.update()
+    this.updateDamping(deltaTime)
   }
 
-  bind(scene: Scene) {
+  bind(scene: Scene, damping: boolean | number = false) {
     const unbindRotate = this.rotate.bind(scene)
     const unbindPan = this.pan.bind(scene)
     const unbindZoom = this.zoom.bind(scene)
-    const unsubscribeCamera = applyScreenCameraState(this.store, this.getCamera)
+    let unsubscribeCamera: (() => void) | undefined
+    if (damping === false) {
+      unsubscribeCamera = applyScreenCameraState(this.store, this.getCamera)
+    }
+    this.damping = damping
     return () => {
       unbindRotate()
       unbindPan()
       unbindZoom()
-      unsubscribeCamera()
+      unsubscribeCamera?.()
     }
   }
 }
