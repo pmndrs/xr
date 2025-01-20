@@ -45,7 +45,7 @@ export function App() {
 }
 ```
 
-# [Documentation](https://pmndrs.github.io/xr/docs/handles/)
+# [Documentation](https://pmndrs.github.io/xr/docs/handles/introduction)
 
 ## Sponsors
 
