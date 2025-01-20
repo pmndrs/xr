@@ -8,9 +8,10 @@ import {
   XR,
   XROrigin,
 } from '@react-three/xr'
-import { Environment } from '@react-three/drei'
+import { Environment, Sky } from '@react-three/drei'
 import { Door } from './door.js'
 import { Spaceship } from './spaceship.js'
+import { Ship } from './ship.js'
 import { OrbitHandles } from '@react-three/handle'
 import { useRef } from 'react'
 import { Group } from 'three'
@@ -25,11 +26,11 @@ export function App() {
       <Canvas camera={{ position: [1, 1, 1] }} events={noEvents} style={{ width: '100%', flexGrow: 1 }}>
         <PointerEvents />
         <OrbitHandles />
+        <Sky />
         <XR store={store}>
           <Locomotion />
           <Environment preset="city" />
-          <Door scale={0.01} />
-          <Spaceship scale={1.5} position-y={-2.7} position-z={-1} />
+          <Ship frustumCulled={false} scale={3} />
         </XR>
       </Canvas>
     </>
@@ -39,5 +40,5 @@ export function App() {
 function Locomotion() {
   const ref = useRef<Group>(null)
   useXRControllerLocomotion(ref)
-  return <XROrigin ref={ref} />
+  return <XROrigin position-x={6} position-y={4.7} ref={ref} />
 }

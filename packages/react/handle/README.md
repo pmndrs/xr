@@ -45,6 +45,8 @@ export function App() {
 }
 ```
 
+# [Documentation](https://pmndrs.github.io/xr/docs/handles/)
+
 ## Sponsors
 
 This project is supported by a few companies and individuals building cutting-edge 3D Web & XR experiences. Check them out!

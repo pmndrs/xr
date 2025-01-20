@@ -27,7 +27,7 @@ export const Handle = forwardRef<
     handleRef?: RefObject<Object3D>
     useTargetFromContext?: boolean
     getHandleOptions?: () => HandleOptions<unknown>
-  } & HandleOptions<unknown>
+  } & Omit<HandleOptions<unknown>, 'handle'>
 >(({ children, handleRef: providedHandleRef, useTargetFromContext = false, getHandleOptions, ...props }, ref) => {
   const handleRef = useRef<Group>(null)
   let contextHandleTargetRef = useContext(HandleTargetRefContext)

@@ -66,7 +66,8 @@ export function App() {
 ## Tutorials
 
 - 💾 [Store](https://docs.pmnd.rs/xr/tutorials/store)
-- 👌 [Interactions](https://docs.pmnd.rs/xr/tutorials/interactions)
+- 👆 [Interactions](https://docs.pmnd.rs/xr/tutorials/interactions)
+- 👌 [Handles](https://docs.pmnd.rs/xr/tutorials/handles)
 - 🔧 [Options](https://docs.pmnd.rs/xr/tutorials/options)
 - 🧊 [Object Detection](https://docs.pmnd.rs/xr/tutorials/object-detection)
 - ✴ [Origin](https://docs.pmnd.rs/xr/tutorials/origin)
@@ -79,6 +80,10 @@ export function App() {
 - 📱 [Dom Overlays](https://docs.pmnd.rs/xr/tutorials/dom-overlay)
 - 🎯 [Hit Test](https://docs.pmnd.rs/xr/tutorials/hit-test)
 - ⛨ [Guards](https://docs.pmnd.rs/xr/tutorials/guards)
+
+## External Tutorials
+
+- 🥇 [**WebXR First Steps React** by Meta Quest](https://github.com/meta-quest/webxr-first-steps-react)
 
 ## Roadmap
 
