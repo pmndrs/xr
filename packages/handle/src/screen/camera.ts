@@ -1,4 +1,4 @@
-import { ArrayCamera, Camera, Euler, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { ArrayCamera, Euler, Object3D, Quaternion, Vector3, Vector3Tuple } from 'three'
 import { damp } from 'three/src/math/MathUtils.js'
 import { createStore, StoreApi } from 'zustand/vanilla'
 
@@ -57,7 +57,7 @@ function buildCameraPositionUpdate(
   update.yaw = eHelper.y
 }
 
-const offsetHelper = new Vector3()
+const vectorHelper = new Vector3()
 
 const zToUpHelper = new Quaternion()
 
@@ -100,33 +100,29 @@ export function createScreenCameraStore(
       const { pitch, distance, yaw, origin } = get()
       computeScreenCameraStoreTransformation(pitch, yaw, distance, origin, position, rotation, up)
     },
-    setCameraPosition(x, y, z, keepOffsetToOrigin) {
+    setCameraPosition(x, y, z, keepOffsetToOrigin = false) {
       const update: Partial<ScreenCameraState> = {}
       buildCameraPositionUpdate(update, x, y, z, get().origin, upToZ)
       if (keepOffsetToOrigin === true) {
         const state = get()
         eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
-        computeOriginToCameraOffset(offsetHelper, state.distance, eHelper, zToUp)
-        offsetHelper.x -= x
-        offsetHelper.y -= y
-        offsetHelper.z -= z
-        update.origin = offsetHelper.toArray()
+        computeOriginToCameraOffset(vectorHelper, state.distance, eHelper, zToUp)
+        vectorHelper.x -= x
+        vectorHelper.y -= y
+        vectorHelper.z -= z
+        update.origin = vectorHelper.toArray()
       }
       set(update)
     },
-    setOriginPosition(x, y, z, keepOffsetToCamera) {
+    setOriginPosition(x, y, z, keepOffsetToCamera = false) {
       const origin: Vector3Tuple = [x, y, z]
       const update: Partial<ScreenCameraState> = {
         origin,
       }
-      if (keepOffsetToCamera === true) {
-        const state = get()
-        eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
-        computeOriginToCameraOffset(offsetHelper, state.distance, eHelper, zToUp)
-        offsetHelper.x += x
-        offsetHelper.y += y
-        offsetHelper.z += z
-        buildCameraPositionUpdate(update, offsetHelper.x, offsetHelper.y, offsetHelper.z, origin, upToZ)
+      if (keepOffsetToCamera === false) {
+        const { pitch, distance, origin: oldOrigin, yaw } = get()
+        computeScreenCameraStoreTransformation(pitch, yaw, distance, oldOrigin, vectorHelper, undefined, up)
+        buildCameraPositionUpdate(update, vectorHelper.x, vectorHelper.y, vectorHelper.z, origin, upToZ)
       }
       set(update)
     },
