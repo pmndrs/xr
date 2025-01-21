@@ -31,9 +31,9 @@ function computeOriginToCameraOffset(
   target: Vector3,
   cameraDistanceToOrigin: number,
   cameraRotation: Euler,
-  zToUp: Quaternion,
+  yToUp: Quaternion,
 ): void {
-  target.copy(zAxis).applyEuler(cameraRotation).applyQuaternion(zToUp).multiplyScalar(cameraDistanceToOrigin)
+  target.copy(zAxis).applyEuler(cameraRotation).applyQuaternion(yToUp).multiplyScalar(cameraDistanceToOrigin)
 }
 
 function buildCameraPositionUpdate(
@@ -42,12 +42,12 @@ function buildCameraPositionUpdate(
   y: number,
   z: number,
   origin: Readonly<Vector3Tuple>,
-  upToZ: Quaternion,
+  upToY: Quaternion,
 ): void {
   v1Helper.set(x, y, z)
   v2Helper.set(...origin)
   v1Helper.sub(v2Helper)
-  v1Helper.applyQuaternion(upToZ)
+  v1Helper.applyQuaternion(upToY)
   const distance = v1Helper.length()
   v1Helper.divideScalar(distance)
   qHelper.setFromUnitVectors(zAxis, v1Helper)
@@ -59,7 +59,8 @@ function buildCameraPositionUpdate(
 
 const vectorHelper = new Vector3()
 
-const zToUpHelper = new Quaternion()
+const yToUpHelper = new Quaternion()
+const upToYHelper = new Quaternion()
 
 export function computeScreenCameraStoreTransformation(
   pitch: number,
@@ -70,17 +71,17 @@ export function computeScreenCameraStoreTransformation(
   rotation?: Quaternion,
   up = Object3D.DEFAULT_UP,
 ) {
-  zToUpHelper.setFromUnitVectors(yAxis, up)
+  yToUpHelper.setFromUnitVectors(yAxis, up)
   eHelper.set(pitch, yaw, 0, 'YXZ')
   if (position != null) {
-    computeOriginToCameraOffset(position, cameraDistanceToOrigin, eHelper, zToUpHelper)
+    computeOriginToCameraOffset(position, cameraDistanceToOrigin, eHelper, yToUpHelper)
     const [x, y, z] = origin
     position.x += x
     position.y += y
     position.z += z
   }
   if (rotation != null) {
-    rotation.setFromEuler(eHelper).premultiply(zToUpHelper)
+    rotation.setFromEuler(eHelper).premultiply(yToUpHelper)
   }
 }
 
@@ -88,8 +89,6 @@ export function createScreenCameraStore(
   { distance = 5, origin = [0, 0, 0], pitch: rotationX = 0, yaw: rotationY = 0 }: Partial<ScreenCameraState> = {},
   up = Object3D.DEFAULT_UP,
 ) {
-  const upToZ = new Quaternion().setFromUnitVectors(up, yAxis)
-  const zToUp = upToZ.clone().invert()
   return createStore<ScreenCameraStateAndFunctions>((set, get) => ({
     distance,
     origin,
@@ -102,11 +101,13 @@ export function createScreenCameraStore(
     },
     setCameraPosition(x, y, z, keepOffsetToOrigin = false) {
       const update: Partial<ScreenCameraState> = {}
-      buildCameraPositionUpdate(update, x, y, z, get().origin, upToZ)
+      upToYHelper.setFromUnitVectors(up, yAxis)
+      buildCameraPositionUpdate(update, x, y, z, get().origin, upToYHelper)
       if (keepOffsetToOrigin === true) {
         const state = get()
         eHelper.set(state.pitch, state.yaw, 0, 'YXZ')
-        computeOriginToCameraOffset(vectorHelper, state.distance, eHelper, zToUp)
+        yToUpHelper.setFromUnitVectors(yAxis, up)
+        computeOriginToCameraOffset(vectorHelper, state.distance, eHelper, yToUpHelper)
         vectorHelper.x -= x
         vectorHelper.y -= y
         vectorHelper.z -= z
@@ -122,7 +123,8 @@ export function createScreenCameraStore(
       if (keepOffsetToCamera === false) {
         const { pitch, distance, origin: oldOrigin, yaw } = get()
         computeScreenCameraStoreTransformation(pitch, yaw, distance, oldOrigin, vectorHelper, undefined, up)
-        buildCameraPositionUpdate(update, vectorHelper.x, vectorHelper.y, vectorHelper.z, origin, upToZ)
+        upToYHelper.setFromUnitVectors(up, yAxis)
+        buildCameraPositionUpdate(update, vectorHelper.x, vectorHelper.y, vectorHelper.z, origin, upToYHelper)
       }
       set(update)
     },
