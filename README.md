@@ -67,7 +67,7 @@ export function App() {
 
 - 💾 [Store](https://docs.pmnd.rs/xr/tutorials/store)
 - 👆 [Interactions](https://docs.pmnd.rs/xr/tutorials/interactions)
-- 👌 [Handles](https://docs.pmnd.rs/xr/tutorials/handles)
+- 👌 [Handles](https://docs.pmnd.rs/xr/handles/introduction)
 - 🔧 [Options](https://docs.pmnd.rs/xr/tutorials/options)
 - 🧊 [Object Detection](https://docs.pmnd.rs/xr/tutorials/object-detection)
 - ✴ [Origin](https://docs.pmnd.rs/xr/tutorials/origin)
