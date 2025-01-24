@@ -143,7 +143,7 @@ export function App() {
             <HandleTarget>
               <Scene isNotInRT />
 
-              <HandleWithAudio useTargetFromContext scale={false} multitouch={false} rotate={false}>
+              <HandleWithAudio targetRef="from-context" scale={false} multitouch={false} rotate={false}>
                 <Hover>
                   {(hovered) => (
                     <RoundedBox position-x={0.35} position-y={-0.05} args={[0.2, 0.2, 2]} scale={hovered ? 0.125 : 0.1}>
@@ -159,7 +159,7 @@ export function App() {
               </HandleWithAudio>
 
               <HandleWithAudio
-                useTargetFromContext
+                targetRef="from-context"
                 scale={{ uniform: true }}
                 multitouch={false}
                 translate="as-rotate-and-scale"
@@ -315,7 +315,7 @@ function Screen() {
                 </NotInXR>
               </XRLayer>
               <HandleWithAudio
-                useTargetFromContext
+                targetRef="from-context"
                 translate="as-scale"
                 apply={(state, target) => {
                   defaultApply(state, target)
@@ -345,7 +345,7 @@ function Screen() {
               </HandleWithAudio>
             </HandleTarget>
           </group>
-          <HandleWithAudio useTargetFromContext ref={storeRef} scale={false} multitouch={false} rotate={false}>
+          <HandleWithAudio targetRef="from-context" ref={storeRef} scale={false} multitouch={false} rotate={false}>
             <Hover>
               {(hovered) => (
                 <RoundedBox scale={hovered ? 0.125 : 0.1} args={[2, 0.2, 0.2]}>
@@ -385,7 +385,7 @@ function CameraHelper() {
         {(hovered) => (
           <>
             <HandleWithAudio
-              useTargetFromContext
+              targetRef="from-context"
               apply={(state) => cameraStore.getState().setCameraPosition(...state.current.position.toArray())}
               scale={false}
               multitouch={false}
@@ -471,7 +471,7 @@ function Scene({ isNotInRT = false }: { isNotInRT?: boolean }) {
               {isNotInRT && (
                 <>
                   <HandleWithAudio
-                    useTargetFromContext
+                    targetRef="from-context"
                     apply={(state) => useSceneStore.setState({ lightPosition: state.current.position.toArray() })}
                     scale={false}
                     multitouch={false}
@@ -595,7 +595,7 @@ function CustomTransformHandles({
   if (isInXR) {
     return (
       <HandleTarget ref={targetRef}>
-        <HandleWithAudio useTargetFromContext apply={apply}>
+        <HandleWithAudio targetRef="from-context" apply={apply}>
           {children}
         </HandleWithAudio>
       </HandleTarget>

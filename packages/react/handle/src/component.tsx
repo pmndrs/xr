@@ -41,7 +41,7 @@ export const Handle = forwardRef<
   if (targetRef === 'from-context') {
     if (contextHandleTargetRef == null) {
       throw new Error(
-        `no HandleTarget found in the context of this handle while 'useTargetFromContext' is set. Either wrap the Handle in a <HandleTarget> or remove the 'useTargetFromContext' flag.`,
+        `no HandleTarget found in the context of this handle while 'targetRef="from-context"' is set. Either wrap the Handle in a <HandleTarget> or remove the 'targetRef="from-context"' property or set it to an ref.`,
       )
     }
     targetRef = contextHandleTargetRef

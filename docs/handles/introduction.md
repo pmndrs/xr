@@ -27,7 +27,7 @@ export function Door() {
           <mesh geometry={nodes.Plane001_Glossy_0.geometry} material={materials.Glossy} />
           <mesh geometry={nodes.Plane001_Door_0.geometry} material={materials.Door} />
           <mesh geometry={nodes.Plane003_Door_0.geometry} material={materials.Door} position={[0.852, 0.017, 0.782]} />
-          <Handle useTargetFromContext translate="as-rotate" rotate={{ x: false, y: false, z: [-Math.PI, 0] }}>
+          <Handle targetRef="from-context" translate="as-rotate" rotate={{ x: false, y: false, z: [-Math.PI, 0] }}>
             <group position={[0.81, 0.043, 0.803]}>
               <mesh geometry={nodes.Circle002_Glossy_0.geometry} material={materials.Glossy} />
             </group>
@@ -41,7 +41,7 @@ export function Door() {
 }
 ```
 
-Next, we need to configure the handle to rotate the door when grabbed. We instruct it to use the target from the context using `useTargetFromContext`, making sure the transformations are applied to the door body. Additionally, we ensure that moving the handle is translated into a rotation using the `translate="as-rotate"` property. Lastly, we disable rotations on all axes except for the `z` axis and limit the rotation between -180° and 0°.
+Next, we need to configure the handle to rotate the door when grabbed. We instruct it to use the target from the context using `targetRef="from-context"`, making sure the transformations are applied to the door body. Additionally, we ensure that moving the handle is translated into a rotation using the `translate="as-rotate"` property. Lastly, we disable rotations on all axes except for the `z` axis and limit the rotation between -180° and 0°.
 
 *Learn more about all the available properties for the handle component [here](./handle-component.md).*
 

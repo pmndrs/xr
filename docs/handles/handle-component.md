@@ -41,8 +41,8 @@ Normally, an interaction is canceled when the user releases the button that star
 **handleRef**  
 Allows overriding to pass a custom handle object.
 
-**useTargetFromContext**  
-Required to use the target provided by a surrounding `HandleTarget` component.
+**targetRef**  
+Allows to pass in a ref to an object that should be the target of the handle. Alternatively `targetRef` can be set to `"from-context"` use the target provided by a surrounding `HandleTarget` component.
 
 **getHandleOptions**  
 Allows passing a function that dynamically generates options to override the current handle options.
@@ -76,7 +76,7 @@ Allows retrieval of a reference to the internal handle store (`<Handle ref={hand
 
 ## Handle Target Component
 
-The `HandleTarget` component allows declaratively specifying a handle target that is hierarchically above the `Handle` component. To prevent accidentally providing a different target to a handle, using the target from the context requires setting the `useTargetFromContext` on the `Handle` component.
+The `HandleTarget` component allows declaratively specifying a handle target that is hierarchically above the `Handle` component. To prevent accidentally providing a different target to a handle, using the target from the context requires setting `targetRef="from-context"` on the `Handle` component.
 
 **Example**
 ```tsx
@@ -84,7 +84,7 @@ The `HandleTarget` component allows declaratively specifying a handle target tha
     <group>
         <mesh>
             <boxGeometry />
-            <Handle useTargetFromContext>
+            <Handle targetRef="from-context">
                 <mesh position-x={2}>  
                     <boxGeometry />
                 </mesh>
