@@ -25,21 +25,28 @@ export const Handle = forwardRef<
   {
     children?: ReactNode
     handleRef?: RefObject<Object3D>
+    targetRef?: 'from-context' | RefObject<Object3D>
+    /**
+     * @deprecated use `targetRef="from-context"` instead
+     */
     useTargetFromContext?: boolean
     getHandleOptions?: () => HandleOptions<unknown>
   } & Omit<HandleOptions<unknown>, 'handle'>
->(({ children, handleRef: providedHandleRef, useTargetFromContext = false, getHandleOptions, ...props }, ref) => {
+>(({ children, handleRef: providedHandleRef, useTargetFromContext, targetRef, getHandleOptions, ...props }, ref) => {
   const handleRef = useRef<Group>(null)
   let contextHandleTargetRef = useContext(HandleTargetRefContext)
-  if (useTargetFromContext && contextHandleTargetRef == null) {
-    throw new Error(
-      `no HandleTarget found in the context of this handle while 'useTargetFromContext' is set. Either wrap the Handle in a <HandleTarget> or remove the 'useTargetFromContext' flag.`,
-    )
+  if (useTargetFromContext === true) {
+    targetRef = 'from-context'
   }
-  if (!useTargetFromContext) {
-    contextHandleTargetRef = undefined
+  if (targetRef === 'from-context') {
+    if (contextHandleTargetRef == null) {
+      throw new Error(
+        `no HandleTarget found in the context of this handle while 'useTargetFromContext' is set. Either wrap the Handle in a <HandleTarget> or remove the 'useTargetFromContext' flag.`,
+      )
+    }
+    targetRef = contextHandleTargetRef
   }
-  const handleTargetRef = contextHandleTargetRef ?? providedHandleRef ?? handleRef
+  const handleTargetRef = targetRef ?? providedHandleRef ?? handleRef
   const store = useHandle(
     handleTargetRef,
     {
