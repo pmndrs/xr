@@ -95,6 +95,8 @@ export class HandleStateImpl<T> implements HandleState<T> {
     this.first = true
     this.last = false
     this.memo = undefined
+    this._delta = undefined
+    this._offset = undefined
   }
 
   update(event: PointerEvent | undefined, current: HandleTransformState) {
@@ -103,13 +105,16 @@ export class HandleStateImpl<T> implements HandleState<T> {
     this.current = current
     this.first = false
     this.last = false
+    this._delta = undefined
+    this._offset = undefined
   }
 
   end(event: PointerEvent | undefined) {
     this.event = event
-    this.previous = this.current
     this.first = false
     this.last = true
+    this._delta = undefined
+    this._offset = undefined
   }
 
   get delta(): Omit<HandleTransformState, 'pointerAmount'> | undefined {

@@ -42,19 +42,11 @@ function PhysicsHandle({ children }: { children?: ReactNode }) {
   const ref = useRef<RapierRigidBody>(null)
   const groupRef = useRef<Group>(null)
   const targetRef = useMemo(
-    () =>
-      new Proxy<RefObject<Object3D>>(
-        { current: null },
-        {
-          get() {
-            return groupRef.current?.parent
-          },
-        },
-      ),
+    () => new Proxy<RefObject<Object3D>>({ current: null }, { get: () => groupRef.current?.parent }),
     [],
   )
   return (
-    <RigidBody ref={ref} colliders="trimesh" position={[0, 1, 0]}>
+    <RigidBody ref={ref} colliders="trimesh" type="dynamic" position={[0, 1, 0]}>
       <group ref={groupRef}>
         <Handle
           multitouch={false}
@@ -66,22 +58,20 @@ function PhysicsHandle({ children }: { children?: ReactNode }) {
             if (rigidBody == null) {
               return
             }
-            if (state.first) {
-              rigidBody.setBodyType(RigidBodyType.KinematicPositionBased, true)
-            }
             if (state.last) {
               rigidBody.setBodyType(RigidBodyType.Dynamic, true)
-              /*
-              doesnt work yet. Probably because of:https://github.com/pmndrs/xr/issues/383
               if (state.delta != null) {
-                rigidBody.setLinvel(state.delta.position.clone().divideScalar(deltaTime), true)
+                const deltaTime = state.delta.time
+                const deltaPosition = state.delta.position.clone().divideScalar(deltaTime)
+                rigidBody.setLinvel(deltaPosition, true)
                 const deltaRotation = state.delta.rotation.clone()
                 deltaRotation.x /= deltaTime
                 deltaRotation.y /= deltaTime
                 deltaRotation.z /= deltaTime
                 rigidBody.setAngvel(deltaRotation, true)
-              }*/
+              }
             } else {
+              rigidBody.setBodyType(RigidBodyType.KinematicPositionBased, true)
               rigidBody.setRotation(state.current.quaternion, true)
               rigidBody.setTranslation(state.current.position, true)
             }
