@@ -28,6 +28,9 @@
     "react-dom": ">=18",
     "three": "*"
   },
+  "devDependencies": {
+    "@react-three/fiber": "rc"
+  },
   "dependencies": {
     "@pmndrs/pointer-events": "workspace:^",
     "@pmndrs/xr": "workspace:^",

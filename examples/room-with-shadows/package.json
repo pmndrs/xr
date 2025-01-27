@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@react-three/drei": "^9.108.3",
     "@react-three/xr": "workspace:^",
     "maath": "^0.10.8"
   },

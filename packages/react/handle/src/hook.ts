@@ -7,7 +7,7 @@ export type HandleOptions<T> = {
   /**
    * @default target
    */
-  handle?: RefObject<Object3D>
+  handle?: RefObject<Object3D | null>
   /**
    * set to `false` to bind the store yourself using `store.bind(handle)` or capture objects yourself using `store.capture(pointerId, handle)`
    * @default true
@@ -16,7 +16,7 @@ export type HandleOptions<T> = {
 } & BaseHandleOptions<T>
 
 export function useHandle<T>(
-  target: RefObject<Object3D>,
+  target: RefObject<Object3D | null>,
   options: HandleOptions<T> = {},
   getHandleOptions?: () => HandleOptions<T>,
 ): HandleStore<T> {

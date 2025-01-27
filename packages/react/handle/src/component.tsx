@@ -3,7 +3,7 @@ import { HandleOptions, useHandle } from './hook.js'
 import { Group, Object3D } from 'three'
 import { HandleStore } from '@pmndrs/handle'
 
-const HandleTargetRefContext = createContext<RefObject<Object3D> | undefined>(undefined)
+const HandleTargetRefContext = createContext<RefObject<Object3D | null> | undefined>(undefined)
 
 export const HandleTarget = forwardRef<Object3D, { children?: ReactNode; targetRef?: RefObject<Object3D> }>(
   ({ targetRef, children }, ref) => {
@@ -25,7 +25,7 @@ export const Handle = forwardRef<
   {
     children?: ReactNode
     handleRef?: RefObject<Object3D>
-    targetRef?: 'from-context' | RefObject<Object3D>
+    targetRef?: 'from-context' | RefObject<Object3D | null>
     /**
      * @deprecated use `targetRef="from-context"` instead
      */

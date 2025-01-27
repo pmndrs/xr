@@ -31,6 +31,9 @@
     "@pmndrs/pointer-events": "workspace:^",
     "zustand": "^4.5.2"
   },
+  "devDependencies": {
+    "@react-three/fiber": "rc"
+  },
   "scripts": {
     "build": "tsc",
     "check:prettier": "prettier --check src",

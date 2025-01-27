@@ -1,4 +1,4 @@
-import { InstancedMeshProps, useFrame } from '@react-three/fiber'
+import { ThreeElements, useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import {
   BufferGeometry,
@@ -28,7 +28,7 @@ export function Smoke({
   maxSize: number
   minSize: number
   spawnRate: number
-} & InstancedMeshProps) {
+} & Omit<ThreeElements['instancedMesh'], 'args'>) {
   const ref = useRef<InstancedMesh<BufferGeometry, MeshBasicMaterial>>(null)
   const maxLength = (count / spawnRate) * speed
   const opacityAttribute = useMemo(() => {

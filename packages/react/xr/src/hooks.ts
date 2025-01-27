@@ -3,12 +3,12 @@ import { Object3D, Object3DEventMap } from 'three'
 import { useXR } from './xr.js'
 import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 
-export function useHover(ref: RefObject<Object3D>): boolean
+export function useHover(ref: RefObject<Object3D | null>): boolean
 
-export function useHover(ref: RefObject<Object3D>, onChange: (hover: boolean, event: PointerEvent) => void): void
+export function useHover(ref: RefObject<Object3D | null>, onChange: (hover: boolean, event: PointerEvent) => void): void
 
 export function useHover(
-  ref: RefObject<Object3D>,
+  ref: RefObject<Object3D | null>,
   onChange?: (hover: boolean, event: PointerEvent) => void,
 ): boolean | undefined {
   let setHover: (hover: boolean, event: PointerEvent) => void
@@ -22,7 +22,7 @@ export function useHover(
     setHover = onChange
   }
   useEffect(() => {
-    const { current } = ref as RefObject<Object3D<PointerEventsMap & Object3DEventMap>>
+    const { current } = ref as RefObject<Object3D<PointerEventsMap & Object3DEventMap> | null>
     if (current == null) {
       return
     }

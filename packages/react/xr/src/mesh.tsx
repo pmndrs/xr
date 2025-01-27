@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useMemo, useState } from 'react'
-import { MeshProps, useFrame } from '@react-three/fiber'
+import { ThreeElements, useFrame } from '@react-three/fiber'
 import { BufferGeometry, Mesh } from 'three'
 import { updateXRMeshGeometry } from '@pmndrs/xr/internals'
 import { useXR } from './xr.js'
@@ -7,7 +7,7 @@ import { useXR } from './xr.js'
 /**
  * component for rendering a mesh for the XRMesh based on the detected mesh geometry
  */
-export const XRMeshModel = forwardRef<Mesh, MeshProps & { mesh: XRMesh }>(({ mesh, ...rest }, ref) => {
+export const XRMeshModel = forwardRef<Mesh, ThreeElements['mesh'] & { mesh: XRMesh }>(({ mesh, ...rest }, ref) => {
   const geometry = useXRMeshGeometry(mesh)
   return <mesh ref={ref} geometry={geometry} {...rest} />
 })

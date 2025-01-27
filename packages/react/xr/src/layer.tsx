@@ -17,13 +17,12 @@ import {
   addEffect,
   context,
   InjectState,
-  MeshProps,
   reconciler,
   RootState,
+  ThreeElements,
   useFrame,
   useStore,
   useThree,
-  Viewport,
 } from '@react-three/fiber'
 import {
   forwardRef,
@@ -36,13 +35,10 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useSessionFeatureEnabled } from './hooks.js'
+import { useXRSessionFeatureEnabled } from './hooks.js'
 import { useXRStore } from './xr.js'
 import {
   BufferGeometry,
-  DepthTexture,
-  HalfFloatType,
-  LinearFilter,
   Mesh,
   MeshBasicMaterial,
   OrthographicCamera,
@@ -60,7 +56,7 @@ import { forwardObjectEvents } from '@pmndrs/pointer-events'
 
 export type XRLayerProperties = XRLayerOptions &
   XRLayerDynamicProperties &
-  Omit<MeshProps, 'geometry'> & {
+  Omit<ThreeElements['mesh'], 'geometry' | 'ref'> & {
     renderPriority?: number
     children?: ReactNode
     pixelWidth?: number
@@ -90,7 +86,7 @@ export function XRLayer({
     waitForXRLayerSrcSize(src).then(() => !aborted && setHasSize(true))
     return () => void (aborted = true)
   }, [src])
-  const layersEnabled = useSessionFeatureEnabled('layers')
+  const layersEnabled = useXRSessionFeatureEnabled('layers')
   const geometry = useMemo(
     () =>
       createXRLayerGeometry(props.shape ?? 'quad', {
@@ -155,8 +151,8 @@ export const XRLayerImplementation = forwardRef<
     pixelWidth: number
     pixelHeight: number
     dpr: number
-    renderTargetRef: MutableRefObject<WebGLRenderTarget | undefined>
-    layerEntryRef: MutableRefObject<XRLayerEntry | undefined>
+    renderTargetRef: MutableRefObject<WebGLRenderTarget | undefined | null>
+    layerEntryRef: MutableRefObject<XRLayerEntry | undefined | null>
   }
 >(
   (
@@ -324,7 +320,7 @@ export const FallbackXRLayerImplementation = forwardRef<
   )
 })
 
-function useForwardEvents(store: UseBoundStore<StoreApi<RootState>>, ref: RefObject<Mesh>, deps: Array<any>) {
+function useForwardEvents(store: UseBoundStore<StoreApi<RootState>>, ref: RefObject<Mesh | null>, deps: Array<any>) {
   useEffect(() => {
     const { current } = ref
     if (current == null) {
@@ -476,8 +472,8 @@ function ChildrenToRenderTarget({
 }: {
   renderPriority: number
   children: ReactNode
-  layerEntryRef: RefObject<XRLayerEntry | undefined> | undefined
-  renderTargetRef: RefObject<WebGLRenderTarget | undefined>
+  layerEntryRef: RefObject<XRLayerEntry | undefined | null> | undefined
+  renderTargetRef: RefObject<WebGLRenderTarget | undefined | null>
   store: UseBoundStore<StoreApi<RootState>>
   customRender?: (target: WebGLRenderTarget, state: RootState, delta: number, frame: XRFrame | undefined) => void
 }) {

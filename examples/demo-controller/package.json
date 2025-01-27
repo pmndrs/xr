@@ -1,7 +1,6 @@
 {
     "dependencies": {
         "@pmndrs/xr": "workspace:^",
-        "@react-three/drei": "^9.112.0",
         "@react-three/uikit": "^0.5.3",
         "@react-three/xr": "workspace:^"
     },

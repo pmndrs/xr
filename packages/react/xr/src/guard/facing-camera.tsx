@@ -4,7 +4,7 @@ import { ReactNode, RefObject, useRef, useState } from 'react'
 import { Group, Vector3 } from 'three'
 
 function useIsFacingCamera(
-  ref: RefObject<Group>,
+  ref: RefObject<Group | null>,
   set: (show: boolean) => void,
   direction: Vector3,
   angle: number,

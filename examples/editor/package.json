@@ -2,7 +2,6 @@
   "dependencies": {
     "@pmndrs/handle": "workspace:^",
     "@pmndrs/pointer-events": "workspace:^",
-    "@react-three/drei": "^9.118.0",
     "@react-three/handle": "workspace:^",
     "@react-three/xr": "workspace:^",
     "meshline": "^3.3.1",

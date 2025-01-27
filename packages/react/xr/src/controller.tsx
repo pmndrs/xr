@@ -58,7 +58,7 @@ export function useXRControllerButtonEvent(
   id: XRControllerGamepadComponentId,
   onChange: (state: XRControllerGamepadComponentState['state']) => void,
 ): void {
-  const state = useRef<XRControllerGamepadComponentState['state']>()
+  const state = useRef<XRControllerGamepadComponentState['state']>(undefined)
   useFrame(() => {
     const currentState = controller?.gamepad[id]?.state
     if (currentState != null && currentState != state.current) {

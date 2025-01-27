@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@pmndrs/pointer-events": "workspace:^",
-    "@react-three/drei": "^9.111.0",
     "@react-three/xr": "workspace:^"
   },
   "scripts": {

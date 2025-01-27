@@ -8,7 +8,7 @@ import {
   HandleOptions,
   TransformHandlesSpace,
 } from '@pmndrs/handle'
-import { GroupProps, useFrame } from '@react-three/fiber'
+import { ThreeElements, useFrame } from '@react-three/fiber'
 import { createContext, forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { Euler, Group, Vector2Tuple } from 'three'
 
@@ -51,7 +51,7 @@ export const HandlesAxisHighlight = forwardRef<HandlesAxisHighlightImpl, { tag: 
 
 const HandlesContext = createContext<HandlesContextImpl | undefined>(undefined)
 
-export type TransformHandlesContextProperties = Omit<GroupProps, 'scale'> &
+export type TransformHandlesContextProperties = Omit<ThreeElements['group'], 'scale'> &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
     context?: HandlesContextImpl
     space?: TransformHandlesSpace | null

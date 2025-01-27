@@ -104,14 +104,14 @@ import {
 import { Group, Vector3Tuple } from 'three'
 import { HandlesContext } from '../context.js'
 import { HandleOptions, HandleTransformOptions } from '@pmndrs/handle'
-import { GroupProps } from '@react-three/fiber'
+import { ThreeElements } from '@react-three/fiber'
 import { FreeScaleControl } from './free.js'
 import { HandlesAxisHighlight } from '../axis.js'
 import { AxisScaleHande } from './axis.js'
 import { PlaneScaleHandle } from './plane.js'
 import { HandlesSize } from '../size.js'
 
-export type ScaleHandlesProperties = GroupProps &
+export type ScaleHandlesProperties = ThreeElements['group'] &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'> & {
     enabled?: Exclude<HandleTransformOptions, Array<Vector3Tuple>>
     size?: number

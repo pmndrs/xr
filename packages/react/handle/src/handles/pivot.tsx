@@ -4,17 +4,8 @@ import {
   PivotHandlesHandles as PivotHandlesHandlesImpl,
   HandlesProperties,
 } from '@pmndrs/handle'
-import { GroupProps, useFrame } from '@react-three/fiber'
-import {
-  createContext,
-  forwardRef,
-  ReactNode,
-  useContext,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-} from 'react'
+import { ThreeElements, useFrame } from '@react-three/fiber'
+import { createContext, forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { Group } from 'three'
 
 export type PivotHandlesProperties = PivotHandlesContextProperties & PivotHandlesHandlesProperties
@@ -39,7 +30,7 @@ export const PivotHandles = forwardRef<Group, PivotHandlesProperties>(
 
 const HandlesContext = createContext<HandlesContextImpl | undefined>(undefined)
 
-export type PivotHandlesContextProperties = Omit<GroupProps, 'scale'> &
+export type PivotHandlesContextProperties = Omit<ThreeElements['group'], 'scale'> &
   Pick<HandleOptions<any>, 'alwaysUpdate' | 'apply' | 'stopPropagation'>
 
 export const PivotHandlesContext = forwardRef<Group, PivotHandlesContextProperties>(

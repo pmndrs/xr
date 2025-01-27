@@ -642,7 +642,7 @@ function Hover({
   children,
   hoverTargetRef,
 }: {
-  hoverTargetRef?: RefObject<Object3D>
+  hoverTargetRef?: RefObject<Object3D | null>
   children?: (hovered: boolean) => ReactNode
 }) {
   const ref = useRef<Group>(null)
@@ -664,7 +664,15 @@ function vibrateOnEvent(e: PointerEvent) {
 
 extend({ MeshLineGeometry, MeshLineMaterial })
 
-function StripedLineToCenter({ fromRef, width, color }: { fromRef: RefObject<Object3D>; width: number; color: Color }) {
+function StripedLineToCenter({
+  fromRef,
+  width,
+  color,
+}: {
+  fromRef: RefObject<Object3D | null>
+  width: number
+  color: Color
+}) {
   const ref = useRef<Mesh>(null)
   const materialRef = useRef<MeshLineMaterial>(null)
   useFrame(() => {
@@ -690,8 +698,8 @@ function StripedLineToCenter({ fromRef, width, color }: { fromRef: RefObject<Obj
   )
 }
 
-const handleStartAudioEffectRef: RefObject<PAudio> = { current: null }
-const handleEndAudioEffectRef: RefObject<PAudio> = { current: null }
+const handleStartAudioEffectRef: RefObject<PAudio | null> = { current: null }
+const handleEndAudioEffectRef: RefObject<PAudio | null> = { current: null }
 
 function AudioEffects() {
   return (
