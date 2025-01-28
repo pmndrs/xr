@@ -2,6 +2,8 @@ import { XRDevice, metaQuest3, metaQuest2, metaQuestPro, oculusQuest1 } from 'iw
 import { DevUI } from '@iwer/devui'
 import type { XRDeviceOptions } from 'iwer/lib/device/XRDevice'
 import { Euler, Quaternion, Vector3, Vector3Tuple, Vector4Tuple } from 'three'
+import { SyntheticEnvironmentModule } from '@iwer/sem'
+import defaultEnvironment from './default-environment.json' assert { type: 'json' }
 
 const configurations = { metaQuest3, metaQuest2, metaQuestPro, oculusQuest1 }
 
@@ -22,6 +24,7 @@ export type EmulatorOptions =
       inject?: boolean | { hostname: string }
       controller?: Partial<Record<XRHandedness, EmulatorTransformationOptions>>
       hand?: Partial<Record<XRHandedness, EmulatorTransformationOptions>>
+      syntheticEnvironment?: null | boolean | JSON | string
     } & Partial<Pick<XRDeviceOptions, 'ipd' | 'fovy' | 'stereoEnabled' | 'canvasContainer'>>)
 
 const handednessList: Array<XRHandedness> = ['left', 'none', 'right']
@@ -37,7 +40,37 @@ export function emulate(options: EmulatorOptions) {
   }
   xrdevice.ipd = typeof options === 'string' ? 0 : (options.ipd ?? 0)
   xrdevice.installRuntime()
-  new DevUI(xrdevice)
+  xrdevice.installDevUI(DevUI)
+  const syntheticEnvironment = typeof options === 'string' ? true : options.syntheticEnvironment
+  if (syntheticEnvironment === false) {
+    return xrdevice
+  }
+
+  xrdevice.installSEM(SyntheticEnvironmentModule)
+
+  if (syntheticEnvironment === null) {
+    //dont preload any environment
+    return xrdevice
+  }
+
+  if (syntheticEnvironment === true || syntheticEnvironment === undefined) {
+    //load the default environment
+    xrdevice.sem?.loadEnvironment(defaultEnvironment)
+    return xrdevice
+  }
+
+  if (typeof syntheticEnvironment === 'object') {
+    //load the provided environment
+    xrdevice.sem?.loadEnvironment(syntheticEnvironment)
+    return xrdevice
+  }
+
+  //fetch the environment from the provided link
+  fetch(syntheticEnvironment)
+    .then((response) => response.json())
+    .then((environment) => xrdevice.sem?.loadEnvironment(environment))
+    .catch(console.error)
+
   return xrdevice
 }
 

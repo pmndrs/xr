@@ -6,6 +6,7 @@ To get started, make sure you have [Node](https://nodejs.org) and [PNPM](https:/
 
 ```bash
 pnpm i
+pnpm -r copy
 pnpm -r build
 ```
 
