@@ -65,6 +65,7 @@ export function computeOnePointerHandleTransformState(
   //matrixHelper2 = initialPointerToTargetParentOffset
 
   projectOntoSpace(
+    options.projectRays,
     spaceHelper,
     pointerData.initialPointerWorldPoint,
     pointerData.pointerWorldOrigin,

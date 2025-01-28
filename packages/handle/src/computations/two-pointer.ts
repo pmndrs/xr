@@ -69,6 +69,7 @@ export function computeTwoPointerHandleTransformState(
   addSpaceFromTransformOptions(space, qHelper1, storeData.initialTargetRotation, options.scale ?? true, 'scale')
   //project pointers into that space
   projectOntoSpace(
+    options.projectRays,
     space,
     pointer1Data.initialPointerWorldPoint,
     pointer1Data.pointerWorldOrigin,
@@ -76,6 +77,7 @@ export function computeTwoPointerHandleTransformState(
     pointer1Data.pointerWorldDirection,
   )
   projectOntoSpace(
+    options.projectRays,
     space,
     pointer2Data.initialPointerWorldPoint,
     pointer2Data.pointerWorldOrigin,

@@ -42,6 +42,11 @@ export type HandleOptions<T> = {
    */
   rotate?: HandleTransformOptions
   /**
+   * allows to configure whether rays from input devices should be projected onto the interaction space (3D plane or 3D Line).
+   * @default true
+   */
+  projectRays?: boolean
+  /**
    * @default true
    */
   scale?: HandleTransformOptions & {
@@ -129,6 +134,7 @@ export class HandleStore<T>
     }
     const pointerWorldDirection = getWorldDirection(event, vectorHelper) ? vectorHelper.clone() : undefined
 
+    event.intersection.details.type
     this.inputState.set(event.pointerId, {
       pointerWorldDirection,
       pointerWorldPoint: event.point,

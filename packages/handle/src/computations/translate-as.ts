@@ -72,13 +72,28 @@ export function computeTranslateAsHandleTransformState(
 
   //compute initial delta between point and target projected on space
   deltaHelper1.setFromMatrixPosition(matrixHelper)
-  projectOntoSpace(space, pointerData.initialPointerWorldPoint, pointerData.pointerWorldOrigin, deltaHelper1, undefined)
+  projectOntoSpace(
+    options.projectRays,
+    space,
+    pointerData.initialPointerWorldPoint,
+    pointerData.pointerWorldOrigin,
+    deltaHelper1,
+    undefined,
+  )
   deltaHelper1.negate().add(pointerData.initialPointerWorldPoint)
 
   //compute current delta between point and target projected on space
   deltaHelper2.setFromMatrixPosition(targetWorldMatrix)
-  projectOntoSpace(space, pointerData.initialPointerWorldPoint, pointerData.pointerWorldOrigin, deltaHelper2, undefined)
   projectOntoSpace(
+    options.projectRays,
+    space,
+    pointerData.initialPointerWorldPoint,
+    pointerData.pointerWorldOrigin,
+    deltaHelper2,
+    undefined,
+  )
+  projectOntoSpace(
+    options.projectRays,
     space,
     pointerData.initialPointerWorldPoint,
     pointerData.pointerWorldOrigin,

@@ -53,6 +53,9 @@ Allows disabling automatic binding of the event listeners to the provided handle
 **apply**  
 The `apply` function is used to apply a state modification that originates from a user interaction to the state. This property allows overriding the default apply function, giving the developer complete control over how modifications affect the state. For instance, instead of applying the modification directly, the developer can apply it to their own state management solution. The state management solution can then apply the modification to the handle target.
 
+**projectRays**  
+Allows to configure whether rays from input devices should be projected onto the interaction space (3D plane or 3D Line).
+
 **alwaysUpdate**  
 In situations where the handle target is placed inside a constantly changing group, the `alwaysUpdate` flag ensures that the handle target's transformation is updated every frame to reflect the current state of the handle.
 
