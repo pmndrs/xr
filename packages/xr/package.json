@@ -33,7 +33,7 @@
     "three": "*"
   },
   "dependencies": {
-    "@iwer/devui": "^0.2.1",
+    "@iwer/devui": "~0.2.1",
     "@pmndrs/pointer-events": "workspace:^",
     "iwer": "^1.0.3",
     "meshline": "^3.3.1",
