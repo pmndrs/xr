@@ -45,7 +45,7 @@ export const PivotHandlesContext = forwardRef<Group, PivotHandlesContextProperti
     const optionsRef = useRef(options)
     optionsRef.current = options
     const context = useMemo(() => new HandlesContextImpl(internalRef, () => optionsRef.current), [])
-    useFrame((state) => context.update(state.clock.getElapsedTime()))
+    useFrame((state) => context.update(state.clock.getElapsedTime()), -1)
     return (
       <group {...props} ref={internalRef}>
         <HandlesContext.Provider value={context}>{children}</HandlesContext.Provider>

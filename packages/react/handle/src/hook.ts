@@ -28,7 +28,7 @@ export function useHandle<T>(
     () => new HandleStore(target, () => ({ ...getHandleOptionsRef.current?.(), ...optionsRef.current })),
     [target],
   )
-  useFrame((state) => store.update(state.clock.getElapsedTime()))
+  useFrame((state) => store.update(state.clock.getElapsedTime()), -1)
   const handleRef = options.handle ?? target
   useEffect(() => {
     if (options.bind === false) {

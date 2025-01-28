@@ -396,8 +396,9 @@ function projectOntoPlane(
 ): void {
   normalHelper.crossVectors(_axis1, _axis2).normalize()
   planeHelper.setFromNormalAndCoplanarPoint(normalHelper, initialWorldPoint)
+  const angleDifference = worldDirection == null ? 0 : Math.abs(normalHelper.dot(worldDirection))
 
-  if (worldDirection == null) {
+  if (worldDirection == null || angleDifference < 0.01) {
     //project point onto plane
     planeHelper.projectPoint(worldPoint, worldPoint)
     return
@@ -426,7 +427,8 @@ export function projectOntoAxis(
   worldPoint: Vector3,
   worldDirection: Vector3 | undefined,
 ): void {
-  if (worldDirection == null) {
+  const angleDifference = worldDirection == null ? 0 : 1 - Math.abs(axis.dot(worldDirection))
+  if (worldDirection == null || angleDifference < 0.001) {
     projectPointOntoAxis(worldPoint, initialWorldPoint, axis)
     return
   }
