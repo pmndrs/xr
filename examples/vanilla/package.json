@@ -2,8 +2,8 @@
     "dependencies": {
         "@pmndrs/uikit": "^0.4.4",
         "@pmndrs/uikit-lucide": "^0.4.4",
-        "@pmndrs/xr": "workspace:^",
-        "@pmndrs/pointer-events": "workspace:^"
+        "@pmndrs/xr": "workspace:~",
+        "@pmndrs/pointer-events": "workspace:~"
     },
     "scripts": {
         "dev": "vite --host",

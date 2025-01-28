@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@react-three/xr": "workspace:^",
+    "@react-three/xr": "workspace:~",
     "maath": "^0.10.8"
   },
   "type": "module",

@@ -27,8 +27,8 @@
     "three": "*"
   },
   "dependencies": {
-    "@pmndrs/handle": "workspace:^",
-    "@pmndrs/pointer-events": "workspace:^",
+    "@pmndrs/handle": "workspace:~",
+    "@pmndrs/pointer-events": "workspace:~",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

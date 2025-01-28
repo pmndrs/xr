@@ -3,7 +3,7 @@
     "@preact/signals-core": "^1.6.1",
     "@react-three/uikit": "^0.4.1",
     "@react-three/uikit-lucide": "^0.4.1",
-    "@react-three/xr": "workspace:^"
+    "@react-three/xr": "workspace:~"
   },
   "type": "module",
   "scripts": {

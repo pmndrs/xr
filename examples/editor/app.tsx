@@ -86,7 +86,7 @@ const useSceneStore = create(() => ({
 
 const cameraStore = createScreenCameraStore({ yaw: 0, distance: 0.5 })
 
-const store = createXRStore()
+const store = createXRStore({ emulate: { syntheticEnvironment: false } })
 
 const buttonStyles: CSSProperties = {
   background: 'white',

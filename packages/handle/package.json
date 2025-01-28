@@ -28,7 +28,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@pmndrs/pointer-events": "workspace:^",
+    "@pmndrs/pointer-events": "workspace:~",
     "zustand": "^4.5.2"
   },
   "files": [

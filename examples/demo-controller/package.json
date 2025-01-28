@@ -1,8 +1,8 @@
 {
     "dependencies": {
-        "@pmndrs/xr": "workspace:^",
+        "@pmndrs/xr": "workspace:~",
         "@react-three/uikit": "^0.5.3",
-        "@react-three/xr": "workspace:^"
+        "@react-three/xr": "workspace:~"
     },
     "scripts": {
         "dev": "vite --host"

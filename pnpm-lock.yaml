@@ -103,28 +103,28 @@ importers:
   examples/demo-controller:
     dependencies:
       '@pmndrs/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/xr
       '@react-three/uikit':
         specifier: ^0.5.3
         version: 0.5.4(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(@types/react@19.0.8)(react@19.0.0)(three@0.172.0)(ts-node@10.9.2(@types/node@22.12.0)(typescript@5.7.3))
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/editor:
     dependencies:
       '@pmndrs/handle':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/handle
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
       '@react-three/handle':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/handle
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
       meshline:
         specifier: ^3.3.1
@@ -139,7 +139,7 @@ importers:
   examples/handheld-ar:
     dependencies:
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/handle:
@@ -148,46 +148,43 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       '@pmndrs/handle':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/handle
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
       '@react-three/handle':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/handle
       '@react-three/rapier':
         specifier: ^1.5.0
         version: 1.5.0(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react@19.0.0)(three@0.172.0)
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/handle-vanilla:
     dependencies:
       '@pmndrs/handle':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/handle
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
 
-  examples/hit-test-anchor:
+  examples/hit-testing:
     dependencies:
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
-      zustand:
-        specifier: ^4.5.2
-        version: 4.5.6(@types/react@19.0.8)(react@19.0.0)
 
   examples/layers:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/minecraft:
@@ -196,7 +193,7 @@ importers:
         specifier: ^1.4.0
         version: 1.5.0(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react@19.0.0)(three@0.172.0)
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
       zustand:
         specifier: ^4.5.4
@@ -205,7 +202,7 @@ importers:
   examples/miniature:
     dependencies:
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
       zustand:
         specifier: ^4.5.2
@@ -217,7 +214,7 @@ importers:
         specifier: ^1.4.0
         version: 1.5.0(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react@19.0.0)(three@0.172.0)
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
       valtio:
         specifier: ^1.13.2
@@ -226,37 +223,37 @@ importers:
   examples/pointer-events:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
 
   examples/rag-doll:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
       '@react-three/cannon':
         specifier: ^6.6.0
         version: 6.6.0(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(react@19.0.0)(three@0.172.0)(typescript@5.7.3)
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/react-three-xr:
     dependencies:
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/rollercoaster:
     dependencies:
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/room-with-shadows:
     dependencies:
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
       maath:
         specifier: ^0.10.8
@@ -271,19 +268,19 @@ importers:
         specifier: ^0.4.1
         version: 0.4.4(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(@types/react@19.0.8)(react@19.0.0)(three@0.172.0)(ts-node@10.9.2(@types/node@22.12.0)(typescript@5.7.3))
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/stage:
     dependencies:
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   examples/uikit:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
       '@react-three/uikit':
         specifier: ^0.8.3
@@ -295,7 +292,7 @@ importers:
         specifier: ^0.8.3
         version: 0.8.7(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(@types/react@19.0.8)(react@19.0.0)(three@0.172.0)(ts-node@10.9.2(@types/node@22.12.0)(typescript@5.7.3))
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
       leva:
         specifier: ^0.9.35
@@ -304,10 +301,10 @@ importers:
   examples/use-gesture:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
       '@use-gesture/react':
         specifier: ^10.3.1
@@ -316,7 +313,7 @@ importers:
   examples/vanilla:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/pointer-events
       '@pmndrs/uikit':
         specifier: ^0.4.4
@@ -325,7 +322,7 @@ importers:
         specifier: ^0.4.4
         version: 0.4.4(three@0.172.0)(ts-node@10.9.2(@types/node@22.12.0)(typescript@5.7.3))
       '@pmndrs/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/xr
 
   examples/watch:
@@ -340,13 +337,13 @@ importers:
         specifier: ^0.4.1
         version: 0.4.4(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.172.0))(@types/react@19.0.8)(react@19.0.0)(three@0.172.0)(ts-node@10.9.2(@types/node@22.12.0)(typescript@5.7.3))
       '@react-three/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../packages/react/xr
 
   packages/handle:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../pointer-events
       zustand:
         specifier: ^4.5.2
@@ -367,10 +364,10 @@ importers:
   packages/react/handle:
     dependencies:
       '@pmndrs/handle':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../handle
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../pointer-events
       react:
         specifier: '>=18'
@@ -389,10 +386,10 @@ importers:
   packages/react/xr:
     dependencies:
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../pointer-events
       '@pmndrs/xr':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../../xr
       react:
         specifier: '>=18'
@@ -426,7 +423,7 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(iwer@2.0.0)
       '@pmndrs/pointer-events':
-        specifier: workspace:^
+        specifier: workspace:~
         version: link:../pointer-events
       iwer:
         specifier: ^2.0.0
