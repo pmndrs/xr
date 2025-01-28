@@ -1,8 +1,8 @@
 {
   "dependencies": {
     "@react-three/cannon": "^6.6.0",
-    "@react-three/xr": "workspace:^",
-    "@pmndrs/pointer-events": "workspace:^"
+    "@react-three/xr": "workspace:~",
+    "@pmndrs/pointer-events": "workspace:~"
   },
   "type": "module",
   "scripts": {

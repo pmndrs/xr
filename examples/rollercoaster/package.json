@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@react-three/xr": "workspace:^"
+        "@react-three/xr": "workspace:~"
     },
     "scripts": {
         "dev": "vite --host"

@@ -7,7 +7,13 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 export default defineConfig({
   plugins: [react(), basicSsl()],
   resolve: {
-    alias: [{ find: '@pmndrs/xr', replacement: path.resolve(__dirname, '../../packages/xr/src/index.ts') }],
+    alias: [
+      { find: '@pmndrs/xr', replacement: path.resolve(__dirname, '../../packages/xr/src/index.ts') },
+      {
+        find: '@pmndrs/pointer-events',
+        replacement: path.resolve(__dirname, '../../packages/pointer-events/src/index.ts'),
+      },
+    ],
     dedupe: ['three'],
   },
 })

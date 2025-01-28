@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.14.0",
-    "@pmndrs/handle": "workspace:^",
-    "@pmndrs/pointer-events": "workspace:^",
-    "@react-three/handle": "workspace:^",
+    "@pmndrs/handle": "workspace:~",
+    "@pmndrs/pointer-events": "workspace:~",
+    "@react-three/handle": "workspace:~",
     "@react-three/rapier": "^1.5.0",
-    "@react-three/xr": "workspace:^"
+    "@react-three/xr": "workspace:~"
   },
   "scripts": {
     "dev": "vite --host"

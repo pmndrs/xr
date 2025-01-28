@@ -1,8 +1,8 @@
 {
+  "name": "hit-testing",
   "dependencies": {
     "@react-three/xr": "workspace:~"
   },
-  "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "vite build"

@@ -54,7 +54,13 @@ export type PointerOptions = {
   ) => boolean
 }
 
-const pointerMap = new Map<number, Pointer>()
+globalThis.pointerEventspointerMap ??= new Map<number, Pointer>()
+
+declare global {
+  namespace globalThis {
+    var pointerEventspointerMap: Map<number, Pointer> | undefined
+  }
+}
 
 declare module 'three' {
   interface Object3D {
@@ -90,7 +96,7 @@ Object3D.prototype.hasPointerCapture = function (this: Object3D, pointerId: numb
 }
 
 export function getPointerById(pointerId: number) {
-  return pointerMap.get(pointerId)
+  return globalThis.pointerEventspointerMap?.get(pointerId)
 }
 
 export type GetCamera = () => PerspectiveCamera | OrthographicCamera
@@ -128,7 +134,7 @@ export class Pointer {
     private readonly parentReleasePointerCapture?: () => void,
     public readonly options: PointerOptions = {},
   ) {
-    pointerMap.set(id, this)
+    globalThis.pointerEventspointerMap?.set(id, this)
   }
 
   getPointerCapture(): PointerCapture | undefined {

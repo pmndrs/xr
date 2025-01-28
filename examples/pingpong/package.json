@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@react-three/rapier": "^1.4.0",
-    "@react-three/xr": "workspace:^",
+    "@react-three/xr": "workspace:~",
     "valtio": "^1.13.2"
   },
   "type": "module",
