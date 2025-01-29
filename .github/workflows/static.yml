@@ -36,6 +36,7 @@ jobs:
       # Examples
       - name: Building Examples
         run: |
+          pnpm -r copy
           pnpm -r build
 
       - name: Copy Examples

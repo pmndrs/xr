@@ -50,6 +50,7 @@ jobs:
 
       - name: Build
         run: |
+          pnpm -r copy
           pnpm -F './packages/**/*' build
 
       - name: Copy README
