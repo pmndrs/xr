@@ -417,8 +417,8 @@ importers:
   packages/xr:
     dependencies:
       '@iwer/devui':
-        specifier: ^1.0.0
-        version: 1.0.0(@types/react@19.0.8)(iwer@2.0.0)
+        specifier: ^1.0.2
+        version: 1.0.2(@types/react@19.0.8)(iwer@2.0.0)
       '@iwer/sem':
         specifier: ~0.2.1
         version: 0.2.1(iwer@2.0.0)
@@ -757,8 +757,8 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
-  '@iwer/devui@1.0.0':
-    resolution: {integrity: sha512-A1xoOgDi1VKvUaj1ROJrNPsEoZfrybs9j2WSJi1fSwyGcy1NXCysm8eLnl6bVKd18ZmQv9rwICeY/7fHfdWcsQ==}
+  '@iwer/devui@1.0.2':
+    resolution: {integrity: sha512-5r1jk7+lbX96qDNrveaoHFq4OJp1VaOcXsBf1732t8PNIZU+TjTtL/ZAjP48zuB+SH1u5FO7uOByZ1lzn3nfew==}
     peerDependencies:
       iwer: ^2.0.0
 
@@ -3744,7 +3744,7 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
-  '@iwer/devui@1.0.0(@types/react@19.0.8)(iwer@2.0.0)':
+  '@iwer/devui@1.0.2(@types/react@19.0.8)(iwer@2.0.0)':
     dependencies:
       '@fortawesome/fontawesome-svg-core': 6.6.0
       '@fortawesome/free-solid-svg-icons': 6.6.0
