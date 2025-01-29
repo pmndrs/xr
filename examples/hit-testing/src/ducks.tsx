@@ -1,9 +1,10 @@
 import { useXRInputSourceEvent } from '@react-three/xr'
 import { useState } from 'react'
 import { Quaternion, Vector3 } from 'three'
-
 import { Duck } from './duck.js'
 import { hitTestMatrices } from './app.js'
+
+const vectorHelper = new Vector3()
 
 export const Ducks = () => {
   const [ducks, setDucks] = useState<Array<{ position: Vector3; quaternion: Quaternion }>>([])
@@ -14,13 +15,11 @@ export const Ducks = () => {
     (e) => {
       const matrix = hitTestMatrices[e.inputSource.handedness]
       if (matrix) {
-        setDucks((ducks) => [
-          ...ducks,
-          {
-            position: new Vector3().setFromMatrixPosition(matrix),
-            quaternion: new Quaternion().setFromRotationMatrix(matrix),
-          },
-        ])
+        const position = new Vector3()
+        const quaternion = new Quaternion()
+
+        matrix.decompose(position, quaternion, vectorHelper)
+        setDucks((ducks) => [...ducks, { position, quaternion }])
       }
     },
 
@@ -28,6 +27,6 @@ export const Ducks = () => {
   )
 
   return ducks.map((item, index) => (
-    <Duck key={index} position={item.position} quaternion={item.quaternion.invert()} scale={0.2} />
+    <Duck key={index} position={item.position} quaternion={item.quaternion} scale={0.2} />
   ))
 }
