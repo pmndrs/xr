@@ -135,6 +135,7 @@ export class RayIntersector implements Intersector {
       pointerPosition,
       pointerQuaternion,
       pointOnFace: intersection.point,
+      normal: intersection.face?.normal,
       localPoint: intersection.point
         .clone()
         .applyMatrix4(invertedMatrixHelper.copy(intersection.object.matrixWorld).invert()),
