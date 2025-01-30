@@ -4,7 +4,7 @@ description: Examples made with @react-three/xr
 nav: 3
 ---
 
-<Grid cols={2}>
+<Grid cols={3}>
   <li>
     [![Screenshot from Room demo](./room-demo.gif)](https://pmndrs.github.io/xr/examples/room-with-shadows/)
   </li>
@@ -31,5 +31,9 @@ nav: 3
   </li>
   <li>
     [![Screenshot from the React-three-handle Editor demo](./editor.gif)](https://pmndrs.github.io/xr/examples/editor/)
+  </li>
+  <li>
+    [![Screenshot from the hit testing demo](./hit-testing.gif)](https://pmndrs.github.io/xr/examples/hit-testing/)
+    by [Sung Powley](https://bsky.app/profile/sung-powley.bsky.social) 
   </li>
 </Grid>
