@@ -36,4 +36,7 @@ nav: 3
     [![Screenshot from the hit testing demo](./hit-testing.gif)](https://pmndrs.github.io/xr/examples/hit-testing/)
     by [Sung Powley](https://bsky.app/profile/sung-powley.bsky.social) 
   </li>
+  <li>
+    [![Screenshot from the uikit + handle demo](./uikit.gif)](https://pmndrs.github.io/xr/examples/uikit/)
+  </li>
 </Grid>
