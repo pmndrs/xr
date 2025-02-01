@@ -264,6 +264,12 @@ export type FrameRateOption =
 
 export type XRStoreOptions<T extends XRElementImplementations> = {
   /**
+   * Automatically makes a session request to the browser which can provide a custom ui for the user to start the XR experience.
+   * if set to `true` the system will request an "immersive-ar" session if supported, else an "immersive-vr" session
+   * @default true
+   */
+  offerSession?: XRSessionMode | boolean
+  /**
    * emulates a device if WebXR not supported and on localhost
    * @default "metaQuest3"
    */
@@ -384,36 +390,53 @@ const baseInitialState: Omit<
   layerEntries: [],
 }
 
-function startEmulate(store: StoreApi<XRState<any>>, emulate: EmulatorOptions | true, alert: boolean) {
+async function injectEmulator(
+  store: StoreApi<XRState<any>>,
+  emulateOptions: EmulatorOptions | true,
+  alert: boolean,
+): Promise<boolean> {
   if (typeof navigator === 'undefined') {
-    return
+    return false
   }
-  Promise.all([navigator.xr?.isSessionSupported('immersive-vr'), navigator.xr?.isSessionSupported('immersive-ar')])
-    .then(([vr, ar]) => (!ar && !vr ? import('./emulate.js') : undefined))
-    .then((pkg) => {
-      if (pkg == null) {
-        return
-      }
-      if (alert) {
-        window.alert(`emulator started`)
-      }
-      const emulator = pkg.emulate(emulate === true ? 'metaQuest3' : emulate)
-      if (emulator == null) {
-        return
-      }
-      store.setState({
-        emulator,
-      })
-    })
+  const [vr, ar] = await Promise.all([
+    navigator.xr?.isSessionSupported('immersive-vr').catch((e) => {
+      console.error(e)
+      return false
+    }),
+    navigator.xr?.isSessionSupported('immersive-ar').catch((e) => {
+      console.error(e)
+      return false
+    }),
+  ])
+  if (ar || vr) {
+    return false
+  }
+  const { emulate } = await import('./emulate.js')
+  if (alert) {
+    window.alert(`emulator started`)
+  }
+  store.setState({
+    emulator: emulate(emulateOptions === true ? 'metaQuest3' : emulateOptions),
+  })
+  return true
+}
+
+declare global {
+  interface XRSystem {
+    offerSession?: XRSystem['requestSession']
+  }
 }
 
 export function createXRStore<T extends XRElementImplementations>(options?: XRStoreOptions<T>): XRStore<T> {
+  //dom overlay root element creation
   const domOverlayRoot =
     typeof HTMLElement === 'undefined'
       ? undefined
       : options?.domOverlay instanceof HTMLElement
         ? options.domOverlay
         : document.createElement('div')
+
+  //store
   const store = createStore<XRState<XRElementImplementations>>(() => ({
     ...baseInitialState,
     controller: options?.controller,
@@ -424,22 +447,40 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     domOverlayRoot,
   }))
 
-  //setup emulate
+  const unsubscribeSessionOffer = store.subscribe(({ session }, { session: oldSession }) => {
+    if (oldSession != null && session == null && xrManager != null) {
+      offerSession(xrManager, options, domOverlayRoot).catch(console.error)
+    }
+  })
+
+  //emulation
   const emulate = options?.emulate ?? 'metaQuest3'
   let cleanupEmulate: (() => void) | undefined
   if (typeof window !== 'undefined' && emulate != false) {
-    if (window.location.hostname === 'localhost') {
-      startEmulate(store, emulate, false)
+    const inject = (typeof emulate === 'object' ? emulate.inject : undefined) ?? { hostname: 'localhost' }
+    if (inject === true || (typeof inject != 'boolean' && window.location.hostname === inject.hostname)) {
+      injectEmulator(store, emulate, false).then((emulate) => {
+        if (!emulate || xrManager == null) {
+          return
+        }
+        offerSession(xrManager, options, domOverlayRoot)
+      })
     }
     const keydownListener = (e: KeyboardEvent) => {
       if (e.altKey && e.metaKey && e.code === 'KeyE') {
-        startEmulate(store, emulate, true)
+        injectEmulator(store, emulate, true).then((emulate) => {
+          if (!emulate || xrManager == null) {
+            return
+          }
+          offerSession(xrManager, options, domOverlayRoot)
+        })
       }
     }
     window.addEventListener('keydown', keydownListener)
     cleanupEmulate = () => window.removeEventListener('keydown', keydownListener)
   }
 
+  //dom overlay root setup
   let cleanupDomOverlayRoot: (() => void) | undefined
   if (domOverlayRoot != null) {
     if (domOverlayRoot.parentNode == null) {
@@ -463,9 +504,8 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   )
   const bindToSession = createBindToSession(store, syncXRInputSourceStates, options?.secondaryInputSources ?? false)
   const cleanupSessionGrantedListener = setupSessionGrantedListener(options?.enterGrantedSession, (mode) =>
-    enterXR(domOverlayRoot, mode, options, xrManager),
+    enterXRSession(domOverlayRoot, mode, options, xrManager),
   )
-  let cleanupSessionStartListener: (() => void) | undefined
 
   const frameRequests: Array<(frame: XRFrame) => void> = []
   let xrManager: WebXRManager | undefined
@@ -492,10 +532,11 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       }
       xrManager = newXrManager
       const { foveation, bounded } = options ?? {}
-      newXrManager.setReferenceSpaceType(bounded ? 'bounded-floor' : 'local-floor')
+      xrManager.setReferenceSpaceType(bounded ? 'bounded-floor' : 'local-floor')
       if (foveation != null) {
-        newXrManager.setFoveation(foveation)
+        xrManager.setFoveation(foveation)
       }
+      offerSession(xrManager, options, domOverlayRoot).catch(console.error)
     },
     setFrameRate(value: FrameRateOption) {
       const { session } = store.getState()
@@ -567,14 +608,14 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     destroy() {
       cleanupEmulate?.()
       cleanupDomOverlayRoot?.()
-      cleanupSessionStartListener?.()
       cleanupSessionGrantedListener?.()
+      unsubscribeSessionOffer()
       //unbinding the session
       bindToSession(undefined)
     },
-    enterXR: (mode: XRSessionMode) => enterXR(domOverlayRoot, mode, options, xrManager),
-    enterAR: () => enterXR(domOverlayRoot, 'immersive-ar', options, xrManager),
-    enterVR: () => enterXR(domOverlayRoot, 'immersive-vr', options, xrManager),
+    enterXR: (mode: XRSessionMode) => enterXRSession(domOverlayRoot, mode, options, xrManager),
+    enterAR: () => enterXRSession(domOverlayRoot, 'immersive-ar', options, xrManager),
+    enterVR: () => enterXRSession(domOverlayRoot, 'immersive-vr', options, xrManager),
     onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined) {
       let update: Partial<Mutable<XRState<T>>> | undefined
       const referenceSpace = xrManager?.getReferenceSpace() ?? undefined
@@ -654,6 +695,27 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   })
 }
 
+async function offerSession(
+  manager: WebXRManager,
+  options: XRStoreOptions<any> | undefined,
+  domOverlayRoot: Element | undefined,
+) {
+  //offer session
+  const offerSessionOptions = options?.offerSession ?? true
+  if (navigator.xr?.offerSession == null || offerSessionOptions === false) {
+    return
+  }
+  let mode: XRSessionMode
+  if (offerSessionOptions === true) {
+    const arSupported = (await navigator.xr.isSessionSupported('immersive-ar')) ?? false
+    mode = arSupported ? 'immersive-ar' : 'immersive-vr'
+  } else {
+    mode = offerSessionOptions
+  }
+  const session = await navigator.xr.offerSession(mode, buildXRSessionInit(mode, domOverlayRoot, options))
+  setupXRSession(session, manager, options)
+}
+
 async function setFrameRate(session: XRSession, frameRate: FrameRateOption): Promise<void> {
   if (frameRate === false) {
     return
@@ -673,22 +735,34 @@ async function setFrameRate(session: XRSession, frameRate: FrameRateOption): Pro
   return session.updateTargetFrameRate(supportedFrameRates[Math.ceil((supportedFrameRates.length - 1) * multiplier)])
 }
 
-async function enterXR(
+async function enterXRSession(
   domOverlayRoot: Element | undefined,
   mode: XRSessionMode,
   options: XRStoreOptions<XRElementImplementations> | undefined,
-  xrManager: WebXRManager | undefined,
+  manager: WebXRManager | undefined,
 ): Promise<XRSession | undefined> {
   if (typeof navigator === 'undefined' || navigator.xr == null) {
     return Promise.reject(new Error(`WebXR not supported`))
   }
-  if (xrManager == null) {
-    return Promise.reject(new Error(`not connected to three.js. Missing are <XR> component?`))
+  if (manager == null) {
+    return Promise.reject(
+      new Error(
+        `not connected to three.js. You either might be missing the <XR> component or the canvas is not yet loaded?`,
+      ),
+    )
   }
   const session = await navigator.xr.requestSession(mode, buildXRSessionInit(mode, domOverlayRoot, options))
-  setFrameRate(session, options?.frameRate ?? 'high')
-  setupXRManager(xrManager, session, options)
+  setupXRSession(session, manager, options)
   return session
+}
+
+function setupXRSession(
+  session: XRSession,
+  manager: WebXRManager,
+  options: XRStoreOptions<XRElementImplementations> | undefined,
+) {
+  setFrameRate(session, options?.frameRate ?? 'high')
+  setupXRManager(manager, session, options)
 }
 
 function setupXRManager(
@@ -753,7 +827,7 @@ function createBindToSession(
 
     //for debouncing the input source and tracked source changes
     const inputSourceChangesList: Parameters<typeof syncXRInputSourceStates>[2] & Array<unknown> = []
-    let inputSourceChangesTimeout: number | undefined
+    let inputSourceChangesTimeout: NodeJS.Timeout | undefined
 
     const applySourcesChange = () => {
       inputSourceChangesTimeout = undefined

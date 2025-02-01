@@ -47,7 +47,7 @@ function clearObject(object: Record<string, unknown>): void {
  * hook for creating a grab pointer
  */
 export function useGrabPointer(
-  spaceRef: RefObject<Object3D>,
+  spaceRef: RefObject<Object3D | null>,
   pointerState: any,
   currentOptions?: GrabPointerOptions & { makeDefault?: boolean },
   pointerType?: string,
@@ -68,7 +68,7 @@ export function useGrabPointer(
  * hook for creating a ray pointer
  */
 export function useRayPointer(
-  spaceRef: RefObject<Object3D>,
+  spaceRef: RefObject<Object3D | null>,
   pointerState: any,
   currentOptions?: RayPointerOptions & { makeDefault?: boolean },
   pointerType?: string,
@@ -89,7 +89,7 @@ export function useRayPointer(
  * hook for creating a ray pointer
  */
 export function useLinesPointer(
-  spaceRef: RefObject<Object3D>,
+  spaceRef: RefObject<Object3D | null>,
   pointerState: any,
   currentOptions?: LinesPointerOptions & { makeDefault?: boolean },
   pointerType?: string,
@@ -110,7 +110,7 @@ export function useLinesPointer(
  * hook for creating a touch pointer
  */
 export function useTouchPointer(
-  spaceRef: RefObject<Object3D>,
+  spaceRef: RefObject<Object3D | null>,
   pointerState: any,
   currentOptions?: TouchPointerOptions & { makeDefault?: boolean },
   pointerType?: string,
@@ -131,7 +131,10 @@ export function useTouchPointer(
  * component for rendering a ray for a pointer
  */
 export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { pointer: Pointer }>((props, ref) => {
-  const material = useMemo(() => new PointerRayMaterial(), [])
+  const material = useMemo(() => {
+    const MaterialClass = props.materialClass ?? PointerRayMaterial
+    return new MaterialClass()
+  }, [props.materialClass])
   const internalRef = useRef<Mesh>(null)
   useImperativeHandle(ref, () => internalRef.current!, [])
   useFrame(
@@ -148,7 +151,10 @@ export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { point
  * component for rendering a cursor for a pointer
  */
 export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & { pointer: Pointer }>((props, ref) => {
-  const material = useMemo(() => new PointerCursorMaterial(), [])
+  const material = useMemo(() => {
+    const MaterialClass = props.materialClass ?? PointerCursorMaterial
+    return new MaterialClass()
+  }, [props.materialClass])
   const internalRef = useRef<Mesh>(null)
   const groupRef = useRef<Group>(null)
   useImperativeHandle(ref, () => internalRef.current!, [])

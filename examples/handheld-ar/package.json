@@ -1,7 +1,6 @@
 {
     "dependencies": {
-        "@react-three/drei": "^9.109.2",
-        "@react-three/xr": "workspace:^"
+        "@react-three/xr": "workspace:~"
     },
     "scripts": {
         "dev": "vite --host"

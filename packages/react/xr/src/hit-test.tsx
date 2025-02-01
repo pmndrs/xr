@@ -2,7 +2,8 @@ import { forwardRef, RefObject, useCallback, useEffect, useImperativeHandle, use
 import { createXRHitTestSource, GetWorldMatrixFromXRHitTest, requestXRHitTest } from '@pmndrs/xr'
 import { useXRStore } from './xr.js'
 import { Group, Matrix4, Object3D } from 'three'
-import { GroupProps, useFrame } from '@react-three/fiber'
+import { ThreeElements, useFrame } from '@react-three/fiber'
+import { useStore } from 'zustand'
 
 export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTest } from '@pmndrs/xr'
 
@@ -10,7 +11,7 @@ export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTe
  * hook for creating a hit test source originating from the provided object or xrspace
  */
 export function useXRHitTestSource(
-  relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
+  relativeTo: RefObject<Object3D | null> | XRSpace | XRReferenceSpaceType,
   trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
 ) {
   const [source, setState] = useState<Awaited<ReturnType<typeof createXRHitTestSource>> | undefined>()
@@ -24,7 +25,7 @@ export function useXRHitTestSource(
  */
 export function useXRHitTest(
   fn: ((results: Array<XRHitTestResult>, getWorldMatrix: GetWorldMatrixFromXRHitTest) => void) | undefined,
-  relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
+  relativeTo: RefObject<Object3D | null> | XRSpace | XRReferenceSpaceType,
   trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
 ) {
   const sourceRef = useRef<Awaited<ReturnType<typeof createXRHitTestSource>>>(undefined)
@@ -42,12 +43,16 @@ export function useXRHitTest(
 }
 
 function useCreateXRHitTestSource(
-  relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
+  relativeTo: RefObject<Object3D | null> | XRSpace | XRReferenceSpaceType,
   trackableType: undefined | XRHitTestTrackableType | Array<XRHitTestTrackableType>,
   onLoad: (result: Awaited<ReturnType<typeof createXRHitTestSource>>) => void,
 ) {
   const store = useXRStore()
+  const session = useStore(store, (s) => s.session)
   useEffect(() => {
+    if (session == null) {
+      return
+    }
     let storedResult: Awaited<ReturnType<typeof createXRHitTestSource>>
     let cancelled = false
     const relativeToResolved =
@@ -55,7 +60,7 @@ function useCreateXRHitTestSource(
     if (relativeToResolved == null) {
       return
     }
-    createXRHitTestSource(store, relativeToResolved, trackableType).then((result) => {
+    createXRHitTestSource(store, session, relativeToResolved, trackableType).then((result) => {
       if (cancelled) {
         return
       }
@@ -67,7 +72,7 @@ function useCreateXRHitTestSource(
       cancelled = true
       storedResult?.source.cancel()
     }
-  }, [store, relativeTo, trackableType, onLoad])
+  }, [session, store, relativeTo, trackableType, onLoad])
 }
 
 /**
@@ -77,7 +82,7 @@ export function useXRRequestHitTest() {
   const store = useXRStore()
   return useCallback(
     (
-      relativeTo: RefObject<Object3D> | XRSpace | XRReferenceSpaceType,
+      relativeTo: RefObject<Object3D | null> | XRSpace | XRReferenceSpaceType,
       trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
     ) => {
       const relativeToResolved =
@@ -96,7 +101,7 @@ export function useXRRequestHitTest() {
  */
 export const XRHitTest = forwardRef<
   Group,
-  Omit<GroupProps, 'children'> & {
+  Omit<ThreeElements['group'], 'children'> & {
     space?: XRSpace | XRReferenceSpaceType
     trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>
     onResults?: (results: Array<XRHitTestResult>, getWorldMatrix: GetWorldMatrixFromXRHitTest) => void

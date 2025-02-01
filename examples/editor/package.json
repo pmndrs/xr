@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@pmndrs/handle": "workspace:~",
+    "@pmndrs/pointer-events": "workspace:~",
+    "@react-three/handle": "workspace:~",
+    "@react-three/xr": "workspace:~",
+    "meshline": "^3.3.1",
+    "postprocessing": "^6.36.6",
+    "zustand": "^4.5.2"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build"
+  }
+}

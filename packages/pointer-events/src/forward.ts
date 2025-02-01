@@ -1,7 +1,7 @@
-import { Mesh, Object3D, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
+import { Object3D, Object3DEventMap, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
 import { GetCamera, Pointer, PointerOptions } from './pointer.js'
-import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
-import { CameraRayIntersector } from './intersections/ray.js'
+import { NativeEvent, NativeWheelEvent, PointerEvent, PointerEventsMap } from './event.js'
+import { ScreenRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
 import { IntersectionOptions } from './intersections/index.js'
 
@@ -37,8 +37,8 @@ function htmlEventToCoords(element: HTMLElement, e: unknown, target: Vector2): V
     return target.set(0, 0)
   }
   const { width, height, top, left } = element.getBoundingClientRect()
-  const x = e.pageX - left
-  const y = e.pageY - top
+  const x = e.clientX - left
+  const y = e.clientY - top
   return target.set((x / width) * 2 - 1, -(y / height) * 2 + 1)
 }
 
@@ -83,7 +83,7 @@ export function forwardObjectEvents(
   options?: ForwardEventsOptions,
 ) {
   return forwardEvents(
-    fromPortal,
+    fromPortal as any,
     getCamera,
     scene,
     portalEventToCoords,
@@ -122,7 +122,7 @@ function forwardEvents(
       generateUniquePointerId(),
       `${pointerTypePrefix}${event.pointerType}`,
       event.pointerState,
-      new CameraRayIntersector((nativeEvent, coords) => {
+      new ScreenRayIntersector((nativeEvent, coords) => {
         toCoords(nativeEvent, coords)
         return getCamera()
       }, options),
@@ -135,7 +135,7 @@ function forwardEvents(
     if (eventType != 'move' && eventType != 'wheel') {
       //if we start with a non-move event no, we intersect and commit
       //this allows enter, down, ... events to be forwarded to the scene even when they dont come with a move event
-      innerPointer.setIntersection(innerPointer.computeIntersection(scene, event))
+      innerPointer.setIntersection(innerPointer.computeIntersection('pointer', scene, event))
       innerPointer.commit(event, false)
     }
     pointerMap.set(event.pointerId, innerPointer)

@@ -1,0 +1,10 @@
+{
+  "name": "hit-testing",
+  "dependencies": {
+    "@react-three/xr": "workspace:~"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build"
+  }
+}

@@ -8,7 +8,7 @@ Guards allow to conditionally display or include content. For instance, the `IfI
 
 ```tsx
 import { Canvas } from '@react-three/fiber'
-import { XR, createXRStore } from '@react-three/xr'
+import { IfInSessionMode, XR, createXRStore } from '@react-three/xr'
 
 const store = createXRStore()
 
@@ -18,9 +18,9 @@ export function App() {
       <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas>
         <XR store={store}>
-          <SessionModeGuard deny="immersive-ar">
+          <IfInSessionMode deny="immersive-ar">
             <color args={['red']} attach="background" />
-          </SessionModeGuard>
+          </IfInSessionMode>
         </XR>
       </Canvas>
     </>

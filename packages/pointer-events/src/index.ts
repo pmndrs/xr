@@ -1,4 +1,4 @@
-import type { Root } from '@react-three/fiber/dist/declarations/src/core/renderer.js'
+import type { createStore } from '@react-three/fiber/dist/declarations/src/core/store.js'
 import type { AllowedPointerEvents, AllowedPointerEventsType } from './pointer.js'
 
 declare module 'three' {
@@ -6,7 +6,7 @@ declare module 'three' {
     __r3f?: {
       eventCount: number
       handlers: Record<string, ((e: any) => void) | undefined>
-      root: Root['store']
+      root: ReturnType<typeof createStore>
     }
     /**
      * undefined and true means the transformation is ready

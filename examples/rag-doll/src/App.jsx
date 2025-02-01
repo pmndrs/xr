@@ -10,6 +10,7 @@ import { useRef, Suspense } from 'react'
 const store = createXRStore({
   hand: { touchPointer: false },
   secondaryInputSources: true,
+  offerSession: 'immersive-vr',
 })
 
 export function App() {

@@ -1,4 +1,4 @@
-import { BaseEvent, Face, Object3D, Quaternion, Ray, Vector2, Vector3 } from 'three'
+import { BaseEvent, Face, Object3D, Quaternion, Ray, Raycaster, Vector2, Vector3 } from 'three'
 import { Intersection as ThreeIntersection } from './intersections/index.js'
 import { Pointer } from './pointer.js'
 import type { Camera, IntersectionEvent, Intersection } from '@react-three/fiber/dist/declarations/src/core/events.js'
@@ -72,7 +72,7 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
   get face(): Face | null | undefined {
     return this.intersection.face
   }
-  get faceIndex(): number | undefined {
+  get faceIndex(): number | null | undefined {
     return this.intersection.faceIndex
   }
   get uv(): Vector2 | undefined {
@@ -137,12 +137,23 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
 
   private _ray: Ray | undefined
   get ray(): Ray {
-    if (this._ray == null) {
-      this._ray = new Ray()
-      this._ray.origin.setFromMatrixPosition(this.camera.matrixWorld)
-      this._ray.lookAt(this.point)
+    if (this._ray != null) {
+      return this._ray
     }
-    return this._ray
+    switch (this.intersection.details.type) {
+      case 'screen-ray':
+      case 'ray':
+      case 'sphere':
+        return (this._ray = new Ray(
+          this.intersection.pointerPosition,
+          new Vector3(0, 0, -1).applyQuaternion(this.intersection.pointerQuaternion),
+        ))
+      case 'lines':
+        return (this._ray = new Ray(
+          this.intersection.details.line.start,
+          this.intersection.details.line.end.clone().sub(this.intersection.details.line.start).normalize(),
+        ))
+    }
   }
 
   private _intersections: Array<Intersection> = []
@@ -179,7 +190,7 @@ export class PointerEvent<E extends NativeEvent = globalThis.PointerEvent>
     public readonly bubbles: boolean,
     nativeEvent: E,
     protected internalPointer: Pointer,
-    protected readonly intersection: ThreeIntersection,
+    public readonly intersection: ThreeIntersection,
     public readonly camera: Camera,
     public readonly currentObject: Object3D = intersection.object,
     public readonly object: Object3D = currentObject,

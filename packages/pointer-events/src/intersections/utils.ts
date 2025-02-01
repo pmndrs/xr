@@ -55,6 +55,7 @@ function invertIf(toInvert: boolean, ifIsTrue: boolean): boolean {
 }
 
 export function intersectPointerEventTargets(
+  type: 'wheel' | 'pointer',
   object: Object3D,
   pointers: Array<Pointer>,
   parentHasListener: boolean = false,
@@ -62,7 +63,7 @@ export function intersectPointerEventTargets(
   parentPointerEventsType?: AllowedPointerEventsType,
   parentPointerEventsOrder?: number,
 ): void {
-  const hasListener = parentHasListener || hasObjectListeners(object)
+  const hasListener = parentHasListener || hasObjectListeners(type, object)
   const pointerEvents = object.pointerEvents ?? parentPointerEvents
   const pointerEventsOrDefault = pointerEvents ?? object.defaultPointerEvents ?? 'listener'
   const pointerEventsType = object.pointerEventsType ?? parentPointerEventsType ?? 'all'
@@ -96,6 +97,7 @@ export function intersectPointerEventTargets(
   const descendantsLength = descendants.length
   for (let i = 0; i < descendantsLength; i++) {
     intersectPointerEventTargets(
+      type,
       descendants[i],
       pointers,
       hasListener,
@@ -106,20 +108,40 @@ export function intersectPointerEventTargets(
   }
 }
 
-function hasObjectListeners(object: Object3D): boolean {
+function hasObjectListeners(type: 'wheel' | 'pointer', object: Object3D): boolean {
   if (object.ancestorsHaveListeners) {
     return true
   }
-  if (object.__r3f != null && object.__r3f?.eventCount > 0) {
+  if (type === 'pointer' && object.ancestorsHavePointerListeners) {
     return true
+  }
+  if (type === 'wheel' && object.ancestorsHaveWheelListeners) {
+    return true
+  }
+  if (object.__r3f != null && object.__r3f?.eventCount > 0) {
+    if (type === 'wheel' && object.__r3f['handlers']['onWheel'] != null) {
+      return true
+    }
+    if (type === 'pointer' && Object.keys(object.__r3f['handlers']).some((key) => key != 'onWheel')) {
+      return true
+    }
   }
   if (object._listeners == null) {
     return false
   }
+
+  if (type === 'wheel') {
+    const wheelListeners = object._listeners.wheel
+    return wheelListeners != null && wheelListeners.length > 0
+  }
+
   const entries = Object.entries(object._listeners)
   const length = entries.length
   for (let i = 0; i < length; i++) {
     const entry = entries[i]
+    if (entry[0] === 'wheel') {
+      continue
+    }
     if (!listenerNames.includes(entry[0])) {
       continue
     }
@@ -149,7 +171,7 @@ function filterAndInteresct(
  */
 export function getDominantIntersectionIndex<T extends ThreeIntersection>(
   intersections: Array<T>,
-  pointerEventsOrders: Array<number | undefined>,
+  pointerEventsOrders: Array<number | undefined> | undefined,
   { customSort: compare = defaultSort }: IntersectionOptions = {},
   filter?: (intersection: ThreeIntersection) => boolean,
 ): number | undefined {
@@ -162,7 +184,7 @@ export function getDominantIntersectionIndex<T extends ThreeIntersection>(
     if (filter?.(newIntersection) === false) {
       continue
     }
-    const newPointerEventsOrder = pointerEventsOrders[i]
+    const newPointerEventsOrder = pointerEventsOrders?.[i]
     if (intersection == null || compare(newIntersection, newPointerEventsOrder, intersection, pointerEventsOrder) < 0) {
       index = i
       intersection = newIntersection
@@ -194,7 +216,7 @@ const VoidObjectDistance = 10000000
 export function voidObjectIntersectionFromRay(
   scene: Object3D,
   ray: Ray,
-  getDetails: (distanceOnRay: number) => Intersection['details'],
+  getDetails: (pointer: Vector3, distanceOnRay: number) => Intersection['details'],
   pointerPosition: Vector3,
   pointerQuaternion: Quaternion,
   addToDistance: number = 0,
@@ -206,7 +228,7 @@ export function voidObjectIntersectionFromRay(
     object: getVoidObject(scene),
     point,
     normal: ray.origin.clone().sub(point).normalize(),
-    details: getDetails(distanceOnRay),
+    details: getDetails(point, distanceOnRay),
     pointerPosition,
     pointerQuaternion,
     pointOnFace: point,

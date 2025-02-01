@@ -1,4 +1,4 @@
-import { Mesh, Object3D, Sphere, SphereGeometry } from 'three'
+import { Mesh, Object3D, SphereGeometry } from 'three'
 import { Intersection } from '../index.js'
 import { PointerCapture } from '../pointer.js'
 

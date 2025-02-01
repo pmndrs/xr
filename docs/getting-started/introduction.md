@@ -47,7 +47,8 @@ export function App() {
 ## Tutorials
 
 - 💾 [Store](../tutorials/store.md)
-- 👌 [Interactions](../tutorials/interactions.md)
+- 👆 [Interactions](../tutorials/interactions.md)
+- 👌 [Handles](../handles/introduction.md)
 - 🧊 [Object Detection](../tutorials/object-detection.md)
 - ✴ [Origin](../tutorials/origin.md)
 - 🪄 [Teleport](../tutorials/teleport.md)
@@ -60,13 +61,14 @@ export function App() {
 - 🎯 [Hit Test](../tutorials/hit-test.md)
 - ⛨ [Guards](../tutorials/guards.md)
 
+## External Tutorials
+
+- 🥇 [**WebXR First Steps React** by Meta Quest](https://github.com/meta-quest/webxr-first-steps-react)
+
 ## Roadmap
 
 - 🤳 XR Gestures
-- ➕ Multimodal
-- 📺 Layers
 - 🕺 Tracked Body
-- ↕ react-three/controls
 
 ## Migration guides
 

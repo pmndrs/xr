@@ -11,7 +11,7 @@ export const RayGrab = forwardRef<Group, ComponentPropsWithoutRef<typeof Interac
   { onSelectStart, onSelectEnd, children, ...rest },
   forwardedRef,
 ) {
-  const grabbingController = useRef<Object3D>()
+  const grabbingController = useRef<Object3D>(undefined)
   const groupRef = useRef<Group>(null)
   const previousTransform = useMemo(() => new Matrix4(), [])
   useImperativeHandle(forwardedRef, () => groupRef.current!)

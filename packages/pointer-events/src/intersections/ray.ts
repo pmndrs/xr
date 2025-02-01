@@ -24,7 +24,6 @@ import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
 const invertedMatrixHelper = new Matrix4()
 const scaleHelper = new Vector3()
 const NegZAxis = new Vector3(0, 0, -1)
-const directionHelper = new Vector3()
 const planeHelper = new Plane()
 const point2Helper = new Vector2()
 
@@ -75,7 +74,10 @@ export class RayIntersector implements Intersector {
     computeIntersectionWorldPlane(planeHelper, intersection, intersection.object.matrixWorld)
     const { ray } = this.raycaster
     const pointOnFace = ray.intersectPlane(planeHelper, new Vector3()) ?? intersection.point
-    const point = ray.direction.clone().multiplyScalar(intersection.distance).add(ray.origin)
+    const point = ray.direction
+      .clone()
+      .multiplyScalar(intersection.pointerPosition.distanceTo(intersection.point))
+      .add(ray.origin)
     let uv = intersection.uv
     if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
       uv = point2Helper.clone()
@@ -143,13 +145,15 @@ export class RayIntersector implements Intersector {
   }
 }
 
-export class CameraRayIntersector implements Intersector {
+const directionHelper = new Vector3()
+
+export class ScreenRayIntersector implements Intersector {
   private readonly raycaster = new Raycaster()
+  private readonly cameraQuaternion = new Quaternion()
   private readonly fromPosition = new Vector3()
   private readonly fromQuaternion = new Quaternion()
   private readonly coords = new Vector2()
-
-  private viewPlane = new Plane()
+  private readonly viewPlane = new Plane()
 
   private readonly intersects: Array<ThreeIntersection> = []
   private readonly pointerEventsOrders: Array<number | undefined> = []
@@ -165,7 +169,7 @@ export class CameraRayIntersector implements Intersector {
 
   public intersectPointerCapture({ intersection, object }: PointerCapture, nativeEvent: unknown): Intersection {
     const details = intersection.details
-    if (details.type != 'camera-ray') {
+    if (details.type != 'screen-ray') {
       throw new Error(
         `unable to process a pointer capture of type "${intersection.details.type}" with a camera ray intersector`,
       )
@@ -173,6 +177,7 @@ export class CameraRayIntersector implements Intersector {
     if (!this.startIntersection(nativeEvent)) {
       return intersection
     }
+
     this.viewPlane.constant -= details.distanceViewPlane
 
     //find captured intersection point by intersecting the ray to the plane of the camera
@@ -190,12 +195,17 @@ export class CameraRayIntersector implements Intersector {
     }
     return {
       ...intersection,
+      details: {
+        ...details,
+        direction: this.raycaster.ray.direction.clone(),
+        screenPoint: this.coords.clone(),
+      },
       uv,
       object,
       point,
       pointOnFace: point,
-      pointerPosition: this.fromPosition.clone(),
-      pointerQuaternion: this.fromQuaternion.clone(),
+      pointerPosition: this.raycaster.ray.origin.clone(),
+      pointerQuaternion: this.cameraQuaternion.clone(),
     }
   }
 
@@ -219,7 +229,8 @@ export class CameraRayIntersector implements Intersector {
 
   public finalizeIntersection(scene: Object3D): Intersection {
     const pointerPosition = this.fromPosition.clone()
-    const pointerQuaternion = this.fromQuaternion.clone()
+    const pointerQuaternion = this.cameraQuaternion.clone()
+    const pointerDirection = this.raycaster.ray.direction.clone()
 
     const index = getDominantIntersectionIndex(this.intersects, this.pointerEventsOrders, this.options)
     const intersection = index == null ? undefined : this.intersects[index]
@@ -230,7 +241,12 @@ export class CameraRayIntersector implements Intersector {
       return voidObjectIntersectionFromRay(
         scene,
         this.raycaster.ray,
-        (distance) => ({ type: 'camera-ray', distanceViewPlane: distance }),
+        (_point, distance) => ({
+          type: 'screen-ray',
+          distanceViewPlane: distance,
+          screenPoint: this.coords.clone(),
+          direction: pointerDirection,
+        }),
         pointerPosition,
         pointerQuaternion,
       )
@@ -241,8 +257,10 @@ export class CameraRayIntersector implements Intersector {
 
     return Object.assign(intersection, {
       details: {
-        type: 'camera-ray' as const,
+        type: 'screen-ray' as const,
         distanceViewPlane: this.viewPlane.distanceToPoint(intersection.point),
+        screenPoint: this.coords.clone(),
+        direction: pointerDirection,
       },
       pointOnFace: intersection.point,
       pointerPosition,

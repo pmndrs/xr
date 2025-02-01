@@ -28,9 +28,12 @@
     "react-dom": ">=18",
     "three": "*"
   },
+  "devDependencies": {
+    "@react-three/fiber": "rc"
+  },
   "dependencies": {
-    "@pmndrs/pointer-events": "workspace:^",
-    "@pmndrs/xr": "workspace:^",
+    "@pmndrs/pointer-events": "workspace:~",
+    "@pmndrs/xr": "workspace:~",
     "suspend-react": "^0.1.3",
     "tunnel-rat": "^0.1.2",
     "zustand": "^4.5.2"
@@ -41,9 +44,5 @@
     "check:eslint": "eslint 'src/**/*.ts'",
     "fix:prettier": "prettier --write src",
     "fix:eslint": "eslint 'src/**/*.ts' --fix"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.0",
-    "vite": "^5.2.11"
   }
 }

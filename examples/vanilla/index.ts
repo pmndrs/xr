@@ -1,4 +1,5 @@
 import { XRLayer, XROrigin, createXRStore, makeTeleportTarget } from '@pmndrs/xr'
+import { PointerEventsMap } from '@pmndrs/pointer-events'
 import {
   BoxGeometry,
   Group,
@@ -22,7 +23,10 @@ const origin = new XROrigin(camera)
 scene.add(origin)
 
 const boxMaterial = new MeshBasicMaterial({ color: 'red' })
-const box = new Mesh<BoxGeometry, MeshBasicMaterial, Object3DEventMap>(new BoxGeometry(), boxMaterial)
+const box = new Mesh<BoxGeometry, MeshBasicMaterial, Object3DEventMap & PointerEventsMap>(
+  new BoxGeometry(),
+  boxMaterial,
+)
 //scene.add(box)
 box.pointerEventsType = { deny: 'grab' }
 box.addEventListener('pointerdown', () => boxMaterial.color.set('blue'))

@@ -109,6 +109,7 @@ function updateXRHandPoseData(
   return true
 }
 
+/*
 const tempMat2 = new Matrix4()
 const tempMat1 = new Matrix4()
 const tempQuat2 = new Quaternion()
@@ -121,6 +122,8 @@ function getXRHandPoseDistance(hpData1: Float32Array, phData2: Float32Array, mir
   }
   let dist = 0
   for (let i = 0; i < length; i += 16) {
+
+      //TODO: use decompose
     tempQuat1.setFromRotationMatrix(tempMat1.fromArray(hpData1, i))
     tempQuat2.setFromRotationMatrix(tempMat2.fromArray(phData2, i))
     if (mirrorHP2) {
@@ -131,12 +134,13 @@ function getXRHandPoseDistance(hpData1: Float32Array, phData2: Float32Array, mir
   return dist / (length * 16)
 }
 
-export function downloadHandPoseData(handed: XRHandedness, handPoseData: Float32Array) {
+function downloadHandPoseData(handed: XRHandedness, handPoseData: Float32Array) {
   if (handed === 'left') {
     const length = handPoseData.length
     const mirroredHandPoseData = new Float32Array(length)
     for (let i = 0; i < length; i += 16) {
       tempMat2.fromArray(handPoseData, i)
+      //TODO: use decompose
       tempQuat2.setFromRotationMatrix(tempMat2)
       mirrorQuaterionOnXAxis(tempQuat2)
       // Copies the rotation component of the supplied matrix m into this matrix rotation component.
@@ -178,4 +182,4 @@ function loadXRHandPose(path: string): Float32Array | undefined {
 function mirrorQuaterionOnXAxis(quaternion: Quaternion): void {
   quaternion.x = -quaternion.x
   quaternion.w = -quaternion.w
-}
+}*/

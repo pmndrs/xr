@@ -27,7 +27,6 @@ export class SphereIntersector implements Intersector {
   private ready?: boolean
 
   private readonly intersects: Array<ThreeIntersection> = []
-  private readonly pointerEventsOrders: Array<number | undefined> = []
 
   constructor(
     private readonly space: { current?: Object3D | null },
@@ -83,7 +82,7 @@ export class SphereIntersector implements Intersector {
         type: 'sphere',
       },
       uv,
-      distance: intersection.distance,
+      distance: point.distanceTo(pointOnFace),
       pointerPosition: this.fromPosition.clone(),
       pointerQuaternion: this.fromQuaternion.clone(),
       object,
@@ -102,23 +101,20 @@ export class SphereIntersector implements Intersector {
     this.collisionSphere.radius = this.getSphereRadius()
   }
 
-  public executeIntersection(object: Object3D, objectPointerEventsOrder: number | undefined): void {
+  public executeIntersection(object: Object3D): void {
     if (!this.isReady()) {
       return
     }
-    const start = this.intersects.length
     intersectSphereWithObject(this.collisionSphere, object, this.intersects)
-    pushTimes(this.pointerEventsOrders, objectPointerEventsOrder, this.intersects.length - start)
   }
 
   public finalizeIntersection(scene: Object3D): Intersection {
     const pointerPosition = this.fromPosition.clone()
     const pointerQuaternion = this.fromQuaternion.clone()
 
-    const index = getDominantIntersectionIndex(this.intersects, this.pointerEventsOrders, this.options)
+    const index = getDominantIntersectionIndex(this.intersects, undefined, this.options)
     const intersection = index == null ? undefined : this.intersects[index]
     this.intersects.length = 0
-    this.pointerEventsOrders.length = 0
 
     if (intersection == null) {
       return {
@@ -153,15 +149,15 @@ export class SphereIntersector implements Intersector {
 
 const matrixHelper = new Matrix4()
 
-function isSpherecastable(obj: Object3D): obj is Object3D & {
-  spherecast(sphere: Sphere, intersects: Array<ThreeIntersection>): void
-} {
-  return 'spherecast' in obj
+declare module 'three' {
+  export interface Object3D {
+    spherecast?(sphere: Sphere, intersects: Array<ThreeIntersection>): void
+  }
 }
 
 function intersectSphereWithObject(pointerSphere: Sphere, object: Object3D, target: Array<ThreeIntersection>): void {
   object.updateWorldMatrix(true, false)
-  if (isSpherecastable(object)) {
+  if (object.spherecast != null) {
     object.spherecast(pointerSphere, target)
     return
   }
@@ -258,6 +254,11 @@ function intersectSphereMesh(
 
   const point = vectorHelper.clone()
 
+  let uv: Vector2 | undefined
+  if (getClosestUV(point2Helper, point, mesh)) {
+    uv = point2Helper.clone()
+  }
+
   return {
     distance: Math.sqrt(distanceToSphereCenterSquared),
     face: {
@@ -267,6 +268,7 @@ function intersectSphereMesh(
       materialIndex: 0,
       normal,
     },
+    uv,
     normal,
     point,
     instanceId,

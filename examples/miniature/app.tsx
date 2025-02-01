@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Gltf, OrbitControls } from '@react-three/drei'
 import { useStore } from 'zustand'
 
-const store = createXRStore()
+const store = createXRStore({ offerSession: 'immersive-vr' })
 
 export function App() {
   const [miniature, setMinitature] = useState(false)

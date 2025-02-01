@@ -1,6 +1,6 @@
 {
     "dependencies": {
-        "@pmndrs/pointer-events": "workspace:^"
+        "@pmndrs/pointer-events": "workspace:~"
     },
     "scripts": {
         "dev": "vite"

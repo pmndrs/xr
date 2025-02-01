@@ -127,7 +127,7 @@ export class CombinedPointer {
     //we only need to intersect the scene if no pointer is captured or (in case one or more pointers are captured) if mulitple pointers can be enabled
     if (!anyPointerIsCaptured || this.enableMultiplePointers) {
       //intersect scene using the non captured pointers
-      intersectPointerEventTargets(scene, this.nonCapturedPointers)
+      intersectPointerEventTargets('pointer', scene, this.nonCapturedPointers)
 
       //finalize the intersection for the non captured pointers
       const nonCapturedPointerLength = this.nonCapturedPointers.length
