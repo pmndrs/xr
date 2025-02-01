@@ -8,7 +8,8 @@ const pointerRayGeometry = new BoxGeometry()
 
 export class PointerRayModel extends Mesh {
   constructor(pointer: Pointer, options: PointerRayModelOptions = {}) {
-    const material = new PointerRayMaterial()
+    const MaterialClass = options.materialClass ?? PointerRayMaterial
+    const material = new MaterialClass()
     super(pointerRayGeometry, material)
     this.renderOrder = options.renderOrder ?? 2
     onXRFrame(() => updatePointerRayModel(this, material, pointer, options))
@@ -19,7 +20,8 @@ const pointerCursorGeometry = new PlaneGeometry()
 
 export class PointerCursorModel extends Mesh {
   constructor(pointerGroup: Object3D, pointer: Pointer, options: PointerCursorModelOptions = {}) {
-    const material = new PointerCursorMaterial()
+    const MaterialClass = options.materialClass ?? PointerCursorMaterial
+    const material = new MaterialClass()
     super(pointerCursorGeometry, material)
     this.renderOrder = options.renderOrder ?? 1
     onXRFrame(() => updatePointerCursorModel(pointerGroup, this, material, pointer, options))

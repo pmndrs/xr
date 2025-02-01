@@ -93,8 +93,10 @@ export function updatePointerCursorModel(
 
   mesh.position.copy(intersection.pointOnFace)
   mesh.scale.setScalar(options.size ?? 0.1)
-  if (intersection.normal != null) {
-    quaternionHelper.setFromUnitVectors(ZAxis, intersection.normal)
+
+  const normal = intersection.normal ?? intersection.face?.normal
+  if (normal != null) {
+    quaternionHelper.setFromUnitVectors(ZAxis, normal)
     intersection.object.getWorldQuaternion(mesh.quaternion)
     mesh.quaternion.multiply(quaternionHelper)
     offsetHelper.set(0, 0, options.cursorOffset ?? 0.01)

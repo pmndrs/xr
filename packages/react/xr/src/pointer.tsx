@@ -131,7 +131,10 @@ export function useTouchPointer(
  * component for rendering a ray for a pointer
  */
 export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { pointer: Pointer }>((props, ref) => {
-  const material = useMemo(() => new PointerRayMaterial(), [])
+  const material = useMemo(() => {
+    const MaterialClass = props.materialClass ?? PointerRayMaterial
+    return new MaterialClass()
+  }, [props.materialClass])
   const internalRef = useRef<Mesh>(null)
   useImperativeHandle(ref, () => internalRef.current!, [])
   useFrame(
@@ -148,7 +151,10 @@ export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { point
  * component for rendering a cursor for a pointer
  */
 export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & { pointer: Pointer }>((props, ref) => {
-  const material = useMemo(() => new PointerCursorMaterial(), [])
+  const material = useMemo(() => {
+    const MaterialClass = props.materialClass ?? PointerCursorMaterial
+    return new MaterialClass()
+  }, [props.materialClass])
   const internalRef = useRef<Mesh>(null)
   const groupRef = useRef<Group>(null)
   useImperativeHandle(ref, () => internalRef.current!, [])
