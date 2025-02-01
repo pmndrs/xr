@@ -7,10 +7,10 @@ title: Minecraft Diamond Axe
 */
 
 import { useGLTF } from '@react-three/drei'
-import { GroupProps } from '@react-three/fiber'
+import { ThreeElements } from '@react-three/fiber'
 import { Mesh } from 'three'
 
-export function Axe(props: GroupProps) {
+export function Axe(props: ThreeElements['group']) {
   const { nodes, materials } = useGLTF('axe.glb')
   return (
     <group dispose={null} {...props}>

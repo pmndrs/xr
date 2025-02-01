@@ -40,7 +40,7 @@ const eventTranslations = {
  * @deprecated use normal react-three/fiber event listeners instead (e.g. <mesh onClick={...} />)
  */
 export function useInteraction(
-  ref: RefObject<Group>,
+  ref: RefObject<Group | null>,
   type: keyof typeof eventTranslations,
   handler?: (event: { intersection: Intersection; intersections: Array<Intersection>; target: any }) => void,
 ) {

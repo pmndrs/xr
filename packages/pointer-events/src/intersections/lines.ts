@@ -24,6 +24,7 @@ import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()
 const lineHelper = new Line3()
+const scaleHelper = new Vector3()
 const planeHelper = new Plane()
 const rayHelper = new Ray()
 const point2Helper = new Vector2()
@@ -78,6 +79,9 @@ export class LinesIntersector implements Intersector {
     intersection.object.updateWorldMatrix(true, false)
     computeIntersectionWorldPlane(planeHelper, intersection, intersection.object.matrixWorld)
     const pointOnFace = rayHelper.intersectPlane(planeHelper, new Vector3()) ?? point
+    const pointerPosition = new Vector3()
+    const pointerQuaternion = new Quaternion()
+    this.fromMatrixWorld.decompose(pointerPosition, pointerQuaternion, scaleHelper)
     let uv = intersection.uv
     if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
       uv = point2Helper.clone()
@@ -88,8 +92,8 @@ export class LinesIntersector implements Intersector {
       uv,
       pointOnFace,
       point,
-      pointerPosition: new Vector3().setFromMatrixPosition(this.fromMatrixWorld),
-      pointerQuaternion: new Quaternion().setFromRotationMatrix(this.fromMatrixWorld),
+      pointerPosition,
+      pointerQuaternion,
     }
   }
 
@@ -154,7 +158,8 @@ export class LinesIntersector implements Intersector {
       return voidObjectIntersectionFromRay(
         scene,
         lastRaycaster.ray,
-        (distanceOnLine) => ({
+        (point, distanceOnLine) => ({
+          line: new Line3(lastRaycaster.ray.origin.clone(), point),
           lineIndex: this.raycasters.length - 1,
           distanceOnLine,
           type: 'lines' as const,
@@ -173,11 +178,16 @@ export class LinesIntersector implements Intersector {
     intersection.object.updateWorldMatrix(true, false)
 
     //TODO: consider maxLength
+    const raycaster = this.raycasters[raycasterIndex]
     return Object.assign(intersection, {
       details: {
         lineIndex: raycasterIndex,
         distanceOnLine: intersection.distance,
         type: 'lines' as const,
+        line: new Line3(
+          raycaster.ray.origin.clone(),
+          raycaster.ray.direction.clone().multiplyScalar(raycaster.far).add(raycaster.ray.origin),
+        ),
       },
       distance,
       pointerPosition,

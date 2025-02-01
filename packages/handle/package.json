@@ -1,0 +1,38 @@
+{
+  "name": "@pmndrs/handle",
+  "description": "framework agnostic expandable handle implementation for threejs",
+  "author": "Bela Bohlender",
+  "type": "module",
+  "homepage": "https://github.com/pmndrs/xr",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha ./tests/*.spec.ts",
+    "check:prettier": "prettier --check src",
+    "check:eslint": "eslint 'src/**/*.ts'",
+    "fix:prettier": "prettier --write src",
+    "fix:eslint": "eslint 'src/**/*.ts' --fix"
+  },
+  "keywords": [
+    "r3f",
+    "xr",
+    "ar",
+    "vr",
+    "three.js",
+    "react",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/xr.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "@pmndrs/pointer-events": "workspace:~",
+    "zustand": "^4.5.2"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js"
+}

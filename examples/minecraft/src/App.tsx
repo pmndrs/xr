@@ -10,7 +10,7 @@ import { createXRStore, XR } from '@react-three/xr'
 // This demo needs pointer-lock, that works only if you open it in a new window
 // Controls: WASD + left click
 
-const store = createXRStore()
+const store = createXRStore({ offerSession: 'immersive-vr' })
 
 export function App() {
   return (

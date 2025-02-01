@@ -20,3 +20,5 @@ export * from './events.js'
 
 //react-three/xr v5 compatibility layer
 export * from './deprecated/index.js'
+
+export { isAppleVisionPro } from '@pmndrs/xr'

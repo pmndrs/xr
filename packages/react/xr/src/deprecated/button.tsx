@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes, forwardRef, ComponentPropsWithoutRef } from 'react'
 import { XRStore } from '../xr.js'
-import { useSessionModeSupported } from '../hooks.js'
+import { useXRSessionModeSupported } from '../hooks.js'
 import { useStore } from 'zustand'
 
 /**
@@ -16,7 +16,7 @@ export const XRButton = forwardRef<
   } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'onError'>
 >(({ store, mode, onError, children, ...props }, ref) => {
   const session = useStore(store, (xr) => xr.session)
-  const supported = useSessionModeSupported(mode, onError)
+  const supported = useXRSessionModeSupported(mode, onError)
   return (
     <button ref={ref} {...props} onClick={() => (session != null ? session.end() : store.enterXR(mode).catch(onError))}>
       {typeof children === 'function'

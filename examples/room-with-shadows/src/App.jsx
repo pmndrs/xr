@@ -39,6 +39,7 @@ const store = createXRStore({
       },
     },
   },
+  offerSession: 'immersive-vr',
 })
 
 export default function App() {

@@ -54,7 +54,14 @@ Inputs are a key aspect of react-three/fiber. The following hooks provide access
 
 ### `useXRInputSourceEvent`
 
-Hook for listening to xr input source events.
+Hook for listening to xr input source events. [List of events](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceEvent).
+
+ - `inputSource`: The input source to listen to, or 'all' to listen to all input sources
+ - `event`: The event to listen to. ([List of events](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceEvent))
+ - `fn`: Callback function called when the event is triggered.
+ - `deps`: Retriggers the binding of the event when the dependencies change.
+
+ex: `useXRInputSourceEvent('all', "selectstart", (event) => console.log(event))`
 
 ### `useXRInputSourceStateContext`
 

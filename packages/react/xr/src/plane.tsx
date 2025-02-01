@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useMemo, useState } from 'react'
-import { MeshProps, useFrame } from '@react-three/fiber'
+import { ThreeElements, useFrame } from '@react-three/fiber'
 import { BufferGeometry, Mesh } from 'three'
 import { updateXRPlaneGeometry } from '@pmndrs/xr/internals'
 import { useXR } from './xr.js'
@@ -7,7 +7,7 @@ import { useXR } from './xr.js'
 /**
  * component for rendering a mesh for the XRPlane based on the detected plane geometry
  */
-export const XRPlaneModel = forwardRef<Mesh, MeshProps & { plane: XRPlane }>(({ plane, ...rest }, ref) => {
+export const XRPlaneModel = forwardRef<Mesh, ThreeElements['mesh'] & { plane: XRPlane }>(({ plane, ...rest }, ref) => {
   const geometry = useXRPlaneGeometry(plane)
   return <mesh ref={ref} geometry={geometry} {...rest} />
 })

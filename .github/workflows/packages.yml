@@ -24,7 +24,7 @@ jobs:
       - uses: pnpm/action-setup@v2
         name: Install pnpm
         with:
-          version: 8
+          version: 9
           run_install: false
 
       - uses: gittools/actions/gitversion/setup@v0
@@ -50,6 +50,7 @@ jobs:
 
       - name: Build
         run: |
+          pnpm -r copy
           pnpm -F './packages/**/*' build
 
       - name: Copy README
@@ -71,6 +72,16 @@ jobs:
         working-directory: ./packages/pointer-events
         run: pnpm publish --access public --no-git-checks --tag latest
 
+      - id: check-handle-vanilla
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./packages/handle/
+
+      - name: Deploy Handle Vanilla Package
+        if: steps.check-handle-vanilla.outputs.is-new-version == 'true'
+        working-directory: ./packages/handle
+        run: pnpm publish --access public --no-git-checks --tag latest
+
       - id: check-xr-vanilla
         uses: PostHog/check-package-version@v2
         with:
@@ -79,6 +90,16 @@ jobs:
       - name: Deploy XR Vanilla Package
         if: steps.check-xr-vanilla.outputs.is-new-version == 'true'
         working-directory: ./packages/xr
+        run: pnpm publish --access public --no-git-checks --tag latest
+
+      - id: check-handle-react
+        uses: PostHog/check-package-version@v2
+        with:
+          path: ./packages/react/handle/
+
+      - name: Deploy Handle React Package
+        if: steps.check-handle-react.outputs.is-new-version == 'true'
+        working-directory: ./packages/react/handle
         run: pnpm publish --access public --no-git-checks --tag latest
 
       - id: check-xr-react
@@ -90,3 +111,4 @@ jobs:
         if: steps.check-xr-react.outputs.is-new-version == 'true'
         working-directory: ./packages/react/xr
         run: pnpm publish --access public --no-git-checks --tag latest
+

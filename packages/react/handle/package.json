@@ -1,0 +1,44 @@
+{
+  "name": "@react-three/handle",
+  "description": "agnostic expandable handles for react-three-fiber",
+  "author": "Bela Bohlender",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/pmndrs/xr",
+  "type": "module",
+  "keywords": [
+    "r3f",
+    "handle",
+    "controls",
+    "three.js",
+    "react",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pmndrs/xr.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "peerDependencies": {
+    "@react-three/fiber": ">=8",
+    "react": ">=18",
+    "three": "*"
+  },
+  "dependencies": {
+    "@pmndrs/handle": "workspace:~",
+    "@pmndrs/pointer-events": "workspace:~",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@react-three/fiber": "rc"
+  },
+  "scripts": {
+    "build": "tsc",
+    "check:prettier": "prettier --check src",
+    "check:eslint": "eslint 'src/**/*.ts'",
+    "fix:prettier": "prettier --write src",
+    "fix:eslint": "eslint 'src/**/*.ts' --fix"
+  }
+}

@@ -1,5 +1,5 @@
-import { Canvas, createPortal, GroupProps, useFrame } from '@react-three/fiber'
-import { createXRStore, XR, useLoadXRControllerLayout, useLoadXRControllerModel } from '@react-three/xr'
+import { Canvas, createPortal, ThreeElements, useFrame } from '@react-three/fiber'
+import { useLoadXRControllerLayout, useLoadXRControllerModel } from '@react-three/xr'
 import { XRControllerGamepadComponentId, XRControllerLayout, getXRControllerComponentObject } from '@pmndrs/xr'
 import { PropsWithChildren, Suspense, useEffect, useRef, useState } from 'react'
 import { Group, MeshBasicMaterial, Object3D } from 'three'
@@ -23,7 +23,7 @@ export function App() {
   )
 }
 
-function TutorialController(props: Omit<GroupProps, 'children'>) {
+function TutorialController(props: Omit<ThreeElements['group'], 'children'>) {
   const layout = useLoadXRControllerLayout(['meta-quest-touch-plus'], 'right')
   const model = useLoadXRControllerModel(layout)
   const materialRef = useRef<MeshBasicMaterial>(null)

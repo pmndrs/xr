@@ -1,8 +1,7 @@
 {
   "dependencies": {
-    "@react-three/drei": "^9.108.4",
     "@react-three/rapier": "^1.4.0",
-    "@react-three/xr": "workspace:^",
+    "@react-three/xr": "workspace:~",
     "zustand": "^4.5.4"
   },
   "type": "module",

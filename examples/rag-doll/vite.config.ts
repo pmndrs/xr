@@ -8,7 +8,13 @@ export default defineConfig({
   plugins: [react(), basicSsl()],
   base: '/xr/examples/rag-doll/',
   resolve: {
-    alias: [{ find: '@react-three/xr', replacement: path.resolve(__dirname, '../../packages/react/xr/src/index.ts') }],
+    alias: [
+      { find: '@react-three/xr', replacement: path.resolve(__dirname, '../../packages/react/xr/src/index.ts') },
+      {
+        find: '@pmndrs/pointer-events',
+        replacement: path.resolve(__dirname, '../../packages/pointer-events/src/index.ts'),
+      },
+    ],
     dedupe: ['@react-three/fiber', 'three'],
   },
 })

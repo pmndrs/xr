@@ -6,6 +6,7 @@ import { AnimationMixer } from 'three'
 
 const store = createXRStore({
   controller: false,
+  offerSession: 'immersive-vr',
 })
 
 export function App() {

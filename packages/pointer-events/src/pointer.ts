@@ -54,7 +54,13 @@ export type PointerOptions = {
   ) => boolean
 }
 
-const pointerMap = new Map<number, Pointer>()
+globalThis.pointerEventspointerMap ??= new Map<number, Pointer>()
+
+declare global {
+  namespace globalThis {
+    var pointerEventspointerMap: Map<number, Pointer> | undefined
+  }
+}
 
 declare module 'three' {
   interface Object3D {
@@ -64,7 +70,12 @@ declare module 'three' {
 
     intersectChildren?: boolean
     interactableDescendants?: Array<Object3D>
+    /**
+     * @deprecated
+     */
     ancestorsHaveListeners?: boolean
+    ancestorsHavePointerListeners?: boolean
+    ancestorsHaveWheelListeners?: boolean
   }
 }
 
@@ -85,7 +96,7 @@ Object3D.prototype.hasPointerCapture = function (this: Object3D, pointerId: numb
 }
 
 export function getPointerById(pointerId: number) {
-  return pointerMap.get(pointerId)
+  return globalThis.pointerEventspointerMap?.get(pointerId)
 }
 
 export type GetCamera = () => PerspectiveCamera | OrthographicCamera
@@ -123,7 +134,7 @@ export class Pointer {
     private readonly parentReleasePointerCapture?: () => void,
     public readonly options: PointerOptions = {},
   ) {
-    pointerMap.set(id, this)
+    globalThis.pointerEventspointerMap?.set(id, this)
   }
 
   getPointerCapture(): PointerCapture | undefined {
@@ -179,12 +190,12 @@ export class Pointer {
     }
   }
 
-  computeIntersection(scene: Object3D, nativeEvent: NativeEvent) {
+  computeIntersection(type: 'wheel' | 'pointer', scene: Object3D, nativeEvent: NativeEvent) {
     if (this.pointerCapture != null) {
       return this.intersector.intersectPointerCapture(this.pointerCapture, nativeEvent)
     }
     this.intersector.startIntersection(nativeEvent)
-    intersectPointerEventTargets(scene, [this])
+    intersectPointerEventTargets(type, scene, [this])
     return this.intersector.finalizeIntersection(scene)
   }
 
@@ -249,7 +260,7 @@ export class Pointer {
    * computes and commits a move
    */
   move(scene: Object3D, nativeEvent: NativeEvent): void {
-    this.intersection = this.computeIntersection(scene, nativeEvent)
+    this.intersection = this.computeIntersection('pointer', scene, nativeEvent)
     this.commit(nativeEvent, true)
   }
 
@@ -364,7 +375,7 @@ export class Pointer {
       return
     }
     if (!useMoveIntersection) {
-      this.wheelIntersection = this.computeIntersection(scene, nativeEvent)
+      this.wheelIntersection = this.computeIntersection('wheel', scene, nativeEvent)
     }
     const intersection = useMoveIntersection ? this.intersection : this.wheelIntersection
     if (intersection == null) {

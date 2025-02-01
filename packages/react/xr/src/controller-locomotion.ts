@@ -22,7 +22,7 @@ import { useXRStore } from './xr.js'
  */
 export function useXRControllerLocomotion(
   target:
-    | RefObject<Object3D>
+    | RefObject<Object3D | null>
     | ((velocity: Vector3, rotationVelocityY: number, deltaTime: number, state: RootState, frame?: XRFrame) => void),
   translationOptions: XRControllerLocomotionTranslationOptions = {},
   rotationOptions: XRControllerLocomotionRotationOptions = {},
