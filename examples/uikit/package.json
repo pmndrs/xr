@@ -1,11 +1,12 @@
 {
   "dependencies": {
     "@pmndrs/pointer-events": "workspace:~",
+    "@preact/signals": "^2.0.1",
+    "@react-three/handle": "workspace:~",
     "@react-three/uikit": "^0.8.3",
     "@react-three/uikit-default": "^0.8.3",
     "@react-three/uikit-lucide": "^0.8.3",
-    "@react-three/xr": "workspace:~",
-    "leva": "^0.9.35"
+    "@react-three/xr": "workspace:~"
   },
   "scripts": {
     "dev": "vite --host"

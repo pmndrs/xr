@@ -74,7 +74,10 @@ export class RayIntersector implements Intersector {
     computeIntersectionWorldPlane(planeHelper, intersection, intersection.object.matrixWorld)
     const { ray } = this.raycaster
     const pointOnFace = ray.intersectPlane(planeHelper, new Vector3()) ?? intersection.point
-    const point = ray.direction.clone().multiplyScalar(intersection.distance).add(ray.origin)
+    const point = ray.direction
+      .clone()
+      .multiplyScalar(intersection.pointerPosition.distanceTo(intersection.point))
+      .add(ray.origin)
     let uv = intersection.uv
     if (intersection.object instanceof Mesh && getClosestUV(point2Helper, point, intersection.object)) {
       uv = point2Helper.clone()

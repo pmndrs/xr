@@ -5,7 +5,7 @@ import { HandleStore } from '@pmndrs/handle'
 
 const HandleTargetRefContext = createContext<RefObject<Object3D | null> | undefined>(undefined)
 
-export const HandleTarget = forwardRef<Object3D, { children?: ReactNode; targetRef?: RefObject<Object3D> }>(
+export const HandleTarget = forwardRef<Object3D, { children?: ReactNode; targetRef?: RefObject<Object3D | null> }>(
   ({ targetRef, children }, ref) => {
     const internalRef = useRef<Group>(null)
     useImperativeHandle(ref, () => (targetRef ?? internalRef).current!, [targetRef])
@@ -24,7 +24,7 @@ export const Handle = forwardRef<
   HandleStore<unknown>,
   {
     children?: ReactNode
-    handleRef?: RefObject<Object3D>
+    handleRef?: RefObject<Object3D | null>
     targetRef?: 'from-context' | RefObject<Object3D | null>
     /**
      * @deprecated use `targetRef="from-context"` instead
