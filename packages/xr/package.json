@@ -21,7 +21,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "build": "tsc",
-    "copy": "node -e \"require('fs').copyFile(require('path').resolve(__dirname, './node_modules/@iwer/sem/captures/office.json'), require('path').resolve(__dirname, './src/default-environment.json'), () => {})\"",
+    "copy": "node -e \"require('fs').copyFile(require('path').resolve(__dirname, './node_modules/@iwer/sem/captures/office_small.json'), require('path').resolve(__dirname, './src/default-environment.json'), () => {})\"",
     "check:prettier": "prettier --check src",
     "check:eslint": "eslint 'src/**/*.ts'",
     "fix:prettier": "prettier --write src",
@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@iwer/devui": "^1.0.2",
-    "@iwer/sem": "~0.2.1",
+    "@iwer/sem": "~0.2.2",
     "@pmndrs/pointer-events": "workspace:~",
     "iwer": "^2.0.0",
     "meshline": "^3.3.1",
