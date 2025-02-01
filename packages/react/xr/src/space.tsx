@@ -46,11 +46,13 @@ export const XRSpace = forwardRef<
   )
 })
 
-export type XRSpaceType = XRReferenceSpaceType | XRInputSourceSpaceType | XRHandJointSpaceType
+export type XRSpaceType = XRReferenceSpaceType | XRInputSourceSpaceType | XRHandJointSpaceType | XRBodyJointSpaceType
 
 export type XRInputSourceSpaceType = 'grip-space' | 'target-ray-space'
 
 export type XRHandJointSpaceType = XRHandJoint
+
+export type XRBodyJointSpaceType = XRBodyJoint
 
 /**
  * hook for retrieving getting xr space from the context
@@ -59,9 +61,7 @@ export function useXRSpace(): XRSpace
 
 export function useXRSpace(type: XRReferenceSpaceType): XRReferenceSpace | undefined
 
-export function useXRSpace(
-  type: XRInputSourceSpaceType | XRHandJointSpaceType | XRReferenceSpaceType,
-): XRSpace | undefined
+export function useXRSpace(type: XRSpaceType): XRSpace | undefined
 
 export function useXRSpace(type?: XRSpaceType): XRSpace | XRReferenceSpace | undefined {
   switch (type) {
@@ -98,6 +98,92 @@ export function useXRSpace(type?: XRSpaceType): XRSpace | XRReferenceSpace | und
     case 'pinky-finger-tip':
       // eslint-disable-next-line react-hooks/rules-of-hooks
       return useXRInputSourceStateContext('hand').inputSource.hand.get(type)
+    case 'root':
+    case 'hips':
+    case 'spine-lower':
+    case 'spine-middle':
+    case 'spine-upper':
+    case 'chest':
+    case 'neck':
+    case 'head':
+    case 'left-shoulder':
+    case 'left-scapula':
+    case 'left-arm-upper':
+    case 'left-arm-lower':
+    case 'left-hand-wrist-twist':
+    case 'right-shoulder':
+    case 'right-scapula':
+    case 'right-arm-upper':
+    case 'right-arm-lower':
+    case 'right-hand-wrist-twist':
+    case 'left-hand-palm':
+    case 'left-hand-wrist':
+    case 'left-hand-thumb-metacarpal':
+    case 'left-hand-thumb-phalanx-proximal':
+    case 'left-hand-thumb-phalanx-distal':
+    case 'left-hand-thumb-tip':
+    case 'left-hand-index-metacarpal':
+    case 'left-hand-index-phalanx-proximal':
+    case 'left-hand-index-phalanx-intermediate':
+    case 'left-hand-index-phalanx-distal':
+    case 'left-hand-index-tip':
+    case 'left-hand-middle-metacarpal':
+    case 'left-hand-middle-phalanx-proximal':
+    case 'left-hand-middle-phalanx-intermediate':
+    case 'left-hand-middle-phalanx-distal':
+    case 'left-hand-middle-tip':
+    case 'left-hand-ring-metacarpal':
+    case 'left-hand-ring-phalanx-proximal':
+    case 'left-hand-ring-phalanx-intermediate':
+    case 'left-hand-ring-phalanx-distal':
+    case 'left-hand-ring-tip':
+    case 'left-hand-little-metacarpal':
+    case 'left-hand-little-phalanx-proximal':
+    case 'left-hand-little-phalanx-intermediate':
+    case 'left-hand-little-phalanx-distal':
+    case 'left-hand-little-tip':
+    case 'right-hand-palm':
+    case 'right-hand-wrist':
+    case 'right-hand-thumb-metacarpal':
+    case 'right-hand-thumb-phalanx-proximal':
+    case 'right-hand-thumb-phalanx-distal':
+    case 'right-hand-thumb-tip':
+    case 'right-hand-index-metacarpal':
+    case 'right-hand-index-phalanx-proximal':
+    case 'right-hand-index-phalanx-intermediate':
+    case 'right-hand-index-phalanx-distal':
+    case 'right-hand-index-tip':
+    case 'right-hand-middle-metacarpal':
+    case 'right-hand-middle-phalanx-proximal':
+    case 'right-hand-middle-phalanx-intermediate':
+    case 'right-hand-middle-phalanx-distal':
+    case 'right-hand-middle-tip':
+    case 'right-hand-ring-metacarpal':
+    case 'right-hand-ring-phalanx-proximal':
+    case 'right-hand-ring-phalanx-intermediate':
+    case 'right-hand-ring-phalanx-distal':
+    case 'right-hand-ring-tip':
+    case 'right-hand-little-metacarpal':
+    case 'right-hand-little-phalanx-proximal':
+    case 'right-hand-little-phalanx-intermediate':
+    case 'right-hand-little-phalanx-distal':
+    case 'right-hand-little-tip':
+    case 'left-upper-leg':
+    case 'left-lower-leg':
+    case 'left-foot-ankle-twist':
+    case 'left-foot-ankle':
+    case 'left-foot-subtalar':
+    case 'left-foot-transverse':
+    case 'left-foot-ball':
+    case 'right-upper-leg':
+    case 'right-lower-leg':
+    case 'right-foot-ankle-twist':
+    case 'right-foot-ankle':
+    case 'right-foot-subtalar':
+    case 'right-foot-transverse':
+    case 'right-foot-ball':
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return useXR((state) => state.body)?.get(type)
   }
   if (type == null) {
     // eslint-disable-next-line react-hooks/rules-of-hooks

@@ -20,6 +20,10 @@ export type XRSessionInitOptions = {
   /**
    * @default true
    */
+  bodyTracking?: XRSessionFeatureRequest
+  /**
+   * @default true
+   */
   layers?: XRSessionFeatureRequest
   /**
    * @default true
@@ -62,6 +66,7 @@ export function buildXRSessionInit(
     depthSensing = false,
     hitTest = true,
     domOverlay = true,
+    bodyTracking = false, //until 6.7 since breaking change
     bounded,
   }: XRSessionInitOptions = {},
 ) {
@@ -86,6 +91,7 @@ export function buildXRSessionInit(
   addXRSessionFeature(depthSensing, 'depth-sensing', requiredFeatures, optionalFeatures)
   addXRSessionFeature(domOverlay, 'dom-overlay', requiredFeatures, optionalFeatures)
   addXRSessionFeature(hitTest, 'hit-test', requiredFeatures, optionalFeatures)
+  addXRSessionFeature(bodyTracking, 'body-tracking', requiredFeatures, optionalFeatures)
 
   const init: XRSessionInit = {
     requiredFeatures,
