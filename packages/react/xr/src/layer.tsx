@@ -315,7 +315,7 @@ export const FallbackXRLayerImplementation = forwardRef<
   }, [src, pixelWidth, pixelHeight, dpr, renderTargetRef])
   return (
     <mesh ref={ref} {...props}>
-      <meshBasicMaterial ref={materialRef} toneMapped={false} />
+      <meshBasicMaterial ref={materialRef} toneMapped={false} transparent={!!props.blendTextureSourceAlpha} />
     </mesh>
   )
 })
