@@ -34,7 +34,7 @@
     "three": "*"
   },
   "dependencies": {
-    "@iwer/devui": "^1.0.2",
+    "@iwer/devui": "^1.1.0",
     "@iwer/sem": "~0.2.2",
     "@pmndrs/pointer-events": "workspace:~",
     "iwer": "^2.0.0",
