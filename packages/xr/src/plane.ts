@@ -1,15 +1,5 @@
 import { Box2, BufferGeometry, Shape, ShapeGeometry, Vector2 } from 'three'
 
-declare global {
-  type XRSemanticLabel = 'desk' | 'couch' | 'floor' | 'ceiling' | 'wall' | 'door' | 'window' | 'other' | string
-  interface XRPlane {
-    semanticLabel?: XRSemanticLabel
-  }
-  interface XRMesh {
-    semanticLabel?: XRSemanticLabel
-  }
-}
-
 export function updateXRPlaneGeometry(
   plane: XRPlane,
   geometry: (BufferGeometry & { createdAt?: number }) | undefined,

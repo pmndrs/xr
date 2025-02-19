@@ -3,7 +3,6 @@ import { DevUI } from '@iwer/devui'
 import type { XRDeviceOptions } from 'iwer/lib/device/XRDevice'
 import { Euler, Quaternion, Vector3, Vector3Tuple, Vector4Tuple } from 'three'
 import { SyntheticEnvironmentModule } from '@iwer/sem'
-import defaultEnvironment from './default-environment.json' assert { type: 'json' }
 
 const configurations = { metaQuest3, metaQuest2, metaQuestPro, oculusQuest1 }
 
@@ -15,6 +14,22 @@ export type EmulatorTransformationOptions = {
   quaternion?: Quaternion | Vector4Tuple
 }
 
+export type DefaultSyntheticEnvironment =
+  | 'meeting_room'
+  | 'living_room'
+  | 'music_room'
+  | 'office_large'
+  | 'office_small'
+
+const defaultSyntheticEnvironments: Array<DefaultSyntheticEnvironment> = [
+  //default default environment:
+  'office_small',
+  'meeting_room',
+  'living_room',
+  'music_room',
+  'office_large',
+]
+
 export type EmulatorOptions =
   | EmulatorType
   | ({
@@ -24,7 +39,7 @@ export type EmulatorOptions =
       inject?: boolean | { hostname: string }
       controller?: Partial<Record<XRHandedness, EmulatorTransformationOptions>>
       hand?: Partial<Record<XRHandedness, EmulatorTransformationOptions>>
-      syntheticEnvironment?: null | boolean | JSON | string
+      syntheticEnvironment?: null | boolean | JSON | (string & {}) | DefaultSyntheticEnvironment
     } & Partial<Pick<XRDeviceOptions, 'ipd' | 'fovy' | 'stereoEnabled' | 'canvasContainer'>>)
 
 const handednessList: Array<XRHandedness> = ['left', 'none', 'right']
@@ -53,9 +68,15 @@ export function emulate(options: EmulatorOptions) {
     return xrdevice
   }
 
+  if (typeof syntheticEnvironment === 'string' && defaultSyntheticEnvironments.includes(syntheticEnvironment as any)) {
+    //load the selected default environment
+    xrdevice.sem?.loadDefaultEnvironment(syntheticEnvironment)
+    return xrdevice
+  }
+
   if (syntheticEnvironment === true || syntheticEnvironment === undefined) {
-    //load the default environment
-    xrdevice.sem?.loadEnvironment(defaultEnvironment)
+    //load the first default environment
+    xrdevice.sem?.loadDefaultEnvironment(defaultSyntheticEnvironments[0])
     return xrdevice
   }
 
