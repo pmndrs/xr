@@ -423,8 +423,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(@types/react@19.0.8)(iwer@2.0.1)
       '@iwer/sem':
-        specifier: ~0.2.4
-        version: 0.2.4(iwer@2.0.1)
+        specifier: ~0.2.5
+        version: 0.2.5(iwer@2.0.1)
       '@pmndrs/pointer-events':
         specifier: workspace:~
         version: link:../pointer-events
@@ -753,8 +753,8 @@ packages:
     peerDependencies:
       iwer: ^2.0.1
 
-  '@iwer/sem@0.2.4':
-    resolution: {integrity: sha512-iC/lrOVzRhlb1pjlHrMZjHgXmgC9JPKfj5B20dFi5IH2Sr/x+DKm2RtsuuSO4AUGJGFZ+uHMo6vuGcwbzzEJiw==}
+  '@iwer/sem@0.2.5':
+    resolution: {integrity: sha512-vMCfpu/7Qqc+hkBiGD9pxjeObgrhXOrL0KX94CA3yzJaU0dq0y49HXZT6fC+6X/jOmjaM3hjyE1m2h7ZmLzzyA==}
     peerDependencies:
       iwer: ^2.0.0
 
@@ -3529,7 +3529,7 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@iwer/sem@0.2.4(iwer@2.0.1)':
+  '@iwer/sem@0.2.5(iwer@2.0.1)':
     dependencies:
       iwer: 2.0.1
       three: 0.165.0
