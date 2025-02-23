@@ -21,7 +21,7 @@ camera.position.z = 100
 //setup threejs event forwarding
 const { update } = forwardHtmlEvents(document.body, () => camera, scene, {
   forwardPointerCapture: false,
-  clickThesholdMs: 1000 /*increasing threshold for slow testing machines*/,
+  clickThresholdMs: 1000 /*increasing threshold for slow testing machines*/,
 })
 
 const renderer = new WebGLRenderer({ antialias: true, canvas })
