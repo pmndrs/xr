@@ -75,7 +75,7 @@ function DefaultXRInputSourceGrabPointer(
  * grab pointer for the XRHand
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `makeDefault` used the set the default pointer inside a combined pointer
@@ -88,7 +88,7 @@ export const DefaultXRHandGrabPointer = DefaultXRInputSourceGrabPointer.bind(nul
  * grab pointer for the XRController
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `makeDefault` used the set the default pointer inside a combined pointer
@@ -101,7 +101,7 @@ export const DefaultXRControllerGrabPointer = DefaultXRInputSourceGrabPointer.bi
  * ray pointer for the XRInputSource
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `makeDefault` used the set the default pointer inside a combined pointer
@@ -135,7 +135,7 @@ export function DefaultXRInputSourceRayPointer(options: DefaultXRInputSourceRayP
  * touch pointer for the XRHand
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `makeDefault` used the set the default pointer inside a combined pointer
@@ -243,7 +243,7 @@ export function DefaultXRHand(options: DefaultXRHandOptions) {
  * default transient-pointer implementation with ray pointer
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `minDistance` minimal distance to trigger interactions
@@ -259,7 +259,7 @@ export function DefaultXRTransientPointer(options: DefaultXRTransientPointerOpti
  * default gaze implementation with ray pointer
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `minDistance` minimal distance to trigger interactions
@@ -275,7 +275,7 @@ export function DefaultXRGaze(options: DefaultXRGazeOptions) {
  * default screen-input implementation with ray pointer
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `minDistance` minimal distance to trigger interactions
@@ -291,7 +291,7 @@ export function DefaultXRScreenInput(options: DefaultXRScreenInputOptions) {
  * emits a downwards bend ray that only interesects with meshes marked as teleportable
  *
  * properties
- * - `clickThesholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
+ * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
  * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
  * - `contextMenuButton` the button that triggers contextmenu events
  * - `makeDefault` used the set the default pointer inside a combined pointer
