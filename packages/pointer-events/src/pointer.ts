@@ -31,6 +31,10 @@ export type PointerCapture = {
 
 export type PointerOptions = {
   /**
+   * @deprecated use clickThresholdMs instead
+   */
+  clickThesholdMs?: number
+  /**
    * @default 300
    */
   clickThresholdMs?: number
@@ -309,7 +313,12 @@ export class Pointer {
     if (this.intersection == null) {
       return
     }
-    const { contextMenuButton = 2, dblClickThresholdMs = 500, clickThresholdMs = 300 } = this.options
+    const {
+      clickThesholdMs,
+      contextMenuButton = 2,
+      dblClickThresholdMs = 500,
+      clickThresholdMs = clickThesholdMs ?? 300,
+    } = this.options
 
     this.pointerCapture = undefined
     const isClicked = getIsClicked(
