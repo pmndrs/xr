@@ -226,6 +226,15 @@ importers:
         specifier: workspace:~
         version: link:../../packages/pointer-events
 
+  examples/portal:
+    dependencies:
+      '@react-three/handle':
+        specifier: workspace:~
+        version: link:../../packages/react/handle
+      '@react-three/xr':
+        specifier: workspace:~
+        version: link:../../packages/react/xr
+
   examples/rag-doll:
     dependencies:
       '@pmndrs/pointer-events':
