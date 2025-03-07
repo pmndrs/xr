@@ -510,6 +510,10 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   const frameRequests: Array<(frame: XRFrame) => void> = []
   let xrManager: WebXRManager | undefined
 
+  const onSessionStart = () => {
+    store.setState(bindToSession(xrManager!.getSession()!))
+  }
+
   return Object.assign(store, {
     addLayerEntry(layerEntry: XRLayerEntry): void {
       if (store.getState().session == null) {
@@ -530,7 +534,9 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (xrManager === newXrManager) {
         return
       }
+      xrManager?.removeEventListener('sessionstart', onSessionStart)
       xrManager = newXrManager
+      xrManager.addEventListener('sessionstart', onSessionStart)
       const { foveation, bounded } = options ?? {}
       xrManager.setReferenceSpaceType(bounded ? 'bounded-floor' : 'local-floor')
       if (foveation != null) {
@@ -606,6 +612,7 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       store.setState({ screenInput: implementation })
     },
     destroy() {
+      xrManager?.removeEventListener('sessionstart', onSessionStart)
       cleanupEmulate?.()
       cleanupDomOverlayRoot?.()
       cleanupSessionGrantedListener?.()
@@ -643,10 +650,6 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (frame != null) {
         if (xrManager != null) {
           updateSession(store, frame, xrManager)
-        }
-        if (state.session == null && referenceSpace != null && frame.session != null) {
-          update ??= {}
-          Object.assign(update, bindToSession(frame.session))
         }
         if (state.body != frame.body) {
           update ??= {}
