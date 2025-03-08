@@ -1,4 +1,5 @@
 import {
+  CanvasTexture,
   CylinderGeometry,
   DepthTexture,
   HalfFloatType,
@@ -259,7 +260,12 @@ export function getXRLayerSrcTexture(src: XRLayerSrc): Texture {
   if (src instanceof WebGLRenderTarget) {
     return src.texture
   }
-  const texture = src instanceof HTMLVideoElement ? new VideoTexture(src) : new Texture(src)
+  const texture =
+    src instanceof HTMLVideoElement
+      ? new VideoTexture(src)
+      : src instanceof HTMLCanvasElement
+        ? new CanvasTexture(src)
+        : new Texture(src)
   texture.colorSpace = SRGBColorSpace
   texture.needsUpdate = true
   return texture
