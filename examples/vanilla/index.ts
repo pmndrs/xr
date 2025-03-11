@@ -10,8 +10,7 @@ import {
   Scene,
   WebGLRenderer,
 } from 'three'
-import { reversePainterSortStable, Container, Fullscreen, Image, Text, Svg, Content, Root } from '@pmndrs/uikit'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { reversePainterSortStable, Container, Image, Text, Svg, Root } from '@pmndrs/uikit'
 import { Delete } from '@pmndrs/uikit-lucide'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
@@ -125,9 +124,9 @@ renderer.setAnimationLoop((time, frame) => {
   const delta = prevTime == null ? 0 : time - prevTime
   prevTime = time
   box.rotation.y = time * 0.0001
+  root.update(delta / 1000)
   store.update(frame, delta)
   renderer.render(scene, camera)
-  root.update(0.016)
 })
 renderer.localClippingEnabled = true
 renderer.setTransparentSort(reversePainterSortStable)

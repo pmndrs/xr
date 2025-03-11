@@ -1,9 +1,10 @@
 {
   "dependencies": {
     "@pmndrs/pointer-events": "workspace:~",
-    "@pmndrs/handle": "workspace:~"
+    "@pmndrs/handle": "workspace:~",
+    "@pmndrs/xr": "workspace:~"
   },
   "scripts": {
-    "dev": "vite"
+    "dev": "vite --host"
   }
 }

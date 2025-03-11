@@ -1,12 +1,14 @@
 import path from 'path'
 import { defineConfig } from 'vite'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  plugins: [basicSsl()],
   build: {
     outDir: './dist',
   },
-  base: '/pointer-events/',
+  base: '/handle-vanilla/',
   resolve: {
     alias: [
       {

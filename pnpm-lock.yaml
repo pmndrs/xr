@@ -171,6 +171,9 @@ importers:
       '@pmndrs/pointer-events':
         specifier: workspace:~
         version: link:../../packages/pointer-events
+      '@pmndrs/xr':
+        specifier: workspace:~
+        version: link:../../packages/xr
 
   examples/hit-testing:
     dependencies:
