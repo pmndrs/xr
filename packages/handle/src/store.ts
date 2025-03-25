@@ -91,8 +91,8 @@ export class HandleStore<T>
   implements OnePointerHandleStoreData, TwoPointerHandleStoreData, TranslateAsHandleStoreData
 {
   //internal out state (will be used to output the state)
-  private outputState: HandleStateImpl<T>
-  private latestMoveEvent: PointerEvent | undefined
+  protected outputState: HandleStateImpl<T>
+  protected latestMoveEvent: PointerEvent | undefined
 
   //internal in state (will be written on save)
   readonly inputState = new Map<
@@ -253,7 +253,7 @@ export class HandleStore<T>
     this.latestMoveEvent = undefined
   }
 
-  private getTarget() {
+  protected getTarget() {
     return this.target instanceof Object3D ? this.target : this.target?.current
   }
 
@@ -292,7 +292,7 @@ export class HandleStore<T>
     event.stopPropagation()
   }
 
-  private apply(target: Object3D): T {
+  protected apply(target: Object3D): T {
     const apply = this.getOptions().apply ?? defaultApply
     return apply(this.outputState, target)
   }
