@@ -119,20 +119,23 @@ export function computeTwoPointerHandleTransformState(
   storeData.prevAngle = angle
   qHelper1.premultiply(quaterionHelper2.setFromAxisAngle(vectorHelper2, angle))
 
+  //compute the initial world quaternion and initial world scale
+  matrixHelper3.compose(
+    storeData.initialTargetPosition,
+    storeData.initialTargetQuaternion,
+    storeData.initialTargetScale,
+  )
+  if (storeData.initialTargetParentWorldMatrix != null) {
+    matrixHelper3.premultiply(storeData.initialTargetParentWorldMatrix)
+  }
+
   //compute delta scale
   if (typeof options.scale === 'object' && (options.scale.uniform ?? false)) {
     scaleHelper.setScalar(deltaHelper2.length() / deltaHelper1.length())
   } else {
-    //compute the initial world quaternion and initial world scale
-    matrixHelper3.compose(
-      storeData.initialTargetPosition,
-      storeData.initialTargetQuaternion,
-      storeData.initialTargetScale,
-    )
-    if (storeData.initialTargetParentWorldMatrix != null) {
-      matrixHelper3.premultiply(storeData.initialTargetParentWorldMatrix)
-    }
+    //decompose the initial target world matrix
     matrixHelper3.decompose(vectorHelper3, quaterionHelper2, vectorHelper4)
+
     //compute the initial scale axis
     vectorHelper1.copy(deltaHelper1).applyQuaternion(quaterionHelper2.invert()).divide(vectorHelper4)
     vectorHelper1.x = Math.abs(vectorHelper1.x)
