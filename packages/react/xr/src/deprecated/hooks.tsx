@@ -93,7 +93,7 @@ export function useXREvent(
       })
     }
     session.addEventListener(type, fn)
-    return session.removeEventListener(type, fn)
+    return () => session.removeEventListener(type, fn)
   }, [session, handedness, type])
 }
 
