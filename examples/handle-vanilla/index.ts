@@ -1,24 +1,6 @@
-import {
-  BoxGeometry,
-  Group,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Object3DEventMap,
-  PerspectiveCamera,
-  Scene,
-  Vector3,
-  WebGLRenderer,
-} from 'three'
+import { BoxGeometry, Mesh, MeshBasicMaterial, Object3DEventMap, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { PointerEventsMap, forwardHtmlEvents } from '@pmndrs/pointer-events'
-import {
-  OrbitHandles,
-  PivotHandles,
-  RotateHandles,
-  TransformHandles,
-  TranslateHandles,
-  HandleStore,
-} from '@pmndrs/handle'
+import { OrbitHandles, PivotHandles, TransformHandles, HandleStore } from '@pmndrs/handle'
 import { createXRStore } from '@pmndrs/xr'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
@@ -40,7 +22,7 @@ const transform = new TransformHandles()
 transform.rotation.y = Math.PI / 4
 transform.position.z = -2
 scene.add(transform)
-transform.bind('translate')
+transform.bind('scale')
 transform.space = 'local'
 
 const box2 = new Mesh<BoxGeometry, MeshBasicMaterial, Object3DEventMap & PointerEventsMap>(
