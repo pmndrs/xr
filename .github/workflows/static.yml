@@ -35,9 +35,7 @@ jobs:
 
       # Examples
       - name: Building Examples
-        run: |
-          pnpm -r copy
-          pnpm -r build
+        run: pnpm -r build
 
       - name: Copy Examples
         run: |
@@ -52,6 +50,7 @@ jobs:
           mkdir -p public/examples/editor
           mkdir -p public/examples/hit-testing
           mkdir -p public/examples/uikit
+          mkdir -p public/examples/portal
           cp -r ./examples/minecraft/dist/* ./public/examples/minecraft
           cp -r ./examples/pingpong/dist/* ./public/examples/pingpong
           cp -r ./examples/rag-doll/dist/* ./public/examples/rag-doll
@@ -63,6 +62,7 @@ jobs:
           cp -r ./examples/editor/dist/* ./public/examples/editor
           cp -r ./examples/hit-testing/dist/* ./public/examples/hit-testing
           cp -r ./examples/uikit/dist/* ./public/examples/uikit
+          cp -r ./examples/portal/dist/* ./public/examples/portal
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

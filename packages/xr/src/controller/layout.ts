@@ -18,7 +18,7 @@ export type XRControllerVisualResponse = {
 )
 
 export type XRControllerComponent = {
-  type: 'trigger' | 'squeeze' | 'touchpad' | 'thumbstick' | 'button' | string
+  type: 'trigger' | 'squeeze' | 'touchpad' | 'thumbstick' | 'button' | (string & {})
   gamepadIndices: {
     [Key in 'button' | 'xAxis' | 'yAxis']?: number
   }

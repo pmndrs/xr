@@ -1,4 +1,4 @@
-import { HandleStore, HandleOptions as BaseHandleOptions, HandleState } from '@pmndrs/handle'
+import { HandleStore, HandleOptions as BaseHandleOptions } from '@pmndrs/handle'
 import { useFrame } from '@react-three/fiber'
 import { RefObject, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'

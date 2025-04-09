@@ -79,7 +79,9 @@ export function computeHandleTransformState(
   }
 
   //compute scale
-  applyTransformOptionsToVector(scale, storeData.initialTargetScale, options.scale ?? true)
+  if (typeof options.scale != 'object' || !options.scale.uniform) {
+    applyTransformOptionsToVector(scale, storeData.initialTargetScale, options.scale ?? true)
+  }
 
   return {
     pointerAmount,

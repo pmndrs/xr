@@ -49,9 +49,7 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
 
       - name: Build
-        run: |
-          pnpm -r copy
-          pnpm -F './packages/**/*' build
+        run: pnpm -F './packages/**/*' build
 
       - name: Copy README
         run: cp ./README.md packages/react/xr

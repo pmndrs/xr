@@ -78,7 +78,7 @@ export class AxisScaleHandle extends RegisteredHandle {
     interactionGroup.position.x = this.invert ? -0.3 : 0.3
     this.add(interactionGroup)
 
-    const interactionMesh = new Mesh(new CylinderGeometry(0.2, 0, 0.6, 4))
+    const interactionMesh = new Mesh(new CylinderGeometry(0.2, 0, 0.5, 4))
     interactionMesh.pointerEventsOrder = Infinity
     interactionMesh.position.y = 0.04
     interactionGroup.add(interactionMesh)
@@ -93,7 +93,6 @@ export class AxisScaleHandle extends RegisteredHandle {
       unregister()
       cleanupHeadHover?.()
       cleanupLineHover?.()
-      this.remove(visualizationHeadMesh)
       if (visualizationLineGroup != null) {
         this.remove(visualizationLineGroup)
       }

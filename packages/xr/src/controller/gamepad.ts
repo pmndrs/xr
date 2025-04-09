@@ -11,7 +11,7 @@ export type XRControllerGamepadComponentId =
   | `xr-standard-thumbstick`
   | `xr-standard-trigger`
   | `thumbrest`
-  | string
+  | (string & {})
 
 export type XRControllerGamepadComponentState = {
   state: 'default' | 'touched' | 'pressed'
@@ -24,10 +24,7 @@ export type XRControllerGamepadComponentState = {
 const ButtonTouchThreshold = 0.05
 const AxisTouchThreshold = 0.1
 
-export type XRControllerGamepadState = Record<
-  XRControllerGamepadComponentId,
-  XRControllerGamepadComponentState | undefined
->
+export type XRControllerGamepadState = Record<string, XRControllerGamepadComponentState | undefined>
 
 export function updateXRControllerGamepadState(
   target: XRControllerGamepadState,

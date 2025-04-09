@@ -39,4 +39,7 @@ nav: 3
   <li>
     [![Screenshot from the uikit + handle demo](./uikit.gif)](https://pmndrs.github.io/xr/examples/uikit/)
   </li>
+  <li>
+    [![Screenshot from the portal demo](./portal.gif)](https://pmndrs.github.io/xr/examples/portal/)
+  </li>
 </Grid>

@@ -5,11 +5,18 @@ import { computeHandlesScale } from '../utils.js'
 import { FreeScaleHandle } from './free.js'
 import { AxisScaleHandle } from './axis.js'
 import { PlaneScaleHandle } from './plane.js'
+import { UniformAxisScaleHandle } from './uniform.js'
 
 const vectorHelper = new Vector3()
 
 export class ScaleHandles extends Group {
-  private readonly free: FreeScaleHandle
+  private readonly scaleX: UniformAxisScaleHandle
+  private readonly scaleY: UniformAxisScaleHandle
+  private readonly scaleZ: UniformAxisScaleHandle
+  private readonly scaleNegX: UniformAxisScaleHandle
+  private readonly scaleNegY: UniformAxisScaleHandle
+  private readonly scaleNegZ: UniformAxisScaleHandle
+
   private readonly translationX: AxisScaleHandle
   private readonly translationY: AxisScaleHandle
   private readonly translationZ: AxisScaleHandle
@@ -26,8 +33,22 @@ export class ScaleHandles extends Group {
     public fixed?: boolean,
   ) {
     super()
-    this.free = new FreeScaleHandle(this.context)
-    this.add(this.free)
+    this.scaleX = new UniformAxisScaleHandle(this.context, undefined, 'x')
+    this.add(this.scaleX)
+    this.scaleY = new UniformAxisScaleHandle(this.context, undefined, 'y')
+    this.scaleY.rotation.z = Math.PI / 2
+    this.add(this.scaleY)
+    this.scaleZ = new UniformAxisScaleHandle(this.context, undefined, 'z')
+    this.scaleZ.rotation.y = -Math.PI / 2
+    this.add(this.scaleZ)
+    this.scaleNegX = new UniformAxisScaleHandle(this.context, undefined, 'x', true)
+    this.add(this.scaleNegX)
+    this.scaleNegY = new UniformAxisScaleHandle(this.context, undefined, 'y', true)
+    this.scaleNegY.rotation.z = Math.PI / 2
+    this.add(this.scaleNegY)
+    this.scaleNegZ = new UniformAxisScaleHandle(this.context, undefined, 'z', true)
+    this.scaleNegZ.rotation.y = -Math.PI / 2
+    this.add(this.scaleNegZ)
     this.translationX = new AxisScaleHandle(this.context, 'x')
     this.add(this.translationX)
     this.translationY = new AxisScaleHandle(this.context, 'y')
@@ -66,6 +87,13 @@ export class ScaleHandles extends Group {
   }
 
   bind(options?: HandlesProperties) {
+    const unbindScaleX = this.scaleX.bind(0xffffff, 0xffff00, options)
+    const unbindScaleY = this.scaleY.bind(0xffffff, 0xffff00, options)
+    const unbindScaleZ = this.scaleZ.bind(0xffffff, 0xffff00, options)
+    const unbindScaleNegX = this.scaleNegX.bind(0xffffff, 0xffff00, options)
+    const unbindScaleNegY = this.scaleNegY.bind(0xffffff, 0xffff00, options)
+    const unbindScaleNegZ = this.scaleNegZ.bind(0xffffff, 0xffff00, options)
+
     const unbindTranslationX = this.translationX.bind(0xff0000, 0xffff00, options)
     const unbindTranslationY = this.translationY.bind(0x00ff00, 0xffff00, options)
     const unbindTranslationZ = this.translationZ.bind(0x0000ff, 0xffff00, options)
@@ -75,7 +103,6 @@ export class ScaleHandles extends Group {
     const unbindTranslationXY = this.translationXY.bind(0x0000ff, 0xffff00, options)
     const unbindTranslationYZ = this.translationYZ.bind(0xff0000, 0xffff00, options)
     const unbindTranslationXZ = this.translationXZ.bind(0x00ff00, 0xffff00, options)
-    const unbindFree = this.free.bind(options)
 
     return () => {
       unbindTranslationX?.()
@@ -87,7 +114,12 @@ export class ScaleHandles extends Group {
       unbindTranslationXY?.()
       unbindTranslationYZ?.()
       unbindTranslationXZ?.()
-      unbindFree?.()
+      unbindScaleX?.()
+      unbindScaleY?.()
+      unbindScaleZ?.()
+      unbindScaleNegX?.()
+      unbindScaleNegY?.()
+      unbindScaleNegZ?.()
     }
   }
 }

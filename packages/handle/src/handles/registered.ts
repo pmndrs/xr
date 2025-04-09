@@ -5,7 +5,7 @@ import { extractHandleTransformOptions } from './utils.js'
 
 export class RegisteredHandle extends Group {
   public readonly store: HandleStore<unknown>
-  public options: Exclude<ReturnType<typeof extractHandleTransformOptions>, false> | undefined
+  protected options: Exclude<ReturnType<typeof extractHandleTransformOptions>, false> | undefined
   protected readonly tag: string
 
   constructor(

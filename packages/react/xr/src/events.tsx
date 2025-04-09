@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 export function PointerEvents({
   batchEvents,
   clickThesholdMs,
+  clickThresholdMs,
   contextMenuButton,
   customSort,
   dblClickThresholdMs,
@@ -21,6 +22,7 @@ export function PointerEvents({
     const { destroy, update } = forwardHtmlEvents(domElement, () => camera, scene, {
       batchEvents: batchEvents ?? alwaysRendering,
       clickThesholdMs,
+      clickThresholdMs,
       contextMenuButton,
       customSort,
       dblClickThresholdMs,
@@ -40,6 +42,7 @@ export function PointerEvents({
     scene,
     alwaysRendering,
     batchEvents,
+    clickThresholdMs,
     clickThesholdMs,
     contextMenuButton,
     customSort,

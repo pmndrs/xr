@@ -31,9 +31,13 @@ export type PointerCapture = {
 
 export type PointerOptions = {
   /**
-   * @default 300
+   * @deprecated use clickThresholdMs instead
    */
   clickThesholdMs?: number
+  /**
+   * @default 300
+   */
+  clickThresholdMs?: number
   /**
    * @default 500
    */
@@ -309,7 +313,12 @@ export class Pointer {
     if (this.intersection == null) {
       return
     }
-    const { contextMenuButton = 2, dblClickThresholdMs = 500, clickThesholdMs = 300 } = this.options
+    const {
+      clickThesholdMs,
+      contextMenuButton = 2,
+      dblClickThresholdMs = 500,
+      clickThresholdMs = clickThesholdMs ?? 300,
+    } = this.options
 
     this.pointerCapture = undefined
     const isClicked = getIsClicked(
@@ -317,7 +326,7 @@ export class Pointer {
       this.intersection.object[buttonsDownTimeKey],
       nativeEvent.button,
       nativeEvent.timeStamp,
-      clickThesholdMs,
+      clickThresholdMs,
     )
 
     const camera = this.getCamera()
@@ -443,7 +452,7 @@ function getIsClicked(
   objectButtonsDownTime: ButtonsTime | undefined,
   button: number,
   buttonUpTime: number,
-  clickThesholdMs: number,
+  clickThresholdMs: number,
 ): boolean {
   if (objectButtonsDownTime == null) {
     return false
@@ -452,7 +461,7 @@ function getIsClicked(
   if (objectButtonPressTime == null) {
     return false
   }
-  if (buttonUpTime - objectButtonPressTime > clickThesholdMs) {
+  if (buttonUpTime - objectButtonPressTime > clickThresholdMs) {
     return false
   }
   if (objectButtonPressTime != pointerButtonsPressTime.get(button)) {

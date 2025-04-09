@@ -11,6 +11,7 @@ import {
 import { ThreeElements, useFrame } from '@react-three/fiber'
 import { createContext, forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { Euler, Group, Vector2Tuple } from 'three'
+import { useApplyThatDisablesDefaultControls } from './utils.js'
 
 export type TransformHandlesProperties = TransformHandlesContextProperties & TransformHandlesHandlesProperties
 
@@ -60,10 +61,11 @@ export type TransformHandlesContextProperties = Omit<ThreeElements['group'], 'sc
 export const TransformHandlesContext = forwardRef<Group, TransformHandlesContextProperties>(
   ({ alwaysUpdate, apply, stopPropagation, children, context: providedContext, space, ...props }, ref) => {
     const internalRef = useRef<Group>(null)
+    const applyThatDisablesControls = useApplyThatDisablesDefaultControls(apply)
     useImperativeHandle(ref, () => internalRef.current!, [])
     const options: HandleOptions<any> = {
       alwaysUpdate,
-      apply,
+      apply: applyThatDisablesControls,
       stopPropagation,
     }
     const optionsRef = useRef(options)

@@ -171,6 +171,9 @@ importers:
       '@pmndrs/pointer-events':
         specifier: workspace:~
         version: link:../../packages/pointer-events
+      '@pmndrs/xr':
+        specifier: workspace:~
+        version: link:../../packages/xr
 
   examples/hit-testing:
     dependencies:
@@ -225,6 +228,15 @@ importers:
       '@pmndrs/pointer-events':
         specifier: workspace:~
         version: link:../../packages/pointer-events
+
+  examples/portal:
+    dependencies:
+      '@react-three/handle':
+        specifier: workspace:~
+        version: link:../../packages/react/handle
+      '@react-three/xr':
+        specifier: workspace:~
+        version: link:../../packages/react/xr
 
   examples/rag-doll:
     dependencies:
@@ -420,17 +432,17 @@ importers:
   packages/xr:
     dependencies:
       '@iwer/devui':
-        specifier: ^1.0.2
-        version: 1.0.2(@types/react@19.0.8)(iwer@2.0.0)
+        specifier: ^1.1.1
+        version: 1.1.1(@types/react@19.0.8)(iwer@2.0.1)
       '@iwer/sem':
-        specifier: ~0.2.2
-        version: 0.2.2(iwer@2.0.0)
+        specifier: ~0.2.5
+        version: 0.2.5(iwer@2.0.1)
       '@pmndrs/pointer-events':
         specifier: workspace:~
         version: link:../pointer-events
       iwer:
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.0.1
+        version: 2.0.1
       meshline:
         specifier: ^3.3.1
         version: 3.3.1(three@0.173.0)
@@ -748,13 +760,13 @@ packages:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
 
-  '@iwer/devui@1.0.2':
-    resolution: {integrity: sha512-5r1jk7+lbX96qDNrveaoHFq4OJp1VaOcXsBf1732t8PNIZU+TjTtL/ZAjP48zuB+SH1u5FO7uOByZ1lzn3nfew==}
+  '@iwer/devui@1.1.1':
+    resolution: {integrity: sha512-S+m+qf9ih7LiSlmMpPProBySt6fV/G5iF/axv1pl0wmgiZVtJNnUV0Ezt0jarBNonZ2wXD9sqrf/JwjgLqXE6g==}
     peerDependencies:
-      iwer: ^2.0.0
+      iwer: ^2.0.1
 
-  '@iwer/sem@0.2.2':
-    resolution: {integrity: sha512-Nv/Uf2Cj0AosZ7+vvD/BMu4ZxiuHtw9AMxgGm3dtRndh57PWnmahDkfhpaWZBXteNkCQbF5+8Y5OBQ3FQpk36A==}
+  '@iwer/sem@0.2.5':
+    resolution: {integrity: sha512-vMCfpu/7Qqc+hkBiGD9pxjeObgrhXOrL0KX94CA3yzJaU0dq0y49HXZT6fC+6X/jOmjaM3hjyE1m2h7ZmLzzyA==}
     peerDependencies:
       iwer: ^2.0.0
 
@@ -2167,8 +2179,8 @@ packages:
     peerDependencies:
       react: '>=18.0'
 
-  iwer@2.0.0:
-    resolution: {integrity: sha512-ZHIoXzJouDPU6x4gKhmmYDUEt8aPGvWJFURLy1iJeFrdBMPVwlQPXas58JSIhF5kMPW7ivFkzbrtacK3PbqWcA==}
+  iwer@2.0.1:
+    resolution: {integrity: sha512-kNjh8DDWGSnbiK6jKcVLYVRLFCMBQ4+sVyHZ3La4EJYTCTY+Trrnagf6z3oCdNpC4OTiwcPdakunTAqZhoWK+A==}
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
@@ -3513,14 +3525,14 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
-  '@iwer/devui@1.0.2(@types/react@19.0.8)(iwer@2.0.0)':
+  '@iwer/devui@1.1.1(@types/react@19.0.8)(iwer@2.0.1)':
     dependencies:
       '@fortawesome/fontawesome-svg-core': 6.6.0
       '@fortawesome/free-solid-svg-icons': 6.6.0
       '@fortawesome/react-fontawesome': 0.2.2(@fortawesome/fontawesome-svg-core@6.6.0)(react@18.3.1)
       '@pmndrs/handle': 6.6.1(@types/react@19.0.8)(react@18.3.1)
       '@pmndrs/pointer-events': 6.6.1
-      iwer: 2.0.0
+      iwer: 2.0.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       styled-components: 6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3529,9 +3541,9 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@iwer/sem@0.2.2(iwer@2.0.0)':
+  '@iwer/sem@0.2.5(iwer@2.0.1)':
     dependencies:
-      iwer: 2.0.0
+      iwer: 2.0.1
       three: 0.165.0
       ts-proto: 2.6.1
 
@@ -5188,7 +5200,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  iwer@2.0.0:
+  iwer@2.0.1:
     dependencies:
       gl-matrix: 3.4.3
 

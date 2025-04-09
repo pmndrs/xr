@@ -149,7 +149,7 @@ Default implementation for a ray pointer for any XRInputSource.
 
 Default telport pointer implementation for all XRInputSources. This component should be used for implementing teleporting because it emits a downwards bend ray that only interesects with meshes marked as teleportable.
 
-- `clickThesholdMs`: The time in milliseconds between pointerdown and pointerup to trigger a click event.
+- `clickThresholdMs`: The time in milliseconds between pointerdown and pointerup to trigger a click event.
 - `dblClickThresholdMs`: The time in milliseconds between the first click and the second click to trigger a dblclick event.
 - `contextMenuButton`: The button that triggers contextmenu events.
 - `makeDefault`: Used to set the default pointer inside a combined pointer.

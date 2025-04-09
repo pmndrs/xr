@@ -12,7 +12,7 @@ function useIsInSessionMode(
   if (allow != null) {
     return Array.isArray(allow) ? allow.includes(mode) : allow === mode
   }
-  return true
+  return mode !== null
 }
 
 /**
