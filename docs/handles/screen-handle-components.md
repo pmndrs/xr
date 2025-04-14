@@ -9,7 +9,7 @@ Screen handles are available for screen-based devices like smartphones and PCs a
 Using the `OrbitHandles` and `MapHandles` in React Three Fiber requires disabling the built-in event system and adding the event system of `@react-three/xr`.
 
 ```tsx
-import { OrbitHandles } from '@react-three/handles'
+import { OrbitHandles } from '@react-three/handle'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
 <Canvas events={noEvents}>
