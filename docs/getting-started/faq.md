@@ -23,7 +23,7 @@ In contrast to non-immersive 3D applications, the camera transformation in MR/VR
 Check if you have OrbitControls, CameraControls from `@react-three/drei`, or other controls in your scene and make sure to place an `<IfInSessionMode deny={['immersive-ar', 'immersive-vr']}>` guard around them when in XR or replace them with `OrbitHandles` or `MapHandles` from `@react-three/handle`. This prevents overwriting the camera transformation which is controlled through WebXR when inside an immersive session and allows to access the correct transformation.
 
 ```tsx
-import { OrbitHandles } from '@react-three/handles'
+import { OrbitHandles } from '@react-three/handle'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
 <Canvas events={noEvents}>

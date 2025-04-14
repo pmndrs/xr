@@ -9,7 +9,7 @@ The `Handle` component allows for the orchestration of multiple handles together
 Using the `TransformHandles` and `PivotHandles` in React Three Fiber requires disabling the built-in event system and adding the event system of `@react-three/xr`.
 
 ```tsx
-import { TransformHandles } from '@react-three/handles'
+import { TransformHandles } from '@react-three/handle'
 import { noEvents, PointerEvents } from '@react-three/xr'
 
 <Canvas events={noEvents}>
