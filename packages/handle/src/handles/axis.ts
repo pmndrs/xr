@@ -4,12 +4,15 @@ import { handleXRayMaterialProperties } from './material.js'
 
 const quaternionHelper = new Quaternion()
 
+const geometry = new BufferGeometry()
+geometry.setAttribute('position', new Float32BufferAttribute([-1e3, 0, 0, 1e3, 0, 0], 3))
+
 export class HandlesAxisHighlight extends LineSegments<BufferGeometry, LineBasicMaterial> {
   constructor(
     private readonly context: HandlesContext,
     private readonly rotationOffset: Euler,
   ) {
-    super()
+    super(geometry)
     this.renderOrder = Infinity
   }
 
@@ -24,9 +27,6 @@ export class HandlesAxisHighlight extends LineSegments<BufferGeometry, LineBasic
   }
 
   bind(tag: string) {
-    this.geometry = new BufferGeometry()
-    this.geometry.setAttribute('position', new Float32BufferAttribute([-1e3, 0, 0, 1e3, 0, 0], 3))
-
     this.material = new LineBasicMaterial({
       ...handleXRayMaterialProperties,
       color: this.material.color ?? 'white',
@@ -50,7 +50,6 @@ export class HandlesAxisHighlight extends LineSegments<BufferGeometry, LineBasic
       }
     })
     return () => {
-      this.geometry.dispose()
       this.material.dispose()
       unsubscribeHover()
       unsubscribeApply()
