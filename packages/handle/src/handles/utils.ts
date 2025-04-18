@@ -11,6 +11,7 @@ export function extractHandleTransformOptions(
       y: boolean | Vector2Tuple
       z: boolean | Vector2Tuple
       e: boolean | Vector2Tuple
+      enabled: boolean
     }
   | false {
   if (properties === false) {
@@ -22,6 +23,7 @@ export function extractHandleTransformOptions(
       y: false,
       z: false,
       e: false,
+      enabled: true,
     }
     for (const axis of key) {
       result[axis as Axis] = true
@@ -35,6 +37,7 @@ export function extractHandleTransformOptions(
           y: false,
           z: false,
           e: false,
+          enabled: true,
           [key]: true,
         }
       : false
@@ -44,6 +47,7 @@ export function extractHandleTransformOptions(
     y: false as boolean | Vector2Tuple,
     z: false as boolean | Vector2Tuple,
     e: false as boolean | Vector2Tuple,
+    enabled: properties.enabled ?? true,
   }
   for (const axis of key) {
     const axisOption = properties[axis as Axis] ?? true

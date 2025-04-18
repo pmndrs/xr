@@ -8,6 +8,7 @@ export type HandlesProperties =
       y?: boolean | Vector2Tuple
       z?: boolean | Vector2Tuple
       e?: boolean | Vector2Tuple
+      enabled?: boolean
     }
   | Axis
   | 'e'

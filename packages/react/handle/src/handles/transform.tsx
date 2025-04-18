@@ -123,7 +123,7 @@ export const TransformHandlesHandles = forwardRef<
   }
   useImperativeHandle(ref, () => handles, [handles])
   useFrame((state) => handles.update(state.camera))
-  useEffect(() => (enabled ? handles.bind({ x, y, z, e }) : undefined), [enabled, handles, x, y, z, e])
+  useEffect(() => handles.bind({ x, y, z, e, enabled }), [enabled, handles, x, y, z, e])
   return <primitive object={handles} />
 })
 
