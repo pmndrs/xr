@@ -21,4 +21,4 @@ pnpm dev
 
 **Important**
 
-When making a change to the packages, the `vite` cache of the examples needs to be cleared (delete `node_modules/.vite` inside the running example). Rebuilding the libraries is not necassary unless types have changed.
+When making a change to the packages, the `vite` cache of the examples needs to be cleared (delete `node_modules/.vite` inside the running example). Rebuilding the libraries is not necessary unless types have changed.
