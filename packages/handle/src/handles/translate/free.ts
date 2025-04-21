@@ -29,6 +29,7 @@ export class FreeTranslateHandle extends RegisteredHandle {
       hoverColor: 0xffff00,
       opacity: 0.25,
       hoverOpacity: 1,
+      enabled: options.enabled,
     })
 
     const visualizationMesh = new Mesh(new OctahedronGeometry(0.1, 0), material)
@@ -42,7 +43,7 @@ export class FreeTranslateHandle extends RegisteredHandle {
     interactionMesh.visible = false
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag)
+    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag, options.enabled)
 
     return () => {
       material.dispose()

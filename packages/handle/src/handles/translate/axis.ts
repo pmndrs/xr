@@ -1,4 +1,4 @@
-import { ColorRepresentation, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Vector3, Vector3Tuple } from 'three'
+import { Color, ColorRepresentation, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import { Axis } from '../../state.js'
 import { HandlesContext } from '../context.js'
 import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
@@ -42,9 +42,11 @@ export class AxisTranslateHandle extends RegisteredHandle {
 
     //visualization
     const material = new MeshBasicMaterial(handleXRayMaterialProperties)
+
     const cleanupHeadHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       color: defaultColor,
       hoverColor: defaultHoverColor,
+      enabled: options.enabled,
     })
 
     const visualizationHeadMesh = new Mesh(arrowHeadGeometry, material)
@@ -58,9 +60,11 @@ export class AxisTranslateHandle extends RegisteredHandle {
     let visualizationBodyMesh: Mesh | undefined
     if (this.showArrowBody) {
       const material = new MeshBasicMaterial(handleXRayMaterialProperties)
+
       cleanupBodyHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
         color: defaultColor,
         hoverColor: 0xffff40,
+        enabled: options.enabled,
       })
 
       visualizationBodyMesh = new Mesh(arrowBodyGeometry, material)
@@ -78,7 +82,7 @@ export class AxisTranslateHandle extends RegisteredHandle {
     interactionMesh.visible = false
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag)
+    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag, options.enabled)
 
     return () => {
       material.dispose()

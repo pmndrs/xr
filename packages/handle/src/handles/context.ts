@@ -49,7 +49,12 @@ export class HandlesContext {
     store: HandleStore<unknown>,
     object: Object3D<PointerEventsMap & Object3DEventMap>,
     tag: string,
+    enabled: boolean = true,
   ): () => void {
+    if (!enabled) {
+      return () => {}
+    }
+
     const entry: (typeof this.handles)[number] = {
       object,
       store,

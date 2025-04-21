@@ -27,11 +27,13 @@ export class PlaneTranslateHandle extends RegisteredHandle {
     }
     this.options = options
     const material = new MeshBasicMaterial(handleXRayMaterialProperties)
+
     const cleanupHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       opacity: 0.5,
       hoverOpacity: 1,
       color: defaultColor,
       hoverColor: defaultHoverColor,
+      enabled: options.enabled,
     })
 
     const mesh = new Mesh(new BoxGeometry(0.2, 0.2, 0.01), material)
@@ -39,7 +41,7 @@ export class PlaneTranslateHandle extends RegisteredHandle {
     mesh.pointerEventsOrder = Infinity
     mesh.position.set(0.15, 0.15, 0)
 
-    const unregister = this.context.registerHandle(this.store, mesh, this.tag)
+    const unregister = this.context.registerHandle(this.store, mesh, this.tag, options.enabled)
 
     this.add(mesh)
 
