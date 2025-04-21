@@ -65,6 +65,22 @@ export type PivotHandlesHandlesProperties = {
   enabled?: boolean
 }
 
+function applyEnabled(properties: HandlesProperties | undefined, enabled: boolean) {
+  if (properties === false) {
+    return false
+  }
+
+  if (properties === true) {
+    return { enabled }
+  }
+
+  if (typeof properties === 'string') {
+    return { [properties]: true, enabled }
+  }
+
+  return { enabled, ...properties }
+}
+
 export const PivotHandlesHandles = forwardRef<PivotHandlesHandlesImpl, PivotHandlesHandlesProperties>(
   ({ size, fixed, scale, rotation, translation, enabled = true }, ref) => {
     const context = useContext(HandlesContext)
@@ -79,35 +95,10 @@ export const PivotHandlesHandles = forwardRef<PivotHandlesHandlesImpl, PivotHand
     if (fixed !== null) {
       handles.fixed = fixed
     }
-    useEffect(() => (enabled ? handles.scaleX.bind(0xff2060, scale) : undefined), [enabled, scale, handles])
-    useEffect(() => (enabled ? handles.scaleY.bind(0x20df80, scale) : undefined), [enabled, scale, handles])
-    useEffect(() => (enabled ? handles.scaleZ.bind(0x2080ff, scale) : undefined), [enabled, scale, handles])
-    useEffect(() => (enabled ? handles.rotationX.bind(0xff2060, rotation) : undefined), [enabled, rotation, handles])
-    useEffect(() => (enabled ? handles.rotationY.bind(0x20df80, rotation) : undefined), [enabled, rotation, handles])
-    useEffect(() => (enabled ? handles.rotationZ.bind(0x2080ff, rotation) : undefined), [enabled, rotation, handles])
     useEffect(
-      () => (enabled ? handles.translationX.bind(0xff2060, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
-    )
-    useEffect(
-      () => (enabled ? handles.translationY.bind(0x20df80, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
-    )
-    useEffect(
-      () => (enabled ? handles.translationZ.bind(0x2080ff, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
-    )
-    useEffect(
-      () => (enabled ? handles.translationXY.bind(0xff2060, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
-    )
-    useEffect(
-      () => (enabled ? handles.translationYZ.bind(0x2080ff, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
-    )
-    useEffect(
-      () => (enabled ? handles.translationXZ.bind(0x20df80, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
+      () =>
+        handles.bind(applyEnabled(translation, enabled), applyEnabled(rotation, enabled), applyEnabled(scale, enabled)),
+      [enabled, scale, handles, translation, rotation],
     )
     useFrame((state) => handles.update(state.camera))
     return <primitive object={handles} />

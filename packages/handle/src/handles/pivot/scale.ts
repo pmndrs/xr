@@ -26,6 +26,7 @@ export class PivotAxisScaleHandle extends RegisteredHandle {
     const cleanupHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       color: defaultColor,
       hoverColor: 0xffff40,
+      enabled: options.enabled,
     })
 
     const mesh = new Mesh(new SphereGeometry(0.04), material)
@@ -33,7 +34,7 @@ export class PivotAxisScaleHandle extends RegisteredHandle {
     mesh.pointerEventsOrder = Infinity
     mesh.position.x = 0.68
 
-    const unregister = this.context.registerHandle(this.store, mesh, this.tag)
+    const unregister = this.context.registerHandle(this.store, mesh, this.tag, options.enabled)
 
     this.add(mesh)
 
