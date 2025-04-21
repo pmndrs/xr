@@ -37,7 +37,7 @@ export function setupHandlesContextHoverMaterial(
     material.opacity = (isHovered ? hoverOpacity : opacity) ?? 1
 
     if (!enabled) {
-      material.opacity *= enabled ? 1 : 0.5
+      material.opacity *= 0.5
       material.color.lerp(new Color(1, 1, 1), 0.5)
     }
   })
