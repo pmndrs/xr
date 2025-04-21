@@ -3,10 +3,13 @@ import { Object3D, Object3DEventMap } from 'three'
 import { useXR } from './xr.js'
 import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 
-export function useHover(ref: RefObject<Object3D | null>): boolean
-
-export function useHover(ref: RefObject<Object3D | null>, onChange: (hover: boolean, event: PointerEvent) => void): void
-
+/**
+ * A hook for detecting hover state on a 3D object.
+ *
+ * @param {RefObject<Object3D | null>} ref - The reference to the 3D object.
+ * @param {(hover: boolean, event: PointerEvent) => void} [onChange] - Callback for hover state changes.
+ * @returns {boolean | undefined} - The hover state if no callback is provided.
+ */
 export function useHover(
   ref: RefObject<Object3D | null>,
   onChange?: (hover: boolean, event: PointerEvent) => void,
@@ -50,22 +53,29 @@ export function useHover(
 }
 
 /**
- * hook for getting the session visibility state
+ * Hook for getting the session visibility state.
+ *
+ * @returns {string} - The visibility state of the XR session.
  */
 export function useXRSessionVisibilityState() {
   return useXR((xr) => xr.visibilityState)
 }
 
 /**
- * hook for getting the function to initialize the room capture for scanning the room
+ * Hook for initializing room capture for scanning the room.
+ *
+ * @returns {Function | undefined} - A function to initiate room capture, or undefined if unavailable.
  */
 export function useInitRoomCapture() {
   return useXR((xr) => xr.session?.initiateRoomCapture?.bind(xr.session))
 }
 
 /**
- * hook for checking if a session mode is supported
- * @param onError callback executed when an error happens while checking if the session mode is supported
+ * Hook for checking if a session mode is supported.
+ *
+ * @param {XRSessionMode} mode - The session mode to check.
+ * @param {(error: any) => void} [onError] - Callback executed when an error occurs.
+ * @returns {boolean | undefined} - Whether the session mode is supported.
  */
 export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void) {
   const onErrorRef = useRef(onError)
@@ -108,6 +118,12 @@ export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error:
  */
 export const useSessionModeSupported = useXRSessionModeSupported
 
+/**
+ * Hook for checking if a session feature is enabled.
+ *
+ * @param {string} feature - The feature to check.
+ * @returns {boolean} - Whether the feature is enabled.
+ */
 export function useXRSessionFeatureEnabled(feature: string) {
   return useXR(({ session }) => session?.enabledFeatures?.includes(feature) ?? false)
 }

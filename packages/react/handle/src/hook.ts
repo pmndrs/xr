@@ -15,6 +15,15 @@ export type HandleOptions<T> = {
   bind?: boolean
 } & BaseHandleOptions<T>
 
+/**
+ * A hook for managing handle states and bindings.
+ *
+ * @template T - The type of the handle state.
+ * @param {RefObject<Object3D | null>} target - The target object to attach the handle to.
+ * @param {HandleOptions<T>} [options={}] - Options for configuring the handle.
+ * @param {() => HandleOptions<T>} [getHandleOptions] - A function to dynamically provide handle options.
+ * @returns {HandleStore<T>} - The handle store instance.
+ */
 export function useHandle<T>(
   target: RefObject<Object3D | null>,
   options: HandleOptions<T> = {},

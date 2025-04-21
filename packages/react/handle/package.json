@@ -32,7 +32,8 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@react-three/fiber": "rc"
+    "@react-three/fiber": "rc",
+    "jsdoc-to-markdown": "^9.1.1"
   },
   "scripts": {
     "build": "tsc",
