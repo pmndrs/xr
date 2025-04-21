@@ -32,8 +32,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@react-three/fiber": "rc",
-    "@react-three/xr": "workspace:~"
+    "@react-three/fiber": "rc"
   },
   "scripts": {
     "build": "tsc",

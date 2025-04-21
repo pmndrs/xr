@@ -397,9 +397,6 @@ importers:
       '@react-three/fiber':
         specifier: rc
         version: 9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.173.0)
-      '@react-three/xr':
-        specifier: workspace:~
-        version: link:../xr
 
   packages/react/xr:
     dependencies:
