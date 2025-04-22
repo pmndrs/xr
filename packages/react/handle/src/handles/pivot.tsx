@@ -95,10 +95,35 @@ export const PivotHandlesHandles = forwardRef<PivotHandlesHandlesImpl, PivotHand
     if (fixed !== null) {
       handles.fixed = fixed
     }
+    useEffect(() => handles.scaleX.bind(0xff2060, applyEnabled(scale, enabled)), [enabled, scale, handles])
+    useEffect(() => handles.scaleY.bind(0x20df80, applyEnabled(scale, enabled)), [enabled, scale, handles])
+    useEffect(() => handles.scaleZ.bind(0x2080ff, applyEnabled(scale, enabled)), [enabled, scale, handles])
+    useEffect(() => handles.rotationX.bind(0xff2060, applyEnabled(rotation, enabled)), [enabled, rotation, handles])
+    useEffect(() => handles.rotationY.bind(0x20df80, applyEnabled(rotation, enabled)), [enabled, rotation, handles])
+    useEffect(() => handles.rotationZ.bind(0x2080ff, applyEnabled(rotation, enabled)), [enabled, rotation, handles])
     useEffect(
-      () =>
-        handles.bind(applyEnabled(translation, enabled), applyEnabled(rotation, enabled), applyEnabled(scale, enabled)),
-      [enabled, scale, handles, translation, rotation],
+      () => handles.translationX.bind(0xff2060, 0xffff40, applyEnabled(translation, enabled)),
+      [enabled, translation, handles],
+    )
+    useEffect(
+      () => handles.translationY.bind(0x20df80, 0xffff40, applyEnabled(translation, enabled)),
+      [enabled, translation, handles],
+    )
+    useEffect(
+      () => handles.translationZ.bind(0x2080ff, 0xffff40, applyEnabled(translation, enabled)),
+      [enabled, translation, handles],
+    )
+    useEffect(
+      () => handles.translationXY.bind(0xff2060, 0xffff40, applyEnabled(translation, enabled)),
+      [enabled, translation, handles],
+    )
+    useEffect(
+      () => handles.translationYZ.bind(0x2080ff, 0xffff40, applyEnabled(translation, enabled)),
+      [enabled, translation, handles],
+    )
+    useEffect(
+      () => handles.translationXZ.bind(0x20df80, 0xffff40, applyEnabled(translation, enabled)),
+      [enabled, translation, handles],
     )
     useFrame((state) => handles.update(state.camera))
     return <primitive object={handles} />
