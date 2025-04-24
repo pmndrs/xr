@@ -30,7 +30,8 @@
   },
   "devDependencies": {
     "@react-three/fiber": "rc",
-    "jsdoc-to-markdown": "^9.1.1"
+    "typedoc": "^0.28.3",
+    "typedoc-plugin-markdown": "^4.6.3"
   },
   "dependencies": {
     "@pmndrs/pointer-events": "workspace:~",
@@ -41,6 +42,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "generate_docs": "typedoc",
     "check:prettier": "prettier --check src",
     "check:eslint": "eslint 'src/**/*.ts'",
     "fix:prettier": "prettier --write src",
