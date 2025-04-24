@@ -1,5 +1,10 @@
 {
   "plugin": ["typedoc-plugin-markdown"],
   "entryPoints": ["./src/*"],
+  "flattenOutputFiles": true,
+  "cleanOutputDir": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": true,
   "out": "./docs",
 }

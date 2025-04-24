@@ -1,4 +1,4 @@
-import { HandleStore, HandleOptions as BaseHandleOptions } from '@pmndrs/handle'
+import { HandleOptions as BaseHandleOptions, HandleStore } from '@pmndrs/handle'
 import { useFrame } from '@react-three/fiber'
 import { RefObject, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
@@ -16,7 +16,7 @@ export type HandleOptions<T> = {
 } & BaseHandleOptions<T>
 
 /**
- * A hook for managing handle states and bindings.
+ * // TODO: Add a valid description for this function.
  *
  * @template T - The type of the handle state.
  * @param {RefObject<Object3D | null>} target - The target object to attach the handle to.

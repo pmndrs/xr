@@ -1,10 +1,10 @@
+import { PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
 import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Object3D, Object3DEventMap } from 'three'
 import { useXR } from './xr.js'
-import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 
 /**
- * A hook for detecting hover state on a 3D object.
+ * // TODO: Add a real description
  *
  * @param {RefObject<Object3D | null>} ref - The reference to the 3D object.
  * @param {(hover: boolean, event: PointerEvent) => void} [onChange] - Callback for hover state changes.
@@ -53,7 +53,7 @@ export function useHover(
 }
 
 /**
- * Hook for getting the session visibility state.
+ * // TODO: Add a real description
  *
  * @returns {string} - The visibility state of the XR session.
  */
@@ -62,7 +62,7 @@ export function useXRSessionVisibilityState() {
 }
 
 /**
- * Hook for initializing room capture for scanning the room.
+ * // TODO: Add a real description
  *
  * @returns {Function | undefined} - A function to initiate room capture, or undefined if unavailable.
  */
@@ -71,13 +71,13 @@ export function useInitRoomCapture() {
 }
 
 /**
- * Hook for checking if a session mode is supported.
+ * //TODO: Add a real description
  *
  * @param {XRSessionMode} mode - The session mode to check.
  * @param {(error: any) => void} [onError] - Callback executed when an error occurs.
  * @returns {boolean | undefined} - Whether the session mode is supported.
  */
-export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void) {
+export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void): boolean | undefined {
   const onErrorRef = useRef(onError)
   onErrorRef.current = onError
   const [subscribe, getSnapshot] = useMemo(() => {
@@ -119,7 +119,7 @@ export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error:
 export const useSessionModeSupported = useXRSessionModeSupported
 
 /**
- * Hook for checking if a session feature is enabled.
+ * //TODO: Add a real description
  *
  * @param {string} feature - The feature to check.
  * @returns {boolean} - Whether the feature is enabled.
