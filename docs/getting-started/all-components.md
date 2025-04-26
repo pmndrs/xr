@@ -73,7 +73,7 @@ Component that allows to emit hit tests from its position in the scene graph.
 Component for rendering high quality quad, cylinder, or equirectangular layers inside supported sessions while including a fallback for not supported sessions.
 
 - `src`: Property for displaying images and videos onto the layer. For rendering dynamic content to the layer, leave the `src` empty and put the the dynamic (3D) content into the children so the layer acts as a render target. 
-- `shape`: Property to configure the shape of the layer (`"quad"`, `"cylinder"`, `"equirectangular"`).
+- `shape`: Property to configure the shape of the layer (`"quad"`, `"cylinder"`, `"equirect"`).
 - `layout`: Property to configure the layout of the display content for stereo content (`"default"`, `"mono"`, `"stereo-left-right"`, `"stereo-top-bottom"`).
 - `centralAngle`: Property to configure the central angle in case the layer `shape` is a `"cylinder"`.
 - `centralHorizontalAngle`: Property to configure the central horizontal angle in case the layer `shape` is `"equirectangular"`.
