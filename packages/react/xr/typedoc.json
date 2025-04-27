@@ -1,11 +1,24 @@
 {
-  "plugin": ["typedoc-plugin-markdown", "typedoc-plugin-frontmatter","./plugins/pretty-md.mjs"],
-  "entryPoints": ["./src/*"],
+  "plugin": [
+    "typedoc-plugin-frontmatter",
+    "./plugins/pretty-md.mjs",
+    "typedoc-plugin-markdown"
+  ],
+  "entryPoints": [
+    "./src/**"
+  ],
+
   "flattenOutputFiles": true,
-  "cleanOutputDir": true,
-  "hidePageHeader": true,
   "hideBreadcrumbs": true,
   "hidePageTitle": true,
+  "cleanOutputDir": true,
+  "hidePageHeader": true,
+
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeNotDocumented": true,
+
   "frontmatterGlobals": {
     "layout": "docs"
   },

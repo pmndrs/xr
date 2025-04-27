@@ -1,18 +1,40 @@
-import { MarkdownPageEvent } from 'typedoc-plugin-markdown'
+import { MarkdownPageEvent, MarkdownRendererEvent } from 'typedoc-plugin-markdown'
+
+function toYaml(obj) {
+  return (
+    '---\n' +
+    Object.entries(obj)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join('\n') +
+    '\n---\n\n'
+  )
+}
+
+const kindsToExclude = [
+  1, //"Project"
+  2, //"Module"
+  4, //"Namespace"
+  8388608, //"Document"
+]
 
 export const load = (app) => {
   const pages = [] // collect pages so we can sort later
 
+  console.log('pages', pages)
   // 1️⃣ collect & rewrite on the fly
-  app.renderer.on(MarkdownPageEvent.END, (page) => {
-    const refl = page.model
+  app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
+    if (kindsToExclude.includes(page.model.kind)) {
+      page.contents = '' // remove unwanted pages
+      return // Skip unwanted kinds
+    }
+
     pages.push(page)
 
     // ---------- front-matter ----------
     page.frontmatter = {
-      ...page.frontmatter,
-      title: refl.name,
-      sourcecode: refl?.sources?.[0]?.fileName ?? '',
+      title: page.model.name,
+      nav: 0, // placeholder, will be set later
+      sourcecode: page?.model?.sources?.[0]?.fileName ?? '',
     }
 
     // ---------- body ----------
@@ -20,8 +42,17 @@ export const load = (app) => {
   })
 
   // 2️⃣ assign nav numbers alphabetically once the renderer is done
-  app.renderer.on('renderer.end', () => {
-    pages.sort((a, b) => a.model.name.localeCompare(b.model.name)).forEach((p, i) => (p.frontmatter.nav = i + 1))
+  app.renderer.on(MarkdownRendererEvent.END, () => {
+    // alphabetical order → nav#
+    pages
+      .sort((a, b) => a.model.name.localeCompare(b.model.name))
+      .forEach((page, i) => {
+        page.frontmatter.nav = i + 1
+        console.log('index', i)
+
+        // strip any YAML that’s already there, then prepend the fresh block
+        page.contents = page.contents.replace(/nav: 0/, `nav: ${i + 1}`)
+      })
   })
 }
 
@@ -62,6 +93,7 @@ const prettify = (page) => {
       md.push('```ts\n' + renderBlocks(ex.content) + '\n```')
     })
   }
+  md.push('balllloooogaaaa')
 
   return md.join('\n\n') // blank lines between sections
 }
