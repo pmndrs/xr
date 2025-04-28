@@ -1,8 +1,8 @@
 {
   "plugin": [
     "typedoc-plugin-frontmatter",
-    "./plugins/pretty-md.mjs",
-    "typedoc-plugin-markdown"
+    "typedoc-plugin-markdown",
+    "./plugins/pretty-md.mjs"
   ],
   "entryPoints": [
     "./src/**"
@@ -18,6 +18,13 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeNotDocumented": true,
+  "navigation": {
+    "includeCategories": false,
+    "includeFolders": false,
+    "includeGroups": false,
+  },
+  "categorizeByGroup": false,
+  "router": "kind",
 
   "frontmatterGlobals": {
     "layout": "docs"

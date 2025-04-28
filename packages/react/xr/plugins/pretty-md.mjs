@@ -1,14 +1,10 @@
+import fs from 'fs'
+import { dirname, join, resolve } from 'path'
+import { Converter } from 'typedoc'
 import { MarkdownPageEvent, MarkdownRendererEvent } from 'typedoc-plugin-markdown'
+import { fileURLToPath } from 'url'
 
-function toYaml(obj) {
-  return (
-    '---\n' +
-    Object.entries(obj)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join('\n') +
-    '\n---\n\n'
-  )
-}
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const kindsToExclude = [
   1, //"Project"
@@ -18,41 +14,75 @@ const kindsToExclude = [
 ]
 
 export const load = (app) => {
-  const pages = [] // collect pages so we can sort later
+  app.converter.on(Converter.EVENT_RESOLVE_END, (whatami) => {
+    // Happens before the MarkdownPageEvents
+    console.log('Converter.EVENT_RESOLVE_END', whatami)
+  })
 
-  console.log('pages', pages)
-  // 1️⃣ collect & rewrite on the fly
   app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
     if (kindsToExclude.includes(page.model.kind)) {
-      page.contents = '' // remove unwanted pages
+      page.project.removeReflection(page.model) // remove from project
       return // Skip unwanted kinds
     }
 
-    pages.push(page)
-
-    // ---------- front-matter ----------
     page.frontmatter = {
       title: page.model.name,
       nav: 0, // placeholder, will be set later
       sourcecode: page?.model?.sources?.[0]?.fileName ?? '',
     }
+  })
 
-    // ---------- body ----------
+  app.renderer.on(MarkdownPageEvent.END, (page) => {
+    if (kindsToExclude.includes(page.model.kind)) {
+      page.contents = ''
+      return
+    }
     page.contents = prettify(page)
   })
 
-  // 2️⃣ assign nav numbers alphabetically once the renderer is done
-  app.renderer.on(MarkdownRendererEvent.END, () => {
-    // alphabetical order → nav#
-    pages
-      .sort((a, b) => a.model.name.localeCompare(b.model.name))
-      .forEach((page, i) => {
-        page.frontmatter.nav = i + 1
-        console.log('index', i)
+  app.renderer.on(MarkdownRendererEvent.END, (page) => {
+    console.log(__dirname)
 
-        // strip any YAML that’s already there, then prepend the fresh block
-        page.contents = page.contents.replace(/nav: 0/, `nav: ${i + 1}`)
-      })
+    const docsPath = resolve(__dirname, '../docs')
+    const modulesPath = join(docsPath, 'modules')
+    const readmePath = join(docsPath, 'README.md')
+    const functionsPath = join(docsPath, 'functions')
+    const variablesPath = join(docsPath, 'variables')
+    const apiPath = resolve(__dirname, '../../../../docs/API')
+
+    // Delete the modules directory
+    if (fs.existsSync(modulesPath)) {
+      fs.rmSync(modulesPath, { recursive: true, force: true })
+      console.log(`Deleted directory: ${modulesPath}`)
+    }
+
+    // Delete the README.md file
+    if (fs.existsSync(readmePath)) {
+      fs.unlinkSync(readmePath)
+      console.log(`Deleted file: ${readmePath}`)
+    }
+
+    // Ensure the target API directory exists
+    if (!fs.existsSync(apiPath)) {
+      fs.mkdirSync(apiPath, { recursive: true })
+      console.log(`Created directory: ${apiPath}`)
+    }
+
+    // Move files from functions and variables to the API directory
+    const moveFiles = (sourceDir) => {
+      if (fs.existsSync(sourceDir)) {
+        const files = fs.readdirSync(sourceDir)
+        files.forEach((file) => {
+          const sourceFile = join(sourceDir, file)
+          const targetFile = join(apiPath, file)
+          fs.renameSync(sourceFile, targetFile)
+          console.log(`Moved file: ${sourceFile} -> ${targetFile}`)
+        })
+      }
+    }
+
+    moveFiles(functionsPath)
+    moveFiles(variablesPath)
   })
 }
 
@@ -63,7 +93,11 @@ const prettify = (page) => {
   if (!refl.signatures?.length) return page.contents // keep default for enums, etc.
 
   const sig = refl.signatures[0]
-  const md = []
+  const frontMatter = page.frontmatter
+  const frontMatterLines = Object.entries(frontMatter)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('\n')
+  const md = ['---\n' + frontMatterLines + '\n---\n']
 
   // description
   md.push(renderComment(sig.comment))
@@ -93,7 +127,6 @@ const prettify = (page) => {
       md.push('```ts\n' + renderBlocks(ex.content) + '\n```')
     })
   }
-  md.push('balllloooogaaaa')
 
   return md.join('\n\n') // blank lines between sections
 }
