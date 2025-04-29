@@ -22,7 +22,7 @@ export type ScreenHandlesProperties = {
   pan?: { speed?: number; filter?: typeof filterForOnePointerLeftClick } | boolean
   store?: StoreApi<ScreenCameraStateAndFunctions>
   apply?: typeof defaultScreenCameraApply
-  enabled?: boolean
+  disabled?: boolean
 }
 
 function useScreenHandles(
@@ -38,7 +38,7 @@ function useScreenHandles(
     store: providedStore,
     camera: providedCamera,
     damping,
-    enabled = true,
+    disabled,
   }: ScreenHandlesProperties,
 ) {
   const fiberStore = useStore()
@@ -51,26 +51,26 @@ function useScreenHandles(
     [canvas, HandlesClass, getCamera, providedStore],
   )
 
-  useApplyScreenCameraState(handles.getStore(), enabled, damping, providedCamera)
+  useApplyScreenCameraState(handles.getStore(), !disabled, damping, providedCamera)
 
   useFrame((_, deltaTime) => handles.update(deltaTime * 1000))
   const scene = useThree((s) => s.scene)
   //pan
-  const panEnabled = enabled && (typeof pan === 'boolean' ? pan : true)
+  const panEnabled = !disabled && (typeof pan === 'boolean' ? pan : true)
   useEffect(() => (panEnabled ? handles.pan.bind(scene) : undefined), [handles, panEnabled, scene])
   handles.pan.customApply = apply
   handles.pan.speed = typeof pan === 'boolean' ? undefined : pan?.speed
   handles.pan.filter = (typeof pan === 'boolean' ? undefined : pan?.filter) ?? defaultPanFilter
 
   //rotate
-  const rotateEnabled = enabled && (typeof rotate === 'boolean' ? rotate : true)
+  const rotateEnabled = !disabled && (typeof rotate === 'boolean' ? rotate : true)
   useEffect(() => (rotateEnabled ? handles.rotate.bind(scene) : undefined), [handles, rotateEnabled, scene])
   handles.rotate.customApply = apply ?? defaultRotateCustomApply
   handles.rotate.speed = typeof rotate === 'boolean' ? undefined : rotate?.speed
   handles.rotate.filter = (typeof rotate === 'boolean' ? undefined : rotate?.filter) ?? defaultRotateFilter
 
   //zoom
-  const zoomEnabled = enabled && (typeof zoom === 'boolean' ? zoom : true)
+  const zoomEnabled = !disabled && (typeof zoom === 'boolean' ? zoom : true)
   useEffect(() => (zoomEnabled ? handles.zoom.bind(scene) : undefined), [handles, zoomEnabled, scene])
   handles.zoom.customApply = apply
   handles.zoom.speed = typeof zoom === 'boolean' ? undefined : zoom?.speed
@@ -79,7 +79,7 @@ function useScreenHandles(
 
 export function useApplyScreenCameraState(
   store: StoreApi<ScreenCameraStateAndFunctions>,
-  enabled: boolean = true,
+  disabled: boolean = false,
   damping: boolean | number = false,
   camera?: Camera,
 ) {
@@ -89,8 +89,8 @@ export function useApplyScreenCameraState(
   const getCamera = useCallback(() => cameraRef.current ?? fiberStore.getState().camera, [fiberStore])
   const dampingEnabled = damping !== false
   useEffect(
-    () => (enabled && !dampingEnabled ? applyScreenCameraState(store, getCamera) : undefined),
-    [dampingEnabled, enabled, getCamera, store],
+    () => (!disabled && !dampingEnabled ? applyScreenCameraState(store, getCamera) : undefined),
+    [dampingEnabled, disabled, getCamera, store],
   )
   const dampingRef = useRef(damping)
   dampingRef.current = damping

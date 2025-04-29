@@ -38,7 +38,7 @@ export class FreeRotateHandle extends RegisteredHandle {
   }
 
   bind(config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -50,6 +50,7 @@ export class FreeRotateHandle extends RegisteredHandle {
       color: 0xffffff,
       hoverColor: 0xffff00,
       opacity: 0.25,
+      disabled,
     })
     const visualizationMesh = new Mesh(createCircleGeometry(0.5, 1), material)
     visualizationMesh.renderOrder = Infinity
@@ -61,14 +62,14 @@ export class FreeRotateHandle extends RegisteredHandle {
     interactionMesh.pointerEventsOrder = Infinity
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       this.pointerEvents = 'none'
       material.dispose()
       interactionMesh.geometry.dispose()
       visualizationMesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(interactionMesh)
       this.remove(visualizationMesh)

@@ -21,17 +21,19 @@ export class PlaneTranslateHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, defaultHoverColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
     this.options = options
     const material = new MeshBasicMaterial(handleXRayMaterialProperties)
+
     const cleanupHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       opacity: 0.5,
       hoverOpacity: 1,
       color: defaultColor,
       hoverColor: defaultHoverColor,
+      disabled,
     })
 
     const mesh = new Mesh(new BoxGeometry(0.2, 0.2, 0.01), material)
@@ -39,14 +41,14 @@ export class PlaneTranslateHandle extends RegisteredHandle {
     mesh.pointerEventsOrder = Infinity
     mesh.position.set(0.15, 0.15, 0)
 
-    const unregister = this.context.registerHandle(this.store, mesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, mesh, this.tag)
 
     this.add(mesh)
 
     return () => {
       material.dispose()
       mesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(mesh)
     }
