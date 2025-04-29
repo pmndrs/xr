@@ -26,9 +26,6 @@
     "fix:prettier": "prettier --write src",
     "fix:eslint": "eslint 'src/**/*.ts' --fix"
   },
-  "devDependencies": {
-    "@types/node": "^22.10.2"
-  },
   "peerDependencies": {
     "three": "*"
   },
@@ -43,9 +40,16 @@
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "exports": {
+      ".": "./dist/index.js",
+      "./internals": "./dist/internals.js"
+    }
+  },
+  "main": "src/index.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./internals": "./dist/internals.js"
+    ".": "./src/index.ts",
+    "./internals": "./src/internals.ts"
   }
 }

@@ -830,7 +830,7 @@ function createBindToSession(
 
     //for debouncing the input source and tracked source changes
     const inputSourceChangesList: Parameters<typeof syncXRInputSourceStates>[2] & Array<unknown> = []
-    let inputSourceChangesTimeout: NodeJS.Timeout | undefined
+    let inputSourceChangesTimeout: number | undefined
 
     const applySourcesChange = () => {
       inputSourceChangesTimeout = undefined

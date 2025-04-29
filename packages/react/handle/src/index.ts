@@ -3,9 +3,9 @@ export * from './component.js'
 export * from './handles/index.js'
 export {
   HandleStore,
-  HandleState,
-  HandleTransformState,
   ScreenHandleStore,
+  type HandleState,
+  type HandleTransformState,
   filterForOnePointerLeftClick,
   filterForOnePointerRightClickOrTwoPointer,
   defaultApply,

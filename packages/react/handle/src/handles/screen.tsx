@@ -139,7 +139,7 @@ export const OrbitControls = OrbitHandles
 
 export {
   createScreenCameraStore,
-  ScreenCameraStateAndFunctions,
+  type ScreenCameraStateAndFunctions,
   defaultMapHandlesScreenCameraApply,
   defaultOrbitHandlesScreenCameraApply,
   defaultScreenCameraApply,
