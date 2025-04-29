@@ -36,7 +36,7 @@ import {
   useState,
 } from 'react'
 import { useXRSessionFeatureEnabled } from './hooks.js'
-import { useXRStore } from './xr.js'
+import { useXR, useXRStore } from './xr.js'
 import {
   BufferGeometry,
   Mesh,
@@ -198,15 +198,18 @@ export const XRLayerImplementation = forwardRef<
     const renderOrderRef = useRef(renderOrder)
     renderOrderRef.current = renderOrder
 
+    const originReferenceSpace = useXR((s) => s.originReferenceSpace)
+
     //create layer
     useEffect(() => {
-      if (internalRef.current == null) {
+      if (internalRef.current == null || originReferenceSpace == null) {
         return
       }
       const resolvedSrc = src ?? (renderTargetRef.current = createXRLayerRenderTarget(pixelWidth, pixelHeight, dpr))
       const layer = createXRLayer(
         resolvedSrc,
         store.getState(),
+        originReferenceSpace,
         renderer.xr,
         internalRef.current,
         {
@@ -237,6 +240,7 @@ export const XRLayerImplementation = forwardRef<
         layer.destroy()
       }
     }, [
+      originReferenceSpace,
       colorFormat,
       depthFormat,
       invertStereo,

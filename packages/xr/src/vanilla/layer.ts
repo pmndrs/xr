@@ -43,7 +43,10 @@ export class XRLayer extends Mesh<BufferGeometry, MeshBasicMaterial> {
       if (aborted) {
         return
       }
-      const update = ({ session }: XRState<any>, prevState?: XRState<any>) => {
+      const update = ({ session, originReferenceSpace }: XRState<any>, prevState?: XRState<any>) => {
+        if (originReferenceSpace == null) {
+          return
+        }
         if (prevState != null && session === prevState.session) {
           return
         }
@@ -62,7 +65,15 @@ export class XRLayer extends Mesh<BufferGeometry, MeshBasicMaterial> {
         }
 
         this.material.map = null
-        const layer = createXRLayer(options.src, store.getState(), renderer.xr, this, options, properties)
+        const layer = createXRLayer(
+          options.src,
+          store.getState(),
+          originReferenceSpace,
+          renderer.xr,
+          this,
+          options,
+          properties,
+        )
         if (layer == null) {
           this.cleanup = () => {}
           return
