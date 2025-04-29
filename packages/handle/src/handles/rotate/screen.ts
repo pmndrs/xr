@@ -42,7 +42,7 @@ export class ScreenSpaceRotateHandle extends RegisteredHandle {
   }
 
   bind(config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -54,6 +54,7 @@ export class ScreenSpaceRotateHandle extends RegisteredHandle {
       color: 0xffff00,
       hoverColor: 0xffff00,
       opacity: 0.5,
+      disabled,
     })
     const visualizationMesh = new Mesh(createCircleGeometry(0.75, 1), material)
     visualizationMesh.renderOrder = Infinity
@@ -66,13 +67,13 @@ export class ScreenSpaceRotateHandle extends RegisteredHandle {
     interactionMesh.pointerEventsOrder = Infinity
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       material.dispose()
       interactionMesh.geometry.dispose()
       visualizationMesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(interactionMesh)
       this.remove(visualizationMesh)

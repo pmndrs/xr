@@ -25,7 +25,7 @@ export class UniformAxisScaleHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, defaultHoverColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.actualAxis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.actualAxis, config)
     if (options === false) {
       return undefined
     }
@@ -44,6 +44,7 @@ export class UniformAxisScaleHandle extends RegisteredHandle {
       hoverColor: defaultHoverColor,
       opacity: 0.5,
       hoverOpacity: 1,
+      disabled,
     })
 
     const visualizationHeadMesh = new Mesh(new BoxGeometry(0.08, 0.08, 0.08), material)
@@ -59,12 +60,12 @@ export class UniformAxisScaleHandle extends RegisteredHandle {
 
     headGroup.add(interactionHeadMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionHeadMesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionHeadMesh, this.tag)
 
     return () => {
       material.dispose()
       visualizationHeadMesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHeadHover?.()
       this.remove(headGroup)
     }

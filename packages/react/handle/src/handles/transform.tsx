@@ -11,7 +11,7 @@ import {
 import { ThreeElements, useFrame } from '@react-three/fiber'
 import { createContext, forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { Euler, Group, Vector2Tuple } from 'three'
-import { useApplyThatDisablesDefaultControls } from './utils.js'
+import { disableProperties, useApplyThatDisablesDefaultControls } from './utils.js'
 
 export type TransformHandlesProperties = TransformHandlesContextProperties & TransformHandlesHandlesProperties
 
@@ -20,10 +20,20 @@ const yRotationOffset = new Euler(0, 0, Math.PI / 2)
 const zRotationOffset = new Euler(0, -Math.PI / 2, 0)
 
 export const TransformHandles = forwardRef<Group, TransformHandlesProperties>(
-  ({ children, mode, size, fixed, enabled, x, y, z, e, ...props }, ref) => {
+  ({ children, mode, size, fixed, disabled, hidden, x, y, z, e, ...props }, ref) => {
     return (
       <TransformHandlesContext {...props} ref={ref}>
-        <TransformHandlesHandles enabled={enabled} mode={mode} x={x} y={y} z={z} e={e} size={size} fixed={fixed} />
+        <TransformHandlesHandles
+          hidden={hidden}
+          disabled={disabled}
+          mode={mode}
+          x={x}
+          y={y}
+          z={z}
+          e={e}
+          size={size}
+          fixed={fixed}
+        />
         <HandlesAxisHighlight tag="x" rotationOffset={xRotationOffset} />
         <HandlesAxisHighlight tag="y" rotationOffset={yRotationOffset} />
         <HandlesAxisHighlight tag="z" rotationOffset={zRotationOffset} />
@@ -88,11 +98,12 @@ export const TransformHandlesContext = forwardRef<Group, TransformHandlesContext
 
 export type TransformHandlesHandlesProperties = {
   mode?: TransformHandlesMode
-  x?: boolean | Vector2Tuple
-  y?: boolean | Vector2Tuple
-  z?: boolean | Vector2Tuple
-  e?: boolean | Vector2Tuple
-  enabled?: boolean
+  x?: boolean | Vector2Tuple | 'disabled'
+  y?: boolean | Vector2Tuple | 'disabled'
+  z?: boolean | Vector2Tuple | 'disabled'
+  e?: boolean | Vector2Tuple | 'disabled'
+  hidden?: boolean
+  disabled?: boolean
   fixed?: boolean | null
   size?: number | null
 }
@@ -100,7 +111,7 @@ export type TransformHandlesHandlesProperties = {
 export const TransformHandlesHandles = forwardRef<
   TranslateHandlesImpl | RotateHandlesImpl | ScaleHandlesImpl,
   TransformHandlesHandlesProperties
->(({ mode = 'translate', x, y, z, e, size, fixed, enabled = true }, ref) => {
+>(({ mode = 'translate', x, y, z, e, size, fixed, disabled, hidden }, ref) => {
   const context = useContext(HandlesContext)
   if (context == null) {
     throw new Error('TransformHandlesHandles can only be used inside TransformHandlesContext')
@@ -123,7 +134,10 @@ export const TransformHandlesHandles = forwardRef<
   }
   useImperativeHandle(ref, () => handles, [handles])
   useFrame((state) => handles.update(state.camera))
-  useEffect(() => handles.bind({ x, y, z, e, enabled }), [enabled, handles, x, y, z, e])
+  useEffect(
+    () => (hidden ? undefined : handles.bind(disabled ? disableProperties({ x, y, z, e }) : { x, y, z, e })),
+    [handles, hidden, disabled, x, y, z, e],
+  )
   return <primitive object={handles} />
 })
 

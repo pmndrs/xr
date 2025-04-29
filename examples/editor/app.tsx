@@ -628,7 +628,7 @@ const SelectablePivotHandles = forwardRef<
     <group ref={groupRef} onClick={() => useSceneStore.setState({ selected: target })}>
       <PivotHandles
         size={size}
-        enabled={isSelected}
+        hidden={!isSelected}
         apply={(state, target) => applyWithAudioEffect(state, target, apply)}
         ref={ref}
       >

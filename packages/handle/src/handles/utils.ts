@@ -1,21 +1,23 @@
-import { Vector2Tuple, ColorRepresentation, PerspectiveCamera, OrthographicCamera, Object3D, Vector3 } from 'three'
+import { Vector2Tuple, PerspectiveCamera, OrthographicCamera, Object3D, Vector3 } from 'three'
 import type { Axis } from '../state.js'
 import type { HandlesProperties } from './index.js'
 
 export function extractHandleTransformOptions(
   key: 'x' | 'y' | 'z' | 'xy' | 'yz' | 'xz' | 'xyz' | 'e',
   properties: HandlesProperties = true,
-):
-  | {
-      x: boolean | Vector2Tuple
-      y: boolean | Vector2Tuple
-      z: boolean | Vector2Tuple
-      e: boolean | Vector2Tuple
-      enabled: boolean
-    }
-  | false {
+): {
+  options:
+    | {
+        x: boolean | Vector2Tuple
+        y: boolean | Vector2Tuple
+        z: boolean | Vector2Tuple
+        e: boolean | Vector2Tuple
+      }
+    | false
+  disabled: boolean
+} {
   if (properties === false) {
-    return false
+    return { options: false, disabled: true }
   }
   if (properties === true) {
     const result = {
@@ -23,40 +25,49 @@ export function extractHandleTransformOptions(
       y: false,
       z: false,
       e: false,
-      enabled: true,
     }
     for (const axis of key) {
       result[axis as Axis] = true
     }
-    return result
+    return { options: result, disabled: false }
+  }
+  if (properties === 'disabled') {
+    return { options: { x: true, y: true, z: true, e: true }, disabled: true }
   }
   if (typeof properties === 'string') {
-    return properties === key
-      ? {
-          x: false,
-          y: false,
-          z: false,
-          e: false,
-          enabled: true,
-          [key]: true,
-        }
-      : false
+    return {
+      options:
+        properties === key
+          ? {
+              x: false,
+              y: false,
+              z: false,
+              e: false,
+              [key]: true,
+            }
+          : false,
+      disabled: false,
+    }
   }
   const result = {
     x: false as boolean | Vector2Tuple,
     y: false as boolean | Vector2Tuple,
     z: false as boolean | Vector2Tuple,
     e: false as boolean | Vector2Tuple,
-    enabled: properties.enabled ?? true,
   }
+  let disabled = false
   for (const axis of key) {
-    const axisOption = properties[axis as Axis] ?? true
+    let axisOption = properties[axis as Axis] ?? true
     if (axisOption === false) {
-      return false
+      return { options: false, disabled: true }
+    }
+    if (axisOption === 'disabled') {
+      disabled = true
+      axisOption = true
     }
     result[axis as Axis] = axisOption
   }
-  return result
+  return { options: result, disabled }
 }
 
 const worldPositionHelper = new Vector3()

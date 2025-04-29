@@ -97,7 +97,7 @@ export class AxisRotateHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -108,6 +108,7 @@ export class AxisRotateHandle extends RegisteredHandle {
     const cleanupHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       color: defaultColor,
       hoverColor: 0xffff00,
+      disabled,
     })
     const visualizationMesh = new Mesh(createCircleGeometry(0.5, 0.5), material)
     visualizationMesh.renderOrder = Infinity
@@ -120,13 +121,13 @@ export class AxisRotateHandle extends RegisteredHandle {
     interactionMesh.rotation.set(0, -Math.PI / 2, -Math.PI / 2)
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       material.dispose()
       interactionMesh.geometry.dispose()
       visualizationMesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(interactionMesh)
       this.remove(visualizationMesh)

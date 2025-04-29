@@ -17,7 +17,7 @@ export class PivotAxisRotationHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -28,7 +28,7 @@ export class PivotAxisRotationHandle extends RegisteredHandle {
     const cleanupHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       color: defaultColor,
       hoverColor: 0xffff40,
-      enabled: options.enabled,
+      disabled,
     })
 
     const visualizationMesh = new Mesh(new TorusGeometry(0.45, 0.0075, 3, 64, Math.PI / 2), material)
@@ -43,13 +43,13 @@ export class PivotAxisRotationHandle extends RegisteredHandle {
     interactionMesh.rotation.set(0, Math.PI / 2, Math.PI / 2)
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag, options.enabled)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       material.dispose()
       interactionMesh.geometry.dispose()
       visualizationMesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(visualizationMesh)
       this.remove(interactionMesh)

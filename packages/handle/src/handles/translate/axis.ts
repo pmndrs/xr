@@ -33,7 +33,7 @@ export class AxisTranslateHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, defaultHoverColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -46,7 +46,7 @@ export class AxisTranslateHandle extends RegisteredHandle {
     const cleanupHeadHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       color: defaultColor,
       hoverColor: defaultHoverColor,
-      enabled: options.enabled,
+      disabled,
     })
 
     const visualizationHeadMesh = new Mesh(arrowHeadGeometry, material)
@@ -64,7 +64,7 @@ export class AxisTranslateHandle extends RegisteredHandle {
       cleanupBodyHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
         color: defaultColor,
         hoverColor: 0xffff40,
-        enabled: options.enabled,
+        disabled,
       })
 
       visualizationBodyMesh = new Mesh(arrowBodyGeometry, material)
@@ -82,11 +82,11 @@ export class AxisTranslateHandle extends RegisteredHandle {
     interactionMesh.visible = false
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag, options.enabled)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       material.dispose()
-      unregister()
+      unregister?.()
       cleanupHeadHover?.()
       cleanupBodyHover?.()
       this.remove(visualizationHeadMesh)

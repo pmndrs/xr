@@ -16,7 +16,7 @@ export class FreeTranslateHandle extends RegisteredHandle {
   }
 
   bind(config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -29,7 +29,7 @@ export class FreeTranslateHandle extends RegisteredHandle {
       hoverColor: 0xffff00,
       opacity: 0.25,
       hoverOpacity: 1,
-      enabled: options.enabled,
+      disabled,
     })
 
     const visualizationMesh = new Mesh(new OctahedronGeometry(0.1, 0), material)
@@ -43,13 +43,13 @@ export class FreeTranslateHandle extends RegisteredHandle {
     interactionMesh.visible = false
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag, options.enabled)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       material.dispose()
       visualizationMesh.geometry.dispose()
       interactionMesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHeadHover?.()
       this.remove(visualizationMesh)
       this.remove(interactionMesh)

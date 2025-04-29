@@ -18,27 +18,28 @@ export function setupHandlesContextHoverMaterial(
     hoverColor,
     hoverOpacity,
     opacity,
-    enabled = true,
+    disabled = false,
   }: {
     color: ColorRepresentation
-    enabled?: boolean
+    disabled?: boolean
     opacity?: number
     hoverColor?: ColorRepresentation
     hoverOpacity?: number
   },
 ) {
-  if (hoverColor == null && hoverOpacity == null) {
+  if ((hoverColor == null && hoverOpacity == null) || disabled) {
+    material.color.set(color)
+    material.opacity = opacity ?? 1
+    if (disabled) {
+      material.opacity *= 0.5
+      material.color.lerp(new Color(1, 1, 1), 0.5)
+    }
     return
   }
   hoverColor ??= color
   return context.subscribeHover((tags) => {
-    const isHovered = enabled ? tags.some((activeTag) => activeTag.includes(tag)) : false
+    const isHovered = tags.some((activeTag) => activeTag.includes(tag))
     material.color.set(isHovered ? hoverColor : color)
     material.opacity = (isHovered ? hoverOpacity : opacity) ?? 1
-
-    if (!enabled) {
-      material.opacity *= 0.5
-      material.color.lerp(new Color(1, 1, 1), 0.5)
-    }
   })
 }
