@@ -19,6 +19,20 @@ export const load = (app) => {
     console.log('Converter.EVENT_RESOLVE_END', whatami)
   })
 
+  app.renderer.markdownHooks.on('page.begin', (page) => {
+    console.log('page.begin', page)
+    let deprecatedTag = undefined
+    if (page.page?.model?.comment) {
+      deprecatedTag = page.page.model.comment.blockTags.find((t) => t.tag === '@deprecated')
+    } else if (page.page?.model?.signatures) {
+      deprecatedTag = page.page.model.signatures[0].comment?.blockTags.find((t) => t.tag === '@deprecated')
+    }
+    if (deprecatedTag) {
+      return `> [!CAUTION]\n> Deprecated: ${deprecatedTag.content.reduce((p, x) => p + x.text, '')}\n\n`
+    }
+    return
+  })
+
   app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
     if (kindsToExclude.includes(page.model.kind)) {
       page.project.removeReflection(page.model) // remove from project
@@ -37,7 +51,11 @@ export const load = (app) => {
       page.contents = ''
       return
     }
-    page.contents = prettify(page)
+
+    page.contents = page.contents.replace(/Defined in:.*\n\n/g, '')
+    // page.contents = page.contents.replace(/## Deprecated\n\n.*\n?/g, '')
+
+    // page.contents = prettify(page)
   })
 
   app.renderer.on(MarkdownRendererEvent.END, (page) => {
@@ -49,6 +67,11 @@ export const load = (app) => {
     const functionsPath = join(docsPath, 'functions')
     const variablesPath = join(docsPath, 'variables')
     const apiPath = resolve(__dirname, '../../../../docs/API')
+
+    if (fs.existsSync(apiPath)) {
+      fs.rmSync(apiPath, { recursive: true, force: true })
+      console.log(`Deleted directory: ${apiPath}`)
+    }
 
     // Delete the modules directory
     if (fs.existsSync(modulesPath)) {

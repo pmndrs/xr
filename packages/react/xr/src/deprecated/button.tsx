@@ -1,7 +1,7 @@
-import { ButtonHTMLAttributes, forwardRef, ComponentPropsWithoutRef } from 'react'
-import { XRStore } from '../xr.js'
-import { useXRSessionModeSupported } from '../hooks.js'
+import { ButtonHTMLAttributes, ComponentPropsWithoutRef, forwardRef } from 'react'
 import { useStore } from 'zustand'
+import { useXRSessionModeSupported } from '../hooks.js'
+import { XRStore } from '../xr.js'
 
 /**
  * @deprecated use <button onClick={() => store.enterXR()}> instead
@@ -27,7 +27,7 @@ export const XRButton = forwardRef<
 })
 
 /**
- * @deprecated use <button onClick={() => store.enterAR()}> instead
+ * @deprecated use `<button onClick={() => store.enterAR()}>` instead
  */
 export const ARButton = forwardRef<HTMLButtonElement, Omit<ComponentPropsWithoutRef<typeof XRButton>, 'mode'>>(
   (props, ref) => {

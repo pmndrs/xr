@@ -1,10 +1,10 @@
+import { PointerEvent } from '@pmndrs/pointer-events'
+import { XRControllerState, XRGazeState, XRHandState, XRScreenInputState, XRTransientPointerState } from '@pmndrs/xr'
 import { RefObject, useEffect, useRef } from 'react'
 import { Group, Intersection, XRControllerEventType as ThreeXRControllerEventType } from 'three'
-import { PointerEvent } from '@pmndrs/pointer-events'
-import { useXR } from '../xr.js'
 import { useXRInputSourceState, useXRInputSourceStateContext } from '../input.js'
-import { XRControllerState, XRGazeState, XRHandState, XRScreenInputState, XRTransientPointerState } from '@pmndrs/xr'
 import { useXRSpace } from '../space.js'
+import { useXR } from '../xr.js'
 
 const eventTranslations = {
   onBlur: 'pointerleave',
@@ -174,6 +174,6 @@ export function useXRControllerState(handedness?: XRHandedness): XRControllerSta
 }
 
 /**
- * @deprecated use useXRSpace instead
+ * @deprecated use `useXRSpace` instead
  */
 export const useXRReferenceSpace = useXRSpace
