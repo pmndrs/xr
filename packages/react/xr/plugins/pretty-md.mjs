@@ -16,11 +16,9 @@ const kindsToExclude = [
 export const load = (app) => {
   app.converter.on(Converter.EVENT_RESOLVE_END, (whatami) => {
     // Happens before the MarkdownPageEvents
-    console.log('Converter.EVENT_RESOLVE_END', whatami)
   })
 
   app.renderer.markdownHooks.on('page.begin', (page) => {
-    console.log('page.begin', page)
     let deprecatedTag = undefined
     if (page.page?.model?.comment) {
       deprecatedTag = page.page.model.comment.blockTags.find((t) => t.tag === '@deprecated')
@@ -53,14 +51,12 @@ export const load = (app) => {
     }
 
     page.contents = page.contents.replace(/Defined in:.*\n\n/g, '')
-    // page.contents = page.contents.replace(/## Deprecated\n\n.*\n?/g, '')
+    page.contents = page.contents.replace(/## Deprecated\n\n?.*\n?/g, '')
 
     // page.contents = prettify(page)
   })
 
   app.renderer.on(MarkdownRendererEvent.END, (page) => {
-    console.log(__dirname)
-
     const docsPath = resolve(__dirname, '../docs')
     const modulesPath = join(docsPath, 'modules')
     const readmePath = join(docsPath, 'README.md')
@@ -70,28 +66,20 @@ export const load = (app) => {
 
     if (fs.existsSync(apiPath)) {
       fs.rmSync(apiPath, { recursive: true, force: true })
-      console.log(`Deleted directory: ${apiPath}`)
     }
 
-    // Delete the modules directory
     if (fs.existsSync(modulesPath)) {
       fs.rmSync(modulesPath, { recursive: true, force: true })
-      console.log(`Deleted directory: ${modulesPath}`)
     }
 
-    // Delete the README.md file
     if (fs.existsSync(readmePath)) {
       fs.unlinkSync(readmePath)
-      console.log(`Deleted file: ${readmePath}`)
     }
 
-    // Ensure the target API directory exists
     if (!fs.existsSync(apiPath)) {
       fs.mkdirSync(apiPath, { recursive: true })
-      console.log(`Created directory: ${apiPath}`)
     }
 
-    // Move files from functions and variables to the API directory
     const moveFiles = (sourceDir) => {
       if (fs.existsSync(sourceDir)) {
         const files = fs.readdirSync(sourceDir)
@@ -99,7 +87,6 @@ export const load = (app) => {
           const sourceFile = join(sourceDir, file)
           const targetFile = join(apiPath, file)
           fs.renameSync(sourceFile, targetFile)
-          console.log(`Moved file: ${sourceFile} -> ${targetFile}`)
         })
       }
     }
