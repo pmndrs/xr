@@ -93,6 +93,29 @@ export const load = (app) => {
 
     moveFiles(functionsPath)
     moveFiles(variablesPath)
+
+    const sortFilesAndUpdateNav = (sourceDir) => {
+      if (fs.existsSync(sourceDir)) {
+        const files = fs.readdirSync(sourceDir)
+        const functionQualifiedFiles = files.map((file) => {
+          return {
+            symbolName: file.slice(file.indexOf('.') + 1, file.lastIndexOf('.')),
+            fileName: file,
+          }
+        })
+        functionQualifiedFiles.sort((a, b) => a.symbolName.localeCompare(b.symbolName))
+        functionQualifiedFiles.forEach((file, index) => {
+          const targetFile = join(sourceDir, file.fileName)
+
+          // Update the nav number in the frontmatter
+          const content = fs.readFileSync(targetFile, 'utf-8')
+          const updatedContent = content.replace(/nav:\s*\d+/, `nav: ${index + 1}`)
+          fs.writeFileSync(targetFile, updatedContent)
+        })
+      }
+    }
+
+    sortFilesAndUpdateNav(apiPath)
   })
 }
 

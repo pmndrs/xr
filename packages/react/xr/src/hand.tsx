@@ -4,12 +4,12 @@ import {
   configureXRHandModel,
   createUpdateXRHandVisuals,
 } from '@pmndrs/xr/internals'
-import { ReactNode, forwardRef, useImperativeHandle, useMemo } from 'react'
-import { XRSpace, useXRSpace } from './space.js'
 import { useFrame, useLoader } from '@react-three/fiber'
+import { ReactNode, forwardRef, useImperativeHandle, useMemo } from 'react'
 import { Object3D } from 'three'
-import { useXRInputSourceStateContext } from './input.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { useXRInputSourceStateContext } from './input.js'
+import { XRSpace, useXRSpace } from './space.js'
 
 export type { XRHandModelOptions }
 
