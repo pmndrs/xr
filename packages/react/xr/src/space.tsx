@@ -13,12 +13,16 @@ import {
 } from 'react'
 import { Group, Object3D } from 'three'
 import { xrSpaceContext } from './contexts.js'
-import { useXR } from './xr.js'
-import { useXRControllerButtonEvent } from './controller.js'
 import { useXRInputSourceStateContext } from './input.js'
+import { useXR } from './xr.js'
 
 /**
- * component that puts its children at the provided space (or reference space type)
+ * Component that puts its children in the provided XRSpace (or reference space type)
+ *
+ * @param props
+ * * `space`: [XRSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRSpace) | [XRSpaceType](https://pmndrs.github.io/xr/docs/api/space.XRSpaceType)
+ * * `children`: [ReactNode](https://reactjs.org/docs/introducing-jsx.html#react-jsx)
+ * @function
  */
 export const XRSpace = forwardRef<
   Object3D,
@@ -46,6 +50,13 @@ export const XRSpace = forwardRef<
   )
 })
 
+/**
+ * A combined type of all XRSpace types
+ * @see [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpaceType)
+ * @see [XRInputSourceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceSpaceType)
+ * @see [XRHandJointSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRHandJointSpaceType)
+ * @see [XRBodyJointSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRBodyJointSpaceType)
+ */
 export type XRSpaceType = XRReferenceSpaceType | XRInputSourceSpaceType | XRHandJointSpaceType | XRBodyJointSpaceType
 
 export type XRInputSourceSpaceType = 'grip-space' | 'target-ray-space'

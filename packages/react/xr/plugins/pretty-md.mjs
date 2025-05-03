@@ -52,8 +52,6 @@ export const load = (app) => {
 
     page.contents = page.contents.replace(/Defined in:.*\n\n/g, '')
     page.contents = page.contents.replace(/## Deprecated\n\n?.*\n?/g, '')
-
-    // page.contents = prettify(page)
   })
 
   app.renderer.on(MarkdownRendererEvent.END, (page) => {
@@ -62,6 +60,7 @@ export const load = (app) => {
     const readmePath = join(docsPath, 'README.md')
     const functionsPath = join(docsPath, 'functions')
     const variablesPath = join(docsPath, 'variables')
+    const typesPath = join(docsPath, 'types')
     const apiPath = resolve(__dirname, '../../../../docs/API')
 
     if (fs.existsSync(apiPath)) {
@@ -93,6 +92,7 @@ export const load = (app) => {
 
     moveFiles(functionsPath)
     moveFiles(variablesPath)
+    moveFiles(typesPath)
 
     const sortFilesAndUpdateNav = (sourceDir) => {
       if (fs.existsSync(sourceDir)) {
@@ -118,52 +118,3 @@ export const load = (app) => {
     sortFilesAndUpdateNav(apiPath)
   })
 }
-
-// ————————————————————————————————————————————————————————————————
-// helper: build the Markdown body exactly how you asked for
-const prettify = (page) => {
-  const refl = page.model // DeclarationReflection
-  if (!refl.signatures?.length) return page.contents // keep default for enums, etc.
-
-  const sig = refl.signatures[0]
-  const frontMatter = page.frontmatter
-  const frontMatterLines = Object.entries(frontMatter)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join('\n')
-  const md = ['---\n' + frontMatterLines + '\n---\n']
-
-  // description
-  md.push(renderComment(sig.comment))
-
-  // parameters
-  if (sig.parameters?.length) {
-    md.push('## Parameters')
-    sig.parameters.forEach((p) => {
-      md.push(`### ${p.name}`)
-      md.push('`' + p.type?.toString() + '`')
-      md.push(renderComment(p.comment))
-    })
-  }
-
-  // returns
-  if (sig.comment?.returns?.length) {
-    md.push('## Returns')
-    md.push('`' + sig.type?.toString() + '`')
-    md.push(renderBlocks(sig.comment.returns))
-  }
-
-  // examples (all @example tags)
-  const examples = sig.comment?.blockTags?.filter((t) => t.tag === '@example') || []
-  if (examples.length) {
-    md.push('## Examples')
-    examples.forEach((ex) => {
-      md.push('```ts\n' + renderBlocks(ex.content) + '\n```')
-    })
-  }
-
-  return md.join('\n\n') // blank lines between sections
-}
-
-// ——— helpers for comment parts ——————————————————————————————
-const renderComment = (c) => c?.summary?.map((p) => p.text).join('') ?? ''
-const renderBlocks = (b) => b?.map((p) => p.text).join('') ?? ''

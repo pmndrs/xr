@@ -6,6 +6,7 @@ import { useXR } from './xr.js'
 
 /**
  * component for setting the origin of the player (their feet)
+ * @function
  */
 export const XROrigin = forwardRef<Group, ThreeElements['group']>(({ children, ...props }, ref) => {
   const xrCamera = useThree((s) => s.gl.xr.getCamera())

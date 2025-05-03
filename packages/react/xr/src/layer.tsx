@@ -1,17 +1,18 @@
+import { forwardObjectEvents } from '@pmndrs/pointer-events'
 import {
-  createXRLayerGeometry,
-  updateXRLayerProperties,
-  updateXRLayerTransform,
-  XRLayerEntry,
-  XRLayerOptions,
-  XRLayerProperties as XRLayerDynamicProperties,
   createXRLayer,
-  XRLayerSrc,
-  waitForXRLayerSrcSize,
+  createXRLayerGeometry,
+  createXRLayerRenderTarget,
   getXRLayerSrcTexture,
   setupXRImageLayer,
   setXRLayerRenderTarget,
-  createXRLayerRenderTarget,
+  updateXRLayerProperties,
+  updateXRLayerTransform,
+  waitForXRLayerSrcSize,
+  XRLayerProperties as XRLayerDynamicProperties,
+  XRLayerEntry,
+  XRLayerOptions,
+  XRLayerSrc,
 } from '@pmndrs/xr'
 import {
   addEffect,
@@ -35,8 +36,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { useXRSessionFeatureEnabled } from './hooks.js'
-import { useXRStore } from './xr.js'
 import {
   BufferGeometry,
   Mesh,
@@ -52,7 +51,8 @@ import {
   WebGLRenderTarget,
 } from 'three'
 import { create, StoreApi, UseBoundStore } from 'zustand'
-import { forwardObjectEvents } from '@pmndrs/pointer-events'
+import { useXRSessionFeatureEnabled } from './hooks.js'
+import { useXRStore } from './xr.js'
 
 export type XRLayerProperties = XRLayerOptions &
   XRLayerDynamicProperties &
@@ -66,6 +66,20 @@ export type XRLayerProperties = XRLayerOptions &
     customRender?: (target: WebGLRenderTarget, state: RootState, delta: number, frame: XRFrame | undefined) => void
   }
 
+/**
+ * Component for rendering high quality quad, cylinder, or equirectangular layers inside supported sessions. Also includes a fallback for non-supported sessions.
+ *
+ * @param props
+ * * `src`: Property for displaying images and videos onto the layer. For rendering dynamic content to the layer, leave the `src` empty and put the dynamic (3D) content into the children, so that the layer acts as a render target.
+ * * `shape`: Property to configure the shape of the layer ("quad", "cylinder", "equirectangular").
+ * * `layout`: Property to configure the layout of the display content for stereo content ("default", "mono", "stereo-left-right", "stereo-top-bottom").
+ * * `centralAngle`: Property to configure the central angle in case the layer shape is a "cylinder".
+ * * `centralHorizontalAngle`: Property to configure the central horizontal angle in case the layer shape is "equirectangular".
+ * * `upperVerticalAngle`: Property to configure the upper vertical angle in case the layer shape is "equirectangular".
+ * * `lowerVerticalAngle`: Property to configure the lower verical angle in case the layer shape is "equirectangular".
+ * * `chromaticAberrationCorrection`: Property to configure whether chromatic abberration should be corrected by the layer.
+ * * `quality`: Property to configure for what type of content the layer should be optimized ("default", "text-optimized", "graphics-optimized").
+ */
 export function XRLayer({
   src,
   pixelWidth = 1024,

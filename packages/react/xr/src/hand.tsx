@@ -14,11 +14,12 @@ import { XRSpace, useXRSpace } from './space.js'
 export type { XRHandModelOptions }
 
 /**
- * component for rendering a 3D model for the XRHand
+ * Component for rendering a 3D model for the XRHand
  *
- * properties
- * - `colorWrite`
- * - `renderOrder`
+ * @param props
+ * * `colorWrite` Configures color writing
+ * * `renderOrder` Configures the render order of the model
+ * @function
  */
 export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, ref) => {
   const state = useXRInputSourceStateContext('hand')
@@ -44,7 +45,7 @@ export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, re
  * - `joint` is the name of the joint (e.g. `"wrist"`)
  *
  * the component allows children to be placed inside for e.g. visualizing a tooltip over the index finger tip
- *
+ * @function
  */
 export const XRHandJoint = forwardRef<Object3D, { joint: XRHandJoint; children?: ReactNode }>(
   ({ joint, children }, ref) => {

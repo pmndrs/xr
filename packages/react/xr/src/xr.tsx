@@ -1,21 +1,21 @@
+import { CombinedPointer } from '@pmndrs/pointer-events'
+import { setupSyncIsVisible } from '@pmndrs/xr'
 import {
+  XRState as BaseXRState,
+  XRStore as BaseXRStore,
+  XRStoreOptions as BaseXRStoreOptions,
   createXRStore as createXRStoreImpl,
   DefaultXRControllerOptions,
   DefaultXRGazeOptions,
   DefaultXRHandOptions,
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
-  XRState as BaseXRState,
-  XRStore as BaseXRStore,
-  XRStoreOptions as BaseXRStoreOptions,
 } from '@pmndrs/xr/internals'
-import { Camera, useFrame, useThree, useStore as useRootStore } from '@react-three/fiber'
+import { Camera, useFrame, useStore as useRootStore, useThree } from '@react-three/fiber'
 import { ComponentType, ReactNode, useContext, useEffect, useMemo } from 'react'
 import { useStore } from 'zustand'
 import { combinedPointerContext, xrContext } from './contexts.js'
 import { XRElements } from './elements.js'
-import { setupSyncIsVisible } from '@pmndrs/xr'
-import { CombinedPointer } from '@pmndrs/pointer-events'
 
 type XRElementImplementation = {
   /**
@@ -69,7 +69,7 @@ export type XRProperties = {
 }
 
 /**
- * core XR component for connectin the xr store with the scene
+ * core XR component for connecting the xr store with the scene
  * requires the xr store which it will provide to its children
  */
 export function XR({ children, store }: XRProperties) {
@@ -107,6 +107,11 @@ export function XR({ children, store }: XRProperties) {
   )
 }
 
+/**
+ * Component for hiding the xr context to all child components. Can be used to create virtual displays and similar allowing the components inside the display to think they are not inside an XR environment, making them behave like when outside XR.
+ *
+ * @param props `children`: `ReactNode` Children to be rendered inside the context.
+ */
 export function NotInXR({ children }: { children?: ReactNode }) {
   const emptyStore = useMemo(() => createXRStore(), [])
   return <xrContext.Provider value={emptyStore}>{children}</xrContext.Provider>

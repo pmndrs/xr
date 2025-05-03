@@ -1,5 +1,3 @@
-import { ReactNode, forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { suspend } from 'suspend-react'
 import {
   configureXRControllerModel,
   createUpdateXRControllerVisuals,
@@ -13,6 +11,8 @@ import {
   XRControllerState,
 } from '@pmndrs/xr/internals'
 import { createPortal, useFrame } from '@react-three/fiber'
+import { forwardRef, ReactNode, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import { suspend } from 'suspend-react'
 import { Object3D } from 'three'
 import { useXRInputSourceStateContext } from './input.js'
 import { XRSpace } from './space.js'
@@ -26,6 +26,7 @@ import { XRSpace } from './space.js'
  * - `onRelease` is an optional callback to receive when the component is released
  *
  * the component allows children to be placed inside for e.g. visualizing a tooltip over the button/...
+ * @function
  */
 export const XRControllerComponent = forwardRef<
   Object3D | undefined,
@@ -68,15 +69,16 @@ export function useXRControllerButtonEvent(
   })
 }
 
-export type { XRControllerState, XRControllerModelOptions }
+export type { XRControllerModelOptions, XRControllerState }
 
 const LoadXRControllerModelSymbol = Symbol('loadXRControllerModel')
+
 /**
- * component for rendering a 3D model for the XRController
- *
- * properties
- * - `colorWrite`
- * - `renderOrder`
+ * Component for rendering a 3D model for the XRController
+ * @param props
+ * * `colorWrite` Configures the colorWrite property of the model
+ * * `renderOrder` Configures the render order model
+ * @function
  */
 export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>((options, ref) => {
   const state = useXRInputSourceStateContext('controller')
@@ -98,6 +100,15 @@ export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>(
 
 const LoadXRControllerLayoutSymbol = Symbol('loadXRControllerLayout')
 
+/**
+ * Hook for loading a controller layout, which contains info about the controller model and its buttons / controls.
+ * For xr controllers provided through WebXR, the layout is loaded and provided through the controller state automatically.
+ * Therefore, this hook's purpose is for building controller demos/tutorials.
+ * @param profileIds
+ * @param handedness
+ * @param XRControllerLayoutLoaderOptions
+ * @returns Promise<XRControllerLayout>
+ */
 export function useLoadXRControllerLayout(
   profileIds: string[],
   handedness: XRHandedness,
@@ -113,6 +124,11 @@ export function useLoadXRControllerLayout(
   }, [LoadXRControllerLayoutSymbol, handedness, ...profileIds])
 }
 
+/**
+ * Loads the controller model for the given layout. This is a suspendable function, so it can be used with React Suspense.
+ * @param layout: XRControllerLayout
+ * @returns Promise<THREE.Group>
+ */
 export function useLoadXRControllerModel(layout: XRControllerLayout) {
   return suspend(loadXRControllerModel, [layout, undefined, LoadXRControllerModelSymbol])
 }

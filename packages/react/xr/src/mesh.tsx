@@ -1,11 +1,14 @@
-import { forwardRef, useEffect, useMemo, useState } from 'react'
-import { ThreeElements, useFrame } from '@react-three/fiber'
-import { BufferGeometry, Mesh } from 'three'
 import { updateXRMeshGeometry } from '@pmndrs/xr/internals'
+import { ThreeElements, useFrame } from '@react-three/fiber'
+import { forwardRef, useEffect, useMemo, useState } from 'react'
+import { BufferGeometry, Mesh } from 'three'
 import { useXR } from './xr.js'
 
 /**
  * component for rendering a mesh for the XRMesh based on the detected mesh geometry
+ * @param props
+ * Accepts the same props as a ThreeJs [Mesh](https://threejs.org/docs/#api/en/objects/Mesh)
+ * @function
  */
 export const XRMeshModel = forwardRef<Mesh, ThreeElements['mesh'] & { mesh: XRMesh }>(({ mesh, ...rest }, ref) => {
   const geometry = useXRMeshGeometry(mesh)

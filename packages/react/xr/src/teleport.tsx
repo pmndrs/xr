@@ -10,6 +10,10 @@ import { Group, Vector3 } from 'three'
 
 /**
  * component that allows to declare its children as teleport targets.
+ * @param props
+ * * `children`: [ReactNode](https://reactjs.org/docs/introducing-jsx.html#react-jsx)
+ * * `onTeleport`: Function that is called when the teleport target is hit
+ * @function
  */
 export function TeleportTarget({
   children,
