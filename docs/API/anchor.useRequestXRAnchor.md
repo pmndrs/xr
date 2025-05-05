@@ -14,7 +14,7 @@ hook that returns a function that allows to request a xr anchor
 
 ### Parameters
 
-#### args
+#### props
 
 ...\[`XRAnchorOptions`\]
 

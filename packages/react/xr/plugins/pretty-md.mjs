@@ -32,28 +32,35 @@ export const load = (app) => {
   })
 
   app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
+    // Skip unwanted kinds
     if (kindsToExclude.includes(page.model.kind)) {
-      page.project.removeReflection(page.model) // remove from project
-      return // Skip unwanted kinds
+      page.project.removeReflection(page.model)
+      return
     }
 
     page.frontmatter = {
       title: page.model.name,
-      nav: 0, // placeholder, will be set later
+      nav: 0, // placeholder, will be set later. Defines the sorting order in the sidebar
       sourcecode: page?.model?.sources?.[0]?.fileName ?? '',
     }
   })
 
+  // Fill excluded pages with empty content
   app.renderer.on(MarkdownPageEvent.END, (page) => {
     if (kindsToExclude.includes(page.model.kind)) {
       page.contents = ''
       return
     }
 
+    // Remove the default Defined in tag as we replace it with a custom one in the frontmatter
     page.contents = page.contents.replace(/Defined in:.*\n\n/g, '')
+    // Remove the default Deprecated tag as we replace it with a custom one
     page.contents = page.contents.replace(/## Deprecated\n\n?.*\n?/g, '')
+    // Replace tags marked as args with props, as props is a more common term
+    page.contents = page.contents.replace(/## args\n\n/g, '## props\n\n')
   })
 
+  // Happens after the markdown pages are generated
   app.renderer.on(MarkdownRendererEvent.END, (page) => {
     const docsPath = resolve(__dirname, '../docs')
     const modulesPath = join(docsPath, 'modules')
@@ -63,18 +70,22 @@ export const load = (app) => {
     const typesPath = join(docsPath, 'types')
     const apiPath = resolve(__dirname, '../../../../docs/API')
 
+    // Clear out the previous instance of the API folder
     if (fs.existsSync(apiPath)) {
       fs.rmSync(apiPath, { recursive: true, force: true })
     }
 
+    // Delete the modules folder if it exists. These are kind of useless for how our API is structured
     if (fs.existsSync(modulesPath)) {
       fs.rmSync(modulesPath, { recursive: true, force: true })
     }
 
+    // Delete the README.md file if it exists
     if (fs.existsSync(readmePath)) {
       fs.unlinkSync(readmePath)
     }
 
+    // Generate the new API folder
     if (!fs.existsSync(apiPath)) {
       fs.mkdirSync(apiPath, { recursive: true })
     }
@@ -90,10 +101,12 @@ export const load = (app) => {
       }
     }
 
+    // Move all the files we want to keep to the API folder
     moveFiles(functionsPath)
     moveFiles(variablesPath)
     moveFiles(typesPath)
 
+    // Sort the files in the API folder alphabetically and update the nav number in the frontmatter
     const sortFilesAndUpdateNav = (sourceDir) => {
       if (fs.existsSync(sourceDir)) {
         const files = fs.readdirSync(sourceDir)

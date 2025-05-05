@@ -4,24 +4,24 @@ nav: 8
 sourcecode: packages/react/xr/src/default.tsx
 ---
 
-> `const` **DefaultXRHandGrabPointer**: (...`args`) => `Element`
+> `const` **DefaultXRHandGrabPointer**: (`props`) => `ReactNode`
 
-grab pointer for the XRHand
-
-properties
-- `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
-- `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
-- `contextMenuButton` the button that triggers contextmenu events
-- `makeDefault` used the set the default pointer inside a combined pointer
-- `cursorModel` properties for configuring how the cursor should look
-- `radius` the size of the intersection sphere
+Grab pointer for the XRHand
 
 ## Parameters
 
-### args
+### props
 
-...\[`DefaultXRInputSourceGrabPointerOptions`\]
+`DefaultXRInputSourceGrabPointerOptions`
+
+* `clickThresholdMs` Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+* `dblClickThresholdMs` Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+* `contextMenuButton` The button that triggers context menu events
+* `makeDefault` Used the set the default pointer inside a combined pointer
+* `cursorModel` Properties for configuring how the cursor should look
+* `radius` The size of the intersection sphere
+* `customSort` Overrides the default sort function to use for sorting the intersection results
 
 ## Returns
 
-`Element`
+`ReactNode`

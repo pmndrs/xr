@@ -4,27 +4,26 @@ nav: 11
 sourcecode: packages/react/xr/src/default.tsx
 ---
 
-> **DefaultXRInputSourceTeleportPointer**(`options`): `Element`
+> **DefaultXRInputSourceTeleportPointer**(`props`): `Element`
 
-telport pointer for the XRInputSource
-emits a downwards bend ray that only interesects with meshes marked as teleportable
-
-properties
-- `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
-- `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
-- `contextMenuButton` the button that triggers contextmenu events
-- `makeDefault` used the set the default pointer inside a combined pointer
-- `radius` the size of the intersection sphere
-- `minDistance` minimal distance to trigger interactions
-- `direction` the direction of the ray
-- `rayModel` properties for configuring how the ray should look
-- `cursorModel` properties for configuring how the cursor should look
+Telport pointer for the XRInputSource.
+Emits a downward bend ray that only interesects with meshes marked as teleportable
 
 ## Parameters
 
-### options
+### props
 
 `DefaultXRInputSourceTeleportPointerOptions`
+
+* `clickThresholdMs` Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+* `dblClickThresholdMs` Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+* `contextMenuButton` The button that triggers context menu events
+* `makeDefault` Used the set the default pointer inside a combined pointer
+* `radius` The size of the intersection sphere
+* `minDistance` Minimal distance to trigger interactions
+* `direction` The direction of the ray
+* `rayModel` Properties for configuring how the ray should look
+* `cursorModel` Properties for configuring how the cursor should look
 
 ## Returns
 

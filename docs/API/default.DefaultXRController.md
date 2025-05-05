@@ -4,20 +4,19 @@ nav: 4
 sourcecode: packages/react/xr/src/default.tsx
 ---
 
-> **DefaultXRController**(`options`): `Element`
+> **DefaultXRController**(`props`): `Element`
 
-default controller implementation with grab and ray pointers
-
-properties
-- `model` options for configuring the controller apperance
-- `grabPointer` options for configuring the grab pointer
-- `rayPointer` options for configuring the ray pointer
+Default controller implementation with grab and ray pointers
 
 ## Parameters
 
-### options
+### props
 
 `DefaultXRControllerOptions`
+
+* `model` Options for configuring the controller apperance
+* `grabPointer` Options for configuring the grab pointer
+* `rayPointer` Options for configuring the ray pointer
 
 ## Returns
 

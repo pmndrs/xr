@@ -4,25 +4,20 @@ nav: 15
 sourcecode: packages/react/xr/src/guard/session-mode.tsx
 ---
 
-> **IfInSessionMode**(`__namedParameters`): `null` \| `Element`
+> **IfInSessionMode**(`props`): `null` \| `Element`
 
-guard that renders its children based on the current session mode
+Guard that only **renders** its children to the scene based on the current session mode.
+If neither `allow` nor `deny` are provided, the elements will be rendered based on whether or not any mode is currently being used.
 
 ## Parameters
 
-### \_\_namedParameters
+### props
 
-#### allow?
+`InSessionModeProps`
 
-`XRSessionMode` \| readonly XRSessionMode \| undefined[]
-
-#### children?
-
-`ReactNode`
-
-#### deny?
-
-`XRSessionMode` \| readonly XRSessionMode \| undefined[]
+* `children?`: ReactNode - The ReactNode elements to conditionally render.
+* `allow?`: XRSessionMode | ReadonlyArray<XRSessionMode | undefined> - The session mode(s) where the children will be rendered. If not provided, the children will be rendered in all modes except the ones in `deny`.
+* `deny?`: XRSessionMode | ReadonlyArray<XRSessionMode | undefined> - The session mode(s) where the children will not be rendered.
 
 ## Returns
 

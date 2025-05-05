@@ -4,21 +4,18 @@ nav: 25
 sourcecode: packages/react/xr/src/guard/session-supported.tsx
 ---
 
-> **ShowIfSessionModeSupported**(`__namedParameters`): `Element`
+> **ShowIfSessionModeSupported**(`props`): `Element`
 
-guard that only show its children if the session mode is supported
+Guard that only **shows** its children by toggling their visibility based on whether the user's device supports a session mode.
 
 ## Parameters
 
-### \_\_namedParameters
+### props
 
-#### children?
+`SessionModeSupportedProps`
 
-`ReactNode`
-
-#### mode
-
-`XRSessionMode`
+* `children?`: ReactNode - The ReactNode elements to conditionally show.
+* `mode`: XRSessionMode - The session mode used to determine if the children will be shown.
 
 ## Returns
 

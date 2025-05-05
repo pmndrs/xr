@@ -4,17 +4,18 @@ nav: 17
 sourcecode: packages/react/xr/src/guard/focus.tsx
 ---
 
-> **IfSessionVisible**(`__namedParameters`): `null` \| `Element`
+> **IfSessionVisible**(`props`): `null` \| `Element`
 
-guard that only renders its children when the session is not blurred or when not in a session
+Guard that only **renders** its children to the scene based on whether the current session is visible or not.
+Typically used to hide/show content when operating system overlays are showing
 
 ## Parameters
 
-### \_\_namedParameters
+### props
 
-#### children?
+`SessionVisibleProps`
 
-`ReactNode`
+* `children?`: ReactNode - The ReactNode elements to conditionally show.
 
 ## Returns
 
