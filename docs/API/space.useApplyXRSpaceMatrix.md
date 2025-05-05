@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/space.tsx
 
 > **useApplyXRSpaceMatrix**(`ref`, `space`, `onFrame?`): `void`
 
-hook that applies the transformation of the provided xr space to the provided object reference
+Hook that applies the transformation of the provided xr space to the provided object reference
 
 ## Parameters
 
@@ -24,7 +24,7 @@ hook that applies the transformation of the provided xr space to the provided ob
 
 (`state`, `delta`, `frame`) => `void`
 
-optional callback that gets executed after the matrix of the reference object was updated
+Optional callback that gets executed after the matrix of the reference object was updated
 
 ## Returns
 
@@ -32,4 +32,4 @@ optional callback that gets executed after the matrix of the reference object wa
 
 ## Requires
 
-that matrixAutoUpdate is disabled for the referenced object
+matrixAutoUpdate to be disabled for the referenced object

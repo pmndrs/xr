@@ -5,7 +5,7 @@ sourcecode: packages/react/xr/src/deprecated/hooks.tsx
 ---
 
 > [!CAUTION]
-> Deprecated: 
+> Deprecated: Implement custom listeners instead
 
 > **useXREvent**(`type`, `handler`, `__namedParameters`): `void`
 

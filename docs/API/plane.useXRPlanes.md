@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/plane.tsx
 
 > **useXRPlanes**(`semanticLabel?`): readonly `XRPlane`[]
 
-hook for getting all dected planes with the provided semantic label
+Hook for getting all dected planes with the provided semantic label
 
 ## Parameters
 

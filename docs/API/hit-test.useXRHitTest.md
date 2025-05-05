@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/hit-test.tsx
 
 > **useXRHitTest**(`fn`, `relativeTo`, `trackableType?`): `void`
 
-hook for setting up a continous hit test originating from the provided object or xrspace
+Hook for setting up a continous hit test originating from the provided object or xrspace
 
 ## Parameters
 

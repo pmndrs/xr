@@ -17,7 +17,7 @@ export const XRPlaneModel = forwardRef<Mesh, ThreeElements['mesh'] & { plane: XR
 })
 
 /**
- * hook for getting all dected planes with the provided semantic label
+ * Hook for getting all dected planes with the provided semantic label
  */
 export function useXRPlanes(semanticLabel?: string) {
   const planes = useXR((xr) => xr.detectedPlanes)
@@ -28,7 +28,8 @@ export function useXRPlanes(semanticLabel?: string) {
 }
 
 /**
- * hook for getting the geometry from the detected plane
+ * Hook for getting the geometry from the detected plane
+ *
  * @param plane the detected plane
  * @param disposeBuffer allows to disable auto disposing the geometry buffer
  */

@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/pointer.tsx
 
 > **usePointerXRInputSourceEvents**(`pointer`, `inputSource`, `event`, `missingEvents`): `void`
 
-hook for binding the xr session events such as `selectstart` to the provided pointer down/up events
+Hook for binding the xr session events such as `selectstart` to the provided pointer down/up events
 
 ## Parameters
 

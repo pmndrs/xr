@@ -4,6 +4,18 @@ nav: 72
 sourcecode: packages/react/xr/src/dom-overlay.tsx
 ---
 
-> `const` **XRDomOverlay**: `ForwardRefExoticComponent`\<`Omit`\<`HTMLProps`\<`HTMLDivElement`\>, `"ref"`\> & `RefAttributes`\<`HTMLDivElement`\>\>
+> **XRDomOverlay**(`props`): `ReactNode`
 
-component to render html elements as overlay for handheld AR experiences
+Renders html elements as an overlay for handheld AR experiences
+
+## Parameters
+
+### props
+
+`Omit`\<`HTMLProps`\<`HTMLDivElement`\>, `"ref"`\> & `RefAttributes`\<`HTMLDivElement`\>
+
+`DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>` Props are forwarded to a `div` element
+
+## Returns
+
+`ReactNode`

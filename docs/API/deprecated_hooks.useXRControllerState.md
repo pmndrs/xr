@@ -6,11 +6,12 @@ sourcecode: packages/react/xr/src/deprecated/hooks.tsx
 
 > [!CAUTION]
 > Deprecated: use `useXRInputSourceState("controller", "left")` instead
-hook for getting the XRControllerState
 
 ## Call Signature
 
 > **useXRControllerState**(`handedness`): `undefined` \| `XRControllerState`
+
+Hook for getting the XRControllerState
 
 ### Parameters
 
@@ -24,14 +25,15 @@ the handedness that the XRControllerState should have
 
 `undefined` \| `XRControllerState`
 
-#hook for getting the XRControllerState
-
+#
 ## Call Signature
 
 > **useXRControllerState**(): `XRControllerState`
+
+Hook for getting the XRControllerState
 
 ### Returns
 
 `XRControllerState`
 
-#hook for getting the XRControllerState
+#

@@ -13,7 +13,7 @@ sourcecode: packages/react/xr/src/deprecated/hooks.tsx
 
 > (): `XRSpace`
 
-hook for retrieving getting xr space from the context
+Hook for retrieving XR space from the context
 
 ### Returns
 
@@ -23,7 +23,7 @@ hook for retrieving getting xr space from the context
 
 > (`type`): `undefined` \| `XRReferenceSpace`
 
-hook for retrieving getting xr space from the context
+Hook for retrieving XR space from the context
 
 ### Parameters
 
@@ -39,7 +39,7 @@ hook for retrieving getting xr space from the context
 
 > (`type`): `undefined` \| `XRSpace`
 
-hook for retrieving getting xr space from the context
+Hook for retrieving XR space from the context
 
 ### Parameters
 

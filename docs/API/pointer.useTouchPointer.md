@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/pointer.tsx
 
 > **useTouchPointer**(`spaceRef`, `pointerState`, `currentOptions?`, `pointerType?`): `Pointer`
 
-hook for creating a touch pointer
+Hook for creating a touch pointer
 
 ## Parameters
 

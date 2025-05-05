@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/hit-test.tsx
 
 > **useXRRequestHitTest**(): (`relativeTo`, `trackableType?`) => `undefined` \| `Promise`\<`undefined` \| \{ `getWorldMatrix`: (`target`, `result`) => `boolean`; `results`: `XRHitTestResult`[]; \}\>
 
-hook that returns a function to request a single hit test
+Hook that returns a function to request a single hit test
 
 ## Returns
 

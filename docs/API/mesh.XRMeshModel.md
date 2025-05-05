@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/mesh.tsx
 
 > **XRMeshModel**(`props`): `ReactNode`
 
-component for rendering a mesh for the XRMesh based on the detected mesh geometry
+Component for rendering a mesh for the XRMesh based on the detected mesh geometry
 
 ## Parameters
 

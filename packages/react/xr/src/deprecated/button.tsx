@@ -4,7 +4,7 @@ import { useXRSessionModeSupported } from '../hooks.js'
 import { XRStore } from '../xr.js'
 
 /**
- * @deprecated use <button onClick={() => store.enterXR()}> instead
+ * @deprecated use `<button onClick={() => store.enterXR()}>` instead
  */
 export const XRButton = forwardRef<
   HTMLButtonElement,
@@ -36,7 +36,7 @@ export const ARButton = forwardRef<HTMLButtonElement, Omit<ComponentPropsWithout
 )
 
 /**
- * @deprecated use <button onClick={() => store.enterVR()}> instead
+ * @deprecated use `<button onClick={() => store.enterVR()}>` instead
  */
 export const VRButton = forwardRef<HTMLButtonElement, Omit<ComponentPropsWithoutRef<typeof XRButton>, 'mode'>>(
   (props, ref) => {

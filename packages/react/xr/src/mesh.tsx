@@ -5,7 +5,8 @@ import { BufferGeometry, Mesh } from 'three'
 import { useXR } from './xr.js'
 
 /**
- * component for rendering a mesh for the XRMesh based on the detected mesh geometry
+ * Component for rendering a mesh for the XRMesh based on the detected mesh geometry
+ *
  * @param props
  * Accepts the same props as a ThreeJs [Mesh](https://threejs.org/docs/#api/en/objects/Mesh)
  * @function
@@ -16,7 +17,7 @@ export const XRMeshModel = forwardRef<Mesh, ThreeElements['mesh'] & { mesh: XRMe
 })
 
 /**
- * hook for getting all dected meshes with the provided semantic label
+ * Hook for getting all detected meshes with the provided semantic label
  */
 export function useXRMeshes(semanticLabel?: string) {
   const meshes = useXR((xr) => xr.detectedMeshes)
@@ -27,7 +28,8 @@ export function useXRMeshes(semanticLabel?: string) {
 }
 
 /**
- * hook for getting the geometry from the detected mesh
+ * Hook for getting the geometry from the detected mesh
+ *
  * @param mesh the detected mesh
  * @param disposeBuffer allows to disable auto disposing the geometry buffer
  */

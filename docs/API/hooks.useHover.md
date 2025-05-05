@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/hooks.ts
 
 > **useHover**(`ref`, `onChange?`): `undefined` \| `boolean`
 
-// TODO: Add a real description
+Used to track the hover state of a 3D object.
 
 ## Parameters
 
@@ -14,13 +14,13 @@ sourcecode: packages/react/xr/src/hooks.ts
 
 `RefObject`\<`null` \| `Object3D`\<`Object3DEventMap`\>\>
 
-The reference to the 3D object.
+`RefObject<Object3D | null>` : The reference to the 3D object.
 
 ### onChange?
 
 (`hover`, `event`) => `void`
 
-Callback for hover state changes.
+`(hover: boolean, event: PointerEvent) => void` : Callback for hover state changes.
 
 ## Returns
 

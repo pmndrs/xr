@@ -6,8 +6,8 @@ sourcecode: packages/react/xr/src/xr.tsx
 
 > **XR**(`__namedParameters`): `Element`
 
-core XR component for connecting the xr store with the scene
-requires the xr store which it will provide to its children
+Core XR component for connecting the `XRStore` with the scene.
+Requires the `XRStore` which it will provide to its children.
 
 ## Parameters
 

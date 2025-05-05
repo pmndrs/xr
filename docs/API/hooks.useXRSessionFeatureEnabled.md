@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/hooks.ts
 
 > **useXRSessionFeatureEnabled**(`feature`): `boolean`
 
-//TODO: Add a real description
+Checks if a specific XR session feature is enabled.
 
 ## Parameters
 

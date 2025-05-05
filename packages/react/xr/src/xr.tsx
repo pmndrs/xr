@@ -55,9 +55,9 @@ export type XRStoreOptions = BaseXRStoreOptions<XRElementImplementation>
 export type XRState = BaseXRState<XRElementImplementation>
 
 /**
- * starting point for each XR application
- * allows to configure the session's features and defaults such as what controllers are rendered and how they can interact with the scene
- * @returns an xr store
+ * Starting point for each XR application.
+ * Allows to configure the session's features and defaults such as what controllers are rendered and how they can interact with the scene
+ * @returns A new XR store
  */
 export function createXRStore(options?: XRStoreOptions) {
   return createXRStoreImpl<XRElementImplementation>(options)
@@ -69,8 +69,8 @@ export type XRProperties = {
 }
 
 /**
- * core XR component for connecting the xr store with the scene
- * requires the xr store which it will provide to its children
+ * Core XR component for connecting the `XRStore` with the scene.
+ * Requires the `XRStore` which it will provide to its children.
  */
 export function XR({ children, store }: XRProperties) {
   store.setWebXRManager(useThree((s) => s.gl.xr))
@@ -129,7 +129,7 @@ export function RootCombinedPointer({ children }: { children?: ReactNode }) {
 }
 
 /**
- * hook for getting the xr store from the context
+ * Hook for getting the xr store from the context
  */
 export function useXRStore() {
   const store = useContext(xrContext)
@@ -140,7 +140,7 @@ export function useXRStore() {
 }
 
 /**
- * hook for reading the state from the xr store
+ * Hook for reading the state from the xr store
  */
 export function useXR<T = XRState>(
   selector: (s: XRState) => T = (state) => state as unknown as T,

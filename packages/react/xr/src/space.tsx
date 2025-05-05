@@ -66,7 +66,7 @@ export type XRHandJointSpaceType = XRHandJoint
 export type XRBodyJointSpaceType = XRBodyJoint
 
 /**
- * hook for retrieving getting xr space from the context
+ * Hook for retrieving XR space from the context
  */
 export function useXRSpace(): XRSpace
 
@@ -226,7 +226,7 @@ export function useXRSpace(type?: XRSpaceType): XRSpace | XRReferenceSpace | und
 }
 
 /**
- * hook that returns a function to compute a matrix that contains the transformation of the provided xr space
+ * Hook that returns a function to compute a matrix that contains the transformation of the provided xr space
  */
 export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
   const localReferenceSpace = useContext(xrSpaceContext)
@@ -238,9 +238,10 @@ export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
 }
 
 /**
- * hook that applies the transformation of the provided xr space to the provided object reference
- * @param onFrame optional callback that gets executed after the matrix of the reference object was updated
- * @requires that matrixAutoUpdate is disabled for the referenced object
+ * Hook that applies the transformation of the provided xr space to the provided object reference
+ *
+ * @param onFrame Optional callback that gets executed after the matrix of the reference object was updated
+ * @requires matrixAutoUpdate to be disabled for the referenced object
  */
 export function useApplyXRSpaceMatrix(
   ref: { current?: Group | null },

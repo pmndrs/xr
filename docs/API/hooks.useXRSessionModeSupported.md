@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/hooks.ts
 
 > **useXRSessionModeSupported**(`mode`, `onError?`): `undefined` \| `boolean`
 
-//TODO: Add a real description
+Checks whether a specific XRSessionMode is supported or not
 
 ## Parameters
 
@@ -25,5 +25,3 @@ Callback executed when an error occurs.
 ## Returns
 
 `undefined` \| `boolean`
-
-- Whether the session mode is supported.

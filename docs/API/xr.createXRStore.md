@@ -6,8 +6,8 @@ sourcecode: packages/react/xr/src/xr.tsx
 
 > **createXRStore**(`options?`): `XRStore`\<`XRElementImplementation`\>
 
-starting point for each XR application
-allows to configure the session's features and defaults such as what controllers are rendered and how they can interact with the scene
+Starting point for each XR application.
+Allows to configure the session's features and defaults such as what controllers are rendered and how they can interact with the scene
 
 ## Parameters
 
@@ -19,4 +19,4 @@ allows to configure the session's features and defaults such as what controllers
 
 `XRStore`\<`XRElementImplementation`\>
 
-an xr store
+A new XR store

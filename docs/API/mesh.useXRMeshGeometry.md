@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/mesh.tsx
 
 > **useXRMeshGeometry**(`mesh`, `disposeBuffer`): `BufferGeometry`
 
-hook for getting the geometry from the detected mesh
+Hook for getting the geometry from the detected mesh
 
 ## Parameters
 

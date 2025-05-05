@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/hit-test.tsx
 
 > **XRHitTest**(`props`): `ReactNode`
 
-component for getting hit tests originating based on its position in the scene graph
+Component for getting hit tests originating based on its position in the scene graph
 
 ## Parameters
 
@@ -17,7 +17,5 @@ component for getting hit tests originating based on its position in the scene g
 * `space`: [XRSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRSpace) | [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace#reference_space_types)
 
 ## Returns
-
-`ReactNode`
 
 `ReactNode`

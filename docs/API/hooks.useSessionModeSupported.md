@@ -5,11 +5,11 @@ sourcecode: packages/react/xr/src/hooks.ts
 ---
 
 > [!CAUTION]
-> Deprecated: use useXRSessionModeSupported instead
+> Deprecated: use `useXRSessionModeSupported` instead
 
 > `const` **useSessionModeSupported**: (`mode`, `onError?`) => `undefined` \| `boolean` = `useXRSessionModeSupported`
 
-//TODO: Add a real description
+Checks whether a specific XRSessionMode is supported or not
 
 ## Parameters
 
@@ -28,6 +28,4 @@ Callback executed when an error occurs.
 ## Returns
 
 `undefined` \| `boolean`
-
-- Whether the session mode is supported.
 

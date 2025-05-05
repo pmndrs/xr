@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/pointer.tsx
 
 > **useLinesPointer**(`spaceRef`, `pointerState`, `currentOptions?`, `pointerType?`): `Pointer`
 
-hook for creating a ray pointer
+Hook for creating a ray pointer
 
 ## Parameters
 

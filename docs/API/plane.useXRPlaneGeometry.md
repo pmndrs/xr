@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/plane.tsx
 
 > **useXRPlaneGeometry**(`plane`, `disposeBuffer`): `BufferGeometry`
 
-hook for getting the geometry from the detected plane
+Hook for getting the geometry from the detected plane
 
 ## Parameters
 

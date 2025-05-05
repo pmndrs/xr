@@ -8,7 +8,7 @@ sourcecode: packages/react/xr/src/space.tsx
 
 > **useXRSpace**(): `XRSpace`
 
-hook for retrieving getting xr space from the context
+Hook for retrieving XR space from the context
 
 ### Returns
 
@@ -18,7 +18,7 @@ hook for retrieving getting xr space from the context
 
 > **useXRSpace**(`type`): `undefined` \| `XRReferenceSpace`
 
-hook for retrieving getting xr space from the context
+Hook for retrieving XR space from the context
 
 ### Parameters
 
@@ -34,7 +34,7 @@ hook for retrieving getting xr space from the context
 
 > **useXRSpace**(`type`): `undefined` \| `XRSpace`
 
-hook for retrieving getting xr space from the context
+Hook for retrieving XR space from the context
 
 ### Parameters
 

@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/xr.tsx
 
 > **useXRStore**(): `XRStore`
 
-hook for getting the xr store from the context
+Hook for getting the xr store from the context
 
 ## Returns
 

@@ -45,7 +45,7 @@ function clearObject(object: Record<string, unknown>): void {
 }
 
 /**
- * hook for creating a grab pointer
+ * Hook for creating a grab pointer
  */
 export function useGrabPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -66,7 +66,7 @@ export function useGrabPointer(
 }
 
 /**
- * hook for creating a ray pointer
+ * Hook for creating a ray pointer
  */
 export function useRayPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -87,7 +87,7 @@ export function useRayPointer(
 }
 
 /**
- * hook for creating a ray pointer
+ * Hook for creating a ray pointer
  */
 export function useLinesPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -108,7 +108,7 @@ export function useLinesPointer(
 }
 
 /**
- * hook for creating a touch pointer
+ * Hook for creating a touch pointer
  */
 export function useTouchPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -129,7 +129,7 @@ export function useTouchPointer(
 }
 
 /**
- * component for rendering a ray for a pointer
+ * Component for rendering a ray for a pointer
  * @param props
  * * `materialClass`: Material to use for the ray
  * * `pointer`: Pointer to use for the ray
@@ -191,7 +191,7 @@ export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & {
 })
 
 /**
- * hook for binding the xr session events such as `selectstart` to the provided pointer down/up events
+ * Hook for binding the xr session events such as `selectstart` to the provided pointer down/up events
  */
 export function usePointerXRInputSourceEvents(
   pointer: Pointer,

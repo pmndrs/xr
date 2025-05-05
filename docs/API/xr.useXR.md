@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/xr.tsx
 
 > **useXR**\<`T`\>(`selector`, `equalityFn?`): `T`
 
-hook for reading the state from the xr store
+Hook for reading the state from the xr store
 
 ## Type Parameters
 

@@ -6,10 +6,10 @@ sourcecode: packages/react/xr/src/hooks.ts
 
 > **useXRSessionVisibilityState**(): `undefined` \| `XRVisibilityState`
 
-// TODO: Add a real description
+Gets the visibility state of the XR session.
 
 ## Returns
 
 `undefined` \| `XRVisibilityState`
 
-- The visibility state of the XR session.
+The visibility state of the XR session.

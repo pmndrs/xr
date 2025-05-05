@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/pointer.tsx
 
 > **PointerRayModel**(`props`): `ReactNode`
 
-component for rendering a ray for a pointer
+Component for rendering a ray for a pointer
 
 ## Parameters
 

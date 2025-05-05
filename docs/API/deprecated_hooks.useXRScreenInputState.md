@@ -6,12 +6,12 @@ sourcecode: packages/react/xr/src/deprecated/hooks.tsx
 
 > [!CAUTION]
 > Deprecated: `useXRInputSourceStateContext("screenInput")` instead
-hook for getting the screen-input state
 
 > **useXRScreenInputState**(): `XRScreenInputState`
+
+Hook for getting the screen-input state
 
 ## Returns
 
 `XRScreenInputState`
 
-hook for getting the screen-input state

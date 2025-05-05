@@ -8,7 +8,7 @@ sourcecode: packages/react/xr/src/teleport.tsx
 
 **`Function`**
 
-component that allows to declare its children as teleport targets.
+Component that allows to declare its children as teleport targets.
 
 ## Parameters
 

@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/hooks.ts
 
 > **useInitRoomCapture**(): `undefined` \| () => `Promise`\<`undefined`\>
 
-// TODO: Add a real description
+Initilizes the room capture process.
 
 ## Returns
 
@@ -29,4 +29,4 @@ The initiateRoomCapture method MUST only be able to be called once per XRSession
 
 https://immersive-web.github.io/real-world-geometry/plane-detection.html#plane-set
 
-- A function to initiate room capture, or undefined if unavailable.
+A function to initiate room capture, or undefined if unavailable.

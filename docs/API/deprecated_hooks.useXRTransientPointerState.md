@@ -6,11 +6,12 @@ sourcecode: packages/react/xr/src/deprecated/hooks.tsx
 
 > [!CAUTION]
 > Deprecated: use `useXRInputSourceState("transientPointer", "left")` instead
-hook for getting the transient-pointer state
 
 ## Call Signature
 
 > **useXRTransientPointerState**(`handedness`): `undefined` \| `XRTransientPointerState`
+
+Hook for getting the transient-pointer state
 
 ### Parameters
 
@@ -24,14 +25,15 @@ the handedness that the XRHandState should have
 
 `undefined` \| `XRTransientPointerState`
 
-#hook for getting the transient-pointer state
-
+#
 ## Call Signature
 
 > **useXRTransientPointerState**(): `XRTransientPointerState`
+
+Hook for getting the transient-pointer state inside the xr store config
 
 ### Returns
 
 `XRTransientPointerState`
 
-#hook for getting the transient-pointer state inside the xr store config
+#

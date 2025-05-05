@@ -6,7 +6,7 @@ sourcecode: packages/react/xr/src/pointer.tsx
 
 > **useGrabPointer**(`spaceRef`, `pointerState`, `currentOptions?`, `pointerType?`): `Pointer`
 
-hook for creating a grab pointer
+Hook for creating a grab pointer
 
 ## Parameters
 

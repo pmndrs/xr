@@ -38,14 +38,14 @@ export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, re
 })
 
 /**
- * @deprecated use `<XRSpace space="wrist">` instead of `<XRHandJoint joint="wrist">`
- * component for placing content in the hand anchored at a specific joint such as the index finger tip
+ * Component for placing content in the hand anchored at a specific joint such as the index finger tip.
  *
- * properties
- * - `joint` is the name of the joint (e.g. `"wrist"`)
+ * @param props
+ * * `joint`: [XRHandJoint](https://developer.mozilla.org/en-US/docs/Web/API/XRHand#hand_joints) - Is the name of the joint where content should be placed (e.g. `"wrist"`)
+ * * `children`: Components to be placed inside the joint (e.g. For visualizing a tooltip over the index finger tip)
  *
- * the component allows children to be placed inside for e.g. visualizing a tooltip over the index finger tip
  * @function
+ * @deprecated use `<XRSpace space="wrist">` instead of `<XRHandJoint joint="wrist">`
  */
 export const XRHandJoint = forwardRef<Object3D, { joint: XRHandJoint; children?: ReactNode }>(
   ({ joint, children }, ref) => {
