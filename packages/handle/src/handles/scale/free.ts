@@ -16,7 +16,7 @@ export class FreeScaleHandle extends RegisteredHandle {
   }
 
   bind(config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -29,6 +29,7 @@ export class FreeScaleHandle extends RegisteredHandle {
       hoverOpacity: 1,
       color: 0xffffff,
       hoverColor: 0xffff00,
+      disabled,
     })
     const visualizationMesh = new Mesh(new BoxGeometry(0.1, 0.1, 0.1), material)
     visualizationMesh.renderOrder = Infinity
@@ -40,13 +41,13 @@ export class FreeScaleHandle extends RegisteredHandle {
     interactionMesh.pointerEventsOrder = Infinity
     this.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       material.dispose()
       interactionMesh.geometry.dispose()
       visualizationMesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(interactionMesh)
       this.remove(visualizationMesh)

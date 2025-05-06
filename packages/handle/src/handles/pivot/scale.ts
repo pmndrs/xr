@@ -17,7 +17,7 @@ export class PivotAxisScaleHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -26,6 +26,7 @@ export class PivotAxisScaleHandle extends RegisteredHandle {
     const cleanupHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       color: defaultColor,
       hoverColor: 0xffff40,
+      disabled,
     })
 
     const mesh = new Mesh(new SphereGeometry(0.04), material)
@@ -33,14 +34,14 @@ export class PivotAxisScaleHandle extends RegisteredHandle {
     mesh.pointerEventsOrder = Infinity
     mesh.position.x = 0.68
 
-    const unregister = this.context.registerHandle(this.store, mesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, mesh, this.tag)
 
     this.add(mesh)
 
     return () => {
       material.dispose()
       mesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(mesh)
     }

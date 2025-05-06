@@ -26,7 +26,7 @@ export class AxisScaleHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, defaultHoverColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -43,6 +43,7 @@ export class AxisScaleHandle extends RegisteredHandle {
     const cleanupHeadHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
       color: defaultColor,
       hoverColor: defaultHoverColor,
+      disabled,
     })
 
     const visualizationHeadMesh = new Mesh(new BoxGeometry(0.08, 0.08, 0.08), material)
@@ -63,6 +64,7 @@ export class AxisScaleHandle extends RegisteredHandle {
       cleanupLineHover = setupHandlesContextHoverMaterial(this.context, material, this.tag, {
         color: defaultColor,
         hoverColor: defaultHoverColor,
+        disabled,
       })
 
       visualizationLineMesh = new Mesh(new CylinderGeometry(0.0075, 0.0075, 0.5, 3), material)
@@ -83,14 +85,14 @@ export class AxisScaleHandle extends RegisteredHandle {
     interactionMesh.position.y = 0.04
     interactionGroup.add(interactionMesh)
 
-    const unregister = this.context.registerHandle(this.store, interactionMesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, interactionMesh, this.tag)
 
     return () => {
       material.dispose()
       interactionMesh.geometry.dispose()
       visualizationHeadMesh.geometry.dispose()
       visualizationLineMesh?.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHeadHover?.()
       cleanupLineHover?.()
       if (visualizationLineGroup != null) {

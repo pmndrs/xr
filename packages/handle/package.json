@@ -26,6 +26,10 @@
     "type": "git",
     "url": "git@github.com:pmndrs/xr.git"
   },
+  "publishConfig": {
+    "main": "dist/index.js"
+  },
+  "main": "src/index.ts",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@pmndrs/pointer-events": "workspace:~",
@@ -33,6 +37,5 @@
   },
   "files": [
     "dist"
-  ],
-  "main": "dist/index.js"
+  ]
 }

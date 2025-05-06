@@ -56,27 +56,26 @@ const DefaultUpperVerticalAngle = (30 / 180) * Math.PI
 export function createXRLayer(
   src: XRLayerSrc,
   state: XRState<any>,
+  originReferenceSpace: XRReferenceSpace,
   xrManager: WebXRManager,
   relativeTo: Object3D,
   options: XRLayerOptions,
   properties: XRLayerProperties,
 ) {
   return src instanceof HTMLVideoElement
-    ? createXRVideoLayer(src, state, relativeTo, options, properties)
-    : createXRNormalLayer(src, state, xrManager, relativeTo, options, properties)
+    ? createXRVideoLayer(src, state, originReferenceSpace, relativeTo, options, properties)
+    : createXRNormalLayer(src, state.origin, originReferenceSpace, xrManager, relativeTo, options, properties)
 }
 
 function createXRVideoLayer(
   src: HTMLVideoElement,
   state: XRState<any>,
+  originReferenceSpace: XRReferenceSpace,
   relativeTo: Object3D,
   { invertStereo, layout, shape = 'quad' }: XRLayerOptions,
   properties: XRLayerProperties = {},
 ) {
-  const space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)
-  if (space == null) {
-    return undefined
-  }
+  const space = getSpaceFromAncestors(relativeTo, state.origin, originReferenceSpace, matrixHelper)
   const transform = matrixToRigidTransform(matrixHelper, scaleHelper)
   const init: XRMediaCylinderLayerInit &
     XRMediaEquirectLayerInit &
@@ -90,7 +89,7 @@ function createXRVideoLayer(
   const fnName = `create${capitalize(shape)}Layer` as const
   const layer = state.mediaBinding?.[fnName](src, init)
   if (layer == null) {
-    return
+    return undefined
   }
   updateXRLayerProperties(layer, properties)
   return layer
@@ -98,16 +97,14 @@ function createXRVideoLayer(
 
 function createXRNormalLayer(
   src: Exclude<TexImageSource, VideoFrame | HTMLVideoElement> | WebGLRenderTarget,
-  state: XRState<any>,
+  origin: Object3D | undefined,
+  originReferenceSpace: XRReferenceSpace,
   xrManager: WebXRManager,
   relativeTo: Object3D,
   { shape = 'quad', ...options }: XRLayerOptions,
   properties: XRLayerProperties = {},
 ) {
-  const space = getSpaceFromAncestors(relativeTo, state.origin, state.originReferenceSpace, matrixHelper)
-  if (space == null) {
-    return undefined
-  }
+  const space = getSpaceFromAncestors(relativeTo, origin, originReferenceSpace, matrixHelper)
   const transform = matrixToRigidTransform(matrixHelper, scaleHelper)
   const init: XRCylinderLayerInit & XREquirectLayerInit & XRQuadLayerInit & { transform: XRRigidTransform } = {
     ...options,
@@ -122,7 +119,7 @@ function createXRNormalLayer(
   const fnName = `create${capitalize(shape)}Layer` as const
   const layer = xrManager.getBinding()?.[fnName](init)
   if (layer == null) {
-    return
+    return undefined
   }
   updateXRLayerProperties(layer, properties)
   return layer

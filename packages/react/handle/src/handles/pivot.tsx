@@ -7,12 +7,12 @@ import {
 import { ThreeElements, useFrame } from '@react-three/fiber'
 import { createContext, forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import { Group } from 'three'
-import { useApplyThatDisablesDefaultControls } from './utils.js'
+import { disableProperties, useApplyThatDisablesDefaultControls } from './utils.js'
 
 export type PivotHandlesProperties = PivotHandlesContextProperties & PivotHandlesHandlesProperties
 
 export const PivotHandles = forwardRef<Group, PivotHandlesProperties>(
-  ({ children, scale, translation, rotation, size, fixed, enabled, ...props }, ref) => {
+  ({ children, scale, translation, rotation, size, fixed, disabled, hidden, ...props }, ref) => {
     return (
       <PivotHandlesContext {...props} ref={ref}>
         <PivotHandlesHandles
@@ -21,7 +21,8 @@ export const PivotHandles = forwardRef<Group, PivotHandlesProperties>(
           rotation={rotation}
           size={size}
           fixed={fixed}
-          enabled={enabled}
+          hidden={hidden}
+          disabled={disabled}
         />
         {children}
       </PivotHandlesContext>
@@ -62,11 +63,12 @@ export type PivotHandlesHandlesProperties = {
   rotation?: HandlesProperties
   size?: number | null
   fixed?: boolean | null
-  enabled?: boolean
+  disabled?: boolean
+  hidden?: boolean
 }
 
 export const PivotHandlesHandles = forwardRef<PivotHandlesHandlesImpl, PivotHandlesHandlesProperties>(
-  ({ size, fixed, scale, rotation, translation, enabled = true }, ref) => {
+  ({ size, fixed, scale, rotation, translation, disabled, hidden }, ref) => {
     const context = useContext(HandlesContext)
     if (context == null) {
       throw new Error('PivotHandlesHandles can only be used inside PivotHandlesContext')
@@ -79,35 +81,71 @@ export const PivotHandlesHandles = forwardRef<PivotHandlesHandlesImpl, PivotHand
     if (fixed !== null) {
       handles.fixed = fixed
     }
-    useEffect(() => (enabled ? handles.scaleX.bind(0xff2060, scale) : undefined), [enabled, scale, handles])
-    useEffect(() => (enabled ? handles.scaleY.bind(0x20df80, scale) : undefined), [enabled, scale, handles])
-    useEffect(() => (enabled ? handles.scaleZ.bind(0x2080ff, scale) : undefined), [enabled, scale, handles])
-    useEffect(() => (enabled ? handles.rotationX.bind(0xff2060, rotation) : undefined), [enabled, rotation, handles])
-    useEffect(() => (enabled ? handles.rotationY.bind(0x20df80, rotation) : undefined), [enabled, rotation, handles])
-    useEffect(() => (enabled ? handles.rotationZ.bind(0x2080ff, rotation) : undefined), [enabled, rotation, handles])
     useEffect(
-      () => (enabled ? handles.translationX.bind(0xff2060, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
+      () => (hidden ? undefined : handles.scaleX.bind(0xff2060, disabled ? disableProperties(scale) : scale)),
+      [disabled, scale, handles, hidden],
     )
     useEffect(
-      () => (enabled ? handles.translationY.bind(0x20df80, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
+      () => (hidden ? undefined : handles.scaleY.bind(0x20df80, disabled ? disableProperties(scale) : scale)),
+      [disabled, scale, handles, hidden],
     )
     useEffect(
-      () => (enabled ? handles.translationZ.bind(0x2080ff, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
+      () => (hidden ? undefined : handles.scaleZ.bind(0x2080ff, disabled ? disableProperties(scale) : scale)),
+      [disabled, scale, handles, hidden],
     )
     useEffect(
-      () => (enabled ? handles.translationXY.bind(0xff2060, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
+      () => (hidden ? undefined : handles.rotationX.bind(0xff2060, disabled ? disableProperties(rotation) : rotation)),
+      [disabled, rotation, handles, hidden],
     )
     useEffect(
-      () => (enabled ? handles.translationYZ.bind(0x2080ff, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
+      () => (hidden ? undefined : handles.rotationY.bind(0x20df80, disabled ? disableProperties(rotation) : rotation)),
+      [disabled, rotation, handles, hidden],
     )
     useEffect(
-      () => (enabled ? handles.translationXZ.bind(0x20df80, 0xffff40, translation) : undefined),
-      [enabled, translation, handles],
+      () => (hidden ? undefined : handles.rotationZ.bind(0x2080ff, disabled ? disableProperties(rotation) : rotation)),
+      [disabled, rotation, handles, hidden],
+    )
+    useEffect(
+      () =>
+        hidden
+          ? undefined
+          : handles.translationX.bind(0xff2060, 0xffff40, disabled ? disableProperties(translation) : translation),
+      [disabled, translation, handles, hidden],
+    )
+    useEffect(
+      () =>
+        hidden
+          ? undefined
+          : handles.translationY.bind(0x20df80, 0xffff40, disabled ? disableProperties(translation) : translation),
+      [disabled, translation, handles, hidden],
+    )
+    useEffect(
+      () =>
+        hidden
+          ? undefined
+          : handles.translationZ.bind(0x2080ff, 0xffff40, disabled ? disableProperties(translation) : translation),
+      [disabled, translation, handles, hidden],
+    )
+    useEffect(
+      () =>
+        hidden
+          ? undefined
+          : handles.translationXY.bind(0xff2060, 0xffff40, disabled ? disableProperties(translation) : translation),
+      [disabled, translation, handles, hidden],
+    )
+    useEffect(
+      () =>
+        hidden
+          ? undefined
+          : handles.translationYZ.bind(0x2080ff, 0xffff40, disabled ? disableProperties(translation) : translation),
+      [disabled, translation, handles, hidden],
+    )
+    useEffect(
+      () =>
+        hidden
+          ? undefined
+          : handles.translationXZ.bind(0x20df80, 0xffff40, disabled ? disableProperties(translation) : translation),
+      [disabled, translation, handles, hidden],
     )
     useFrame((state) => handles.update(state.camera))
     return <primitive object={handles} />

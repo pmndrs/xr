@@ -1,14 +1,15 @@
-import type { Vector2Tuple, ColorRepresentation } from 'three'
+import type { Vector2Tuple } from 'three'
 import type { Axis } from '../state.js'
 
 export type HandlesProperties =
   | boolean
   | {
-      x?: boolean | Vector2Tuple
-      y?: boolean | Vector2Tuple
-      z?: boolean | Vector2Tuple
-      e?: boolean | Vector2Tuple
+      x?: boolean | Vector2Tuple | 'disabled'
+      y?: boolean | Vector2Tuple | 'disabled'
+      z?: boolean | Vector2Tuple | 'disabled'
+      e?: boolean | Vector2Tuple | 'disabled'
     }
+  | 'disabled'
   | Axis
   | 'e'
 

@@ -1,4 +1,4 @@
-import { ColorRepresentation, LineBasicMaterial, MeshBasicMaterial } from 'three'
+import { Color, ColorRepresentation, LineBasicMaterial, MeshBasicMaterial } from 'three'
 import { HandlesContext } from './context.js'
 
 export const handleXRayMaterialProperties = {
@@ -18,14 +18,22 @@ export function setupHandlesContextHoverMaterial(
     hoverColor,
     hoverOpacity,
     opacity,
+    disabled = false,
   }: {
     color: ColorRepresentation
+    disabled?: boolean
     opacity?: number
     hoverColor?: ColorRepresentation
     hoverOpacity?: number
   },
 ) {
-  if (hoverColor == null && hoverOpacity == null) {
+  if ((hoverColor == null && hoverOpacity == null) || disabled) {
+    material.color.set(color)
+    material.opacity = opacity ?? 1
+    if (disabled) {
+      material.opacity *= 0.5
+      material.color.lerp(new Color(1, 1, 1), 0.5)
+    }
     return
   }
   hoverColor ??= color

@@ -58,7 +58,11 @@ export function forwardHtmlEvents(
     scene,
     htmlEventToCoords.bind(null, fromElement),
     fromElement.setPointerCapture.bind(fromElement),
-    fromElement.releasePointerCapture.bind(fromElement),
+    (pointerId) => {
+      if (fromElement.hasPointerCapture(pointerId)) {
+        fromElement.releasePointerCapture(pointerId)
+      }
+    },
     {
       pointerTypePrefix: 'screen-',
       ...options,

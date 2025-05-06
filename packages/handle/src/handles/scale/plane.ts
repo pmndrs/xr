@@ -16,7 +16,7 @@ export class PlaneScaleHandle extends RegisteredHandle {
   }
 
   bind(defaultColor: ColorRepresentation, defaultHoverColor: ColorRepresentation, config?: HandlesProperties) {
-    const options = extractHandleTransformOptions(this.axis, config)
+    const { options, disabled } = extractHandleTransformOptions(this.axis, config)
     if (options === false) {
       return undefined
     }
@@ -27,6 +27,7 @@ export class PlaneScaleHandle extends RegisteredHandle {
       hoverOpacity: 1,
       color: defaultColor,
       hoverColor: defaultHoverColor,
+      disabled,
     })
 
     const mesh = new Mesh(new BoxGeometry(0.2, 0.2, 0.01), material)
@@ -34,14 +35,14 @@ export class PlaneScaleHandle extends RegisteredHandle {
     mesh.pointerEventsOrder = Infinity
     mesh.position.set(0.15, 0.15, 0)
 
-    const unregister = this.context.registerHandle(this.store, mesh, this.tag)
+    const unregister = disabled ? undefined : this.context.registerHandle(this.store, mesh, this.tag)
 
     this.add(mesh)
 
     return () => {
       material.dispose()
       mesh.geometry.dispose()
-      unregister()
+      unregister?.()
       cleanupHover?.()
       this.remove(mesh)
     }
