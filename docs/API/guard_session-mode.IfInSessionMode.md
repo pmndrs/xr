@@ -15,9 +15,9 @@ If neither `allow` nor `deny` are provided, the elements will be rendered based 
 
 `InSessionModeProps`
 
-* `children?`: ReactNode - The ReactNode elements to conditionally render.
-* `allow?`: XRSessionMode | ReadonlyArray<XRSessionMode | undefined> - The session mode(s) where the children will be rendered. If not provided, the children will be rendered in all modes except the ones in `deny`.
-* `deny?`: XRSessionMode | ReadonlyArray<XRSessionMode | undefined> - The session mode(s) where the children will not be rendered.
+* `children?`: `ReactNode` - The ReactNode elements to conditionally render.
+* `allow?`: `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` - The session mode(s) where the children will be rendered. If not provided, the children will be rendered in all modes except the ones in `deny`.
+* `deny?`: `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` - The session mode(s) where the children will not be rendered.
 
 ## Returns
 

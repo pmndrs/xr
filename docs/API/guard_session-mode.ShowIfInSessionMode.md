@@ -15,9 +15,9 @@ If neither `allow` nor `deny` are provided, the visiblity will be based on wheth
 
 `InSessionModeProps`
 
-* `children?`: ReactNode - The ReactNode elements to conditionally show.
-* `allow?`: XRSessionMode | ReadonlyArray<XRSessionMode | undefined> - The session mode(s) where the children will be shown. If not provided, the children will be shown in all modes except the ones in `deny`.
-* `deny?`: XRSessionMode | ReadonlyArray<XRSessionMode | undefined> - The session mode(s) where the children will be hidden.
+* `children?`: `ReactNode` - The ReactNode elements to conditionally show.
+* `allow?`: `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` - The session mode(s) where the children will be shown. If not provided, the children will be shown in all modes except the ones in `deny`.
+* `deny?`: `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` - The session mode(s) where the children will be hidden.
 
 ## Returns
 

@@ -20,7 +20,7 @@ The input source to listen to, or 'all' to listen to all input sources
 
 The event to listen to. ([List of events](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceEvent))
 
-`"select"` | `"selectstart"` | `"selectend"` | `"squeeze"` | `"squeezestart"` | `"squeezeend"`
+`"squeeze"` | `"selectstart"` | `"select"` | `"selectend"` | `"squeezestart"` | `"squeezeend"`
 
 ### fn
 

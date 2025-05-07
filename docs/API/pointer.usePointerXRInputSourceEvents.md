@@ -20,7 +20,7 @@ Hook for binding the xr session events such as `selectstart` to the provided poi
 
 ### event
 
-`"select"` | `"squeeze"`
+`"squeeze"` | `"select"`
 
 ### missingEvents
 

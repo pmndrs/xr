@@ -58,6 +58,8 @@ export const load = (app) => {
     page.contents = page.contents.replace(/## Deprecated\n\n?.*\n?/g, '')
     // Replace tags marked as args with props, as props is a more common term
     page.contents = page.contents.replace(/## args\n\n/g, '## props\n\n')
+    // Replace types that return a promise and react component with a code block so that mdx will parse
+    page.contents = page.contents.replace(/(Promise<.*>)/g, '`$1`')
   })
 
   // Happens after the markdown pages are generated

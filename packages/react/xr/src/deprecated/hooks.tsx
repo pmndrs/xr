@@ -37,7 +37,7 @@ const eventTranslations = {
 } satisfies Record<string, string | { type: string; filter: (event: PointerEvent) => boolean }>
 
 /**
- * @deprecated Use normal react-three/fiber event listeners instead (e.g. <mesh onClick={...} />)
+ * @deprecated Use normal react-three/fiber event listeners instead (e.g. `<mesh onClick={...} />`)
  */
 export function useInteraction(
   ref: RefObject<Group | null>,

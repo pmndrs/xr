@@ -5,7 +5,7 @@ sourcecode: packages/react/xr/src/deprecated/hooks.tsx
 ---
 
 > [!CAUTION]
-> Deprecated: Use normal react-three/fiber event listeners instead (e.g. <mesh onClick={...} />)
+> Deprecated: Use normal react-three/fiber event listeners instead (e.g. `<mesh onClick={...} />`)
 
 > **useInteraction**(`ref`, `type`, `handler?`): `void`
 

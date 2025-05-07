@@ -18,4 +18,4 @@ Loads the controller model for the given layout. This is a suspendable function,
 
 `Group`\<`Object3DEventMap`\>
 
-Promise<THREE.Group>
+`Promise<THREE.Group>`

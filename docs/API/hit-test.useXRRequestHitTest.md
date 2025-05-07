@@ -4,13 +4,13 @@ nav: 59
 sourcecode: packages/react/xr/src/hit-test.tsx
 ---
 
-> **useXRRequestHitTest**(): (`relativeTo`, `trackableType?`) => `undefined` \| `Promise`\<`undefined` \| \{ `getWorldMatrix`: (`target`, `result`) => `boolean`; `results`: `XRHitTestResult`[]; \}\>
+> **useXRRequestHitTest**(): (`relativeTo`, `trackableType?`) => `undefined` \| `Promise`\<`undefined` \| \{ `getWorldMatrix`: (...`args`) => `boolean`; `results`: `XRHitTestResult`[]; \}\>
 
 Hook that returns a function to request a single hit test
 
 ## Returns
 
-> (`relativeTo`, `trackableType?`): `undefined` \| `Promise`\<`undefined` \| \{ `getWorldMatrix`: (`target`, `result`) => `boolean`; `results`: `XRHitTestResult`[]; \}\>
+> (`relativeTo`, `trackableType?`): `undefined` \| `Promise`\<`undefined` \| \{ `getWorldMatrix`: (...`args`) => `boolean`; `results`: `XRHitTestResult`[]; \}\>
 
 ### Parameters
 
@@ -24,4 +24,4 @@ Hook that returns a function to request a single hit test
 
 ### Returns
 
-`undefined` \| `Promise`\<`undefined` \| \{ `getWorldMatrix`: (`target`, `result`) => `boolean`; `results`: `XRHitTestResult`[]; \}\>
+`undefined` \| `Promise`\<`undefined` \| \{ `getWorldMatrix`: (...`args`) => `boolean`; `results`: `XRHitTestResult`[]; \}\>

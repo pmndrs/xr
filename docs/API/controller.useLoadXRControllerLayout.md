@@ -28,4 +28,4 @@ Therefore, this hook's purpose is for building controller demos/tutorials.
 
 `XRControllerLayout`
 
-Promise<XRControllerLayout>
+`Promise<XRControllerLayout>`

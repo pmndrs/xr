@@ -4,7 +4,7 @@ nav: 52
 sourcecode: packages/react/xr/src/hit-test.tsx
 ---
 
-> **useXRHitTestSource**(`relativeTo`, `trackableType?`): `undefined` \| \{ `getWorldMatrix`: (`target`, `result`) => `boolean`; `source`: `XRHitTestSource`; \}
+> **useXRHitTestSource**(`relativeTo`, `trackableType?`): `undefined` \| \{ `getWorldMatrix`: (...`args`) => `boolean`; `source`: `XRHitTestSource`; \}
 
 Hook for creating a hit test source originating from the provided object or xrspace
 
@@ -20,4 +20,4 @@ Hook for creating a hit test source originating from the provided object or xrsp
 
 ## Returns
 
-`undefined` \| \{ `getWorldMatrix`: (`target`, `result`) => `boolean`; `source`: `XRHitTestSource`; \}
+`undefined` \| \{ `getWorldMatrix`: (...`args`) => `boolean`; `source`: `XRHitTestSource`; \}
