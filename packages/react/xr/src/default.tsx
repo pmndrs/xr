@@ -46,7 +46,7 @@ export {
   type DefaultXRInputSourceGrabPointerOptions,
   type DefaultXRInputSourceRayPointerOptions,
   type DefaultXRScreenInputOptions,
-  type DefaultXRTransientPointerOptions
+  type DefaultXRTransientPointerOptions,
 } from '@pmndrs/xr/internals'
 
 function DefaultXRInputSourceGrabPointer(
