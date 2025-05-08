@@ -60,6 +60,8 @@ export const load = (app) => {
     page.contents = page.contents.replace(/## args\n\n/g, '## props\n\n')
     // Replace types that return a promise and react component with a code block so that mdx will parse
     page.contents = page.contents.replace(/(Promise<.*>)/g, '`$1`')
+    // Replace Parameters with props for components
+    page.contents = page.contents.replace(/## Parameters\n\n### props/g, '## props')
   })
 
   // Happens after the markdown pages are generated

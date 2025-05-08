@@ -244,7 +244,7 @@ export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
  * @requires matrixAutoUpdate to be disabled for the referenced object
  */
 export function useApplyXRSpaceMatrix(
-  ref: { current?: Group | null },
+  ref: React.RefObject<Object3D | null>,
   space: XRSpace | undefined,
   onFrame?: (state: RootState, delta: number, frame: XRFrame | undefined) => void,
 ): void {

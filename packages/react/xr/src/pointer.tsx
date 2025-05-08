@@ -30,7 +30,8 @@ export { isXRInputSourceState, type XRInputSourceState } from '@pmndrs/xr/intern
 
 /**
  * Component for combining multiple Pointers into one so that only one pointer is active at a time
- * @param props `children`: `Pointer[]` Pointer components to combine
+ * @param props
+ * * `children`: `Pointer[]` Pointer components to combine
  */
 export function CombinedPointer({ children }: { children?: ReactNode }) {
   const pointer = useMemo(() => new CombinedPointerImpl(false), [])
