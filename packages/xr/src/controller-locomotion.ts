@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, Euler, MathUtils, Object3D, Camera } from 'three'
+import { Camera, Euler, MathUtils, Object3D, Quaternion, Vector3 } from 'three'
 import { XRControllerState, XRInputSourceState, XRStore } from './internals.js'
 
 export type XRControllerLocomotionTranslationOptions =
@@ -6,6 +6,7 @@ export type XRControllerLocomotionTranslationOptions =
       speed?: number
     }
   | boolean
+
 export type XRControllerLocomotionRotationOptions =
   | ({
       deadZone?: number
@@ -26,8 +27,8 @@ const positionHelper = new Vector3()
 const scaleHelper = new Vector3()
 
 /**
- * function for handling controller based locomotion in VR
- * @param target Either a `Object`, or a callback function. Recieves translation and rotation input (required).
+ * Function for handling controller based locomotion in VR
+ * @param target Either an `Object`, or a callback function. Recieves translation and rotation input (required).
  * @param translationOptions Options that control the translation of the user. Set to `false` to disable.
  * @param translationOptions.speed The speed at which the user moves.
  * @param rotationOptions Options that control the rotation of the user. Set to `false` to disable.

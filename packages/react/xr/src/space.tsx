@@ -13,12 +13,16 @@ import {
 } from 'react'
 import { Group, Object3D } from 'three'
 import { xrSpaceContext } from './contexts.js'
-import { useXR } from './xr.js'
-import { useXRControllerButtonEvent } from './controller.js'
 import { useXRInputSourceStateContext } from './input.js'
+import { useXR } from './xr.js'
 
 /**
- * component that puts its children at the provided space (or reference space type)
+ * Component that puts its children in the provided XRSpace (or reference space type)
+ *
+ * @param props
+ * #### `space` - [XRSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRSpace) | [XRSpaceType](https://pmndrs.github.io/xr/docs/api/space.XRSpaceType)
+ * #### `children` - [ReactNode](https://reactjs.org/docs/introducing-jsx.html#react-jsx)
+ * @function
  */
 export const XRSpace = forwardRef<
   Object3D,
@@ -46,6 +50,13 @@ export const XRSpace = forwardRef<
   )
 })
 
+/**
+ * A combined type of all XRSpace types
+ * @see [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpaceType)
+ * @see [XRInputSourceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceSpaceType)
+ * @see [XRHandJointSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRHandJointSpaceType)
+ * @see [XRBodyJointSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRBodyJointSpaceType)
+ */
 export type XRSpaceType = XRReferenceSpaceType | XRInputSourceSpaceType | XRHandJointSpaceType | XRBodyJointSpaceType
 
 export type XRInputSourceSpaceType = 'grip-space' | 'target-ray-space'
@@ -55,7 +66,7 @@ export type XRHandJointSpaceType = XRHandJoint
 export type XRBodyJointSpaceType = XRBodyJoint
 
 /**
- * hook for retrieving getting xr space from the context
+ * Hook for retrieving XR space from the context
  */
 export function useXRSpace(): XRSpace
 
@@ -215,7 +226,7 @@ export function useXRSpace(type?: XRSpaceType): XRSpace | XRReferenceSpace | und
 }
 
 /**
- * hook that returns a function to compute a matrix that contains the transformation of the provided xr space
+ * Hook that returns a function to compute a matrix that contains the transformation of the provided xr space
  */
 export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
   const localReferenceSpace = useContext(xrSpaceContext)
@@ -227,12 +238,13 @@ export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
 }
 
 /**
- * hook that applies the transformation of the provided xr space to the provided object reference
- * @param onFrame optional callback that gets executed after the matrix of the reference object was updated
- * @requires that matrixAutoUpdate is disabled for the referenced object
+ * Hook that applies the transformation of the provided xr space to the provided object reference
+ *
+ * @param onFrame Optional callback that gets executed after the matrix of the reference object was updated
+ * @requires matrixAutoUpdate to be disabled for the referenced object
  */
 export function useApplyXRSpaceMatrix(
-  ref: { current?: Group | null },
+  ref: React.RefObject<Object3D | null>,
   space: XRSpace | undefined,
   onFrame?: (state: RootState, delta: number, frame: XRFrame | undefined) => void,
 ): void {

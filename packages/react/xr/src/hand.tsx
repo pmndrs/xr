@@ -4,21 +4,22 @@ import {
   configureXRHandModel,
   createUpdateXRHandVisuals,
 } from '@pmndrs/xr/internals'
-import { ReactNode, forwardRef, useImperativeHandle, useMemo } from 'react'
-import { XRSpace, useXRSpace } from './space.js'
 import { useFrame, useLoader } from '@react-three/fiber'
+import { ReactNode, forwardRef, useImperativeHandle, useMemo } from 'react'
 import { Object3D } from 'three'
-import { useXRInputSourceStateContext } from './input.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { useXRInputSourceStateContext } from './input.js'
+import { XRSpace, useXRSpace } from './space.js'
 
 export type { XRHandModelOptions }
 
 /**
- * component for rendering a 3D model for the XRHand
+ * Component for rendering a 3D model for the XRHand
  *
- * properties
- * - `colorWrite`
- * - `renderOrder`
+ * @param props
+ * #### `colorWrite` - Configures color writing
+ * #### `renderOrder` - Configures the render order of the model
+ * @function
  */
 export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, ref) => {
   const state = useXRInputSourceStateContext('hand')
@@ -37,14 +38,14 @@ export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, re
 })
 
 /**
+ * Component for placing content in the hand anchored at a specific joint such as the index finger tip.
+ *
+ * @param props
+ * #### `joint` - [XRHandJoint](https://developer.mozilla.org/en-US/docs/Web/API/XRHand#hand_joints) Is the name of the joint where content should be placed (e.g. `"wrist"`)
+ * #### `children` - Components to be placed inside the joint (e.g. For visualizing a tooltip over the index finger tip)
+ *
+ * @function
  * @deprecated use `<XRSpace space="wrist">` instead of `<XRHandJoint joint="wrist">`
- * component for placing content in the hand anchored at a specific joint such as the index finger tip
- *
- * properties
- * - `joint` is the name of the joint (e.g. `"wrist"`)
- *
- * the component allows children to be placed inside for e.g. visualizing a tooltip over the index finger tip
- *
  */
 export const XRHandJoint = forwardRef<Object3D, { joint: XRHandJoint; children?: ReactNode }>(
   ({ joint, children }, ref) => {

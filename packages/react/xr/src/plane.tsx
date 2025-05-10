@@ -1,11 +1,15 @@
-import { forwardRef, useEffect, useMemo, useState } from 'react'
-import { ThreeElements, useFrame } from '@react-three/fiber'
-import { BufferGeometry, Mesh } from 'three'
 import { updateXRPlaneGeometry } from '@pmndrs/xr/internals'
+import { ThreeElements, useFrame } from '@react-three/fiber'
+import { forwardRef, useEffect, useMemo, useState } from 'react'
+import { BufferGeometry, Mesh } from 'three'
 import { useXR } from './xr.js'
 
 /**
- * component for rendering a mesh for the XRPlane based on the detected plane geometry
+ * Component for rendering a mesh for the XRPlane based on the detected plane geometry
+ *
+ * @param props
+ * Accepts the same props as a ThreeJs [Mesh](https://threejs.org/docs/#api/en/objects/Mesh)
+ * @function
  */
 export const XRPlaneModel = forwardRef<Mesh, ThreeElements['mesh'] & { plane: XRPlane }>(({ plane, ...rest }, ref) => {
   const geometry = useXRPlaneGeometry(plane)
@@ -13,7 +17,7 @@ export const XRPlaneModel = forwardRef<Mesh, ThreeElements['mesh'] & { plane: XR
 })
 
 /**
- * hook for getting all dected planes with the provided semantic label
+ * Hook for getting all dected planes with the provided semantic label
  */
 export function useXRPlanes(semanticLabel?: string) {
   const planes = useXR((xr) => xr.detectedPlanes)
@@ -24,7 +28,8 @@ export function useXRPlanes(semanticLabel?: string) {
 }
 
 /**
- * hook for getting the geometry from the detected plane
+ * Hook for getting the geometry from the detected plane
+ *
  * @param plane the detected plane
  * @param disposeBuffer allows to disable auto disposing the geometry buffer
  */

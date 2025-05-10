@@ -1,14 +1,14 @@
-import { forwardRef, RefObject, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { createXRHitTestSource, GetWorldMatrixFromXRHitTest, requestXRHitTest } from '@pmndrs/xr'
-import { useXRStore } from './xr.js'
-import { Group, Matrix4, Object3D } from 'three'
 import { ThreeElements, useFrame } from '@react-three/fiber'
+import { forwardRef, RefObject, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { Group, Object3D } from 'three'
 import { useStore } from 'zustand'
+import { useXRStore } from './xr.js'
 
 export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTest } from '@pmndrs/xr'
 
 /**
- * hook for creating a hit test source originating from the provided object or xrspace
+ * Hook for creating a hit test source originating from the provided object or xrspace
  */
 export function useXRHitTestSource(
   relativeTo: RefObject<Object3D | null> | XRSpace | XRReferenceSpaceType,
@@ -21,7 +21,7 @@ export function useXRHitTestSource(
 }
 
 /**
- * hook for setting up a continous hit test originating from the provided object or xrspace
+ * Hook for setting up a continous hit test originating from the provided object or xrspace
  */
 export function useXRHitTest(
   fn: ((results: Array<XRHitTestResult>, getWorldMatrix: GetWorldMatrixFromXRHitTest) => void) | undefined,
@@ -76,7 +76,7 @@ function useCreateXRHitTestSource(
 }
 
 /**
- * hook that returns a function to request a single hit test
+ * Hook that returns a function to request a single hit test
  */
 export function useXRRequestHitTest() {
   const store = useXRStore()
@@ -97,7 +97,11 @@ export function useXRRequestHitTest() {
 }
 
 /**
- * component for getting hit tests originating based on its position in the scene graph
+ * Component for getting hit tests originating based on its position in the scene graph
+ *
+ * @param props ‎
+ * #### `space` - [XRSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRSpace) | [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace#reference_space_types)
+ * @function
  */
 export const XRHitTest = forwardRef<
   Group,

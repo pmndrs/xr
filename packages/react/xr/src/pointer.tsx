@@ -1,4 +1,3 @@
-import { ReactNode, RefObject, forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
 import {
   CombinedPointer as CombinedPointerImpl,
   GrabPointerOptions,
@@ -11,8 +10,6 @@ import {
   createRayPointer,
   createTouchPointer,
 } from '@pmndrs/pointer-events'
-import { Group, Mesh, Object3D } from 'three'
-import { createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
 import {
   PointerCursorMaterial,
   PointerCursorModelOptions,
@@ -22,14 +19,20 @@ import {
   updatePointerCursorModel,
   updatePointerRayModel,
 } from '@pmndrs/xr/internals'
-import { useXR } from './xr.js'
+import { createPortal, useFrame, useStore, useThree } from '@react-three/fiber'
+import { ReactNode, RefObject, forwardRef, useContext, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
+import { Group, Mesh, Object3D } from 'three'
 import { combinedPointerContext } from './contexts.js'
+import { useXR } from './xr.js'
 
 //for checking if `event.pointerState` is from an xr input source
-export { type XRInputSourceState, isXRInputSourceState } from '@pmndrs/xr/internals'
+export { isXRInputSourceState, type XRInputSourceState } from '@pmndrs/xr/internals'
 
 /**
- * component for combining multiple pointer into one so that only one pointer is active at each time
+ * Component for combining multiple Pointers into one so that only one pointer is active at a time
+ *
+ * @param props
+ * @param props.children? - `Pointer` components to combine
  */
 export function CombinedPointer({ children }: { children?: ReactNode }) {
   const pointer = useMemo(() => new CombinedPointerImpl(false), [])
@@ -44,7 +47,7 @@ function clearObject(object: Record<string, unknown>): void {
 }
 
 /**
- * hook for creating a grab pointer
+ * Hook for creating a grab pointer
  */
 export function useGrabPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -65,7 +68,7 @@ export function useGrabPointer(
 }
 
 /**
- * hook for creating a ray pointer
+ * Hook for creating a ray pointer
  */
 export function useRayPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -86,7 +89,7 @@ export function useRayPointer(
 }
 
 /**
- * hook for creating a ray pointer
+ * Hook for creating a ray pointer
  */
 export function useLinesPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -107,7 +110,7 @@ export function useLinesPointer(
 }
 
 /**
- * hook for creating a touch pointer
+ * Hook for creating a touch pointer
  */
 export function useTouchPointer(
   spaceRef: RefObject<Object3D | null>,
@@ -128,7 +131,12 @@ export function useTouchPointer(
 }
 
 /**
- * component for rendering a ray for a pointer
+ * Component for rendering a ray for a pointer
+ * @param props
+ * #### `materialClass` - Material to use for the ray
+ * #### `pointer` - Pointer to use for the ray
+ * #### `renderOrder` - Render order for the ray
+ * @function
  */
 export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { pointer: Pointer }>((props, ref) => {
   const material = useMemo(() => {
@@ -148,7 +156,13 @@ export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { point
 })
 
 /**
- * component for rendering a cursor for a pointer
+ * Component for rendering a cursor as a pointer
+ *
+ * @param props
+ * #### `materialClass` - Class of the material to use for the cursor
+ * #### `pointer` - Pointer to use for the cursor
+ * #### `renderOrder` - Render order for the cursor
+ * @function
  */
 export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & { pointer: Pointer }>((props, ref) => {
   const material = useMemo(() => {
@@ -179,7 +193,7 @@ export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & {
 })
 
 /**
- * hook for binding the xr session events such as `selectstart` to the provided pointer down/up events
+ * Hook for binding the xr session events such as `selectstart` to the provided pointer down/up events
  */
 export function usePointerXRInputSourceEvents(
   pointer: Pointer,

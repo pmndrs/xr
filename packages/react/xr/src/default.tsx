@@ -1,24 +1,27 @@
 import {
+  buildTeleportTargetFilter,
+  createTeleportRayLine,
   defaultGrabPointerOpacity,
   defaultRayPointerOpacity,
   defaultTouchPointerOpacity,
-  DefaultXRInputSourceGrabPointerOptions,
-  DefaultXRInputSourceRayPointerOptions,
   DefaultXRControllerOptions,
   DefaultXRGazeOptions,
   DefaultXRHandOptions,
   DefaultXRHandTouchPointerOptions,
+  DefaultXRInputSourceGrabPointerOptions,
+  DefaultXRInputSourceRayPointerOptions,
+  DefaultXRInputSourceTeleportPointerOptions,
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
-  DefaultXRInputSourceTeleportPointerOptions,
-  createTeleportRayLine,
   syncTeleportPointerRayGroup,
-  buildTeleportTargetFilter,
 } from '@pmndrs/xr/internals'
-import { useRef, Suspense, useContext, useMemo } from 'react'
+import { createPortal, useFrame, useThree } from '@react-three/fiber'
+import { ReactNode, Suspense, useContext, useMemo, useRef } from 'react'
 import { Group, Mesh, Object3D } from 'three'
+import { xrInputSourceStateContext } from './contexts.js'
 import { XRControllerModel } from './controller.js'
 import { XRHandModel } from './hand.js'
+import { useXRInputSourceStateContext } from './input.js'
 import {
   CombinedPointer,
   PointerCursorModel,
@@ -30,12 +33,12 @@ import {
   useTouchPointer,
 } from './pointer.js'
 import { XRSpace as XRSpaceImpl, XRSpaceType } from './space.js'
-import { xrInputSourceStateContext } from './contexts.js'
 import { TeleportPointerRayModel } from './teleport.js'
-import { createPortal, useFrame, useThree } from '@react-three/fiber'
-import { useXRInputSourceStateContext } from './input.js'
 
 export {
+  defaultGrabPointerOpacity,
+  defaultRayPointerOpacity,
+  defaultTouchPointerOpacity,
   type DefaultXRControllerOptions,
   type DefaultXRGazeOptions,
   type DefaultXRHandOptions,
@@ -44,9 +47,6 @@ export {
   type DefaultXRInputSourceRayPointerOptions,
   type DefaultXRScreenInputOptions,
   type DefaultXRTransientPointerOptions,
-  defaultGrabPointerOpacity,
-  defaultRayPointerOpacity,
-  defaultTouchPointerOpacity,
 } from '@pmndrs/xr/internals'
 
 function DefaultXRInputSourceGrabPointer(
@@ -72,53 +72,57 @@ function DefaultXRInputSourceGrabPointer(
 }
 
 /**
- * grab pointer for the XRHand
+ * Grab pointer for the XRHand
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `makeDefault` used the set the default pointer inside a combined pointer
- * - `cursorModel` properties for configuring how the cursor should look
- * - `radius` the size of the intersection sphere
+ * @param {DefaultXRInputSourceGrabPointerOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+ * #### `contextMenuButton` - The button that triggers context menu events
+ * #### `makeDefault` - Used the set the default pointer inside a combined pointer
+ * #### `cursorModel` - Properties for configuring how the cursor should look
+ * #### `radius` - The size of the intersection sphere
+ * #### `customSort` - Overrides the default sort function to use for sorting the intersection results
  */
-export const DefaultXRHandGrabPointer = DefaultXRInputSourceGrabPointer.bind(null, 'select', 'index-finger-tip')
+export const DefaultXRHandGrabPointer: (props: DefaultXRInputSourceGrabPointerOptions) => ReactNode =
+  DefaultXRInputSourceGrabPointer.bind(null, 'select', 'index-finger-tip')
 
 /**
- * grab pointer for the XRController
+ * Grab pointer for the XRController
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `makeDefault` used the set the default pointer inside a combined pointer
- * - `cursorModel` properties for configuring how the cursor should look
- * - `radius` the size of the intersection sphere
+ * @param {DefaultXRInputSourceGrabPointerOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+ * #### `contextMenuButton` - The button that triggers context menu events
+ * #### `makeDefault` - Used the set the default pointer inside a combined pointer
+ * #### `cursorModel` - Properties for configuring how the cursor should look
+ * #### `radius` - The size of the intersection sphere
+ * #### `customSort` - Overrides the default sort function to use for sorting the intersection results
  */
-export const DefaultXRControllerGrabPointer = DefaultXRInputSourceGrabPointer.bind(null, 'squeeze', 'grip-space')
+export const DefaultXRControllerGrabPointer: (props: DefaultXRInputSourceGrabPointerOptions) => ReactNode =
+  DefaultXRInputSourceGrabPointer.bind(null, 'squeeze', 'grip-space')
 
 /**
- * ray pointer for the XRInputSource
+ * Ray pointer for the XRInputSource
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `makeDefault` used the set the default pointer inside a combined pointer
- * - `radius` the size of the intersection sphere
- * - `minDistance` minimal distance to trigger interactions
- * - `linePoints` the points thay make up the shape of the ray if undefined the ray goes in a straight line
- * - `direction` the direction of the ray
- * - `rayModel` properties for configuring how the ray should look
- * - `cursorModel` properties for configuring how the cursor should look
+ * @param {DefaultXRInputSourceRayPointerOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between pointerdown and pointerup to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a dblclick event
+ * #### `contextMenuButton` - The button that triggers contextmenu events
+ * #### `makeDefault` - Used the set the default pointer inside a combined pointer
+ * #### `radius` - The size of the intersection sphere
+ * #### `minDistance` - Minimal distance to trigger interactions
+ * #### `linePoints` - The points thay make up the shape of the ray if undefined the ray goes in a straight line
+ * #### `direction` - The direction of the ray
+ * #### `rayModel` - Properties for configuring how the ray should look
+ * #### `cursorModel` - Properties for configuring how the cursor should look
  */
-export function DefaultXRInputSourceRayPointer(options: DefaultXRInputSourceRayPointerOptions) {
+export function DefaultXRInputSourceRayPointer(props: DefaultXRInputSourceRayPointerOptions) {
   const state = useXRInputSourceStateContext()
   const ref = useRef<Object3D>(null)
-  const pointer = useRayPointer(ref, state, options)
+  const pointer = useRayPointer(ref, state, props)
   usePointerXRInputSourceEvents(pointer, state.inputSource, 'select', state.events)
-  const rayModelOptions = options.rayModel
-  const cursorModelOptions = options.cursorModel
+  const rayModelOptions = props.rayModel
+  const cursorModelOptions = props.cursorModel
   return (
     <XRSpaceImpl ref={ref} space="target-ray-space">
       {rayModelOptions !== false && (
@@ -132,23 +136,23 @@ export function DefaultXRInputSourceRayPointer(options: DefaultXRInputSourceRayP
 }
 
 /**
- * touch pointer for the XRHand
+ * Touch pointer for the XRHand
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `makeDefault` used the set the default pointer inside a combined pointer
- * - `cursorModel` properties for configuring how the cursor should look
- * - `hoverRadius` the size of the intersection sphere
- * - `downRadius` the distance to the touch center to trigger a pointerdown event
- * - `button` the id of the button that is triggered when touching
+ * @param {DefaultXRHandTouchPointerOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+ * #### `contextMenuButton` - The button that triggers context menu events
+ * #### `makeDefault` - Used the set the default pointer inside a combined pointer
+ * #### `cursorModel` - Properties for configuring how the cursor should look
+ * #### `hoverRadius` - The size of the intersection sphere
+ * #### `downRadius` - The distance to the touch center to trigger a `pointerdown` event
+ * #### `button` - The id of the button that is triggered when touching
  */
-export function DefaultXRHandTouchPointer(options: DefaultXRHandTouchPointerOptions) {
+export function DefaultXRHandTouchPointer(props: DefaultXRHandTouchPointerOptions) {
   const state = useXRInputSourceStateContext('hand')
   const ref = useRef<Object3D>(null)
-  const pointer = useTouchPointer(ref, state, options)
-  const cursorModelOptions = options.cursorModel
+  const pointer = useTouchPointer(ref, state, props)
+  const cursorModelOptions = props.cursorModel
   return (
     <XRSpaceImpl ref={ref} space={state.inputSource.hand.get('index-finger-tip')!}>
       {cursorModelOptions !== false && (
@@ -163,18 +167,18 @@ export function DefaultXRHandTouchPointer(options: DefaultXRHandTouchPointerOpti
 }
 
 /**
- * default controller implementation with grab and ray pointers
+ * Default controller implementation with grab and ray pointers
  *
- * properties
- * - `model` options for configuring the controller apperance
- * - `grabPointer` options for configuring the grab pointer
- * - `rayPointer` options for configuring the ray pointer
+ * @param {DefaultXRControllerOptions} props
+ * #### `model` - Options for configuring the controller apperance
+ * #### `grabPointer` - Options for configuring the grab pointer
+ * #### `rayPointer` - Options for configuring the ray pointer
  */
-export function DefaultXRController(options: DefaultXRControllerOptions) {
-  const modelOptions = options.model
-  const grabPointerOptions = options.grabPointer
-  const rayPointerOptions = options.rayPointer
-  const teleportPointerOptions = options.teleportPointer ?? false
+export function DefaultXRController(props: DefaultXRControllerOptions) {
+  const modelOptions = props.model
+  const grabPointerOptions = props.grabPointer
+  const rayPointerOptions = props.rayPointer
+  const teleportPointerOptions = props.teleportPointer ?? false
   return (
     <>
       {modelOptions !== false && (
@@ -196,20 +200,20 @@ export function DefaultXRController(options: DefaultXRControllerOptions) {
 }
 
 /**
- * default hand implementation with touch, grab and ray pointers
+ * Default hand implementation with touch, grab and ray pointers
  *
- * properties
- * - `model` options for configuring the hand appearance
- * - `grabPointer` options for configuring the grab pointer
- * - `rayPointer` options for configuring the ray pointer
- * - `touchPointer` options for configuring the touch pointer
+ * @param {DefaultXRHandOptions} props
+ * #### `model` - Options for configuring the hand appearance
+ * #### `grabPointer` - Options for configuring the grab pointer
+ * #### `rayPointer` - Options for configuring the ray pointer
+ * #### `touchPointer` - Options for configuring the touch pointer
  */
-export function DefaultXRHand(options: DefaultXRHandOptions) {
-  const modelOptions = options.model
-  const grabPointerOptions = options.grabPointer
-  const rayPointerOptions = options.rayPointer
-  const touchPointerOptions = options.touchPointer
-  const teleportPointerOptions = options.teleportPointer ?? false
+export function DefaultXRHand(props: DefaultXRHandOptions) {
+  const modelOptions = props.model
+  const grabPointerOptions = props.grabPointer
+  const rayPointerOptions = props.rayPointer
+  const touchPointerOptions = props.touchPointer
+  const teleportPointerOptions = props.teleportPointer ?? false
   const rayPointerRayModelOptions = rayPointerOptions === false ? false : spreadable(rayPointerOptions)?.rayModel
   return (
     <>
@@ -240,68 +244,68 @@ export function DefaultXRHand(options: DefaultXRHandOptions) {
 }
 
 /**
- * default transient-pointer implementation with ray pointer
+ * Default transient-pointer implementation with ray pointer
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `minDistance` minimal distance to trigger interactions
- * - `linePoints` the points thay make up the shape of the ray if undefined the ray goes in a straight line
- * - `direction` the direction of the ray
- * - `cursorModel` properties for configuring how the cursor should look
+ * @param {DefaultXRTransientPointerOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+ * #### `contextMenuButton` - The button that triggers context menu events
+ * #### `minDistance` - Minimal distance to trigger interactions
+ * #### `linePoints` - The points thay make up the shape of the ray if undefined the ray goes in a straight line
+ * #### `direction` - The direction of the ray
+ * #### `cursorModel` - Properties for configuring how the cursor should look
  */
-export function DefaultXRTransientPointer(options: DefaultXRTransientPointerOptions) {
-  return <DefaultXRInputSourceRayPointer {...options} rayModel={false} />
+export function DefaultXRTransientPointer(props: DefaultXRTransientPointerOptions) {
+  return <DefaultXRInputSourceRayPointer {...props} rayModel={false} />
 }
 
 /**
- * default gaze implementation with ray pointer
+ * Default gaze implementation with ray pointer
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `minDistance` minimal distance to trigger interactions
- * - `linePoints` the points thay make up the shape of the ray if undefined the ray goes in a straight line
- * - `direction` the direction of the ray
- * - `cursorModel` properties for configuring how the cursor should look
+ * @param {DefaultXRGazeOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+ * #### `contextMenuButton` - The button that triggers context menu events
+ * #### `minDistance` - Minimal distance to trigger interactions
+ * #### `linePoints` - The points thay make up the shape of the ray if undefined the ray goes in a straight line
+ * #### `direction` - The direction of the ray
+ * #### `cursorModel` - Properties for configuring how the cursor should look
  */
-export function DefaultXRGaze(options: DefaultXRGazeOptions) {
-  return <DefaultXRInputSourceRayPointer {...options} rayModel={false} />
+export function DefaultXRGaze(props: DefaultXRGazeOptions) {
+  return <DefaultXRInputSourceRayPointer {...props} rayModel={false} />
 }
 
 /**
- * default screen-input implementation with ray pointer
+ * Default screen-input implementation with ray pointer
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `minDistance` minimal distance to trigger interactions
- * - `linePoints` the points thay make up the shape of the ray if undefined the ray goes in a straight line
- * - `direction` the direction of the ray
+ * @param {DefaultXRScreenInputOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+ * #### `contextMenuButton` - The button that triggers context menu events
+ * #### `minDistance` - Minimal distance to trigger interactions
+ * #### `linePoints` - The points thay make up the shape of the ray if undefined the ray goes in a straight line
+ * #### `direction` - The direction of the ray
  */
-export function DefaultXRScreenInput(options: DefaultXRScreenInputOptions) {
-  return <DefaultXRInputSourceRayPointer {...options} cursorModel={false} rayModel={false} />
+export function DefaultXRScreenInput(props: DefaultXRScreenInputOptions) {
+  return <DefaultXRInputSourceRayPointer {...props} cursorModel={false} rayModel={false} />
 }
 
 /**
- * telport pointer for the XRInputSource
- * emits a downwards bend ray that only interesects with meshes marked as teleportable
+ * Telport pointer for the XRInputSource.
+ * Emits a downward bend ray that only interesects with meshes marked as teleportable
  *
- * properties
- * - `clickThresholdMs` time in milliseconds between pointerdown and pointerup to trigger a click event
- * - `dblClickThresholdMs` time in milliseconds between the first click and the second click to trigger a dblclick event
- * - `contextMenuButton` the button that triggers contextmenu events
- * - `makeDefault` used the set the default pointer inside a combined pointer
- * - `radius` the size of the intersection sphere
- * - `minDistance` minimal distance to trigger interactions
- * - `direction` the direction of the ray
- * - `rayModel` properties for configuring how the ray should look
- * - `cursorModel` properties for configuring how the cursor should look
+ * @param {DefaultXRInputSourceTeleportPointerOptions} props
+ * #### `clickThresholdMs` - Time in milliseconds between `pointerdown` and `pointerup` to trigger a click event
+ * #### `dblClickThresholdMs` - Time in milliseconds between the first click and the second click to trigger a `dblclick` event
+ * #### `contextMenuButton` - The button that triggers context menu events
+ * #### `makeDefault` - Used the set the default pointer inside a combined pointer
+ * #### `radius` - The size of the intersection sphere
+ * #### `minDistance` - Minimal distance to trigger interactions
+ * #### `direction` - The direction of the ray
+ * #### `rayModel` - Properties for configuring how the ray should look
+ * #### `cursorModel` - Properties for configuring how the cursor should look
  */
-export function DefaultXRInputSourceTeleportPointer(options: DefaultXRInputSourceTeleportPointerOptions) {
+export function DefaultXRInputSourceTeleportPointer(props: DefaultXRInputSourceTeleportPointerOptions) {
   const state = useContext(xrInputSourceStateContext)
   if (state == null) {
     throw new Error(`DefaultXRInputSourceRayPointer can only be used inside a XRInputSource`)
@@ -313,15 +317,15 @@ export function DefaultXRInputSourceTeleportPointer(options: DefaultXRInputSourc
     groupRef,
     state,
     {
-      ...options,
+      ...props,
       linePoints,
-      filter: buildTeleportTargetFilter(options),
+      filter: buildTeleportTargetFilter(props),
     },
     'teleport',
   )
   usePointerXRInputSourceEvents(pointer, state.inputSource, 'select', state.events)
-  const rayModelOptions = options.rayModel
-  const cursorModelOptions = options.cursorModel
+  const rayModelOptions = props.rayModel
+  const cursorModelOptions = props.cursorModel
   const scene = useThree((state) => state.scene)
   const cursorRef = useRef<Mesh>(null)
   useFrame((_, delta) => {

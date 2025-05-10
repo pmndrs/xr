@@ -5,7 +5,7 @@ import { useInteraction } from './hooks.js'
 type XRInteractionHandler = Parameters<typeof useInteraction>[2]
 
 /**
- * @deprecated just use <group onClick/... />
+ * @deprecated Just use `<group onClick... />`
  */
 export const Interactive = forwardRef<
   Group,

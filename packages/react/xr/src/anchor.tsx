@@ -11,7 +11,7 @@ export {
 } from '@pmndrs/xr'
 
 /**
- * hook that returns a function that allows to request a xr anchor
+ * Hook that returns a function that allows to request a xr anchor
  */
 export function useRequestXRAnchor() {
   const store = useXRStore()

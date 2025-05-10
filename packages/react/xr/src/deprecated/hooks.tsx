@@ -1,10 +1,10 @@
+import { PointerEvent } from '@pmndrs/pointer-events'
+import { XRControllerState, XRGazeState, XRHandState, XRScreenInputState, XRTransientPointerState } from '@pmndrs/xr'
 import { RefObject, useEffect, useRef } from 'react'
 import { Group, Intersection, XRControllerEventType as ThreeXRControllerEventType } from 'three'
-import { PointerEvent } from '@pmndrs/pointer-events'
-import { useXR } from '../xr.js'
 import { useXRInputSourceState, useXRInputSourceStateContext } from '../input.js'
-import { XRControllerState, XRGazeState, XRHandState, XRScreenInputState, XRTransientPointerState } from '@pmndrs/xr'
 import { useXRSpace } from '../space.js'
+import { useXR } from '../xr.js'
 
 const eventTranslations = {
   onBlur: 'pointerleave',
@@ -37,7 +37,7 @@ const eventTranslations = {
 } satisfies Record<string, string | { type: string; filter: (event: PointerEvent) => boolean }>
 
 /**
- * @deprecated use normal react-three/fiber event listeners instead (e.g. <mesh onClick={...} />)
+ * @deprecated Use normal react-three/fiber event listeners instead (e.g. `<mesh onClick={...} />`)
  */
 export function useInteraction(
   ref: RefObject<Group | null>,
@@ -69,7 +69,7 @@ export function useInteraction(
 }
 
 /**
- * @deprecated
+ * @deprecated Implement custom listeners instead
  */
 export function useXREvent(
   type: Exclude<ThreeXRControllerEventType, XRSessionEventType | 'connected' | 'disconnected'>,
@@ -98,15 +98,17 @@ export function useXREvent(
 }
 
 /**
- * @deprecated use `useXRInputSourceState("transientPointer", "left")` instead
- * hook for getting the transient-pointer state
+ * Hook for getting the transient-pointer state
+ *
  * @param handedness the handedness that the XRHandState should have
+ * @deprecated use `useXRInputSourceState("transientPointer", "left")` instead
  */
 export function useXRTransientPointerState(handedness: XRHandedness): XRTransientPointerState | undefined
 
 /**
+ * Hook for getting the transient-pointer state inside the xr store config
+ *
  * @deprecated use `useXRInputSourceStateContext("transientPointer")` instead
- * hook for getting the transient-pointer state inside the xr store config
  */
 export function useXRTransientPointerState(): XRTransientPointerState
 
@@ -119,31 +121,35 @@ export function useXRTransientPointerState(handedness?: XRHandedness) {
 }
 
 /**
+ * Hook for getting the gaze state
+ *
  * @deprecated use `useXRInputSourceStateContext("gaze")` instead
- * hook for getting the gaze state
  */
 export function useXRGazeState(): XRGazeState {
   return useXRInputSourceStateContext('gaze')
 }
 
 /**
+ * Hook for getting the screen-input state
+ *
  * @deprecated `useXRInputSourceStateContext("screenInput")` instead
- * hook for getting the screen-input state
  */
 export function useXRScreenInputState(): XRScreenInputState {
   return useXRInputSourceStateContext('screenInput')
 }
 
 /**
- * @deprecated use `useXRInputSourceState("hand", "left")` instead
- * hook for getting the XRHandState
+ * Hook for getting the XRHandState
+ *
  * @param handedness the handedness that the XRHandState should have
+ * @deprecated use `useXRInputSourceState("hand", "left")` instead
  */
 export function useXRHandState(handedness: XRHandedness): XRHandState | undefined
 
 /**
+ * Hook for getting the XRHandState
+ *
  * @deprecated `useXRInputSourceStateContext("hand")` instead
- * hook for getting the XRHandState
  */
 export function useXRHandState(): XRHandState
 
@@ -153,15 +159,17 @@ export function useXRHandState(handedness?: XRHandedness): XRHandState | undefin
 }
 
 /**
- * @deprecated use `useXRInputSourceState("controller", "left")` instead
- * hook for getting the XRControllerState
+ * Hook for getting the XRControllerState
+ *
  * @param handedness the handedness that the XRControllerState should have
+ * @deprecated use `useXRInputSourceState("controller", "left")` instead
  */
 export function useXRControllerState(handedness: XRHandedness): XRControllerState | undefined
 
 /**
+ * Hook for getting the XRControllerState
+ *
  * @deprecated `useXRInputSourceStateContext("controller")` instead
- * hook for getting the XRControllerState
  */
 export function useXRControllerState(): XRControllerState
 
@@ -174,6 +182,6 @@ export function useXRControllerState(handedness?: XRHandedness): XRControllerSta
 }
 
 /**
- * @deprecated use useXRSpace instead
+ * @deprecated use `useXRSpace` instead
  */
 export const useXRReferenceSpace = useXRSpace
