@@ -6,8 +6,9 @@ import { useXR } from './xr.js'
 
 /**
  * Component for setting the origin of the player (their feet)
+ *
  * @param props
- * * Accepts the same props as a ThreeJs [Group](https://threejs.org/docs/#api/en/objects/Group)
+ * Accepts the same props as a ThreeJs [Group](https://threejs.org/docs/#api/en/objects/Group)
  * @function
  */
 export const XROrigin = forwardRef<Group, ThreeElements['group']>(({ children, ...props }, ref) => {

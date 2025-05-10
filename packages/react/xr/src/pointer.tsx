@@ -30,8 +30,9 @@ export { isXRInputSourceState, type XRInputSourceState } from '@pmndrs/xr/intern
 
 /**
  * Component for combining multiple Pointers into one so that only one pointer is active at a time
+ *
  * @param props
- * * `children`: `Pointer[]` Pointer components to combine
+ * @param props.children? - `Pointer` components to combine
  */
 export function CombinedPointer({ children }: { children?: ReactNode }) {
   const pointer = useMemo(() => new CombinedPointerImpl(false), [])
@@ -132,9 +133,9 @@ export function useTouchPointer(
 /**
  * Component for rendering a ray for a pointer
  * @param props
- * * `materialClass`: Material to use for the ray
- * * `pointer`: Pointer to use for the ray
- * * `renderOrder`: Render order for the ray
+ * #### `materialClass` - Material to use for the ray
+ * #### `pointer` - Pointer to use for the ray
+ * #### `renderOrder` - Render order for the ray
  * @function
  */
 export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { pointer: Pointer }>((props, ref) => {
@@ -158,9 +159,9 @@ export const PointerRayModel = forwardRef<Mesh, PointerRayModelOptions & { point
  * Component for rendering a cursor as a pointer
  *
  * @param props
- * * `materialClass`: Class of the material to use for the cursor
- * * `pointer`: Pointer to use for the cursor
- * * `renderOrder`: Render order for the cursor
+ * #### `materialClass` - Class of the material to use for the cursor
+ * #### `pointer` - Pointer to use for the cursor
+ * #### `renderOrder` - Render order for the cursor
  * @function
  */
 export const PointerCursorModel = forwardRef<Mesh, PointerCursorModelOptions & { pointer: Pointer }>((props, ref) => {

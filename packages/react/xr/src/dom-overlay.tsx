@@ -5,7 +5,7 @@ import { useXR } from './xr.js'
 
 /**
  * Renders html elements as an overlay for handheld AR experiences
- * @param props `DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>` Props are forwarded to a `div` element
+ * @param props Props are forwarded to a `div` element
  * @function
  */
 export const XRDomOverlay = forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>>((props, ref) => {

@@ -6,9 +6,9 @@ import { useXR } from './xr.js'
 /**
  * Used to track the hover state of a 3D object.
  *
- * @param  ref `RefObject<Object3D | null>` : The reference to the 3D object.
- * @param  onChange `(hover: boolean, event: PointerEvent) => void` : Callback for hover state changes.
- * @returns - The hover state if no callback is provided.
+ * @param  ref The reference to the 3D object.
+ * @param  onChange `(hover: boolean, event: PointerEvent) => void` Callback for hover state changes.
+ * @returns Returns the hover state if no callback is provided.
  */
 export function useHover(
   ref: RefObject<Object3D | null>,
@@ -73,7 +73,7 @@ export function useInitRoomCapture() {
 /**
  * Checks whether a specific XRSessionMode is supported or not
  *
- * @param {XRSessionMode} mode - The session mode to check.
+ * @param {XRSessionMode} mode - The `XRSessionMode` to check against.
  * @param {(error: any) => void} [onError] - Callback executed when an error occurs.
  */
 export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void): boolean | undefined {
@@ -120,8 +120,8 @@ export const useSessionModeSupported = useXRSessionModeSupported
 /**
  * Checks if a specific XR session feature is enabled.
  *
- * @param {string} feature - The feature to check.
- * @returns {boolean} - Whether the feature is enabled.
+ * @param {string} feature - The XR session feature to check against.
+ * @returns {boolean} Whether the feature is enabled.
  */
 export function useXRSessionFeatureEnabled(feature: string) {
   return useXR(({ session }) => session?.enabledFeatures?.includes(feature) ?? false)

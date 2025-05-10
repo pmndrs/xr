@@ -28,9 +28,9 @@ interface FacingCameraProps {
  * Calculation is based on the provided angle and direction.
  *
  * @param props
- * * `children`: ReactNode - The ReactNode elements to conditionally show.
- * * `direction`: [Vector3](https://threejs.org/docs/#api/en/math/Vector3) - Direction vector to check against the camera's facing direction.
- * * `angle`: number - The angle in radians to determine visibility. Defaults to `Math.PI / 2` (90 degrees).
+ * #### `children` - `ReactNode` The ReactNode elements to conditionally show.
+ * #### `direction` - [Vector3](https://threejs.org/docs/#api/en/math/Vector3) Direction vector to check against the camera's facing direction.
+ * #### `angle` - `number` The angle in radians to determine visibility. Defaults to `Math.PI / 2` (90 degrees).
  */
 export function ShowIfFacingCamera({ children, direction, angle = Math.PI / 2 }: FacingCameraProps) {
   const ref = useRef<Group>(null)
@@ -53,9 +53,9 @@ export function ShowIfFacingCamera({ children, direction, angle = Math.PI / 2 }:
  * Calculation is based on the provided angle and direction.
  *
  * @param props
- * * `children`: ReactNode - The ReactNode elements to conditionally render.
- * * `direction`: [Vector3](https://threejs.org/docs/#api/en/math/Vector3) - Direction vector to check against the camera's facing direction.
- * * `angle`: number - The angle in radians to determine visibility. Defaults to `Math.PI / 2` (90 degrees).
+ * #### `children` - `ReactNode` The ReactNode elements to conditionally render.
+ * #### `direction` - [Vector3](https://threejs.org/docs/#api/en/math/Vector3) Direction vector to check against the camera's facing direction.
+ * #### `angle` - `number` The angle in radians to determine visibility. Defaults to `Math.PI / 2` (90 degrees).
  */
 export function IfFacingCamera({ children, direction, angle = Math.PI / 2 }: FacingCameraProps) {
   const ref = useRef<Group>(null)

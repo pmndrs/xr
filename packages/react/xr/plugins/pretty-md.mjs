@@ -61,7 +61,21 @@ export const load = (app) => {
     // Replace types that return a promise and react component with a code block so that mdx will parse
     page.contents = page.contents.replace(/(Promise<.*>)/g, '`$1`')
     // Replace Parameters with props for components
-    page.contents = page.contents.replace(/## Parameters\n\n### props/g, '## props')
+    page.contents = page.contents.replace(/## Parameters\n\n### props/g, '## props\n---')
+    // Replace parameters with proper styling
+    page.contents = page.contents.replace(
+      /#### `(.*)` - (.*)/g,
+      '<span style={{fontSize: 24, color: "rgb(var(--color-primary))"}}>**$1**</span>\n\n$2\n',
+    )
+    // Shrink headers that should be smaller, and tweak the color
+    // page.contents = page.contents.replace(/####? (.*)\n/g, '**$1**\n')
+    // NOTE: This here is another option for the above, tweaks the param color and size
+    page.contents = page.contents.replace(
+      /####? (.*)\n/g,
+      '<span style={{fontSize: 24, color: "rgb(var(--color-primary))"}}>**$1**</span>\n',
+    )
+    // Add a divider after Returns
+    page.contents = page.contents.replace(/## Returns\n\n/g, '## Returns\n---\n')
   })
 
   // Happens after the markdown pages are generated
@@ -126,7 +140,7 @@ export const load = (app) => {
 
           // Update the nav number in the frontmatter
           const content = fs.readFileSync(targetFile, 'utf-8')
-          const updatedContent = content.replace(/nav:\s*\d+/, `nav: ${index + 1}`)
+          const updatedContent = content.replace(/nav:\s*\d+/, `nav: ${index + 25}`)
           fs.writeFileSync(targetFile, updatedContent)
         })
       }

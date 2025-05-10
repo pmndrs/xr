@@ -21,10 +21,10 @@ import { XRSpace } from './space.js'
  * Component for placing content in the controller anchored at a specific component such as the Thumbstick
  *
  * @param props
- * * `id`: `XRControllerGamepadComponentId` - Is the id of the component where content should be placed (e.g. `"a-button"`)
- * * `onPress?`: `Function` - Is an optional callback to receive when the component is pressed
- * * `onRelease?`: `Function` - Is an optional callback to receive when the component is released
- * * `children?`: `ReactNode` - Children to be placed inside the componenent (e.g. visualizing a tooltip over the button...)
+ * #### `id` - `XRControllerGamepadComponentId` Is the id of the component where content should be placed (e.g. `"a-button"`)
+ * #### `onPress?` - `Function` Is an optional callback to receive when the component is pressed
+ * #### `onRelease?` - `Function` Is an optional callback to receive when the component is released
+ * #### `children?` - `ReactNode` Children to be placed inside the componenent (e.g. visualizing a tooltip over the button...)
  *
  * @function
  */
@@ -49,7 +49,7 @@ export const XRControllerComponent = forwardRef<
 })
 
 /**
- * hook for subscribing to a button state change event on the controller
+ * Hook for subscribing to a button state change event on the controller
  * @param id of the button
  * @param onChange callback that gets executed when the state of the button changes
  * @param handedness of the controller
@@ -76,8 +76,8 @@ const LoadXRControllerModelSymbol = Symbol('loadXRControllerModel')
 /**
  * Component for rendering a 3D model for the XRController
  * @param props
- * * `colorWrite` Configures the colorWrite property of the model
- * * `renderOrder` Configures the render order model
+ * #### `colorWrite` - Configures the colorWrite property of the model
+ * #### `renderOrder` - Configures the render order model
  * @function
  */
 export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>((options, ref) => {
@@ -104,6 +104,7 @@ const LoadXRControllerLayoutSymbol = Symbol('loadXRControllerLayout')
  * Hook for loading a controller layout, which contains info about the controller model and its buttons / controls.
  * For xr controllers provided through WebXR, the layout is loaded and provided through the controller state automatically.
  * Therefore, this hook's purpose is for building controller demos/tutorials.
+ *
  * @param profileIds
  * @param handedness
  * @param XRControllerLayoutLoaderOptions

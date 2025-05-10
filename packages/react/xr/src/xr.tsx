@@ -70,7 +70,11 @@ export type XRProperties = {
 
 /**
  * Core XR component for connecting the `XRStore` with the scene.
- * Requires the `XRStore` which it will provide to its children.
+ * Requires an `XRStore` which it will provide to its children.
+ *
+ * @param props
+ * #### `children` - Children to be rendered inside the context.
+ * #### `store` - The `XRStore` to be used for the session.
  */
 export function XR({ children, store }: XRProperties) {
   store.setWebXRManager(useThree((s) => s.gl.xr))
@@ -110,7 +114,8 @@ export function XR({ children, store }: XRProperties) {
 /**
  * Component for hiding the xr context to all child components. Can be used to create virtual displays and similar allowing the components inside the display to think they are not inside an XR environment, making them behave like when outside XR.
  *
- * @param props `children`: `ReactNode` Children to be rendered inside the context.
+ * @param props
+ * @param props.children Children to be rendered inside the context.
  */
 export function NotInXR({ children }: { children?: ReactNode }) {
   const emptyStore = useMemo(() => createXRStore(), [])

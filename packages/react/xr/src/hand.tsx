@@ -17,8 +17,8 @@ export type { XRHandModelOptions }
  * Component for rendering a 3D model for the XRHand
  *
  * @param props
- * * `colorWrite` Configures color writing
- * * `renderOrder` Configures the render order of the model
+ * #### `colorWrite` - Configures color writing
+ * #### `renderOrder` - Configures the render order of the model
  * @function
  */
 export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, ref) => {
@@ -41,8 +41,8 @@ export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, re
  * Component for placing content in the hand anchored at a specific joint such as the index finger tip.
  *
  * @param props
- * * `joint`: [XRHandJoint](https://developer.mozilla.org/en-US/docs/Web/API/XRHand#hand_joints) - Is the name of the joint where content should be placed (e.g. `"wrist"`)
- * * `children`: Components to be placed inside the joint (e.g. For visualizing a tooltip over the index finger tip)
+ * #### `joint` - [XRHandJoint](https://developer.mozilla.org/en-US/docs/Web/API/XRHand#hand_joints) Is the name of the joint where content should be placed (e.g. `"wrist"`)
+ * #### `children` - Components to be placed inside the joint (e.g. For visualizing a tooltip over the index finger tip)
  *
  * @function
  * @deprecated use `<XRSpace space="wrist">` instead of `<XRHandJoint joint="wrist">`
