@@ -6,10 +6,13 @@ import { useXR } from './xr.js'
 /**
  * Used to track the hover state of a 3D object.
  *
- * @param  ref The reference to the 3D object.
- * @param  onChange `(hover: boolean, event: PointerEvent) => void` Callback for hover state changes.
- * @returns Returns the hover state if no callback is provided.
+ * @param ref The reference to the 3D object.
+ * @param onChange `(hover: boolean, event: PointerEvent) => void` Callback for hover state changes.
  */
+export function useHover(ref: RefObject<Object3D | null>): boolean
+
+export function useHover(ref: RefObject<Object3D | null>, onChange: (hover: boolean, event: PointerEvent) => void): void
+
 export function useHover(
   ref: RefObject<Object3D | null>,
   onChange?: (hover: boolean, event: PointerEvent) => void,
@@ -76,7 +79,7 @@ export function useInitRoomCapture() {
  * @param {XRSessionMode} mode - The `XRSessionMode` to check against.
  * @param {(error: any) => void} [onError] - Callback executed when an error occurs.
  */
-export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void): boolean | undefined {
+export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void) {
   const onErrorRef = useRef(onError)
   onErrorRef.current = onError
   const [subscribe, getSnapshot] = useMemo(() => {

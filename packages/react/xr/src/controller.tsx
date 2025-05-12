@@ -101,9 +101,7 @@ export const XRControllerModel = forwardRef<Object3D, XRControllerModelOptions>(
 const LoadXRControllerLayoutSymbol = Symbol('loadXRControllerLayout')
 
 /**
- * Hook for loading a controller layout, which contains info about the controller model and its buttons / controls.
- * For xr controllers provided through WebXR, the layout is loaded and provided through the controller state automatically.
- * Therefore, this hook's purpose is for building controller demos/tutorials.
+ * For rendering a controller that is not included in WebXR. (e.g controller tutorials/demos)
  *
  * @param profileIds
  * @param handedness

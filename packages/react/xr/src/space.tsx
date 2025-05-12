@@ -53,9 +53,7 @@ export const XRSpace = forwardRef<
 /**
  * A combined type of all XRSpace types
  * @see [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpaceType)
- * @see [XRInputSourceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRInputSourceSpaceType)
- * @see [XRHandJointSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRHandJointSpaceType)
- * @see [XRBodyJointSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRBodyJointSpaceType)
+ * @see [XRHandJointSpaceType](https://immersive-web.github.io/webxr-hand-input/#xrhand-interface)
  */
 export type XRSpaceType = XRReferenceSpaceType | XRInputSourceSpaceType | XRHandJointSpaceType | XRBodyJointSpaceType
 
@@ -241,10 +239,11 @@ export function useGetXRSpaceMatrix(space: XRSpace | undefined) {
  * Hook that applies the transformation of the provided xr space to the provided object reference
  *
  * @param onFrame Optional callback that gets executed after the matrix of the reference object was updated
+ * @param ref.current A react ref object that points to the object that the XRSpaceMatrix should be applied to
  * @requires matrixAutoUpdate to be disabled for the referenced object
  */
 export function useApplyXRSpaceMatrix(
-  ref: React.RefObject<Object3D | null>,
+  ref: { current?: Group | null },
   space: XRSpace | undefined,
   onFrame?: (state: RootState, delta: number, frame: XRFrame | undefined) => void,
 ): void {
