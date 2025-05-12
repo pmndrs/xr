@@ -5,7 +5,11 @@ import { xrSpaceContext } from './contexts.js'
 import { useXR } from './xr.js'
 
 /**
- * component for setting the origin of the player (their feet)
+ * Component for setting the origin of the player (their feet)
+ *
+ * @param props
+ * Accepts the same props as a ThreeJs [Group](https://threejs.org/docs/#api/en/objects/Group)
+ * @function
  */
 export const XROrigin = forwardRef<Group, ThreeElements['group']>(({ children, ...props }, ref) => {
   const xrCamera = useThree((s) => s.gl.xr.getCamera())

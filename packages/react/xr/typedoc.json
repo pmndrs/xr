@@ -1,0 +1,33 @@
+{
+  "plugin": [
+    "typedoc-plugin-frontmatter",
+    "typedoc-plugin-markdown",
+    "./plugins/pretty-md.mjs"
+  ],
+  "entryPoints": [
+    "./src/**"
+  ],
+
+  "flattenOutputFiles": true,
+  "hideBreadcrumbs": true,
+  "hidePageTitle": true,
+  "cleanOutputDir": true,
+  "hidePageHeader": true,
+
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeNotDocumented": true,
+  "navigation": {
+    "includeCategories": false,
+    "includeFolders": false,
+    "includeGroups": false,
+  },
+  "categorizeByGroup": false,
+  "router": "kind",
+
+  "frontmatterGlobals": {
+    "layout": "docs"
+  },
+  "out": "./docs",
+}

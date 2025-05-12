@@ -1,8 +1,14 @@
+import { PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
 import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Object3D, Object3DEventMap } from 'three'
 import { useXR } from './xr.js'
-import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 
+/**
+ * Used to track the hover state of a 3D object.
+ *
+ * @param ref The reference to the 3D object.
+ * @param onChange `(hover: boolean, event: PointerEvent) => void` Callback for hover state changes.
+ */
 export function useHover(ref: RefObject<Object3D | null>): boolean
 
 export function useHover(ref: RefObject<Object3D | null>, onChange: (hover: boolean, event: PointerEvent) => void): void
@@ -50,22 +56,28 @@ export function useHover(
 }
 
 /**
- * hook for getting the session visibility state
+ * Gets the visibility state of the XR session.
+ *
+ * @returns The visibility state of the XR session.
  */
 export function useXRSessionVisibilityState() {
   return useXR((xr) => xr.visibilityState)
 }
 
 /**
- * hook for getting the function to initialize the room capture for scanning the room
+ * Initilizes the room capture process.
+ *
+ * @returns A function to initiate room capture, or undefined if unavailable.
  */
 export function useInitRoomCapture() {
   return useXR((xr) => xr.session?.initiateRoomCapture?.bind(xr.session))
 }
 
 /**
- * hook for checking if a session mode is supported
- * @param onError callback executed when an error happens while checking if the session mode is supported
+ * Checks whether a specific XRSessionMode is supported or not
+ *
+ * @param {XRSessionMode} mode - The `XRSessionMode` to check against.
+ * @param {(error: any) => void} [onError] - Callback executed when an error occurs.
  */
 export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void) {
   const onErrorRef = useRef(onError)
@@ -104,15 +116,21 @@ export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error:
 }
 
 /**
- * @deprecated use useXRSessionModeSupported instead
+ * @deprecated use `useXRSessionModeSupported` instead
  */
 export const useSessionModeSupported = useXRSessionModeSupported
 
+/**
+ * Checks if a specific XR session feature is enabled.
+ *
+ * @param {string} feature - The XR session feature to check against.
+ * @returns {boolean} Whether the feature is enabled.
+ */
 export function useXRSessionFeatureEnabled(feature: string) {
   return useXR(({ session }) => session?.enabledFeatures?.includes(feature) ?? false)
 }
 
 /**
- * @deprecated use useXRSessionFeatureEnabled instead
+ * @deprecated use `useXRSessionFeatureEnabled` instead
  */
 export const useSessionFeatureEnabled = useXRSessionFeatureEnabled

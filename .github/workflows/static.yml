@@ -33,6 +33,10 @@ jobs:
           version: 8
           run_install: true
 
+      # Generate Docs with TypeDoc
+      - name: Generate Docs
+        run: pnpm -r generate_docs
+
       # Examples
       - name: Building Examples
         run: pnpm -r build

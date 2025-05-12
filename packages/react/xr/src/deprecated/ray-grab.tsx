@@ -1,11 +1,11 @@
-import { ComponentPropsWithoutRef, forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
-import { Interactive } from './interactive.js'
-import { Group, Matrix4, Object3D } from 'three'
-import { useFrame } from '@react-three/fiber'
 import { isXRInputSourceState } from '@pmndrs/xr/internals'
+import { useFrame } from '@react-three/fiber'
+import { ComponentPropsWithoutRef, forwardRef, useImperativeHandle, useMemo, useRef } from 'react'
+import { Group, Matrix4, Object3D } from 'three'
+import { Interactive } from './interactive.js'
 
 /**
- * @deprecated use DragControls instead
+ * @deprecated use `DragControls` instead
  */
 export const RayGrab = forwardRef<Group, ComponentPropsWithoutRef<typeof Interactive>>(function RayGrab(
   { onSelectStart, onSelectEnd, children, ...rest },

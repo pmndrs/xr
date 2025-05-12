@@ -1,21 +1,21 @@
+import { CombinedPointer } from '@pmndrs/pointer-events'
+import { setupSyncIsVisible } from '@pmndrs/xr'
 import {
+  XRState as BaseXRState,
+  XRStore as BaseXRStore,
+  XRStoreOptions as BaseXRStoreOptions,
   createXRStore as createXRStoreImpl,
   DefaultXRControllerOptions,
   DefaultXRGazeOptions,
   DefaultXRHandOptions,
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
-  XRState as BaseXRState,
-  XRStore as BaseXRStore,
-  XRStoreOptions as BaseXRStoreOptions,
 } from '@pmndrs/xr/internals'
-import { Camera, useFrame, useThree, useStore as useRootStore } from '@react-three/fiber'
+import { Camera, useFrame, useStore as useRootStore, useThree } from '@react-three/fiber'
 import { ComponentType, ReactNode, useContext, useEffect, useMemo } from 'react'
 import { useStore } from 'zustand'
 import { combinedPointerContext, xrContext } from './contexts.js'
 import { XRElements } from './elements.js'
-import { setupSyncIsVisible } from '@pmndrs/xr'
-import { CombinedPointer } from '@pmndrs/pointer-events'
 
 type XRElementImplementation = {
   /**
@@ -55,9 +55,9 @@ export type XRStoreOptions = BaseXRStoreOptions<XRElementImplementation>
 export type XRState = BaseXRState<XRElementImplementation>
 
 /**
- * starting point for each XR application
- * allows to configure the session's features and defaults such as what controllers are rendered and how they can interact with the scene
- * @returns an xr store
+ * Starting point for each XR application.
+ * Allows to configure the session's features and defaults such as what controllers are rendered and how they can interact with the scene
+ * @returns A new XR store
  */
 export function createXRStore(options?: XRStoreOptions) {
   return createXRStoreImpl<XRElementImplementation>(options)
@@ -69,8 +69,12 @@ export type XRProperties = {
 }
 
 /**
- * core XR component for connectin the xr store with the scene
- * requires the xr store which it will provide to its children
+ * Core XR component for connecting the `XRStore` with the scene.
+ * Requires an `XRStore` which it will provide to its children.
+ *
+ * @param props
+ * #### `children` - Children to be rendered inside the context.
+ * #### `store` - The `XRStore` to be used for the session.
  */
 export function XR({ children, store }: XRProperties) {
   store.setWebXRManager(useThree((s) => s.gl.xr))
@@ -107,6 +111,12 @@ export function XR({ children, store }: XRProperties) {
   )
 }
 
+/**
+ * Component for hiding the xr context to all child components. Can be used to create virtual displays and similar allowing the components inside the display to think they are not inside an XR environment, making them behave like when outside XR.
+ *
+ * @param props
+ * @param props.children Children to be rendered inside the context.
+ */
 export function NotInXR({ children }: { children?: ReactNode }) {
   const emptyStore = useMemo(() => createXRStore(), [])
   return <xrContext.Provider value={emptyStore}>{children}</xrContext.Provider>
@@ -124,7 +134,7 @@ export function RootCombinedPointer({ children }: { children?: ReactNode }) {
 }
 
 /**
- * hook for getting the xr store from the context
+ * Hook for getting the xr store from the context
  */
 export function useXRStore() {
   const store = useContext(xrContext)
@@ -135,7 +145,7 @@ export function useXRStore() {
 }
 
 /**
- * hook for reading the state from the xr store
+ * Hook for reading the state from the xr store
  */
 export function useXR<T = XRState>(
   selector: (s: XRState) => T = (state) => state as unknown as T,
