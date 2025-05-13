@@ -18,12 +18,31 @@
     "plugin:import/recommended",
     "plugin:@react-three/recommended"
   ],
-  "plugins": ["@typescript-eslint", "react", "react-hooks", "import", "prettier", "@react-three"],
+  "plugins": [ "@typescript-eslint", "react", "react-hooks", "import", "simple-import-sort", "unused-imports", "prettier", "@react-three" ],
   "rules": {
     "import/no-unresolved": "off",
     "import/named": "off",
     "import/namespace": "off",
     "import/no-named-as-default-member": "off",
-    "import/extensions": ["error", "ignorePackages"]
+    "import/extensions": [ "error", "ignorePackages" ],
+
+    "import/order": ["error", {
+      "groups": [
+        "builtin",
+        "external",
+        "internal",
+        ["parent", "sibling", "index"],
+        "object",
+        "type"
+      ],
+      "newlines-between": "never",
+      "alphabetize": {
+        "order": "asc",
+        "caseInsensitive": true
+      }
+    }],
+
+    // "simple-import-sort/imports": "error",
+    "unused-imports/no-unused-imports": "error"
   }
 }
