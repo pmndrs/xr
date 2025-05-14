@@ -4,6 +4,10 @@ import { Group } from 'three'
 import { xrSpaceContext } from './contexts.js'
 import { useXR } from './xr.js'
 
+export type XROriginProps = ThreeElements['group'] & {
+  disabled?: boolean
+}
+
 /**
  * Component for setting the origin of the player (their feet)
  *
@@ -11,22 +15,27 @@ import { useXR } from './xr.js'
  * Accepts the same props as a ThreeJs [Group](https://threejs.org/docs/#api/en/objects/Group)
  * @function
  */
-export const XROrigin = forwardRef<Group, ThreeElements['group']>(({ children, ...props }, ref) => {
+export const XROrigin = forwardRef<Group, XROriginProps>(({ children, disabled, ...props }, ref) => {
   const xrCamera = useThree((s) => s.gl.xr.getCamera())
   const internalRef = useRef<Group>(null)
-  useImperativeHandle(ref, () => internalRef.current!, [])
   const referenceSpace = useXR((xr) => xr.originReferenceSpace)
+
+  useImperativeHandle(ref, () => internalRef.current!, [])
+
   useEffect(() => {
     const group = internalRef.current
-    if (group == null) {
+    if (group == null || disabled) {
       return
     }
+
     group.add(xrCamera)
+
     return () => void group.remove(xrCamera)
-  }, [xrCamera])
+  }, [disabled, xrCamera])
+
   return (
     <group ref={internalRef} {...props}>
-      {referenceSpace != null && <xrSpaceContext.Provider value={referenceSpace}>{children}</xrSpaceContext.Provider>}
+      <xrSpaceContext.Provider value={referenceSpace}>{children}</xrSpaceContext.Provider>
     </group>
   )
 })
