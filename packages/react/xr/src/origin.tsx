@@ -35,7 +35,7 @@ export const XROrigin = forwardRef<Group, XROriginProps>(({ children, disabled, 
 
   return (
     <group ref={internalRef} {...props}>
-      {referenceSpace && <xrSpaceContext.Provider value={referenceSpace}>{children}</xrSpaceContext.Provider>}
+      <xrSpaceContext.Provider value={referenceSpace}>{children}</xrSpaceContext.Provider>
     </group>
   )
 })
