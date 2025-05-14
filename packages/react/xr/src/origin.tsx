@@ -24,7 +24,7 @@ export const XROrigin = forwardRef<Group, XROriginProps>(({ children, disabled, 
 
   useEffect(() => {
     const group = internalRef.current
-    if (!group || disabled) {
+    if (group == null || disabled) {
       return
     }
 
