@@ -145,6 +145,14 @@ export function useXRStore() {
 }
 
 /**
+ * Hook for getting the xr store from context. If not available `undefined` is returned.
+ */
+export function useXRStoreSafe() {
+  const store = useContext(xrContext)
+  return store
+}
+
+/**
  * Hook for reading the state from the xr store
  */
 export function useXR<T = XRState>(
