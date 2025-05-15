@@ -6,7 +6,7 @@
     },
     "scripts": {
         "dev": "vite --host",
-        "check:eslint": "eslint \"src/**/*.{ts,tsx}\"",
-        "fix:eslint": "eslint \"src/**/*.{ts,tsx}\" --fix"
+        "check:eslint": "eslint \"*.{ts,tsx}\"",
+        "fix:eslint": "eslint \"*.{ts,tsx}\" --fix"
     }
 }
