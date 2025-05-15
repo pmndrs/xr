@@ -18,7 +18,7 @@
     "plugin:import/recommended",
     "plugin:@react-three/recommended"
   ],
-  "plugins": [ "@typescript-eslint", "react", "react-hooks", "import", "simple-import-sort", "unused-imports", "prettier", "@react-three" ],
+  "plugins": [ "@typescript-eslint", "react", "react-hooks", "import", "unused-imports", "prettier", "@react-three" ],
   "rules": {
     "import/no-unresolved": "off",
     "import/named": "off",
