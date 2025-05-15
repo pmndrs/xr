@@ -1,13 +1,13 @@
-import { StoreApi, createStore } from 'zustand/vanilla'
+import { XRDevice } from 'iwer'
 import { Camera, Object3D, WebXRManager } from 'three'
-import { updateXRHandState } from './hand/state.js'
+import { StoreApi, createStore } from 'zustand/vanilla'
 import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './controller/index.js'
 import { XRHandLoaderOptions } from './hand/index.js'
-import { XRInputSourceState, XRInputSourceStateMap, createSyncXRInputSourceStates } from './input.js'
+import { updateXRHandState } from './hand/state.js'
 import { XRSessionInitOptions, buildXRSessionInit } from './init.js'
-import type { EmulatorOptions } from './emulate.js'
+import { XRInputSourceState, XRInputSourceStateMap, createSyncXRInputSourceStates } from './input.js'
 import { XRLayerEntry } from './layer.js'
-import { XRDevice } from 'iwer'
+import type { EmulatorOptions } from './emulate.js'
 
 declare global {
   export interface XRSessionEventMap {

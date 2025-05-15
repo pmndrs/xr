@@ -1,4 +1,4 @@
-import { Canvas, createPortal, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { createXRStore, XR, XRDomOverlay, XROrigin } from '@react-three/xr'
 import { useState } from 'react'
 import {} from '@react-three/drei'

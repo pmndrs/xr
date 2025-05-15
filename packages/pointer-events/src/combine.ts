@@ -1,8 +1,8 @@
 import { Object3D } from 'three'
 import { NativeEvent } from './event.js'
-import { Pointer, PointerCapture } from './pointer.js'
-import { intersectPointerEventTargets } from './intersections/utils.js'
 import { Intersection } from './index.js'
+import { intersectPointerEventTargets } from './intersections/utils.js'
+import { Pointer, PointerCapture } from './pointer.js'
 
 export class CombinedPointer {
   private readonly pointers: Array<Pointer | CombinedPointer> = []

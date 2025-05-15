@@ -1,6 +1,7 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { createXRStore, noEvents, PointerEvents, useXR, XR, XROrigin } from '@react-three/xr'
+import { Signal, computed } from '@preact/signals'
 import { Environment } from '@react-three/drei'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { Handle, HandleStore, HandleTarget, OrbitHandles } from '@react-three/handle'
 import {
   Container,
   Text,
@@ -23,11 +24,10 @@ import {
   MenuIcon,
   PlayIcon,
 } from '@react-three/uikit-lucide'
+import { createXRStore, noEvents, PointerEvents, useXR, XR, XROrigin } from '@react-three/xr'
 import { forwardRef, RefObject, useMemo, useRef } from 'react'
-import { Handle, HandleStore, HandleTarget, OrbitHandles, useHandle } from '@react-three/handle'
-import { Euler, Group, MeshPhysicalMaterial, Object3D, Quaternion, StaticReadUsage, Vector3 } from 'three'
+import { Euler, Group, MeshPhysicalMaterial, Object3D, Quaternion, Vector3 } from 'three'
 import { clamp, damp } from 'three/src/math/MathUtils.js'
-import { Signal, computed } from '@preact/signals'
 
 export class GlassMaterial extends MeshPhysicalMaterial {
   constructor() {

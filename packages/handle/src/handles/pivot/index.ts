@@ -1,12 +1,12 @@
 import { Group, Object3D, OrthographicCamera, PerspectiveCamera, Vector3, Vector3Tuple } from 'three'
 import { PivotAxisScaleHandle } from './scale.js'
-import { HandlesContext } from '../context.js'
 import { HandleOptions, HandleStore } from '../../store.js'
+import { HandlesContext } from '../context.js'
+import { HandlesProperties } from '../index.js'
 import { computeHandlesScale } from '../utils.js'
 import { PivotAxisRotationHandle } from './rotate.js'
 import { AxisTranslateHandle } from '../translate/axis.js'
 import { PlaneTranslateHandle } from '../translate/plane.js'
-import { HandlesProperties } from '../index.js'
 
 const vectorHelper = new Vector3()
 

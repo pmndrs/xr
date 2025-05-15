@@ -1,6 +1,6 @@
 import { ColorRepresentation, MeshBasicMaterial, Mesh, BoxGeometry } from 'three'
-import { HandlesProperties } from '../index.js'
 import { HandlesContext } from '../context.js'
+import { HandlesProperties } from '../index.js'
 import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
 import { RegisteredHandle } from '../registered.js'
 import { extractHandleTransformOptions } from '../utils.js'

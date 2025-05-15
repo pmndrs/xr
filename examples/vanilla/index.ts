@@ -1,5 +1,7 @@
-import { XRLayer, XROrigin, createXRStore, makeTeleportTarget } from '@pmndrs/xr'
 import { PointerEventsMap } from '@pmndrs/pointer-events'
+import { reversePainterSortStable, Container, Image, Text, Svg, Root } from '@pmndrs/uikit'
+import { Delete } from '@pmndrs/uikit-lucide'
+import { XRLayer, XROrigin, createXRStore, makeTeleportTarget } from '@pmndrs/xr'
 import {
   BoxGeometry,
   Group,
@@ -10,8 +12,6 @@ import {
   Scene,
   WebGLRenderer,
 } from 'three'
-import { reversePainterSortStable, Container, Image, Text, Svg, Root } from '@pmndrs/uikit'
-import { Delete } from '@pmndrs/uikit-lucide'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.z = 1

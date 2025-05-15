@@ -1,8 +1,8 @@
+import { CombinedPointer, GetCamera } from '@pmndrs/pointer-events'
 import { Group, Object3D } from 'three'
 import { XRElementImplementations, XRUpdatesList } from './xr.js'
 import { XRInputSourceState, XRInputSourceStateMap } from '../input.js'
 import { WithRecord, XRStore, resolveInputSourceImplementation } from '../store.js'
-import { XRSpace } from './space.js'
 import {
   createDefaultXRController,
   createDefaultXRGaze,
@@ -10,8 +10,7 @@ import {
   createDefaultXRScreenInput,
   createDefaultXRTransientPointer,
 } from './default.js'
-import { XRSpaceType } from './types.js'
-import { CombinedPointer, GetCamera } from '@pmndrs/pointer-events'
+import { XRSpace } from './space.js'
 import { setupSyncIsVisible } from '../visible.js'
 
 export function setupSyncXRElements(

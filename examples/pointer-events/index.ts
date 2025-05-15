@@ -1,3 +1,4 @@
+import { PointerEventsMap, getVoidObject, forwardHtmlEvents, forwardObjectEvents } from '@pmndrs/pointer-events'
 import {
   BoxGeometry,
   Color,
@@ -10,7 +11,6 @@ import {
   WebGLRenderTarget,
   WebGLRenderer,
 } from 'three'
-import { PointerEventsMap, getVoidObject, forwardHtmlEvents, forwardObjectEvents } from '@pmndrs/pointer-events'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.z = 2

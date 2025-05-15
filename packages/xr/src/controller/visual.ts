@@ -1,6 +1,6 @@
 import { type Object3D, Vector2 } from 'three'
-import type { XRControllerLayout, XRControllerVisualResponse } from './layout.js'
 import type { XRControllerGamepadComponentState, XRControllerGamepadState } from './gamepad.js'
+import type { XRControllerLayout, XRControllerVisualResponse } from './layout.js'
 
 export function createUpdateXRControllerVisuals(
   model: Object3D,

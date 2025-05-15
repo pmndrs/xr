@@ -1,8 +1,8 @@
 import { useGLTF } from '@react-three/drei'
-import { XRHandModel } from '@react-three/xr'
-import { Suspense, useEffect, useState } from 'react'
 import { Root, Text, Container } from '@react-three/uikit'
 import { ClockIcon } from '@react-three/uikit-lucide'
+import { XRHandModel } from '@react-three/xr'
+import { Suspense, useEffect, useState } from 'react'
 
 export function HandWithWatch() {
   return (

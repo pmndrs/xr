@@ -1,5 +1,5 @@
-import type { Vector2Tuple } from 'three'
 import type { Axis } from '../state.js'
+import type { Vector2Tuple } from 'three'
 
 export type HandlesProperties =
   | boolean

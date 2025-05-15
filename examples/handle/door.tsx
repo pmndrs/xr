@@ -7,10 +7,10 @@ Source: https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f9
 Title: Door with frame
 */
 
-import { Mesh, MeshStandardMaterial } from 'three'
 import { useGLTF } from '@react-three/drei'
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { Handle, HandleTarget } from '@react-three/handle'
+import { Mesh, MeshStandardMaterial } from 'three'
+import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 type GLTFResult = GLTF & {
   nodes: {

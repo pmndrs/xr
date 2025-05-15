@@ -1,9 +1,9 @@
-import { useCallback, useRef, useState } from 'react'
 import { useTexture } from '@react-three/drei'
-import { interactionGroups, RapierRigidBody, RigidBody, RigidBodyProps } from '@react-three/rapier'
-import { create } from 'zustand'
-import { Vector3Tuple } from 'three'
 import { ThreeEvent } from '@react-three/fiber'
+import { interactionGroups, RapierRigidBody, RigidBody, RigidBodyProps } from '@react-three/rapier'
+import { useCallback, useRef, useState } from 'react'
+import { Vector3Tuple } from 'three'
+import { create } from 'zustand'
 
 // This is a naive implementation and wouldn't allow for more than a few thousand boxes.
 // In order to make this scale this has to be one instanced mesh, then it could easily be

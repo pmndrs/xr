@@ -1,7 +1,7 @@
 import { Object3D } from 'three'
 import { createGetXRSpaceMatrix, getSpaceFromAncestors } from '../space.js'
-import { onXRFrame } from './utils.js'
 import { XRSpaceType } from './types.js'
+import { onXRFrame } from './utils.js'
 
 export class XRSpace extends Object3D {
   constructor(

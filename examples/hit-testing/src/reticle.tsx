@@ -1,9 +1,9 @@
 import { ThreeElements, useFrame } from '@react-three/fiber'
 import { forwardRef, memo, useRef } from 'react'
 import * as THREE from 'three'
+import { Mesh } from 'three'
 import { BufferGeometryUtils } from 'three/examples/jsm/Addons.js'
 import { hitTestMatrices } from './app.js'
-import { Mesh } from 'three'
 
 const ReticleMesh = forwardRef<Mesh, ThreeElements['mesh']>((props, ref) => {
   const geometry_merged = BufferGeometryUtils.mergeGeometries([

@@ -1,6 +1,6 @@
-import { Group, PerspectiveCamera, OrthographicCamera, Object3D, Vector3, Euler, Quaternion } from 'three'
+import { Group, PerspectiveCamera, OrthographicCamera, Vector3, Euler, Quaternion } from 'three'
 import { HandlesContext } from '../context.js'
-import { HandlesProperties, TransformHandlesSpace } from '../index.js'
+import { HandlesProperties } from '../index.js'
 import { computeHandlesScale } from '../utils.js'
 import { AxisTranslateHandle } from './axis.js'
 import { setupTranslateHandleDelta } from './delta.js'

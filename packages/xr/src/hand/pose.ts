@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, WebXRManager } from 'three'
+import { Matrix4, WebXRManager } from 'three'
 
 //based on https://github.com/AdaRoseCannon/handy-work/blob/main/src/handpose.js
 

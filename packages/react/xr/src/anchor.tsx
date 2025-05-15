@@ -1,6 +1,6 @@
 import { requestXRAnchor, XRAnchorOptions } from '@pmndrs/xr'
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
-import { useXR, useXRStore } from './xr.js'
+import { useXRStore } from './xr.js'
 
 export {
   requestXRAnchor,

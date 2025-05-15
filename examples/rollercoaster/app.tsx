@@ -1,7 +1,7 @@
+import { OrbitControls, useGLTF } from '@react-three/drei'
 import { Canvas, createPortal, useFrame } from '@react-three/fiber'
 import { createXRStore, XR, XROrigin } from '@react-three/xr'
 import { useEffect, useMemo } from 'react'
-import { OrbitControls, useGLTF } from '@react-three/drei'
 import { AnimationMixer } from 'three'
 
 const store = createXRStore({

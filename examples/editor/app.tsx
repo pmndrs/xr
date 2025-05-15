@@ -1,4 +1,8 @@
+import { applyDampedScreenCameraState, defaultApply, HandleState, HandleStore } from '@pmndrs/handle'
+import { getVoidObject, PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
+import { PositionalAudio, RoundedBox, useGLTF } from '@react-three/drei'
 import { Canvas, Color, extend, RootState, useFrame, useThree } from '@react-three/fiber'
+import { OrbitHandles, Handle, HandleTarget, createScreenCameraStore, PivotHandles } from '@react-three/handle'
 import {
   createXRStore,
   IfInSessionMode,
@@ -13,15 +17,8 @@ import {
   XRLayer,
   XROrigin,
 } from '@react-three/xr'
-import { PositionalAudio, RoundedBox, useGLTF } from '@react-three/drei'
-import {
-  OrbitHandles,
-  Handle,
-  HandleTarget,
-  createScreenCameraStore,
-  ScreenCameraStateAndFunctions,
-  PivotHandles,
-} from '@react-three/handle'
+import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
+import { CopyPass, EffectComposer, RenderPass, ShaderPass } from 'postprocessing'
 import {
   ComponentPropsWithoutRef,
   CSSProperties,
@@ -53,18 +50,8 @@ import {
   PositionalAudio as PAudio,
   BackSide,
 } from 'three'
-import { create } from 'zustand'
-import {
-  applyDampedScreenCameraState,
-  defaultApply,
-  defaultOrbitHandlesScreenCameraApply,
-  HandleState,
-  HandleStore,
-} from '@pmndrs/handle'
 import { damp } from 'three/src/math/MathUtils.js'
-import { getVoidObject, PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
-import { CopyPass, EffectComposer, RenderPass, ShaderPass } from 'postprocessing'
-import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
+import { create } from 'zustand'
 
 function createDefaultTransformation(x: number, y: number, z: number) {
   return {

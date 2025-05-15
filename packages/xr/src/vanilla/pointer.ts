@@ -1,8 +1,8 @@
 import { Pointer } from '@pmndrs/pointer-events'
 import { BoxGeometry, Mesh, Object3D, PlaneGeometry } from 'three'
 import { onXRFrame } from './utils.js'
-import { PointerRayMaterial, PointerRayModelOptions, updatePointerRayModel } from '../pointer/ray.js'
 import { PointerCursorMaterial, PointerCursorModelOptions, updatePointerCursorModel } from '../pointer/cursor.js'
+import { PointerRayMaterial, PointerRayModelOptions, updatePointerRayModel } from '../pointer/ray.js'
 
 const pointerRayGeometry = new BoxGeometry()
 

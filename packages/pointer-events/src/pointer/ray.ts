@@ -1,6 +1,6 @@
 import { Object3D, Vector3 } from 'three'
-import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
 import { IntersectionOptions, RayIntersector } from '../intersections/index.js'
+import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
 import { generateUniquePointerId } from './index.js'
 
 export type RayPointerOptions = {

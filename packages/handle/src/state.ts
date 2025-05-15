@@ -1,5 +1,5 @@
-import { Vector3, Quaternion, Euler } from 'three'
 import { PointerEvent } from '@pmndrs/pointer-events'
+import { Vector3, Quaternion, Euler } from 'three'
 
 export type HandleTransformState = Readonly<{
   /**

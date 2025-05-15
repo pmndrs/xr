@@ -1,5 +1,5 @@
-import { Vector3 } from 'three'
 import { PointerEvent } from '@pmndrs/pointer-events'
+import { Vector3 } from 'three'
 
 export function getWorldDirection(event: PointerEvent, target: Vector3): boolean {
   if (event.details.type === 'sphere') {

@@ -1,10 +1,10 @@
-import { Canvas } from '@react-three/fiber'
 import { Sky, PointerLockControls, KeyboardControls } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
 import { interactionGroups, Physics } from '@react-three/rapier'
+import { createXRStore, XR } from '@react-three/xr'
+import { Cube, Cubes } from './Cube.jsx'
 import { Ground } from './Ground.jsx'
 import { Player } from './Player.jsx'
-import { Cube, Cubes } from './Cube.jsx'
-import { createXRStore, XR } from '@react-three/xr'
 
 // The original was made by Maksim Ivanow: https://www.youtube.com/watch?v=Lc2JvBXMesY&t=124s
 // This demo needs pointer-lock, that works only if you open it in a new window

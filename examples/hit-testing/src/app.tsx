@@ -1,6 +1,4 @@
 import { Canvas } from '@react-three/fiber'
-import { Suspense } from 'react'
-
 import {
   createXRStore,
   DefaultXRController,
@@ -12,11 +10,11 @@ import {
   XRHitTest,
   XRSpace,
 } from '@react-three/xr'
-
+import { Suspense } from 'react'
+import { Matrix4 } from 'three'
+import { Duck } from './duck.js'
 import { Ducks } from './ducks.js'
 import { HitTest } from './hit-test.js'
-import { Duck } from './duck.js'
-import { Matrix4 } from 'three'
 
 export let hitTestMatrices: Partial<Record<XRHandedness, Matrix4 | undefined>> = {}
 

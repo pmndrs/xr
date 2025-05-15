@@ -1,7 +1,7 @@
-import { Canvas } from '@react-three/fiber'
-import { createXRStore, XR, useXR, XRControllerModel, XRSpace, useXRInputSourceStateContext } from '@react-three/xr'
-import { Suspense } from 'react'
 import { Environment, Gltf } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import { createXRStore, XR, useXR, XRControllerModel, XRSpace } from '@react-three/xr'
+import { Suspense } from 'react'
 import { HandWithWatch } from './hand.js'
 
 const store = createXRStore({

@@ -1,8 +1,8 @@
 import { Object3D, OrthographicCamera, PerspectiveCamera } from 'three'
-import { Intersection } from './intersections/index.js'
 import { NativeEvent, NativeWheelEvent, PointerEvent, WheelEvent, emitPointerEvent } from './event.js'
-import { intersectPointerEventTargets } from './intersections/utils.js'
+import { Intersection } from './intersections/index.js'
 import { Intersector } from './intersections/intersector.js'
+import { intersectPointerEventTargets } from './intersections/utils.js'
 
 const buttonsDownTimeKey = Symbol('buttonsDownTime')
 const buttonsClickTimeKey = Symbol('buttonsClickTime')

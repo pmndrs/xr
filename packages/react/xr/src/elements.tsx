@@ -1,11 +1,8 @@
+import { resolveInputSourceImplementation } from '@pmndrs/xr/internals'
 import { context, reconciler, useStore } from '@react-three/fiber'
 import { ReactNode, Suspense, useMemo } from 'react'
+import { shallow } from 'zustand/shallow'
 import { xrInputSourceStateContext, xrSpaceContext } from './contexts.js'
-import { useXR } from './xr.js'
-import { objectToKey } from './utils.js'
-import { XRSpace } from './space.js'
-import { resolveInputSourceImplementation } from '@pmndrs/xr/internals'
-import { useXRSessionVisibilityState } from './hooks.js'
 import {
   DefaultXRController,
   DefaultXRGaze,
@@ -13,7 +10,10 @@ import {
   DefaultXRScreenInput,
   DefaultXRTransientPointer,
 } from './default.js'
-import { shallow } from 'zustand/shallow'
+import { useXRSessionVisibilityState } from './hooks.js'
+import { XRSpace } from './space.js'
+import { objectToKey } from './utils.js'
+import { useXR } from './xr.js'
 
 export function XRElements({ children }: { children?: ReactNode }) {
   const referenceSpace = useXR((xr) => xr.originReferenceSpace)

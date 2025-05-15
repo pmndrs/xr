@@ -1,10 +1,10 @@
 import { BoxGeometry, ColorRepresentation, CylinderGeometry, Euler, Group, Mesh, MeshBasicMaterial } from 'three'
-import { RegisteredHandle } from '../registered.js'
+import { Axis } from '../../state.js'
 import { HandlesContext } from '../context.js'
 import { HandlesProperties } from '../index.js'
 import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
+import { RegisteredHandle } from '../registered.js'
 import { extractHandleTransformOptions } from '../utils.js'
-import { Axis } from '../../state.js'
 
 const normalRotation = new Euler(0, 0, -Math.PI / 2)
 const invertedRotation = new Euler(0, 0, Math.PI / 2)

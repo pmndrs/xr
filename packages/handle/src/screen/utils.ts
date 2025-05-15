@@ -1,6 +1,6 @@
 import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector2, Vector3 } from 'three'
-import type { ScreenHandleStore } from './store.js'
 import type { ScreenCameraStateAndFunctions } from './camera.js'
+import type { ScreenHandleStore } from './store.js'
 
 export function average(
   target: Vector2,

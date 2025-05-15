@@ -1,8 +1,8 @@
 import { Camera, Mesh, MeshBasicMaterial, Quaternion, TorusGeometry, Vector3 } from 'three'
 import { HandlesContext } from '../context.js'
+import { HandlesProperties, handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../index.js'
 import { RegisteredHandle } from '../registered.js'
 import { extractHandleTransformOptions } from '../utils.js'
-import { HandlesProperties, handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../index.js'
 import { createCircleGeometry } from './index.js'
 
 const vector1Helper = new Vector3()

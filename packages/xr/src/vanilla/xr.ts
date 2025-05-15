@@ -1,14 +1,7 @@
-import { Camera, Object3D, OrthographicCamera, PerspectiveCamera, WebXRManager } from 'three'
+import { ForwardEventsOptions, forwardHtmlEvents, GetCamera } from '@pmndrs/pointer-events'
+import { Object3D, WebXRManager } from 'three'
 import { XRStore, XRStoreOptions, createXRStore as createXRStoreImpl } from '../store.js'
 import { setupSyncXRElements } from './elements.js'
-import type {
-  XRControllerState,
-  XRGazeState,
-  XRHandState,
-  XRScreenInputState,
-  XRTransientPointerState,
-} from '../input.js'
-import { ForwardEventsOptions, forwardHtmlEvents, GetCamera } from '@pmndrs/pointer-events'
 import {
   DefaultXRControllerOptions,
   DefaultXRGazeOptions,
@@ -16,6 +9,13 @@ import {
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
 } from '../default.js'
+import type {
+  XRControllerState,
+  XRGazeState,
+  XRHandState,
+  XRScreenInputState,
+  XRTransientPointerState,
+} from '../input.js'
 
 export type XRElementImplementationCleanup = (() => void) | void
 

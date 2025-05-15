@@ -3,8 +3,8 @@ import { AxisRotateHandle } from './axis.js'
 import { FreeRotateHandle } from './free.js'
 import { ScreenSpaceRotateHandle } from './screen.js'
 import { HandlesContext } from '../context.js'
-import { computeHandlesScale } from '../utils.js'
 import { HandlesProperties } from '../index.js'
+import { computeHandlesScale } from '../utils.js'
 
 export function createCircleGeometry(radius: number, arc: number) {
   const geometry = new TorusGeometry(radius, 0.0075, 3, 64, arc * Math.PI * 2)

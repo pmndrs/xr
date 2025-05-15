@@ -1,11 +1,11 @@
+import { Environment, Mask, useMask, useTexture } from '@react-three/drei'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useHover, createXRStore, XR, noEvents, PointerEvents, IfInSessionMode } from '@react-three/xr'
-import { Fragment, MutableRefObject, useRef, useState } from 'react'
-import { BackSide, ExtrudeGeometry, Float32BufferAttribute, Mesh, RepeatWrapping, Shape, Vector2 } from 'three'
 import { OrbitHandles } from '@react-three/handle'
-import { Environment, Gltf, Mask, Texture, useMask, useTexture } from '@react-three/drei'
-import { Lever } from './lever.js'
+import { createXRStore, XR, noEvents, PointerEvents } from '@react-three/xr'
+import { Fragment, MutableRefObject, useRef } from 'react'
+import { BackSide, ExtrudeGeometry, Float32BufferAttribute, Mesh, Shape, Vector2 } from 'three'
 import { lerp } from 'three/src/math/MathUtils.js'
+import { Lever } from './lever.js'
 
 // Create a cube geometry with open top and bottom faces
 const shape = new Shape()
