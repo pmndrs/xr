@@ -1,7 +1,7 @@
-import { Camera, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, TorusGeometry, Vector3 } from 'three'
+import { Camera, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 import { HandlesContext } from '../context.js'
-import { RegisteredHandle } from '../registered.js'
 import { HandlesProperties, handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../index.js'
+import { RegisteredHandle } from '../registered.js'
 import { extractHandleTransformOptions } from '../utils.js'
 import { createCircleGeometry } from './index.js'
 

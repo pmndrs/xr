@@ -1,7 +1,7 @@
 import { Euler, EulerOrder, Matrix4, Plane, Quaternion, Vector3, Vector3Tuple } from 'three'
+import { clamp } from 'three/src/math/MathUtils.js'
 import { Axis, HandleTransformState } from '../state.js'
 import { HandleOptions, HandleTransformOptions } from '../store.js'
-import { clamp } from 'three/src/math/MathUtils.js'
 
 const matrixHelper1 = new Matrix4()
 const matrixHelper2 = new Matrix4()

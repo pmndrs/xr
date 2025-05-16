@@ -1,7 +1,7 @@
+import { Gltf, OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { createXRStore, XR, XROrigin } from '@react-three/xr'
 import { useEffect, useState } from 'react'
-import { Gltf, OrbitControls } from '@react-three/drei'
 import { useStore } from 'zustand'
 
 const store = createXRStore({ offerSession: 'immersive-vr' })

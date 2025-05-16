@@ -1,10 +1,10 @@
-import { Canvas, createPortal, ThreeElements, useFrame } from '@react-three/fiber'
-import { useLoadXRControllerLayout, useLoadXRControllerModel } from '@react-three/xr'
 import { XRControllerGamepadComponentId, XRControllerLayout, getXRControllerComponentObject } from '@pmndrs/xr'
+import { Environment, OrbitControls } from '@react-three/drei'
+import { Canvas, createPortal, ThreeElements, useFrame } from '@react-three/fiber'
+import { Container, Root, Text } from '@react-three/uikit'
+import { useLoadXRControllerLayout, useLoadXRControllerModel } from '@react-three/xr'
 import { PropsWithChildren, Suspense, useEffect, useRef, useState } from 'react'
 import { Group, MeshBasicMaterial, Object3D } from 'three'
-import { Environment, OrbitControls } from '@react-three/drei'
-import { Container, Root, Text } from '@react-three/uikit'
 
 export function App() {
   return (

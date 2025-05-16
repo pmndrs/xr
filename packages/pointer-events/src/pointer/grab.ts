@@ -1,8 +1,8 @@
 import { Object3D } from 'three'
-import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
-import { SphereIntersector } from '../intersections/sphere.js'
 import { generateUniquePointerId } from './index.js'
 import { IntersectionOptions } from '../intersections/index.js'
+import { SphereIntersector } from '../intersections/sphere.js'
+import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
 
 export type GrabPointerOptions = {
   /**

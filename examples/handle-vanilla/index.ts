@@ -1,7 +1,7 @@
-import { BoxGeometry, Mesh, MeshBasicMaterial, Object3DEventMap, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
-import { PointerEventsMap, forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { OrbitHandles, PivotHandles, TransformHandles, HandleStore } from '@pmndrs/handle'
+import { PointerEventsMap, forwardHtmlEvents } from '@pmndrs/pointer-events'
 import { createXRStore } from '@pmndrs/xr'
+import { BoxGeometry, Mesh, MeshBasicMaterial, Object3DEventMap, PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 const camera = new PerspectiveCamera(70, 1, 0.01, 100)
 camera.position.set(0, 0, 2)

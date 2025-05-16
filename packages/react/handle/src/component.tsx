@@ -1,7 +1,7 @@
-import { createContext, forwardRef, ReactNode, RefObject, useContext, useImperativeHandle, useRef } from 'react'
-import { HandleOptions, useHandle } from './hook.js'
-import { Group, Object3D } from 'three'
 import { HandleStore } from '@pmndrs/handle'
+import { createContext, forwardRef, ReactNode, RefObject, useContext, useImperativeHandle, useRef } from 'react'
+import { Group, Object3D } from 'three'
+import { HandleOptions, useHandle } from './hook.js'
 
 const HandleTargetRefContext = createContext<RefObject<Object3D | null> | undefined>(undefined)
 

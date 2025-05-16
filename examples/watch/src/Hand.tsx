@@ -1,10 +1,10 @@
+import { signal, computed } from '@preact/signals-core'
 import { useGLTF } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import { XRHandModel } from '@react-three/xr'
-import { Suspense, useMemo, useRef, useState } from 'react'
 import { Root, Text, Container } from '@react-three/uikit'
 import { FootprintsIcon, GoalIcon, PlayIcon } from '@react-three/uikit-lucide'
-import { signal, computed } from '@preact/signals-core'
+import { XRHandModel } from '@react-three/xr'
+import { Suspense, useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 
 export function HandWithWatch() {

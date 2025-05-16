@@ -10,11 +10,11 @@ import {
   Plane,
   Vector2,
 } from 'three'
-import { computeIntersectionWorldPlane, getDominantIntersectionIndex, pushTimes } from './utils.js'
-import type { PointerCapture } from '../pointer.js'
 import { Intersector } from './intersector.js'
+import { computeIntersectionWorldPlane, getDominantIntersectionIndex } from './utils.js'
 import { getVoidObject, Intersection, IntersectionOptions } from '../index.js'
 import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
+import type { PointerCapture } from '../pointer.js'
 
 const scaleHelper = new Vector3()
 const point2Helper = new Vector2()

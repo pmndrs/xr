@@ -1,6 +1,6 @@
-import { Object3D, OrthographicCamera, PerspectiveCamera } from 'three'
-import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
+import { Object3D } from 'three'
 import { Intersection, IntersectionOptions, SphereIntersector } from '../intersections/index.js'
+import { GetCamera, Pointer, PointerOptions } from '../pointer.js'
 import { generateUniquePointerId } from './index.js'
 
 export type TouchPointerOptions = {

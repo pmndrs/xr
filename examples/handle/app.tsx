@@ -1,12 +1,11 @@
-import { Canvas } from '@react-three/fiber'
-import { createXRStore, noEvents, PointerEvents, useXRControllerLocomotion, XR, XROrigin } from '@react-three/xr'
-import { Environment, Gltf, Sky } from '@react-three/drei'
-import { Ship } from './ship.js'
-import { Handle, OrbitHandles } from '@react-three/handle'
-import { ReactNode, RefObject, useImperativeHandle, useMemo, useRef } from 'react'
-import { Group, Object3D } from 'three'
-import { Physics, RapierRigidBody, RigidBody } from '@react-three/rapier'
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
+import { Environment, Gltf, Sky } from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import { Handle, OrbitHandles } from '@react-three/handle'
+import { Physics, RapierRigidBody, RigidBody } from '@react-three/rapier'
+import { createXRStore, noEvents, PointerEvents, useXRControllerLocomotion, XR, XROrigin } from '@react-three/xr'
+import { ReactNode, RefObject, useMemo, useRef } from 'react'
+import { Group, Object3D } from 'three'
 
 const store = createXRStore()
 

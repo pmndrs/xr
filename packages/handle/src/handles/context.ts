@@ -1,7 +1,7 @@
+import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 import { Object3D, Object3DEventMap } from 'three'
 import { HandleState } from '../state.js'
 import { defaultApply, HandleOptions, HandleStore } from '../store.js'
-import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
 import { TransformHandlesSpace } from './index.js'
 
 export class HandlesContext {

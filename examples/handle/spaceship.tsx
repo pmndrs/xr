@@ -7,10 +7,10 @@ Source: https://sketchfab.com/3d-models/spacefighter-cockpit-wasp-interdictor-db
 Title: Spacefighter Cockpit (Wasp Interdictor)
 */
 
-import * as THREE from 'three'
 import { useGLTF } from '@react-three/drei'
-import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { Handle } from '@react-three/handle'
+import * as THREE from 'three'
+import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 type GLTFResult = GLTF & {
   nodes: {

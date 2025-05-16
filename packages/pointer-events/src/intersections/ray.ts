@@ -12,13 +12,13 @@ import {
 } from 'three'
 import { Intersection, IntersectionOptions } from './index.js'
 import { type PointerCapture } from '../pointer.js'
+import { Intersector } from './intersector.js'
 import {
   computeIntersectionWorldPlane,
   getDominantIntersectionIndex,
   pushTimes,
   voidObjectIntersectionFromRay,
 } from './utils.js'
-import { Intersector } from './intersector.js'
 import { getClosestUV, updateAndCheckWorldTransformation } from '../utils.js'
 
 const invertedMatrixHelper = new Matrix4()

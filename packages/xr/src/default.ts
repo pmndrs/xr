@@ -1,8 +1,8 @@
 import { GrabPointerOptions, RayPointerOptions, TouchPointerOptions } from '@pmndrs/pointer-events'
-import { PointerCursorModelOptions } from './pointer/cursor.js'
-import { PointerRayModelOptions } from './pointer/ray.js'
 import { XRControllerModelOptions } from './controller/model.js'
 import { XRHandModelOptions } from './hand/model.js'
+import { PointerCursorModelOptions } from './pointer/cursor.js'
+import { PointerRayModelOptions } from './pointer/ray.js'
 import { TeleportPointerRayModelOptions } from './teleport.js'
 
 export type DefaultXRInputSourceGrabPointerOptions = GrabPointerOptions & {

@@ -1,6 +1,6 @@
 import { WebXRManager } from 'three'
-import { createHandPoseState, updateXRHandPoseState } from './pose.js'
 import { XRHandLoaderOptions, getXRHandAssetPath } from './model.js'
+import { createHandPoseState, updateXRHandPoseState } from './pose.js'
 import type { XRHandState } from '../input.js'
 
 export type XRHandInputSource = XRInputSource & { hand: XRHand }

@@ -1,9 +1,9 @@
 import { MeshBasicMaterial, Mesh, OctahedronGeometry } from 'three'
 import { HandlesContext } from '../context.js'
+import { HandlesProperties } from '../index.js'
 import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
 import { RegisteredHandle } from '../registered.js'
 import { extractHandleTransformOptions } from '../utils.js'
-import { HandlesProperties } from '../index.js'
 
 export class FreeTranslateHandle extends RegisteredHandle {
   constructor(context: HandlesContext) {

@@ -1,8 +1,8 @@
 import { useXRInputSourceEvent } from '@react-three/xr'
 import { useState } from 'react'
 import { Quaternion, Vector3 } from 'three'
-import { Duck } from './duck.js'
 import { hitTestMatrices } from './app.js'
+import { Duck } from './duck.js'
 
 const vectorHelper = new Vector3()
 

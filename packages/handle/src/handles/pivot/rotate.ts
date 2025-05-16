@@ -1,10 +1,10 @@
-import { ColorRepresentation, Mesh, MeshBasicMaterial, TorusGeometry, Vector3, Vector3Tuple } from 'three'
-import { HandlesContext } from '../context.js'
+import { ColorRepresentation, Mesh, MeshBasicMaterial, TorusGeometry, Vector3 } from 'three'
 import { Axis } from '../../state.js'
-import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
-import { extractHandleTransformOptions } from '../utils.js'
-import { RegisteredHandle } from '../registered.js'
+import { HandlesContext } from '../context.js'
 import { HandlesProperties } from '../index.js'
+import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
+import { RegisteredHandle } from '../registered.js'
+import { extractHandleTransformOptions } from '../utils.js'
 
 export class PivotAxisRotationHandle extends RegisteredHandle {
   constructor(context: HandlesContext, axis: Axis, tagPrefix: string, axisVector?: Vector3) {

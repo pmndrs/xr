@@ -48,8 +48,8 @@
     "build": "tsc",
     "generate_docs": "typedoc",
     "check:prettier": "prettier --check src",
-    "check:eslint": "eslint 'src/**/*.ts'",
+    "check:eslint": "eslint \"src/**/*.{ts,tsx}\"",
     "fix:prettier": "prettier --write src",
-    "fix:eslint": "eslint 'src/**/*.ts' --fix"
+    "fix:eslint": "eslint \"src/**/*.{ts,tsx}\" --fix"
   }
 }

@@ -1,8 +1,5 @@
-import { RotateScreenHandleStore } from './rotate.js'
-import { ZoomScreenHandleStore } from './zoom.js'
-import { PanScreenHandleStore } from './pan.js'
-import { filterForOnePointerLeftClick, filterForOnePointerRightClickOrTwoPointer } from './index.js'
 import { OrthographicCamera, PerspectiveCamera, Scene, Vector3 } from 'three'
+import { clamp } from 'three/src/math/MathUtils.js'
 import { StoreApi } from 'zustand'
 import {
   applyDampedScreenCameraState,
@@ -11,7 +8,10 @@ import {
   ScreenCameraState,
   ScreenCameraStateAndFunctions,
 } from './camera.js'
-import { clamp } from 'three/src/math/MathUtils.js'
+import { filterForOnePointerLeftClick, filterForOnePointerRightClickOrTwoPointer } from './index.js'
+import { PanScreenHandleStore } from './pan.js'
+import { RotateScreenHandleStore } from './rotate.js'
+import { ZoomScreenHandleStore } from './zoom.js'
 
 export function defaultOrbitHandlesScreenCameraApply(
   update: Partial<ScreenCameraState>,

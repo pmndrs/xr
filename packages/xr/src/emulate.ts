@@ -1,8 +1,8 @@
-import { XRDevice, metaQuest3, metaQuest2, metaQuestPro, oculusQuest1 } from 'iwer'
 import { DevUI } from '@iwer/devui'
-import type { XRDeviceOptions } from 'iwer/lib/device/XRDevice'
-import { Euler, Quaternion, Vector3, Vector3Tuple, Vector4Tuple } from 'three'
 import { SyntheticEnvironmentModule } from '@iwer/sem'
+import { XRDevice, metaQuest3, metaQuest2, metaQuestPro, oculusQuest1 } from 'iwer'
+import { Euler, Quaternion, Vector3, Vector3Tuple, Vector4Tuple } from 'three'
+import type { XRDeviceOptions } from 'iwer/lib/device/XRDevice'
 
 const configurations = { metaQuest3, metaQuest2, metaQuestPro, oculusQuest1 }
 

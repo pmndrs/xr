@@ -1,5 +1,5 @@
-import type { createStore } from '@react-three/fiber/dist/declarations/src/core/store.js'
 import type { AllowedPointerEvents, AllowedPointerEventsType } from './pointer.js'
+import type { createStore } from '@react-three/fiber/dist/declarations/src/core/store.js'
 
 declare module 'three' {
   interface Object3D {

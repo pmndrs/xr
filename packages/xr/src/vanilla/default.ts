@@ -1,13 +1,15 @@
-import { Group, Object3D } from 'three'
 import {
-  bindPointerXRInputSourceEvent,
-  defaultGrabPointerOpacity,
-  defaultRayPointerOpacity,
-  defaultTouchPointerOpacity,
-} from '../pointer/index.js'
+  CombinedPointer,
+  createGrabPointer,
+  createRayPointer,
+  createTouchPointer,
+  createLinesPointer,
+  GetCamera,
+} from '@pmndrs/pointer-events'
+import { Group, Object3D } from 'three'
+import { XRHandModel } from './hand.js'
 import { PointerRayModel, PointerCursorModel } from './pointer.js'
 import { XRSpace } from './space.js'
-import { XRHandModel } from './hand.js'
 import {
   buildTeleportTargetFilter,
   createTeleportRayLine,
@@ -17,10 +19,8 @@ import {
   XRControllerState,
   XRHandState,
   XRInputSourceState,
-  XRStore,
 } from '../internals.js'
 import { XRControllerModel } from './controller.js'
-import { XRElementImplementations } from './xr.js'
 import {
   DefaultXRControllerOptions,
   DefaultXRGazeOptions,
@@ -31,17 +31,14 @@ import {
   DefaultXRScreenInputOptions,
   DefaultXRTransientPointerOptions,
 } from '../default.js'
-import {
-  CombinedPointer,
-  Pointer,
-  createGrabPointer,
-  createRayPointer,
-  createTouchPointer,
-  createLinesPointer,
-  GetCamera,
-} from '@pmndrs/pointer-events'
-import { onXRFrame } from './utils.js'
 import { XRSpaceType } from './types.js'
+import { onXRFrame } from './utils.js'
+import {
+  bindPointerXRInputSourceEvent,
+  defaultGrabPointerOpacity,
+  defaultRayPointerOpacity,
+  defaultTouchPointerOpacity,
+} from '../pointer/index.js'
 
 export function createDefaultXRInputSourceRayPointer(
   scene: Object3D,

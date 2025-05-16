@@ -1,13 +1,4 @@
-import {
-  BufferGeometry,
-  Mesh,
-  MeshBasicMaterial,
-  SRGBColorSpace,
-  Texture,
-  VideoTexture,
-  WebGLRenderer,
-  WebGLRenderTarget,
-} from 'three'
+import { BufferGeometry, Mesh, MeshBasicMaterial, WebGLRenderer, WebGLRenderTarget } from 'three'
 import {
   createXRLayer,
   createXRLayerGeometry,

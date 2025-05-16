@@ -6,9 +6,9 @@ import {
   XRScreenInputState,
   XRTransientPointerState,
 } from '@pmndrs/xr/internals'
-import { useXR } from './xr.js'
-import { xrInputSourceStateContext } from './contexts.js'
 import { useContext, useEffect } from 'react'
+import { xrInputSourceStateContext } from './contexts.js'
+import { useXR } from './xr.js'
 
 export type { XRTransientPointerState, XRScreenInputState, XRGazeState }
 

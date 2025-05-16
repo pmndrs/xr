@@ -1,9 +1,9 @@
-import { Object3D, Object3DEventMap, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
-import { GetCamera, Pointer, PointerOptions } from './pointer.js'
-import { NativeEvent, NativeWheelEvent, PointerEvent, PointerEventsMap } from './event.js'
+import { Object3D, OrthographicCamera, PerspectiveCamera, Scene, Vector2 } from 'three'
+import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
+import { IntersectionOptions } from './intersections/index.js'
 import { ScreenRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
-import { IntersectionOptions } from './intersections/index.js'
+import { GetCamera, Pointer, PointerOptions } from './pointer.js'
 
 export type ForwardablePointerEvent = { pointerId: number; pointerType: string; pointerState?: any } & NativeEvent
 

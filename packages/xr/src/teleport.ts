@@ -1,4 +1,12 @@
 import {
+  AllowedPointerEvents,
+  AllowedPointerEventsType,
+  PointerOptions,
+  Pointer,
+  PointerEventsMap,
+} from '@pmndrs/pointer-events'
+import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
+import {
   BufferGeometry,
   Camera,
   ColorRepresentation,
@@ -11,14 +19,6 @@ import {
   Vector3,
   Vector3Tuple,
 } from 'three'
-import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
-import {
-  AllowedPointerEvents,
-  AllowedPointerEventsType,
-  PointerOptions,
-  Pointer,
-  PointerEventsMap,
-} from '@pmndrs/pointer-events'
 import { clamp } from 'three/src/math/MathUtils.js'
 
 /**

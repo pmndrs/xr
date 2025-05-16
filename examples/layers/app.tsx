@@ -1,6 +1,6 @@
+import { Text } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { PointerEvents, noEvents, createXRStore, XR, XRLayer, XROrigin } from '@react-three/xr'
-import { Text } from '@react-three/drei'
 import { useMemo } from 'react'
 import { SRGBColorSpace, VideoTexture } from 'three'
 

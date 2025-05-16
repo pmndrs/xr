@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
-import { useDrag } from '@use-gesture/react'
 import { noEvents, PointerEvents } from '@react-three/xr'
+import { useDrag } from '@use-gesture/react'
 import { useRef } from 'react'
 
 export function App() {

@@ -1,8 +1,7 @@
-import { BoxGeometry, ColorRepresentation, Mesh, MeshBasicMaterial } from 'three'
-import { Axis } from '../../state.js'
+import { BoxGeometry, Mesh, MeshBasicMaterial } from 'three'
 import { HandlesContext } from '../context.js'
-import { RegisteredHandle } from '../registered.js'
 import { HandlesProperties, handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../index.js'
+import { RegisteredHandle } from '../registered.js'
 import { extractHandleTransformOptions } from '../utils.js'
 
 export class FreeScaleHandle extends RegisteredHandle {

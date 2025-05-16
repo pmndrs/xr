@@ -1,8 +1,8 @@
+import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { IfInSessionMode, XR, createXRStore } from '@react-three/xr'
-import { HandWithWatch, Watch } from './Hand.jsx'
-import { OrbitControls } from '@react-three/drei'
 import React from 'react'
+import { HandWithWatch, Watch } from './Hand.jsx'
 
 const store = createXRStore({
   hand: {

@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 import { HandleTransformState } from '../state.js'
 import { HandleOptions } from '../store.js'
 import {

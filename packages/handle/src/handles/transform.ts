@@ -1,10 +1,10 @@
 import { Euler, Group, OrthographicCamera, PerspectiveCamera } from 'three'
-import { HandlesContext } from './context.js'
 import { HandlesAxisHighlight } from './axis.js'
-import { TranslateHandles } from './translate/index.js'
+import { HandlesContext } from './context.js'
 import { HandlesProperties, ScaleHandles, TransformHandlesSpace } from './index.js'
 import { HandleOptions } from '../store.js'
 import { RotateHandles } from './rotate/index.js'
+import { TranslateHandles } from './translate/index.js'
 
 export type TransformHandlesMode = 'rotate' | 'scale' | 'translate'
 

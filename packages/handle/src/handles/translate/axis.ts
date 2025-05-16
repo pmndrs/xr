@@ -1,10 +1,10 @@
-import { Color, ColorRepresentation, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { ColorRepresentation, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 import { Axis } from '../../state.js'
 import { HandlesContext } from '../context.js'
-import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
-import { extractHandleTransformOptions } from '../utils.js'
-import { RegisteredHandle } from '../registered.js'
 import { HandlesProperties } from '../index.js'
+import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
+import { RegisteredHandle } from '../registered.js'
+import { extractHandleTransformOptions } from '../utils.js'
 
 const arrowHeadGeometry = new CylinderGeometry(0, 0.04, 0.1, 12)
 arrowHeadGeometry.translate(0, 0.05, 0)

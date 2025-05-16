@@ -6,6 +6,8 @@
   },
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build"
+    "build": "vite build",
+    "check:eslint": "eslint \"*.{ts,tsx}\"",
+    "fix:eslint": "eslint \"*.{ts,tsx}\" --fix"
   }
 }

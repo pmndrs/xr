@@ -1,6 +1,6 @@
+import { Object3D } from 'three'
 import { clamp } from 'three/src/math/MathUtils.js'
 import type { XRControllerLayout } from './layout.js'
-import { Object3D } from 'three'
 
 export type XRControllerGamepadComponentId =
   | `a-button`

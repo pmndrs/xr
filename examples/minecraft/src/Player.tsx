@@ -11,7 +11,6 @@ import {
 import { IfInSessionMode } from '@react-three/xr'
 import { useRef } from 'react'
 import * as THREE from 'three'
-
 import { Axe } from './Axe.jsx'
 import { VRPlayerControl } from './VRPlayerControl.jsx'
 

@@ -9,11 +9,11 @@ import {
   Vector3,
   Vector3Tuple,
 } from 'three'
-import { RegisteredHandle } from '../registered.js'
-import { HandlesContext } from '../context.js'
 import { Axis } from '../../state.js'
-import { extractHandleTransformOptions } from '../utils.js'
+import { HandlesContext } from '../context.js'
 import { HandlesProperties, handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../index.js'
+import { RegisteredHandle } from '../registered.js'
+import { extractHandleTransformOptions } from '../utils.js'
 import { createCircleGeometry } from './index.js'
 
 const config = {

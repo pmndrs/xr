@@ -1,5 +1,4 @@
 import { useXR } from '@react-three/xr'
-
 import { HitTestHandheld } from './hit-test-handheld.js'
 import { HitTestHeadset } from './hit-test-headset.js'
 

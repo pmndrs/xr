@@ -1,7 +1,7 @@
-import { Group, Material, Mesh, Object3D } from 'three'
-import { DefaultAssetBasePath, DefaultGltfLoader } from '../index.js'
+import { Material, Mesh, Object3D } from 'three'
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { clone as cloneSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js'
+import { DefaultAssetBasePath, DefaultGltfLoader } from '../index.js'
 
 //from https://github.com/pmndrs/three-stdlib/blob/main/src/webxr/XRHandMeshModel.ts
 

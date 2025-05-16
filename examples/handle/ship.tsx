@@ -6,12 +6,12 @@ Source: https://sketchfab.com/3d-models/stylized-pirate-ship-1c62191534174bf7a67
 Title: Stylized Pirate Ship
 */
 
-import * as THREE from 'three'
-import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { Handle } from '@react-three/handle'
 import { useFrame } from '@react-three/fiber'
+import { Handle } from '@react-three/handle'
+import React from 'react'
+import * as THREE from 'three'
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 type GLTFResult = GLTF & {
   nodes: {

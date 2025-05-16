@@ -1,10 +1,10 @@
 import { ColorRepresentation, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
-import { HandlesContext } from '../context.js'
-import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
 import { Axis } from '../../state.js'
-import { extractHandleTransformOptions } from '../utils.js'
-import { RegisteredHandle } from '../registered.js'
+import { HandlesContext } from '../context.js'
 import { HandlesProperties } from '../index.js'
+import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
+import { RegisteredHandle } from '../registered.js'
+import { extractHandleTransformOptions } from '../utils.js'
 
 export class PivotAxisScaleHandle extends RegisteredHandle {
   constructor(context: HandlesContext, axis: Axis, tagPrefix: string) {

@@ -1,3 +1,4 @@
+import { getVoidObject, PointerEventsMap, WheelEvent } from '@pmndrs/pointer-events'
 import {
   Object3D,
   Object3DEventMap,
@@ -9,10 +10,9 @@ import {
   Vector3Tuple,
 } from 'three'
 import { StoreApi } from 'zustand/vanilla'
-import { getVoidObject, PointerEventsMap, WheelEvent } from '@pmndrs/pointer-events'
 import { defaultScreenCameraApply, ScreenCameraState, ScreenCameraStateAndFunctions } from './camera.js'
-import { convertScreenSpaceMovementToGlobalPan } from './utils.js'
 import { ScreenHandleStore } from './store.js'
+import { convertScreenSpaceMovementToGlobalPan } from './utils.js'
 
 const resultHelper = new Vector3()
 const centerHelper = new Vector2()
