@@ -145,6 +145,15 @@ export function useXRStore() {
 }
 
 /**
+ * Returns the XR store object from a parent {@link XR} component. If no component is found `undefined` is returned.
+ * You most likely should be using {@link useXRStore} instead.
+ */
+export function UNSAFE_useXRStore() {
+  const store = useContext(xrContext)
+  return store
+}
+
+/**
  * Hook for reading the state from the xr store
  */
 export function useXR<T = XRState>(
