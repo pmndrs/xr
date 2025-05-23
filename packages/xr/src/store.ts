@@ -682,23 +682,24 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (currentLayers == null) {
         return
       }
-      //sort by distance to camera
+      //layer sorting
       const xrCamera = xrManager.getCamera()
       xrCamera.getWorldPosition(cameraWorldPosition)
       ;(layerEntries as Array<XRLayerEntry>).sort((entryA, entryB) => {
+        const renderOrderDifference = entryA.renderOrder - entryB.renderOrder
+
+        //if renderOrder is the same, sort by distance to camera
+        if (renderOrderDifference !== 0) {
+          return renderOrderDifference
+        }
+
         entryA.object3D.getWorldPosition(tempLayerWorldPosition)
         const distA_sq = tempLayerWorldPosition.distanceToSquared(cameraWorldPosition)
 
         entryB.object3D.getWorldPosition(tempLayerWorldPosition)
         const distB_sq = tempLayerWorldPosition.distanceToSquared(cameraWorldPosition)
 
-        const depthDifference = distB_sq - distA_sq
-
-        //if the distance is the same, fall back to renderOrder
-        if (Math.abs(depthDifference) < 0.00001) {
-          return entryA.renderOrder - entryB.renderOrder
-        }
-        return depthDifference
+        return distB_sq - distA_sq
       })
       let changed = false
       const layers = layerEntries.map<XRLayer>(({ layer }, i) => {
