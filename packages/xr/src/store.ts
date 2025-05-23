@@ -1,5 +1,5 @@
 import { XRDevice } from 'iwer'
-import { Camera, Object3D, WebXRManager } from 'three'
+import { Camera, Object3D, WebXRManager, Vector3 } from 'three'
 import { StoreApi, createStore } from 'zustand/vanilla'
 import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './controller/index.js'
 import { XRHandLoaderOptions } from './hand/index.js'
@@ -427,6 +427,10 @@ declare global {
   }
 }
 
+//helpers for layer sorting
+const cameraWorldPosition = new Vector3()
+const tempLayerWorldPosition = new Vector3()
+
 export function createXRStore<T extends XRElementImplementations>(options?: XRStoreOptions<T>): XRStore<T> {
   //dom overlay root element creation
   const domOverlayRoot =
@@ -678,8 +682,25 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (currentLayers == null) {
         return
       }
-      //TODO: sort by distance to camera
-      ;(layerEntries as Array<(typeof layerEntries)[number]>).sort((l1, l2) => l1.renderOrder - l2.renderOrder)
+      //layer sorting
+      const xrCamera = xrManager.getCamera()
+      xrCamera.getWorldPosition(cameraWorldPosition)
+      ;(layerEntries as Array<XRLayerEntry>).sort((entryA, entryB) => {
+        const renderOrderDifference = entryA.renderOrder - entryB.renderOrder
+
+        //if renderOrder is the same, sort by distance to camera
+        if (renderOrderDifference !== 0) {
+          return renderOrderDifference
+        }
+
+        entryA.object3D.getWorldPosition(tempLayerWorldPosition)
+        const distA_sq = tempLayerWorldPosition.distanceToSquared(cameraWorldPosition)
+
+        entryB.object3D.getWorldPosition(tempLayerWorldPosition)
+        const distB_sq = tempLayerWorldPosition.distanceToSquared(cameraWorldPosition)
+
+        return distB_sq - distA_sq
+      })
       let changed = false
       const layers = layerEntries.map<XRLayer>(({ layer }, i) => {
         if (layer != currentLayers[i]) {

@@ -69,7 +69,7 @@ export class XRLayer extends Mesh<BufferGeometry, MeshBasicMaterial> {
           this.cleanup = () => {}
           return
         }
-        const layerEntry = (this.layerEntry = { layer, renderOrder: this.layerRenderOrder })
+        const layerEntry = (this.layerEntry = { layer, renderOrder: this.layerRenderOrder, object3D: this })
         store.addLayerEntry(this.layerEntry)
         if (options.src instanceof HTMLVideoElement || options.src instanceof WebGLRenderTarget) {
           this.cleanup = () => this.store.removeLayerEntry(layerEntry)
