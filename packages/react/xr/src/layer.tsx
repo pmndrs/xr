@@ -239,7 +239,11 @@ export const XRLayerImplementation = forwardRef<
       if (layer == null) {
         return
       }
-      const layerEntry = (layerEntryRef.current = { layer, renderOrder: renderOrderRef.current })
+      const layerEntry = (layerEntryRef.current = {
+        layer,
+        renderOrder: renderOrderRef.current,
+        object3D: internalRef.current!,
+      })
       store.addLayerEntry(layerEntry)
       if (resolvedSrc instanceof HTMLVideoElement || resolvedSrc instanceof WebGLRenderTarget) {
         return () => {

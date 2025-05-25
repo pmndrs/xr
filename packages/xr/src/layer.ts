@@ -20,7 +20,11 @@ import { getSpaceFromAncestors } from './space.js'
 import { XRState, XRStore } from './store.js'
 import { toDOMPointInit } from './utils.js'
 
-export type XRLayerEntry = { renderOrder: number; readonly layer: XRCylinderLayer | XRQuadLayer | XREquirectLayer }
+export type XRLayerEntry = {
+  renderOrder: number
+  readonly layer: XRCylinderLayer | XRQuadLayer | XREquirectLayer
+  readonly object3D: Object3D
+}
 
 export type XRLayerOptions = Pick<
   Partial<XRCylinderLayerInit & XRQuadLayerInit & XREquirectLayerInit>,
