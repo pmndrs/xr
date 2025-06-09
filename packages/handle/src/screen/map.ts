@@ -20,7 +20,7 @@ export function defaultMapHandlesScreenCameraApply(
   store: StoreApi<ScreenCameraState>,
 ) {
   if (update.pitch != null) {
-    update.pitch = clamp(update.pitch, 0, Math.PI / 2)
+    update.pitch = clamp(update.pitch, -Math.PI / 2, 0)
   }
   store.setState(update)
 }
