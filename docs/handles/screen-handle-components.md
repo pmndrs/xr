@@ -52,4 +52,4 @@ Allows you to configure the pan speed and a filter function to disable panning o
 ## Map Handles  
 *alias for `MapControls`*
 
-Map handles have the same properties and functionality as the orbit handles but move the camera's transform origin only in the X and Y planes, which is perfect for building applications with a flat map.
+Map handles have the same properties and functionality as the orbit handles but move the camera's transform origin only in the X and Z plane, which is perfect for building applications with a flat map.
