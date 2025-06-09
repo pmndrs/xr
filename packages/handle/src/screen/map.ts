@@ -60,6 +60,8 @@ export class MapHandles {
       this.getCamera,
       filterForOnePointerLeftClick,
       defaultMapHandlesScreenCameraApply,
+      1,
+      'xz',
     )
     this.zoom = new ZoomScreenHandleStore(store, this.getCamera, undefined, defaultMapHandlesScreenCameraApply)
   }
