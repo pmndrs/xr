@@ -1,10 +1,10 @@
 ---
 title: Layers
-description: How to use display images, videos, and custom renders at high quality on quad, cylinder, and equirectangular shapes?
+description: How to use display images, videos, and custom renders at high quality on quad, cylinder, and equirect shapes?
 nav: 15
 ---
 
-Layers allow to render videos, images, and complete scenes with higher performance and higher quality while preserving battery life and latency for quad, cylinder, and equirectangular shapes using the WebXR Layer API. Layers are perfect for use cases that display flat, high-quality content, such as videos, images, and user interfaces. The following example illustrates how to create a layer that renders a video.
+Layers allow to render videos, images, and complete scenes with higher performance and higher quality while preserving battery life and latency for quad, cylinder, and equirect shapes using the WebXR Layer API. Layers are perfect for use cases that display flat, high-quality content, such as videos, images, and user interfaces. The following example illustrates how to create a layer that renders a video.
 
 First, we create a layer at `0, 1.5, -0.5` with a scale of `0.5` that displays a video assigned to `src` and starts that video when clicked.
 
