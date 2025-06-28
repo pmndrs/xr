@@ -38,7 +38,7 @@ export function setupHandlesContextHoverMaterial(
   }
   hoverColor ??= color
   return context.subscribeHover((tags) => {
-    const isHovered = tags.some((activeTag) => activeTag.includes(tag))
+    const isHovered = tags.some((activeTag) => activeTag === tag)
     material.color.set(isHovered ? hoverColor : color)
     material.opacity = (isHovered ? hoverOpacity : opacity) ?? 1
   })

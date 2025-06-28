@@ -14,6 +14,7 @@ export class PivotHandlesHandles extends Group {
   public readonly scaleX: PivotAxisScaleHandle
   public readonly scaleY: PivotAxisScaleHandle
   public readonly scaleZ: PivotAxisScaleHandle
+  public readonly scaleXYZ: PivotAxisScaleHandle
 
   public readonly rotationX: PivotAxisRotationHandle
   public readonly rotationY: PivotAxisRotationHandle
@@ -49,6 +50,8 @@ export class PivotHandlesHandles extends Group {
     this.scaleZ = new PivotAxisScaleHandle(context, 'z', 's')
     this.scaleZ.rotation.y = -Math.PI / 2
     this.add(this.scaleZ)
+    this.scaleXYZ = new PivotAxisScaleHandle(context, 'xyz', 's')
+    this.add(this.scaleXYZ)
     this.rotationX = new PivotAxisRotationHandle(context, 'x', 'r', this.xRotationAxis)
     this.add(this.rotationX)
     this.rotationY = new PivotAxisRotationHandle(context, 'y', 'r', this.yRotationAxis)
@@ -100,6 +103,7 @@ export class PivotHandlesHandles extends Group {
     const unbindScaleX = this.scaleX.bind(0xff2060, scale)
     const unbindScaleY = this.scaleY.bind(0x20df80, scale)
     const unbindScaleZ = this.scaleZ.bind(0x2080ff, scale)
+    const unbindScaleXYZ = this.scaleXYZ.bind(0xa0a0a0, scale)
     const unbindRotationX = this.rotationX.bind(0xff2060, rotation)
     const unbindRotationY = this.rotationY.bind(0x20df80, rotation)
     const unbindRotationZ = this.rotationZ.bind(0x2080ff, rotation)
@@ -113,6 +117,7 @@ export class PivotHandlesHandles extends Group {
       unbindScaleX?.()
       unbindScaleY?.()
       unbindScaleZ?.()
+      unbindScaleXYZ?.()
       unbindRotationX?.()
       unbindRotationY?.()
       unbindRotationZ?.()

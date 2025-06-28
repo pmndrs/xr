@@ -7,9 +7,9 @@ import { RegisteredHandle } from '../registered.js'
 import { extractHandleTransformOptions } from '../utils.js'
 
 export class PivotAxisScaleHandle extends RegisteredHandle {
-  constructor(context: HandlesContext, axis: Axis, tagPrefix: string) {
+  constructor(context: HandlesContext, axis: Axis | 'xyz', tagPrefix: string) {
     super(context, axis, tagPrefix, () => ({
-      scale: this.options,
+      scale: axis === 'xyz' ? { uniform: true, ...this.options } : this.options,
       rotate: false,
       translate: 'as-scale',
       multitouch: false,
@@ -29,10 +29,16 @@ export class PivotAxisScaleHandle extends RegisteredHandle {
       disabled,
     })
 
-    const mesh = new Mesh(new SphereGeometry(0.04), material)
+    let handleSize = 0.04
+    let handleOffset = 0.68
+    if (this.axis === 'xyz') {
+      handleSize = 0.08
+      handleOffset = 0
+    }
+    const mesh = new Mesh(new SphereGeometry(handleSize), material)
     mesh.renderOrder = Infinity
     mesh.pointerEventsOrder = Infinity
-    mesh.position.x = 0.68
+    mesh.position.x = handleOffset
 
     const unregister = disabled ? undefined : this.context.registerHandle(this.store, mesh, this.tag)
 
