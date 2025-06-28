@@ -154,7 +154,26 @@ export function UNSAFE_useXRStore() {
 }
 
 /**
- * Hook for reading the state from the xr store
+ * Used to access all state related to the XR session.
+ * @param body
+ * @param mode
+ * @param session
+ * @param origin
+ * @param originReferenceSpace
+ * @param domOverlayRoot
+ * @param detectedMeshes
+ * @param detectedPlanes
+ * @param frameRate
+ * @param visibilityState
+ * @param layerEntries
+ * @param emulator
+ * @param mediaBinding
+ * @param hand
+ * @param controller
+ * @param transientPointer
+ * @param gaze
+ * @param screenInput
+ * @function
  */
 export function useXR<T = XRState>(
   selector: (s: XRState) => T = (state) => state as unknown as T,
