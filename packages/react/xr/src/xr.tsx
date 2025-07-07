@@ -155,25 +155,7 @@ export function UNSAFE_useXRStore() {
 
 /**
  * Used to access all state related to the XR session.
- * @param body
- * @param mode
- * @param session
- * @param origin
- * @param originReferenceSpace
- * @param domOverlayRoot
- * @param detectedMeshes
- * @param detectedPlanes
- * @param frameRate
- * @param visibilityState
- * @param layerEntries
- * @param emulator
- * @param mediaBinding
- * @param hand
- * @param controller
- * @param transientPointer
- * @param gaze
- * @param screenInput
- * @function
+ * @see {@link https://pmndrs.github.io/xr/docs/tutorials/store}
  */
 export function useXR<T = XRState>(
   selector: (s: XRState) => T = (state) => state as unknown as T,
