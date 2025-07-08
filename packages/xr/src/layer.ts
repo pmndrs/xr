@@ -145,6 +145,12 @@ declare module 'three' {
   }
 }
 
+const segmentPerAngle = 32 / Math.PI
+
+function computeSegmentAmount(angle: number) {
+  return Math.ceil(angle * segmentPerAngle)
+}
+
 export function setXRLayerRenderTarget(
   renderer: WebGLRenderer,
   renderTarget: WebGLRenderTarget,
@@ -168,18 +174,29 @@ export function createXRLayerGeometry(
   switch (shape) {
     case 'cylinder':
       const centralAngle = properties.centralAngle ?? DefaultCentralAngle
-      return new CylinderGeometry(1, 1, 1, 32, 1, true, Math.PI - centralAngle / 2, centralAngle).scale(-1, 1, 1)
+      return new CylinderGeometry(
+        1,
+        1,
+        1,
+        computeSegmentAmount(centralAngle),
+        1,
+        true,
+        Math.PI - centralAngle / 2,
+        centralAngle,
+      ).scale(-1, 1, 1)
     case 'equirect': {
       const centralHorizontalAngle = properties.centralHorizontalAngle ?? DefaultCentralHorizontalAngle
       const upperVerticalAngle = properties.upperVerticalAngle ?? DefaultUpperVerticalAngle
+      const lowerVerticalAngle = properties.lowerVerticalAngle ?? DefaultLowerVerticalAngle
+      const centralVerticalAngle = upperVerticalAngle - lowerVerticalAngle
       return new SphereGeometry(
         1,
-        32,
-        16,
+        computeSegmentAmount(centralHorizontalAngle),
+        computeSegmentAmount(centralVerticalAngle),
         -Math.PI / 2 - centralHorizontalAngle / 2,
         centralHorizontalAngle,
         Math.PI / 2 - upperVerticalAngle,
-        upperVerticalAngle - (properties.lowerVerticalAngle ?? DefaultLowerVerticalAngle),
+        centralVerticalAngle,
       ).scale(-1, 1, 1)
     }
     case 'quad':
