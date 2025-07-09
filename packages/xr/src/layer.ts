@@ -149,7 +149,7 @@ declare module 'three' {
   }
 }
 
-const segmentPerAngle = 32 / Math.PI
+const segmentPerAngle = 64 / Math.PI
 
 function computeSegmentAmount(angle: number) {
   return Math.ceil(angle * segmentPerAngle)
