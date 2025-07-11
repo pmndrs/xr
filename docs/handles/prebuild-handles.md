@@ -1,7 +1,7 @@
 ---
 title: Prebuilt Handles for Editor Use Cases  
 description: The Handle and HandleTarget components and their properties  
-nav: 25  
+nav: 26  
 ---
 
 The `Handle` component allows for the orchestration of multiple handles together to achieve interactions typically found in 3D editors, such as the `TransformControls` offered by Three.js. Since these prebuilt handles are commonly used, `@react-three/handles` includes two of them: `TransformHandles` (based on TransformControls from Three.js) and `PivotHandles` (based on PivotControls from @react-three/drei). These prebuilt handles can be used in XR and non-XR environments, are highly configurable for use cases including multi-user editing, can be utilized through virtual screens, and respect the event system of the scene, preventing accidental interactions with multiple objects at once.
