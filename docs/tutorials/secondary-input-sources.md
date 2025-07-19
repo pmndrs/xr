@@ -1,7 +1,7 @@
 ---
 title: Secondary Input Sources
 description: How to use primary and secondary input sources (multiple controllers and hands) simultaneously?
-nav: 14
+nav: 15
 ---
 
 Most standalone XR headsets support hand and controller tracking. While typical XR experiences often support both input methods, they only use the primary inputs, which refers to one input per hand and limits the inputs to `2`. However, the headset often also tracks the secondary input sources. By enabling the `secondaryInputSources` flag when creating an xr store, we can access the secondary input sources and use them to track real-world objects, for example.

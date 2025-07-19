@@ -1,7 +1,7 @@
 ---
 title: Gamepad
 description: How to use the XRControllers gamepad?
-nav: 13
+nav: 14
 ---
 
 All XR controllers are part of the state inside the xr store. The existing controllers can be read using the `useXR` hook. Alternatively, a specific xr controller can be retrived using `useXRInputSourceState("controller", "left")`.

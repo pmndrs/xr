@@ -1,7 +1,7 @@
 ---
 title: Anchors
 description: How to create and manage anchors in your AR experience?
-nav: 17
+nav: 18
 ---
 
 Anchors allow to anchor virtual objects into the physical world in AR experiences. `react-three/xr` offers a multitude of ways to create and manage anchors. A simple solution is `useXRAnchor`, which works similarly to `useState` as it returns the current anchor and a function to request a new anchor as a tuple.

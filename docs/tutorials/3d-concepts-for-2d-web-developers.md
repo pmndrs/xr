@@ -1,7 +1,7 @@
 ---
 title: 3D Concepts for Web Developers
 description: A quick refresher on basic 3D concepts for developers coming from a 2D background
-nav: 8
+nav: 9
 ---
 
 The Internet is one of the most freeing ways for developers to be able to express themselves. Since web development first began, developers have been using it to unleash their creativity and push the boundaries of what a web browser is capable of. 2D development has long been the standard of developing creative content on the web, but with advances in hardware and frameworks, it is now possible to build everything from AR artwork anchored to a physical wall, to entire virtual worlds that can be explored with a VR headset, all contained and run from within a webpage. React-Three-XR is a library designed to make developing these XR experiences as simple as possible. This guide is here to help developers with a primarily 2D web development background to get up and running making 3D experiences as quickly as possible. Here are some 3D concepts that you will need to understand before moving on to developing full web applications. 
