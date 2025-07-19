@@ -4,7 +4,7 @@
 
   // Run the equivalent of `eslint --fix` each time you save
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
 
   // Disable the built‑in “Organize Imports” so it doesn’t fight ESLint
