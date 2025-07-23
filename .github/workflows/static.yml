@@ -24,7 +24,7 @@ jobs:
           run_install: true
 
       - name: Generate Docs
-        run: pnpm --filter packages/react/xr generate:docs
+        run: pnpm -r generate:docs
 
       - id: configurepages
         uses: actions/configure-pages@v5
