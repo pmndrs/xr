@@ -1,5 +1,5 @@
 import { XRDevice } from 'iwer'
-import { Camera, Object3D, WebXRManager, Vector3 } from 'three'
+import { Camera, Object3D, WebXRManager, Vector3, Texture } from 'three'
 import { StoreApi, createStore } from 'zustand/vanilla'
 import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './controller/index.js'
 import { XRHandLoaderOptions } from './hand/index.js'
@@ -165,6 +165,10 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      * active additional webxr layers
      */
     layerEntries: ReadonlyArray<XRLayerEntry>
+    /**
+     * `Texture`s representing the current camera view 
+     */
+    cameraImages: ReadonlyArray<Texture>
     /**
      * access to the emulator values to change the emulated input device imperatively
      */
@@ -387,6 +391,7 @@ const baseInitialState: Omit<
   inputSourceStates: [],
   detectedMeshes: [],
   detectedPlanes: [],
+  cameraImages: [],
   layerEntries: [],
 }
 
@@ -923,6 +928,7 @@ function createBindToSession(
       visibilityState: session.visibilityState,
       detectedMeshes: [],
       detectedPlanes: [],
+      cameraImages: [],
       mode: session.environmentBlendMode === 'opaque' ? 'immersive-vr' : 'immersive-ar',
       session,
       mediaBinding: typeof XRMediaBinding == 'undefined' ? undefined : new XRMediaBinding(session),
@@ -936,7 +942,7 @@ type Mutable<T> = {
 
 function updateSession(store: StoreApi<XRState<XRElementImplementations>>, frame: XRFrame, manager: WebXRManager) {
   const referenceSpace = manager.getReferenceSpace()
-  const { detectedMeshes: prevMeshes, detectedPlanes: prevPlanes, session, inputSourceStates } = store.getState()
+  const { detectedMeshes: prevMeshes, detectedPlanes: prevPlanes, cameraImages: prevCamImages, session, inputSourceStates } = store.getState()
   if (referenceSpace == null || session == null) {
     //not in a XR session
     return
@@ -946,9 +952,29 @@ function updateSession(store: StoreApi<XRState<XRElementImplementations>>, frame
   const detectedPlanes = updateDetectedEntities(prevPlanes, frame.detectedPlanes)
   const detectedMeshes = updateDetectedEntities(prevMeshes, frame.detectedMeshes)
 
-  if (prevPlanes != detectedPlanes || prevMeshes != detectedMeshes) {
-    store.setState({ detectedPlanes, detectedMeshes })
+  
+  const viewerPose = frame.getViewerPose(referenceSpace)
+  
+  const camImages = new Set<Texture>();
+  
+  if (viewerPose) {
+    for (let i = 0; i < viewerPose.views.length; i++) {
+      if (viewerPose.views[i].camera) {
+        const camImage = manager.getCameraTexture( viewerPose.views[i].camera );
+        if (camImage) {
+          camImages.add(camImage);
+        }
+      }
+    }
   }
+  
+  const cameraImages = updateDetectedEntities(prevCamImages, camImages);
+  
+  if (prevPlanes != detectedPlanes || prevMeshes != detectedMeshes || prevCamImages != cameraImages) {
+    console.log("updating");
+    store.setState({ detectedPlanes, detectedMeshes, cameraImages })
+  }
+
 
   //update input sources
   const inputSourceStatesLength = inputSourceStates.length

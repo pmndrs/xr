@@ -2,7 +2,7 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { createXRStore, XR, XROrigin } from '@react-three/xr'
 import { RotatingBox } from './box'
 
-const store = createXRStore()
+const store = createXRStore({ cameraAccess: true })
 
 export function App() {
   return (
