@@ -103,6 +103,12 @@ importers:
         specifier: ^5.2.11
         version: 5.4.14(@types/node@22.13.0)
 
+  examples/camera-access:
+    dependencies:
+      '@react-three/xr':
+        specifier: workspace:~
+        version: link:../../packages/react/xr
+
   examples/demo-controller:
     dependencies:
       '@pmndrs/xr':
