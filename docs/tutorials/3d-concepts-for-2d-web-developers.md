@@ -1,6 +1,6 @@
 ---
-title: 3D Concepts for Web Developers
-description: A quick refresher on basic 3D concepts for developers coming from a 2D background
+title: Introduction to XR development
+description: A quick introduction to basic XR concepts for developers
 nav: 8
 ---
 
