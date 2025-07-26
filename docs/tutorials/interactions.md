@@ -1,7 +1,7 @@
 ---
 title: Interactions
 description: Build interactions that work across XR and non-XR web applications
-nav: 9
+nav: 10
 ---
 
 On this page, you can learn the basics behind pointer events and interactions in react-three/xr. From experience, we found that many people are interested in more high level interactions, which can be build with the concept of handles. Check out the [handles pages](../handles/introduction.md) to learn more about the concept and the library we built for it.

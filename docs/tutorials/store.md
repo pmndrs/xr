@@ -1,7 +1,7 @@
 ---
 title: Store
 description: What is the XR Store for?
-nav: 8
+nav: 9
 ---
 
 The xr store is the central part of all `@react-three/xr` experiences and allows to configure those experiences using a large set of options, control the experience using various functions, and provide access to the current state of the xr experience.

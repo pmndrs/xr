@@ -1,7 +1,7 @@
 ---
 title: Teleportation
 description: Allow users to move through the scene using teleportation
-nav: 12
+nav: 13
 ---
 
 First we need to enable the teleport pointer inside the hands and controllers.
