@@ -1,0 +1,86 @@
+html {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+}
+
+.App {
+  font-family: sans-serif;
+  text-align: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.enterVRButton {
+  position: fixed;
+  left: 2rem;
+  bottom: 2rem;
+}
+
+.titleText {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-size: xx-large;
+  color: white;
+  background-color: "blue";
+}
+
+.instructions {
+  height: 85vh;
+  border-radius: 1rem;
+  position: absolute;
+  width: 45vw;
+  right: 2.5vw;
+  top: 4vh;
+  background-color: #000000e8;
+  display: flex;
+  padding: 1rem;
+  overflow: hidden;
+  justify-content: space-between;
+  flex-direction: column;
+}
+.instructionsText {
+  color: #eeee;
+  text-align: left;
+  font-size: larger;
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+  overflow-y: scroll;
+}
+.instructionsText::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+a {
+  color: white;
+  font-weight: bolder;
+}
+
+.codeBlock {
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  background-color: darkgray;
+  color: black;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  font-size: larger;
+  background-color: #3f5f68;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  padding: 1rem;
+}
+button:hover {
+  background-color: #2c444b;
+}
