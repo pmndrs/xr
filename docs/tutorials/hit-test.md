@@ -13,8 +13,8 @@ const hitTestPosition = new Vector3()
 
 const store = createXRStore({
   hand: {
-    right: () => {
-      const state = useXRHandState()
+    right: (xr) => {
+      const state = xr.getInputSourceState('hand', 'right')
       return (
         <>
           <XRHandModel />
