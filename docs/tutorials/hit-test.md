@@ -13,11 +13,12 @@ const hitTestPosition = new Vector3()
 
 const store = createXRStore({
   hand: {
-    right: (xr) => {
-      const state = xr.getInputSourceState('hand', 'right')
+    right: () => {
+       const state = useXRInputSourceStateContext()
+      if (!state?.inputSource) return null
       return (
         <>
-          <XRHandModel />
+           <XRHandModel handedness="right" />
           <XRHitTest
             space={state.inputSource.targetRaySpace}
             onResults={(results, getWorldMatrix) => {
