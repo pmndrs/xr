@@ -680,7 +680,7 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       }
       const xrCamera = xrManager.getCamera()
       //update camera aspect ratio
-      xrCamera.aspect = xrCamera.projectionMatrix.elements[0] / xrCamera.projectionMatrix.elements[5]
+      xrCamera.aspect = xrCamera.projectionMatrix.elements[5] / xrCamera.projectionMatrix.elements[0]
 
       const currentLayers = session?.renderState.layers
       if (currentLayers == null) {
