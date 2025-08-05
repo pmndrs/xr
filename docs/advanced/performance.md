@@ -1,7 +1,7 @@
 ---
 title: Performance
 description: Important considerations for building performant immersive web applications with react-three/xr
-nav: 22
+nav: 23
 ---
 
 All performance optimizations for non-immersive 3D web applications are also applicable for immersive XR web applications. Relevant guides on the topic of performance for 3D web applications are the [R3F performance guide](https://docs.pmnd.rs/react-three-fiber/advanced/scaling-performance), [R3F performance pitfalls](https://docs.pmnd.rs/react-three-fiber/advanced/pitfalls), and the [Threejs tips and tricks](https://discoverthreejs.com/tips-and-tricks/#performance). In general, it is good to check if your web application's performance is GPU- or CPU-bound to select the correct optimization techniques.

@@ -1,7 +1,7 @@
 ---
 title: Hit Test
 description: How to add hit testing capabilities to your AR experiences?
-nav: 19
+nav: 20
 ---
 
 Hit testing allows to check intersections with real-world geometry in AR experiences. `@react-three/xr` provides various hooks and components for setting up hit testing.

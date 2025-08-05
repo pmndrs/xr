@@ -1,7 +1,7 @@
 ---
 title: Screen Handles  
 description: Orbit and Map Handles as replacements for Orbit and Map controls  
-nav: 26  
+nav: 27  
 ---
 
 Screen handles are available for screen-based devices like smartphones and PCs and allow users to move the camera by dragging, swiping, and scrolling on the screen. Three.js directly offers `OrbitControls` and `MapControls`, which are built for this purpose, and we are building on top of their success. The main difference is that the `OrbitHandles` and `MapHandles` we provide use the event system of the scene, which means that interactions with objects in the scene prevent dragging the camera. Furthermore, the event system can forward the screen inputs on a virtual screen to a virtual camera inside a virtual scene, which is showcased in the [editor example](https://pmndrs.github.io/xr/examples/editor/).

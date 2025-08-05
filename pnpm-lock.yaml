@@ -358,6 +358,12 @@ importers:
         specifier: workspace:~
         version: link:../../packages/react/xr
 
+  examples/webxr-primer:
+    dependencies:
+      '@react-three/xr':
+        specifier: workspace:~
+        version: link:../../packages/react/xr
+
   packages/handle:
     dependencies:
       '@pmndrs/pointer-events':
