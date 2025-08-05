@@ -678,12 +678,15 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (session == null || xrManager == null) {
         return
       }
+      const xrCamera = xrManager.getCamera()
+      //update camera aspect ratio
+      xrCamera.aspect = xrCamera.projectionMatrix.elements[0] / xrCamera.projectionMatrix.elements[5]
+
       const currentLayers = session?.renderState.layers
       if (currentLayers == null) {
         return
       }
       //layer sorting
-      const xrCamera = xrManager.getCamera()
       xrCamera.getWorldPosition(cameraWorldPosition)
       ;(layerEntries as Array<XRLayerEntry>).sort((entryA, entryB) => {
         const renderOrderDifference = entryA.renderOrder - entryB.renderOrder
