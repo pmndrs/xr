@@ -97,10 +97,13 @@ export function useXRRequestHitTest() {
 }
 
 /**
- * Component for getting hit tests originating based on its position in the scene graph
+ * A convenience wrapper component for the useXRHitTest hook. Used to setup hit testing in the scene.
  *
- * @param props ‎
+ * @param props
  * #### `space` - [XRSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRSpace) | [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace#reference_space_types)
+ *
+ * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
+ * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
  * @function
  */
 export const XRHitTest = forwardRef<

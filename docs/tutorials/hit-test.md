@@ -4,15 +4,17 @@ description: How to add hit testing capabilities to your AR experiences?
 nav: 19
 ---
 
-Hit testing allows to check intersections with real-world geometry in AR experiences. `@react-three/xr` provides various hooks and components for setting up hit testing. This tutorial covers all the hit testing hooks available in the library and demonstrates how to use them effectively.
+Hit testing is a technique that allows developers to check for intersections with real-world geometry in AR experiences. `@react-three/xr` provides hooks and components for setting up hit testing. This tutorial covers all the hit testing hooks available in React Three XR and demonstrates how to use them effectively.
 
 ## Overview of Hit Testing Hooks
 
-The library provides three main hooks for hit testing:
+React Three XR provides three hooks for hit testing:
 
 - **`useXRHitTest`** - Continuous hit testing with automatic frame updates
 - **`useXRHitTestSource`** - Lower-level hook for creating and managing hit test sources
 - **`useXRRequestHitTest`** - One-time hit test requests on demand
+
+Additionally, React Three XR provides the `XRHitTest` component, which is a convenience wrapper for using the `useXRHitTest` hook to perform continuous hit testing.
 
 ## useXRHitTest Hook
 
@@ -270,4 +272,4 @@ function Point() {
 }
 ```
 
-Alternatively, for devices that provide mesh detection, we can also add normal pointer events listeners to the XR Mesh to achieve the same behavior. Check out [this tutorial](./object-detection.md) for more information about mesh detection.
+Alternatively, for devices that provide mesh detection, we can also add normal pointer event listeners to an XR Mesh to achieve the same behavior. Check out [this tutorial](./object-detection.md) for more information about mesh detection.
