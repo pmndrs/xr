@@ -10,7 +10,7 @@ Hit testing is a technique that allows developers to check for intersections wit
 
 React Three XR provides three hooks for hit testing:
 
-- **`useXRHitTest`** - Continuous hit testing with automatic frame updates
+- **`useXRHitTest`** - Provides continuous hit testing with automatic frame updates
 - **`useXRHitTestSource`** - Lower-level hook for creating and managing hit test sources
 - **`useXRRequestHitTest`** - One-time hit test requests on demand
 
@@ -18,14 +18,14 @@ Additionally, React Three XR provides the `XRHitTest` component, which is a conv
 
 ## useXRHitTest Hook
 
-The `useXRHitTest` hook is the most commonly used hook for continuous hit testing. It automatically performs hit tests every frame and calls your callback function with the results.
+The `useXRHitTest` hook is the most commonly used hook for hit testing. It automatically performs hit tests every frame and calls your callback function with the results.
 
 **What it does:** Sets up continuous hit testing that runs every frame, providing real-time intersection data with the real world.
 
 **When to use it:** Use this when you need continuous tracking of where a ray intersects with real-world surfaces, such as for cursor positioning, object placement previews, or interactive AR elements.
 
 **Parameters:**
-- `fn` - Callback function that receives hit test results and a world matrix helper
+- `fn` - Callback function that receives hit test results and a function to retrieve the world matrix 
 - `relativeTo` - The object, XR space, or reference space to cast rays from
 - `trackableType` - Optional parameter specifying what types of surfaces to hit test against
 
