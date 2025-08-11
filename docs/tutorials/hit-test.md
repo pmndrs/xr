@@ -6,7 +6,7 @@ nav: 19
 
 Hit testing is a technique that allows developers to check for intersections with real-world geometry in AR experiences. `@react-three/xr` provides hooks and components for setting up hit testing. This tutorial covers all the hit testing hooks available in React Three XR and demonstrates how to use them effectively.
 
-## Overview of Hit Testing Hooks
+## Overview of Hit Testing Components
 
 React Three XR provides three hooks for hit testing:
 
@@ -15,6 +15,8 @@ React Three XR provides three hooks for hit testing:
 - **`useXRRequestHitTest`** - One-time hit test requests on demand
 
 Additionally, React Three XR provides the `XRHitTest` component, which is a convenience wrapper for using the `useXRHitTest` hook to perform continuous hit testing.
+
+All rays cast by these components originate from the source's position and are cast in the direction that the source object is oriented (quaternion).
 
 ## useXRHitTest Hook
 
@@ -29,7 +31,32 @@ The `useXRHitTest` hook is the most commonly used hook for hit testing. It autom
 - `relativeTo` - The object, XR space, or reference space to cast rays from
 - `trackableType` - Optional parameter specifying what types of surfaces to hit test against
 
-Here's the basic example using the `XRHitTest` component (which internally uses `useXRHitTest`):
+
+```tsx
+function ContinuousHitTest() {
+  const meshRef = useRef<Mesh>(null)
+  const [hitPosition, setHitPosition] = useState<Vector3 | null>(null)
+  
+  useXRHitTest(
+    (results, getWorldMatrix) => {
+      if (results.length > 0) {
+        const matrix = new Matrix4()
+        getWorldMatrix(matrix, results[0])
+        const position = new Vector3().setFromMatrixPosition(matrix)
+        setHitPosition(position)
+      }
+    },
+    meshRef, // Cast rays from this mesh's position
+    'plane' // Only hit test against detected planes
+  )
+  
+  return <mesh ref={meshRef}>/* your mesh content */</mesh>
+}
+```
+
+## XRHitTest
+
+`XRHitTest` is a component that wraps the `useXRHitTest` hook. This makes it easier to add hit testing anywhere within your component tree. 
 
 ```tsx
 const matrixHelper = new Matrix4()
@@ -59,31 +86,9 @@ const store = createXRStore({
 })
 ```
 
-You can also use the hook directly in your components:
+It has all of the same functionality as the `useXRHitTest` hook, just that it's built as a component.
 
-```tsx
-function ContinuousHitTest() {
-  const meshRef = useRef<Mesh>(null)
-  const [hitPosition, setHitPosition] = useState<Vector3 | null>(null)
-  
-  useXRHitTest(
-    (results, getWorldMatrix) => {
-      if (results.length > 0) {
-        const matrix = new Matrix4()
-        getWorldMatrix(matrix, results[0])
-        const position = new Vector3().setFromMatrixPosition(matrix)
-        setHitPosition(position)
-      }
-    },
-    meshRef, // Cast rays from this mesh's position
-    'plane' // Only hit test against detected planes
-  )
-  
-  return <mesh ref={meshRef}>/* your mesh content */</mesh>
-}
-```
-
-## useXRHitTestSource Hook
+## useXRHitTestSource Hook // TODO: Add a toggle button to the ducks example that only performs a hit test on the right hand when toggled on
 
 The `useXRHitTestSource` hook provides lower-level access to hit test sources, giving you more control over when and how hit tests are performed.
 
@@ -130,7 +135,7 @@ function ManualHitTest() {
 }
 ```
 
-## useXRRequestHitTest Hook
+## useXRRequestHitTest Hook // TODO: Add a button to the controller to the ducks example that shows how far away the user's head is from the floor
 
 The `useXRRequestHitTest` hook provides a function for one-time hit test requests, perfect for event-driven hit testing.
 
@@ -205,6 +210,9 @@ useXRHitTest(callback, spaceRef, ['plane', 'mesh'])
 Here's a complete example combining multiple hooks for a robust object placement system:
 
 ```tsx
+const matrixHelper = new Matrix4()
+const hitTestPositionHelper = new Vector3()
+
 function ObjectPlacement() {
   const [placedObjects, setPlacedObjects] = useState<Vector3[]>([])
   const [previewPosition, setPreviewPosition] = useState<Vector3 | null>(null)
@@ -214,9 +222,8 @@ function ObjectPlacement() {
   useXRHitTest(
     (results, getWorldMatrix) => {
       if (results.length > 0) {
-        const matrix = new Matrix4()
-        getWorldMatrix(matrix, results[0])
-        const position = new Vector3().setFromMatrixPosition(matrix)
+        getWorldMatrix(matrixHelper, results[0])
+        const position = hitTestPositionHelper.setFromMatrixPosition(matrixHelper)
         setPreviewPosition(position)
       } else {
         setPreviewPosition(null)

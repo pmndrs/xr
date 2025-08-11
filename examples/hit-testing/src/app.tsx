@@ -6,12 +6,12 @@ import {
   IfInSessionMode,
   useXRInputSourceStateContext,
   XR,
-  XRDomOverlay,
   XRHitTest,
   XRSpace,
 } from '@react-three/xr'
 import { Suspense } from 'react'
 import { Matrix4 } from 'three'
+import { DomOverlay } from './dom-overlay.js'
 import { Duck } from './duck.js'
 import { Ducks } from './ducks.js'
 import { HitTest } from './hit-test.js'
@@ -55,12 +55,16 @@ const xr_store = createXRStore({
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const state = useXRInputSourceStateContext()
 
+    const isLeftHanded = state.inputSource.handedness === 'left'
+
     return (
       <>
         <DefaultXRController />
-        <XRSpace space={state.inputSource.targetRaySpace}>
-          <XRHitTest onResults={onResults.bind(null, state.inputSource.handedness)} />
-        </XRSpace>
+        {isLeftHanded && (
+          <XRSpace space={state.inputSource.targetRaySpace}>
+            <XRHitTest onResults={onResults.bind(null, state.inputSource.handedness)} />
+          </XRSpace>
+        )}
       </>
     )
   },
@@ -79,10 +83,7 @@ export function App() {
           <IfInSessionMode allow={'immersive-ar'}>
             <HitTest />
             <Ducks />
-
-            <XRDomOverlay>
-              <button onClick={() => xr_store.getState().session?.end()}>Exit AR</button>
-            </XRDomOverlay>
+            <DomOverlay />
           </IfInSessionMode>
 
           <IfInSessionMode deny={'immersive-ar'}>
