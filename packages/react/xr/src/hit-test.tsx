@@ -22,6 +22,9 @@ export function useXRHitTestSource(
 
 /**
  * Hook for setting up a continous hit test originating from the provided object or xrspace
+ *
+ * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
+ * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
  */
 export function useXRHitTest(
   fn: ((results: Array<XRHitTestResult>, getWorldMatrix: GetWorldMatrixFromXRHitTest) => void) | undefined,
@@ -77,6 +80,9 @@ function useCreateXRHitTestSource(
 
 /**
  * Hook that returns a function to request a single hit test
+ *
+ * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
+ * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
  */
 export function useXRRequestHitTest() {
   const store = useXRStore()

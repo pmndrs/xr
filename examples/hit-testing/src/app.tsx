@@ -1,16 +1,9 @@
 import { Canvas } from '@react-three/fiber'
-import {
-  createXRStore,
-  DefaultXRController,
-  DefaultXRHand,
-  IfInSessionMode,
-  useXRInputSourceStateContext,
-  XR,
-  XRHitTest,
-  XRSpace,
-} from '@react-three/xr'
+import { createXRStore, IfInSessionMode, XR } from '@react-three/xr'
 import { Suspense } from 'react'
 import { Matrix4 } from 'three'
+import { CustomController } from './custom-controller.js'
+import { CustomHand } from './custom-hand.js'
 import { DomOverlay } from './dom-overlay.js'
 import { Duck } from './duck.js'
 import { Ducks } from './ducks.js'
@@ -36,38 +29,8 @@ const xr_store = createXRStore({
   layers: false,
   meshDetection: false,
   planeDetection: false,
-
-  hand: () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const state = useXRInputSourceStateContext()
-
-    return (
-      <>
-        <DefaultXRHand />
-        <XRSpace space={state.inputSource.targetRaySpace}>
-          <XRHitTest onResults={onResults.bind(null, state.inputSource.handedness)} />
-        </XRSpace>
-      </>
-    )
-  },
-
-  controller: () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const state = useXRInputSourceStateContext()
-
-    const isLeftHanded = state.inputSource.handedness === 'left'
-
-    return (
-      <>
-        <DefaultXRController />
-        {isLeftHanded && (
-          <XRSpace space={state.inputSource.targetRaySpace}>
-            <XRHitTest onResults={onResults.bind(null, state.inputSource.handedness)} />
-          </XRSpace>
-        )}
-      </>
-    )
-  },
+  hand: CustomHand,
+  controller: CustomController,
 })
 
 export function App() {
