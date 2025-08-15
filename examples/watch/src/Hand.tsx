@@ -3,7 +3,7 @@ import { useGLTF } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Root, Text, Container } from '@react-three/uikit'
 import { FootprintsIcon, GoalIcon, PlayIcon } from '@react-three/uikit-lucide'
-import { XRHandModel } from '@react-three/xr'
+import { XRHandModel, XRSpace } from '@react-three/xr'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 
@@ -14,7 +14,9 @@ export function HandWithWatch() {
         <XRHandModel colorWrite={false} renderOrder={-1} />
       </Suspense>
       <Suspense>
-        <Watch />
+        <XRSpace space="grip-space">
+          <Watch />
+        </XRSpace>
       </Suspense>
     </>
   )
@@ -27,7 +29,7 @@ export function Watch(props: any) {
   const [state, setState] = useState<'walking' | 'paused' | 'stopped'>('stopped')
   const distanceSignal = useMemo(() => signal(0), [])
   const camera = useThree((state) => state.camera)
-  const ref = useRef<Vector3>()
+  const ref = useRef<Vector3>(null)
   useFrame(() => {
     if (state != 'walking') {
       return
@@ -45,8 +47,8 @@ export function Watch(props: any) {
   })
   return (
     <group
-      rotation={[-0.2, Math.PI / 2, Math.PI]}
-      position={[0, -0.01, -0.02]}
+      rotation={[0, 0, (0.85 * Math.PI) / 2, 'XYZ']}
+      position={[0.037, 0.05, 0.003]}
       scale={0.00011}
       {...props}
       dispose={null}
