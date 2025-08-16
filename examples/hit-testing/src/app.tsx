@@ -9,10 +9,10 @@ import { Duck } from './duck.js'
 import { Ducks } from './ducks.js'
 import { HitTest } from './hit-test.js'
 
-export let hitTestMatrices: Partial<Record<XRHandedness, Matrix4 | undefined>> = {}
+export let hitTestMatrices: Partial<Record<XRHandedness | 'duck', Matrix4 | undefined>> = {}
 
 export function onResults(
-  handedness: XRHandedness,
+  handedness: XRHandedness | 'duck',
   results: Array<XRHitTestResult>,
   getWorldMatrix: (target: Matrix4, hit: XRHitTestResult) => void,
 ) {
