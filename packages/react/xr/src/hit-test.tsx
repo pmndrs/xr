@@ -99,7 +99,7 @@ export function useXRRequestHitTest() {
 /**
  * Component for getting hit tests originating based on its position in the scene graph
  *
- * @param props ‎
+ * @param props
  * #### `space` - [XRSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRSpace) | [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace#reference_space_types)
  * @function
  */

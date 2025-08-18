@@ -41,7 +41,7 @@ export default function App() {
         <XR store={store}>
           <IfInSessionMode deny="immersive-ar">
             <OrbitControls />
-            <group position={[-0.057, 0, 0]} rotation={[-Math.PI / 2, 0, (-0.85 * Math.PI) / 2, 'XYZ']}>
+            <group position={[0, 0, 0]} rotation={[Math.PI / 2, Math.PI / 2, 0]}>
               <Watch />
             </group>
           </IfInSessionMode>

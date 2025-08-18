@@ -445,16 +445,16 @@ importers:
     dependencies:
       '@iwer/devui':
         specifier: ^1.1.1
-        version: 1.1.1(@types/react@19.0.8)(iwer@2.0.1)
+        version: 1.1.1(@types/react@19.0.8)(iwer@2.1.0)
       '@iwer/sem':
         specifier: ~0.2.5
-        version: 0.2.5(iwer@2.0.1)
+        version: 0.2.5(iwer@2.1.0)
       '@pmndrs/pointer-events':
         specifier: workspace:~
         version: link:../pointer-events
       iwer:
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^2.1.0
+        version: 2.1.0
       meshline:
         specifier: ^3.3.1
         version: 3.3.1(three@0.173.0)
@@ -2220,8 +2220,8 @@ packages:
     peerDependencies:
       react: '>=18.0'
 
-  iwer@2.0.1:
-    resolution: {integrity: sha512-kNjh8DDWGSnbiK6jKcVLYVRLFCMBQ4+sVyHZ3La4EJYTCTY+Trrnagf6z3oCdNpC4OTiwcPdakunTAqZhoWK+A==}
+  iwer@2.1.0:
+    resolution: {integrity: sha512-m04BeJjIu8lve+aF3UIrMnDvYZ/9C8ZYp7TRQzdy57jpYg5ycdckJXZF5SMz0kJVa+ckJJIAUMlDPIHomPTCDw==}
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
@@ -3221,6 +3221,9 @@ packages:
   webgl-sdf-generator@1.1.1:
     resolution: {integrity: sha512-9Z0JcMTFxeE+b2x1LJTdnaT8rT8aEp7MVxkNwoycNmJWwPdzoXzMh0BjJSh/AEFP+KPYZUli814h8bJZFIZ2jA==}
 
+  webxr-layers-polyfill@1.1.0:
+    resolution: {integrity: sha512-GqWE6IFlut8a1Lnh9t1RPnOXud1rZ7wLPvWp7mqTDOYtgorXqlNMhEnI9EqjU33grBx0v3jm0Oc13opkAdmgMQ==}
+
   which-boxed-primitive@1.1.1:
     resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
     engines: {node: '>= 0.4'}
@@ -3617,14 +3620,14 @@ snapshots:
       wrap-ansi: 8.1.0
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
-  '@iwer/devui@1.1.1(@types/react@19.0.8)(iwer@2.0.1)':
+  '@iwer/devui@1.1.1(@types/react@19.0.8)(iwer@2.1.0)':
     dependencies:
       '@fortawesome/fontawesome-svg-core': 6.6.0
       '@fortawesome/free-solid-svg-icons': 6.6.0
       '@fortawesome/react-fontawesome': 0.2.2(@fortawesome/fontawesome-svg-core@6.6.0)(react@18.3.1)
       '@pmndrs/handle': 6.6.1(@types/react@19.0.8)(react@18.3.1)
       '@pmndrs/pointer-events': 6.6.1
-      iwer: 2.0.1
+      iwer: 2.1.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       styled-components: 6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3633,9 +3636,9 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@iwer/sem@0.2.5(iwer@2.0.1)':
+  '@iwer/sem@0.2.5(iwer@2.1.0)':
     dependencies:
-      iwer: 2.0.1
+      iwer: 2.1.0
       three: 0.165.0
       ts-proto: 2.6.1
 
@@ -5324,9 +5327,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  iwer@2.0.1:
+  iwer@2.1.0:
     dependencies:
       gl-matrix: 3.4.3
+      webxr-layers-polyfill: 1.1.0
 
   jackspeak@3.4.3:
     dependencies:
@@ -6435,6 +6439,10 @@ snapshots:
   webgl-constants@1.1.1: {}
 
   webgl-sdf-generator@1.1.1: {}
+
+  webxr-layers-polyfill@1.1.0:
+    dependencies:
+      gl-matrix: 3.4.3
 
   which-boxed-primitive@1.1.1:
     dependencies:

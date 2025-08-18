@@ -11,10 +11,10 @@ export function HandWithWatch() {
   return (
     <>
       <Suspense>
-        <XRHandModel colorWrite={false} renderOrder={-1} />
+        <XRHandModel />
       </Suspense>
       <Suspense>
-        <XRSpace space="grip-space">
+        <XRSpace space="wrist">
           <Watch />
         </XRSpace>
       </Suspense>
@@ -46,13 +46,7 @@ export function Watch(props: any) {
     ref.current.copy(vectorHelper)
   })
   return (
-    <group
-      rotation={[0, 0, (0.85 * Math.PI) / 2, 'XYZ']}
-      position={[0.037, 0.05, 0.003]}
-      scale={0.00011}
-      {...props}
-      dispose={null}
-    >
+    <group rotation={[0, Math.PI / 2, Math.PI]} position={[0, 0, 0]} scale={0.00011} {...props} dispose={null}>
       <group rotation-x={Math.PI / 2} position-y={-270}>
         <Root pixelSize={0.66} width={512} height={512}>
           {state === 'stopped' && (
