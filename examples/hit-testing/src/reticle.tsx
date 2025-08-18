@@ -13,13 +13,13 @@ const ReticleMesh = forwardRef<Mesh, ThreeElements['mesh']>((props, ref) => {
 
   return (
     <mesh ref={ref} geometry={geometry_merged} {...props}>
-      <meshBasicMaterial side={THREE.DoubleSide} color={props.color} />
+      <meshBasicMaterial side={THREE.DoubleSide} />
     </mesh>
   )
 })
 
 export const Reticle = memo(({ handedness }: { handedness: XRHandedness | 'duck' }) => {
-  const ref = useRef<Mesh>(undefined)
+  const ref = useRef<Mesh>(null)
 
   useFrame(() => {
     if (ref.current == null) {

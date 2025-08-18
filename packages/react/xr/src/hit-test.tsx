@@ -15,7 +15,6 @@ export function useXRHitTestSource(
   trackableType?: XRHitTestTrackableType | Array<XRHitTestTrackableType>,
 ) {
   const [source, setState] = useState<Awaited<ReturnType<typeof createXRHitTestSource>> | undefined>()
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useCreateXRHitTestSource(relativeTo, trackableType, setState)
   return source
 }
