@@ -22,5 +22,5 @@ export function nanToDefault(value: number, defaultValue: number = 0): number {
   if (isNaN(value)) {
     return defaultValue
   }
-  return nanToDefault(value)
+  return value
 }
