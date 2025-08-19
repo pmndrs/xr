@@ -756,10 +756,11 @@ async function setFrameRate(session: XRSession, frameRate: FrameRateOption): Pro
     if (value === false) {
       return
     }
-    return session.updateTargetFrameRate(value)
+    await session.updateTargetFrameRate(value)
+    return
   }
   const multiplier = frameRate === 'high' ? 1 : frameRate === 'mid' ? 0.5 : 0
-  return session.updateTargetFrameRate(supportedFrameRates[Math.ceil((supportedFrameRates.length - 1) * multiplier)])
+  await session.updateTargetFrameRate(supportedFrameRates[Math.ceil((supportedFrameRates.length - 1) * multiplier)])
 }
 
 async function enterXRSession(
@@ -779,20 +780,19 @@ async function enterXRSession(
     )
   }
   const session = await navigator.xr.requestSession(mode, buildXRSessionInit(mode, domOverlayRoot, options))
-  setupXRSession(session, manager, options)
+  await setupXRSession(session, manager, options)
   return session
 }
 
-function setupXRSession(
+async function setupXRSession(
   session: XRSession,
   manager: WebXRManager,
   options: XRStoreOptions<XRElementImplementations> | undefined,
 ) {
-  setFrameRate(session, options?.frameRate ?? 'high')
-  setupXRManager(manager, session, options)
+  await Promise.all([setFrameRate(session, options?.frameRate ?? 'high'), setupXRManager(manager, session, options)])
 }
 
-function setupXRManager(
+async function setupXRManager(
   xr: WebXRManager,
   session: XRSession,
   options: XRStoreOptions<XRElementImplementations> | undefined,
@@ -812,7 +812,7 @@ function setupXRManager(
   if (frameBufferScaling != null) {
     xr?.setFramebufferScaleFactor(frameBufferScaling)
   }
-  xr?.setSession(session)
+  await xr?.setSession(session)
 }
 
 const allSessionModes: Array<XRSessionMode> = ['immersive-ar', 'immersive-vr', 'inline']
