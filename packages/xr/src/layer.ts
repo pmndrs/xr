@@ -18,7 +18,7 @@ import {
 } from 'three'
 import { getSpaceFromAncestors } from './space.js'
 import { XRState, XRStore } from './store.js'
-import { toDOMPointInit } from './utils.js'
+import { nanToDefault, toDOMPointInit } from './utils.js'
 
 export type XRLayerEntry = {
   renderOrder: number
@@ -134,8 +134,15 @@ const vectorHelper = new Vector3()
 const quaternionHelper = new Quaternion()
 const scaleHelper = new Vector3()
 
+/**
+ * @param matrix is allowed to contain nan values
+ */
 function matrixToRigidTransform(matrix: Matrix4, scaleTarget: Vector3 = scaleHelper): XRRigidTransform {
+  //assume matrix can contain nan values
   matrix.decompose(vectorHelper, quaternionHelper, scaleTarget)
+  scaleTarget.x = nanToDefault(scaleTarget.x)
+  scaleTarget.y = nanToDefault(scaleTarget.y)
+  scaleTarget.z = nanToDefault(scaleTarget.z)
   return new XRRigidTransform(toDOMPointInit(vectorHelper), toDOMPointInit(quaternionHelper))
 }
 
@@ -332,7 +339,7 @@ function applyXRLayerScale(
     const radius = scaleXZ
     const layerWidth = radius * (centralAngle ?? DefaultCentralAngle)
     target.radius = radius
-    target.aspectRatio = layerWidth / scale.y
+    target.aspectRatio = scale.y === 0 ? 1 : layerWidth / scale.y
   } else if (shape === 'quad') {
     target.width = scale.x / 2
     target.height = scale.y / 2

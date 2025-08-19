@@ -22,6 +22,9 @@ export function createGetXRSpaceMatrix(
   }
 }
 
+/**
+ * @param targetOffsetMatrix might contain NaN values as a result of this operation
+ */
 export function getSpaceFromAncestors(
   object: Object3D,
   origin: Object3D | undefined,
@@ -29,6 +32,9 @@ export function getSpaceFromAncestors(
   targetOffsetMatrix?: Matrix4,
 ): XRSpace
 
+/**
+ * @param targetOffsetMatrix might contain NaN values as a result of this operation
+ */
 export function getSpaceFromAncestors(
   object: Object3D,
   origin?: Object3D,
