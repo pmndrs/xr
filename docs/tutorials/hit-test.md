@@ -1,10 +1,10 @@
 ---
 title: Hit Test
-description: How to add hit testing capabilities to your AR experiences?
+description: How to add hit testing capabilities to your AR experiences
 nav: 19
 ---
 
-Hit testing is a technique that allows developers to check for intersections with real-world geometry in AR experiences. `@react-three/xr` provides hooks and components for setting up hit testing. This tutorial covers all the hit testing hooks available in React Three XR and demonstrates how to use them effectively.
+Hit testing is a technique that allows developers to check for intersections with real-world surfaces in AR experiences. `@react-three/xr` provides hooks and components for setting up hit testing. This tutorial covers all the hit testing hooks available in React Three XR and demonstrates how to use them effectively.
 
 ## Overview of Hit Testing Components
 
@@ -16,11 +16,11 @@ React Three XR provides three hooks for hit testing:
 
 Additionally, React Three XR provides the `XRHitTest` component, which is a convenience wrapper for using the `useXRHitTest` hook to perform continuous hit testing.
 
-All rays cast by these components originate from the source's position and are cast in the direction that the source object is oriented (quaternion).
+All rays cast by these components originate from the source's position and are cast in the direction that the source object is oriented (quaternion; typically -z).
 
 ## useXRHitTest Hook
 
-The `useXRHitTest` hook is the most commonly used hook for hit testing. It automatically performs hit tests every frame and calls your callback function with the results.
+The `useXRHitTest` hook is the most commonly used hook for hit testing in the library. It automatically performs hit tests every frame and calls your callback function with the results.
 
 **What it does:** Sets up continuous hit testing that runs every frame, providing real-time intersection data with the real world.
 
@@ -86,15 +86,15 @@ const store = createXRStore({
 })
 ```
 
-It has all of the same functionality as the `useXRHitTest` hook, just that it's built as a component.
+`XRHitTest` has all of the same functionality as the `useXRHitTest` hook, just that it's built as a component.
 
-## useXRHitTestSource Hook // TODO: Add a toggle button to the ducks example that only performs a hit test on the right hand when toggled on
+## useXRHitTestSource Hook 
 
-The `useXRHitTestSource` hook provides lower-level access to hit test sources, giving you more control over when and how hit tests are performed.
+The `useXRHitTestSource` hook provides lower-level access to hit test sources, giving you more control over when and how hit tests are performed. It is similar to the `useXRRequestHitTest` hook in that you need to manually poll for hit test results. The only difference being that the source created by the `useXRHitTestSource` hook is more persistent than one created by `useXRRequestHitTest`.
 
-**What it does:** Creates and manages an XR hit test source that you can use to manually request hit test results.
+**What it does:** Does the same thing as the `useXRHitTest` hook, but does not automatically hit test every frame.
 
-**When to use it:** Use this when you need more granular control over hit testing, such as performing hit tests only under specific conditions, or when you want to manage the hit test lifecycle manually.
+**When to use it:** In most cases you should use either `useXRHitTest` or `useXRRequestHitTest`, but you can use this hook when you have a persistent hit test source that you only want to occasionally perform constant hit tests from. Or if you want to recreate the `useXRHitTest` behavior manually.
 
 **Parameters:**
 - `relativeTo` - The object, XR space, or reference space to cast rays from
@@ -135,7 +135,7 @@ function ManualHitTest() {
 }
 ```
 
-## useXRRequestHitTest Hook // TODO: Add a button to the controller to the ducks example that shows how far away the user's head is from the floor
+## useXRRequestHitTest Hook
 
 The `useXRRequestHitTest` hook provides a function for one-time hit test requests, perfect for event-driven hit testing.
 
@@ -146,6 +146,7 @@ The `useXRRequestHitTest` hook provides a function for one-time hit test request
 **Returns:** A function that takes the same parameters as other hit test hooks and returns a promise with hit test results
 
 ```tsx
+const matrixHelper = new Matrix4()
 function EventDrivenHitTest() {
   const requestHitTest = useXRRequestHitTest()
   const meshRef = useRef<Mesh>(null)
@@ -157,10 +158,7 @@ function EventDrivenHitTest() {
     try {
       const results = await requestHitTest(meshRef, ['plane', 'mesh'])
       if (results && results.length > 0) {
-        const matrix = new Matrix4()
-        // Note: You'll need to get the world matrix helper from the XR store
-        // This is a simplified example
-        const position = new Vector3().setFromMatrixPosition(matrix)
+        const position = new Vector3().setFromMatrixPosition(matrixHelper)
         setPlacedObjects(prev => [...prev, position])
       }
     } catch (error) {
@@ -264,19 +262,4 @@ function ObjectPlacement() {
 }
 ```
 
-With the `hitTestPosition` containing the world position of the last hit test, we can use it to create a 3d object and sync it to the object's position on every frame.
-
-```tsx
-function Point() {
-  const ref = useRef<Mesh>(null)
-  useFrame(() => ref.current?.position.copy(hitTestPosition))
-  return (
-    <mesh scale={0.05} ref={ref}>
-      <sphereGeometry />
-      <meshBasicMaterial />
-    </mesh>
-  )
-}
-```
-
-Alternatively, for devices that provide mesh detection, we can also add normal pointer event listeners to an XR Mesh to achieve the same behavior. Check out [this tutorial](./object-detection.md) for more information about mesh detection.
+Alternatively, for devices that provide mesh detection -- such as newer Meta Quest devices -- we can also add normal pointer event listeners to an XR Mesh to achieve the same behavior. Check out [this tutorial](./object-detection.md) for more information about mesh detection.
