@@ -18,7 +18,7 @@ const ReticleMesh = forwardRef<Mesh, ThreeElements['mesh']>((props, ref) => {
   )
 })
 
-export const Reticle = memo(({ handedness }: { handedness: XRHandedness | 'duck' }) => {
+export const Reticle = memo(({ handedness }: { handedness: XRHandedness }) => {
   const ref = useRef<Mesh>(null)
 
   useFrame(() => {
