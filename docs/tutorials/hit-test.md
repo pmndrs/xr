@@ -28,29 +28,41 @@ The `useXRHitTest` hook is the most commonly used hook for hit testing in the li
 
 **Parameters:**
 - `fn` - Callback function that receives hit test results and a function to retrieve the world matrix 
-- `relativeTo` - The object, XR space, or reference space to cast rays from
+- `relativeTo` - The object, XR space, or reference space to cast rays from. This reference must be static in your scene.
 - `trackableType` - Optional parameter specifying what types of surfaces to hit test against
 
 
 ```tsx
+const matrixHelper = new Matrix4()
+const hitTestPosition = new Vector3()
+
 function ContinuousHitTest() {
-  const meshRef = useRef<Mesh>(null)
-  const [hitPosition, setHitPosition] = useState<Vector3 | null>(null)
+  const previewRef = useRef<Mesh>(null)
   
   useXRHitTest(
     (results, getWorldMatrix) => {
-      if (results.length > 0) {
-        const matrix = new Matrix4()
-        getWorldMatrix(matrix, results[0])
-        const position = new Vector3().setFromMatrixPosition(matrix)
-        setHitPosition(position)
-      }
+      if (results.length === 0) return
+
+      getWorldMatrix(matrixHelper, results[0])
+      hitTestPosition.setFromMatrixPosition(matrixHelper)
     },
-    meshRef, // Cast rays from this mesh's position
+    'viewer', // Cast rays from the viewer reference space. This will typically be either the camera or where the user is looking
     'plane' // Only hit test against detected planes
   )
+
+  useFrame(() => {
+    if (hitTestPosition && previewRef.current) {
+      previewRef.current.position.copy(hitTestPosition)
+    }
+  })
   
-  return <mesh ref={meshRef}>/* your mesh content */</mesh>
+  return (
+      {/* Renders a sphere where the hit test intersects with the plane */}
+      <mesh ref={previewRef} position={hitPosition}>
+        <sphereGeometry args={[0.05]} />
+        <meshBasicMaterial color="red" />
+      </mesh>
+  )
 }
 ```
 
@@ -63,25 +75,22 @@ const matrixHelper = new Matrix4()
 const hitTestPosition = new Vector3()
 
 const store = createXRStore({
-  hand: {
-    right: () => {
-      const state = useXRHandState()
-      return (
-        <>
-          <XRHandModel />
-          <XRHitTest
-            space={state.inputSource.targetRaySpace}
-            onResults={(results, getWorldMatrix) => {
-              if (results.length === 0) {
-                return
-              }
-              getWorldMatrix(matrixHelper, results[0])
-              hitTestPosition.setFromMatrixPosition(matrixHelper)
-            }}
-          />
-        </>
-      )
-    },
+  hand: () => {
+    const inputSourceState = useXRInputSourceStateContext()
+
+    return (
+      <>
+        <DefaultXRHand />
+        <XRHitTest
+          space={inputSourceState.inputSource.targetRaySpace}
+          onResults={(results, getWorldMatrix) => {
+            if (results.length === 0) return
+            getWorldMatrix(matrixHelper, results[0])
+            hitTestPosition.setFromMatrixPosition(matrixHelper)
+          }}
+        />
+      </>
+    )
   },
 })
 ```
@@ -90,11 +99,11 @@ const store = createXRStore({
 
 ## useXRHitTestSource Hook 
 
-The `useXRHitTestSource` hook provides lower-level access to hit test sources, giving you more control over when and how hit tests are performed. It is similar to the `useXRRequestHitTest` hook in that you need to manually poll for hit test results. The only difference being that the source created by the `useXRHitTestSource` hook is more persistent than one created by `useXRRequestHitTest`.
+The `useXRHitTestSource` hook provides lower-level access to hit test sources, giving you more control over when and how hit tests are performed. It is the same as the `useXRHitTest` hook, the only difference being that you have to manually check for hit test results; typically every frame, or every few frames.
 
 **What it does:** Does the same thing as the `useXRHitTest` hook, but does not automatically hit test every frame.
 
-**When to use it:** In most cases you should use either `useXRHitTest` or `useXRRequestHitTest`, but you can use this hook when you have a persistent hit test source that you only want to occasionally perform constant hit tests from. Or if you want to recreate the `useXRHitTest` behavior manually.
+**When to use it:** In most cases you should use either `useXRHitTest` or `useXRRequestHitTest`, but you can use this hook when you have a static hit test source that you only want to occasionally perform constant hit tests from. Or if you want to recreate the `useXRHitTest` behavior manually.
 
 **Parameters:**
 - `relativeTo` - The object, XR space, or reference space to cast rays from
@@ -105,7 +114,8 @@ The `useXRHitTestSource` hook provides lower-level access to hit test sources, g
 ```tsx
 function ManualHitTest() {
   const meshRef = useRef<Mesh>(null)
-  const hitTestSource = useXRHitTestSource(meshRef, 'plane')
+  const hitTestSource = useXRHitTestSource(meshRef)
+  const [someCondition, setSomeCondition] = useState(false)
   const [hitResults, setHitResults] = useState<XRHitTestResult[]>([])
   
   useFrame((_, __, frame: XRFrame | undefined) => {
@@ -118,7 +128,7 @@ function ManualHitTest() {
   
   return (
     <mesh ref={meshRef}>
-      {/* Render hit test results */}
+      {/* Render hit test results. This will put spheres everywhere the hit test succeeds. In a real app don't use index as the key */}
       {hitResults.map((result, index) => {
         const matrix = new Matrix4()
         hitTestSource?.getWorldMatrix(matrix, result)
@@ -137,7 +147,7 @@ function ManualHitTest() {
 
 ## useXRRequestHitTest Hook
 
-The `useXRRequestHitTest` hook provides a function for one-time hit test requests, perfect for event-driven hit testing.
+The `useXRRequestHitTest` hook provides a function for one-time hit test requests. Useful for event-driven hit testing. Cannot be called in the `useFrame` hook.
 
 **What it does:** Returns a function that can perform a single hit test request when called.
 
@@ -157,7 +167,7 @@ function EventDrivenHitTest() {
     
     try {
       const results = await requestHitTest(meshRef, ['plane', 'mesh'])
-      if (results && results.length > 0) {
+      if (results?.length > 0) {
         const position = new Vector3().setFromMatrixPosition(matrixHelper)
         setPlacedObjects(prev => [...prev, position])
       }
@@ -168,10 +178,11 @@ function EventDrivenHitTest() {
   
   return (
     <>
-      <mesh ref={meshRef} onClick={handleTap}>
-        <boxGeometry />
-        <meshStandardMaterial />
-      </mesh>
+      <IfInSessionMode allow={'immersive-ar'}>
+        <XRDomOverlay>
+          <button onClick={handleTap}>Place Object</button>
+        </XRDomOverlay>
+      </IfInSessionMode>
       
       {/* Render placed objects */}
       {placedObjects.map((position, index) => (
@@ -227,8 +238,7 @@ function ObjectPlacement() {
         setPreviewPosition(null)
       }
     },
-    'viewer', // Use viewer space for screen-based hit testing
-    'plane'
+    'viewer' // Use viewer space for screen-based hit testing
   )
   
   const placeObject = async () => {
@@ -256,10 +266,14 @@ function ObjectPlacement() {
       ))}
       
       {/* Placement trigger */}
-      <button onClick={placeObject}>Place Object</button>
+      <IfInSessionMode allow={'immersive-ar'}>
+        <XRDomOverlay>
+          <button onClick={placeObject}>Place Object</button>
+        </XRDomOverlay>
+      </IfInSessionMode>
     </>
   )
 }
 ```
 
-Alternatively, for devices that provide mesh detection -- such as newer Meta Quest devices -- we can also add normal pointer event listeners to an XR Mesh to achieve the same behavior. Check out [this tutorial](./object-detection.md) for more information about mesh detection.
+Alternatively, for devices that provide mesh detection -- such as newer Meta Quest devices -- you can also add normal pointer event listeners to an XR Mesh to achieve the same behavior. Check out [this tutorial](./object-detection.md) for more information about mesh detection.

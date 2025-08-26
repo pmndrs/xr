@@ -8,7 +8,7 @@ import { useXRStore } from './xr.js'
 export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTest } from '@pmndrs/xr'
 
 /**
- * Hook for creating a hit test source originating from the provided object or xrspace
+ * Hook for creating a hit test source originating from the provided object or XRSpace. The provided object must be static
  */
 export function useXRHitTestSource(
   relativeTo: RefObject<Object3D | null> | XRSpace | XRReferenceSpaceType,
@@ -20,7 +20,7 @@ export function useXRHitTestSource(
 }
 
 /**
- * Hook for setting up a continous hit test originating from the provided object or xrspace
+ * Hook for setting up a continous hit test originating from the provided object or XRSpace. The provided object must be static
  *
  * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
  * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
@@ -78,7 +78,7 @@ function useCreateXRHitTestSource(
 }
 
 /**
- * Hook that returns a function to request a single hit test
+ * Hook that returns a function to request a single hit test. Cannot be called in the useFrame hook.
  *
  * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
  * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
@@ -106,6 +106,7 @@ export function useXRRequestHitTest() {
  *
  * @param props
  * #### `space` - [XRSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRSpace) | [XRReferenceSpaceType](https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace#reference_space_types)
+ * #### `onResults` - Callback function that is called with the results of the hit test
  *
  * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
  * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
