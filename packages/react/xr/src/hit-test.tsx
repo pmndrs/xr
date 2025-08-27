@@ -10,7 +10,8 @@ export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTe
 /**
  * Hook for creating a hit test source originating from the provided object or XRSpace. The provided object must be statically positioned in the XRSpace.
  *
- * @param relativeTo - 
+ * @param relativeTo - The XRSpace, XRReferenceSpace, or Object3D to perform hit-tests from
+ * @param trackableType - The
  * 
  * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
  * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
