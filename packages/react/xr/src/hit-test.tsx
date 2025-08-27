@@ -8,7 +8,13 @@ import { useXRStore } from './xr.js'
 export { createXRHitTestSource, requestXRHitTest, type GetWorldMatrixFromXRHitTest } from '@pmndrs/xr'
 
 /**
- * Hook for creating a hit test source originating from the provided object or XRSpace. The provided object must be static
+ * Hook for creating a hit test source originating from the provided object or XRSpace. The provided object must be statically positioned in the XRSpace.
+ *
+ * @param relativeTo - 
+ * 
+ * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
+ * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
+ */
  */
 export function useXRHitTestSource(
   relativeTo: RefObject<Object3D | null> | XRSpace | XRReferenceSpaceType,
@@ -20,7 +26,7 @@ export function useXRHitTestSource(
 }
 
 /**
- * Hook for setting up a continous hit test originating from the provided object or XRSpace. The provided object must be static
+ * Hook for setting up a continous hit test originating from the provided object or XRSpace. The provided object must be statically positioned in the XRSpace.
  *
  * @see [Hit Test Tutorial](https://pmndrs.github.io/xr/docs/tutorials/hit-test)
  * @see [Hit Test Example](https://pmndrs.github.io/xr/examples/hit-testing/)
