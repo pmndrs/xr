@@ -30,8 +30,7 @@ export const useTestDistanceToFloor = () => {
 
   const testDistanceToFloor = useCallback(async () => {
     if (isCameraFacingDown(camera)) {
-      const hitTestResult = await requestHitTest('viewer', 'plane')
-      console.log('hitTestResult:', hitTestResult)
+      const hitTestResult = await requestHitTest('viewer')
       if (!hitTestResult) {
         return undefined
       }

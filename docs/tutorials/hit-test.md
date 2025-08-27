@@ -27,10 +27,10 @@ The `useXRHitTest` hook is the most commonly used hook for hit testing in the li
 **When to use it:** Use this when you need continuous tracking of where a ray intersects with real-world surfaces, such as for cursor positioning, object placement previews, or interactive AR elements.
 
 **Parameters:**
-- `fn` - Callback function that receives hit test results and a function to retrieve the world matrix 
+
+- `fn` - Callback function that receives hit test results and a function to retrieve the world matrix
 - `relativeTo` - The object, XR space, or reference space to cast rays from. This reference must be static in your scene.
 - `trackableType` - Optional parameter specifying what types of surfaces to hit test against
-
 
 ```tsx
 const matrixHelper = new Matrix4()
@@ -38,7 +38,7 @@ const hitTestPosition = new Vector3()
 
 function ContinuousHitTest() {
   const previewRef = useRef<Mesh>(null)
-  
+
   useXRHitTest(
     (results, getWorldMatrix) => {
       if (results.length === 0) return
@@ -55,7 +55,7 @@ function ContinuousHitTest() {
       previewRef.current.position.copy(hitTestPosition)
     }
   })
-  
+
   return (
       {/* Renders a sphere where the hit test intersects with the plane */}
       <mesh ref={previewRef} position={hitPosition}>
@@ -68,7 +68,7 @@ function ContinuousHitTest() {
 
 ## XRHitTest
 
-`XRHitTest` is a component that wraps the `useXRHitTest` hook. This makes it easier to add hit testing anywhere within your component tree. 
+`XRHitTest` is a component that wraps the `useXRHitTest` hook. This makes it easier to add hit testing anywhere within your component tree.
 
 ```tsx
 const matrixHelper = new Matrix4()
@@ -97,7 +97,7 @@ const store = createXRStore({
 
 `XRHitTest` has all of the same functionality as the `useXRHitTest` hook, just that it's built as a component.
 
-## useXRHitTestSource Hook 
+## useXRHitTestSource Hook
 
 The `useXRHitTestSource` hook provides lower-level access to hit test sources, giving you more control over when and how hit tests are performed. It is the same as the `useXRHitTest` hook, the only difference being that you have to manually check for hit test results; typically every frame, or every few frames.
 
@@ -106,6 +106,7 @@ The `useXRHitTestSource` hook provides lower-level access to hit test sources, g
 **When to use it:** In most cases you should use either `useXRHitTest` or `useXRRequestHitTest`, but you can use this hook when you have a static hit test source that you only want to occasionally perform constant hit tests from. Or if you want to recreate the `useXRHitTest` behavior manually.
 
 **Parameters:**
+
 - `relativeTo` - The object, XR space, or reference space to cast rays from
 - `trackableType` - Optional parameter specifying what types of surfaces to hit test against
 
@@ -117,7 +118,7 @@ function ManualHitTest() {
   const hitTestSource = useXRHitTestSource(meshRef)
   const [someCondition, setSomeCondition] = useState(false)
   const [hitResults, setHitResults] = useState<XRHitTestResult[]>([])
-  
+
   useFrame((_, __, frame: XRFrame | undefined) => {
     // Only perform hit testing when certain conditions are met
     if (frame && hitTestSource && someCondition) {
@@ -125,7 +126,7 @@ function ManualHitTest() {
       setHitResults(results)
     }
   })
-  
+
   return (
     <mesh ref={meshRef}>
       {/* Render hit test results. This will put spheres everywhere the hit test succeeds. In a real app don't use index as the key */}
@@ -159,23 +160,18 @@ The `useXRRequestHitTest` hook provides a function for one-time hit test request
 const matrixHelper = new Matrix4()
 function EventDrivenHitTest() {
   const requestHitTest = useXRRequestHitTest()
-  const meshRef = useRef<Mesh>(null)
   const [placedObjects, setPlacedObjects] = useState<Vector3[]>([])
-  
+
   const handleTap = async () => {
-    if (!meshRef.current) return
-    
-    try {
-      const results = await requestHitTest(meshRef, ['plane', 'mesh'])
-      if (results?.length > 0) {
-        const position = new Vector3().setFromMatrixPosition(matrixHelper)
-        setPlacedObjects(prev => [...prev, position])
-      }
-    } catch (error) {
-      console.error('Hit test failed:', error)
+    const hitTestResult = await requestHitTest('viewer', ['plane', 'mesh'])
+    const { results, getWorldMatrix } = hitTestResult
+    if (results?.length > 0) {
+      getWorldMatrix(matrixHelper, results[0])
+      const position = new Vector3().setFromMatrixPosition(matrixHelper)
+      setPlacedObjects((prev) => [...prev, position])
     }
   }
-  
+
   return (
     <>
       <IfInSessionMode allow={'immersive-ar'}>
@@ -183,7 +179,7 @@ function EventDrivenHitTest() {
           <button onClick={handleTap}>Place Object</button>
         </XRDomOverlay>
       </IfInSessionMode>
-      
+
       {/* Render placed objects */}
       {placedObjects.map((position, index) => (
         <mesh key={index} position={position}>
@@ -226,7 +222,7 @@ function ObjectPlacement() {
   const [placedObjects, setPlacedObjects] = useState<Vector3[]>([])
   const [previewPosition, setPreviewPosition] = useState<Vector3 | null>(null)
   const controllerRef = useRef<Group>(null)
-  
+
   // Continuous hit testing for preview
   useXRHitTest(
     (results, getWorldMatrix) => {
@@ -238,15 +234,15 @@ function ObjectPlacement() {
         setPreviewPosition(null)
       }
     },
-    'viewer' // Use viewer space for screen-based hit testing
+    'viewer', // Use viewer space for screen-based hit testing
   )
-  
+
   const placeObject = async () => {
     if (previewPosition) {
-      setPlacedObjects(prev => [...prev, previewPosition.clone()])
+      setPlacedObjects((prev) => [...prev, previewPosition.clone()])
     }
   }
-  
+
   return (
     <>
       {/* Preview object at hit test position */}
@@ -256,7 +252,7 @@ function ObjectPlacement() {
           <meshBasicMaterial color="yellow" transparent opacity={0.7} />
         </mesh>
       )}
-      
+
       {/* Placed objects */}
       {placedObjects.map((position, index) => (
         <mesh key={index} position={position}>
@@ -264,7 +260,7 @@ function ObjectPlacement() {
           <meshBasicMaterial color="green" />
         </mesh>
       ))}
-      
+
       {/* Placement trigger */}
       <IfInSessionMode allow={'immersive-ar'}>
         <XRDomOverlay>
