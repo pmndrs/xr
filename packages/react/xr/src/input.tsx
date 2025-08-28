@@ -10,7 +10,7 @@ import { useContext, useEffect } from 'react'
 import { xrInputSourceStateContext } from './contexts.js'
 import { useXR } from './xr.js'
 
-export type { XRGazeState, XRScreenInputState, XRTransientPointerState }
+export type { XRTransientPointerState, XRScreenInputState, XRGazeState }
 
 export function useXRInputSourceStates() {
   return useXR((xr) => xr.inputSourceStates)
