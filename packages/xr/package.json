@@ -33,7 +33,7 @@
     "@iwer/devui": "^1.1.1",
     "@iwer/sem": "~0.2.5",
     "@pmndrs/pointer-events": "workspace:~",
-    "iwer": "^2.0.1",
+    "iwer": "^2.1.0",
     "meshline": "^3.3.1",
     "zustand": "^4.5.2"
   },
