@@ -1,9 +1,8 @@
 {
   "name": "hit-testing",
   "dependencies": {
-    "@react-three/uikit": "^0.8.21",
     "@react-three/xr": "workspace:~",
-    "@react-three/handle": "workspace:~"
+    "@react-three/uikit": "^0.8.21"
   },
   "scripts": {
     "dev": "vite --host",

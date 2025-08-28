@@ -10,7 +10,7 @@ import { useContext, useEffect } from 'react'
 import { xrInputSourceStateContext } from './contexts.js'
 import { useXR } from './xr.js'
 
-export type { XRGazeState, XRScreenInputState, XRTransientPointerState }
+export type { XRTransientPointerState, XRScreenInputState, XRGazeState }
 
 export function useXRInputSourceStates() {
   return useXR((xr) => xr.inputSourceStates)
@@ -31,9 +31,6 @@ export function useXRInputSourceState<T extends keyof XRInputSourceStateMap>(
 export function useXRInputSourceStateContext<T extends keyof XRInputSourceStateMap>(type: T): XRInputSourceStateMap[T]
 
 export function useXRInputSourceStateContext(): XRInputSourceState
-/**
- * Retrieves the current state for input sources. Useful for accessing input source ray spaces
- * */
 export function useXRInputSourceStateContext<T extends keyof XRInputSourceStateMap>(
   type?: T,
 ): XRInputSourceStateMap[T] {
