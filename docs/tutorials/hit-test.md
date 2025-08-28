@@ -22,9 +22,13 @@ All rays cast by these components originate from the source's position and are c
 
 The `useXRHitTest` hook is the most commonly used hook for hit testing in the library. It automatically performs hit tests every frame and calls your callback function with the results.
 
-**What it does:** Sets up continuous hit testing that runs every frame, providing real-time intersection data with the real world.
+**What it does:**
 
-**When to use it:** Use this when you need continuous tracking of where a ray intersects with real-world surfaces, such as for cursor positioning, object placement previews, or interactive AR elements.
+Sets up continuous hit testing that runs every frame, providing real-time intersection data with the real world.
+
+**When to use it:**
+
+Use this when you need continuous tracking of where a ray intersects with real-world surfaces, such as for cursor positioning, object placement previews, or interactive AR elements.
 
 **Parameters:**
 
@@ -101,16 +105,22 @@ const store = createXRStore({
 
 The `useXRHitTestSource` hook provides lower-level access to hit test sources, giving you more control over when and how hit tests are performed. It is the same as the `useXRHitTest` hook, the only difference being that you have to manually check for hit test results; typically every frame, or every few frames.
 
-**What it does:** Does the same thing as the `useXRHitTest` hook, but does not automatically hit test every frame.
+**What it does:** 
 
-**When to use it:** In most cases you should use either `useXRHitTest` or `useXRRequestHitTest`, but you can use this hook when you have a static hit test source that you only want to occasionally perform constant hit tests from. Or if you want to recreate the `useXRHitTest` behavior manually.
+Does the same thing as the `useXRHitTest` hook, but does not automatically hit test every frame.
+
+**When to use it:**
+
+ In most cases you should use either `useXRHitTest` or `useXRRequestHitTest`, but you can use this hook when you have a static hit test source that you only want to occasionally perform constant hit tests from. Or if you want to recreate the `useXRHitTest` behavior manually.
 
 **Parameters:**
 
 - `relativeTo` - The object, XR space, or reference space to cast rays from
 - `trackableType` - Optional parameter specifying what types of surfaces to hit test against
 
-**Returns:** A hit test source object that you can use with `frame.getHitTestResults()`
+**Returns:**
+
+ A hit test source object that you can use with `frame.getHitTestResults()`
 
 ```tsx
 function ManualHitTest() {
@@ -150,11 +160,17 @@ function ManualHitTest() {
 
 The `useXRRequestHitTest` hook provides a function for one-time hit test requests. Useful for event-driven hit testing. Cannot be called in the `useFrame` hook.
 
-**What it does:** Returns a function that can perform a single hit test request when called.
+**What it does:** 
 
-**When to use it:** Use this for event-driven hit testing, such as when a user taps the screen, clicks a button, or performs a gesture. It's ideal for placing objects or checking intersections at specific moments.
+Returns a function that can perform a single hit test request when called.
 
-**Returns:** A function that takes the same parameters as other hit test hooks and returns a promise with hit test results
+**When to use it:** 
+
+Use this for event-driven hit testing, such as when a user taps the screen, clicks a button, or performs a gesture. It's ideal for placing objects or checking intersections at specific moments.
+
+**Returns:** 
+
+A function that takes the same parameters as other hit test hooks and returns a promise with hit test results
 
 ```tsx
 const matrixHelper = new Matrix4()
