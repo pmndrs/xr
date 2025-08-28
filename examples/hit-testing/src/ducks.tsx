@@ -22,7 +22,6 @@ export const Ducks = () => {
         setDucks((ducks) => [...ducks, { position, quaternion }])
       }
     },
-
     [],
   )
 

@@ -36,3 +36,31 @@ button {
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 1);
   transform: translate(-50%, 0);
 }
+
+.distanceMessage {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 2rem;
+  text-shadow: 0px 0px 20px rgba(0, 0, 0, 1);
+}
+
+.testDistanceToFloor {
+  position: absolute;
+  bottom: 2rem;
+  transform: none;
+  color: white;
+  font-size: 1rem;
+  right: 2rem;
+}
+
+.exitAR {
+  position: absolute;
+  bottom: 2rem;
+  transform: none;
+  left: 2rem;
+  color: white;
+  font-size: 1rem;
+}

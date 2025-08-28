@@ -180,6 +180,12 @@ importers:
 
   examples/hit-testing:
     dependencies:
+      '@react-three/handle':
+        specifier: workspace:~
+        version: link:../../packages/react/handle
+      '@react-three/uikit':
+        specifier: ^0.8.21
+        version: 0.8.21(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.173.0))(@types/react@19.0.8)(react@19.0.0)(three@0.173.0)(ts-node@10.9.2(@types/node@22.13.0)(typescript@5.7.3))
       '@react-three/xr':
         specifier: workspace:~
         version: link:../../packages/react/xr
@@ -838,6 +844,9 @@ packages:
   '@pmndrs/handle@6.6.1':
     resolution: {integrity: sha512-gMYeKxrYPkZV6qocLO/N3yxfAio2i7VzvtRrA4rUGivNHZhImXWWikJZa8hzyQp/bNG4tbRo6KE3T4CGmrmTvg==}
 
+  '@pmndrs/msdfonts@0.8.21':
+    resolution: {integrity: sha512-6SY68a5JnjTENJ0RnYuylJJPN2XTTnnhVTf7fngYr1dp4k+FOO5WHhrEWK0E44sU2KpR46GPAv6lt9U5qebhpQ==}
+
   '@pmndrs/msdfonts@0.8.7':
     resolution: {integrity: sha512-O+2xzQQeIV249SfuSJVsAIun2/9SnA9V2P90NRDxzRYVzI8smXk6na1iA7E/RsCvfpWFhyX3g9zaKdiTotavoA==}
 
@@ -854,6 +863,11 @@ packages:
 
   '@pmndrs/uikit@0.5.4':
     resolution: {integrity: sha512-kTjMxCbLMuKFRlT2LRND5elcXaXtghwiy41D79Gy9rt7q2uWUjdWSvE3u/8hzHK2B/zEnkoLda61B5S1/hojRg==}
+    peerDependencies:
+      three: '>=0.160'
+
+  '@pmndrs/uikit@0.8.21':
+    resolution: {integrity: sha512-C61c2OmCKHwLNkun/ZJYadFQBswBPN19dAwyuawV02xkbHJZ9iZZlx0ywRRXrYWNYiM4Ut5TiPKJPVXIg0Z9+w==}
     peerDependencies:
       three: '>=0.160'
 
@@ -941,6 +955,13 @@ packages:
 
   '@react-three/uikit@0.5.4':
     resolution: {integrity: sha512-SilREiJdUzfXTvV7DWSZTpbSXb43jGP/Bb89gd+ta1PL+0UB47L9lAQkM7sQM9N5MweP28rlZkAQ6SYIwAAXtA==}
+    hasBin: true
+    peerDependencies:
+      '@react-three/fiber': '>=8'
+      react: '>=18'
+
+  '@react-three/uikit@0.8.21':
+    resolution: {integrity: sha512-auV2MVY/NiseQ3dAa5VcsE4KbLfzARnlfEZGDw668r8SO7rgvVDfANmEyVvr0NyVT8rxK+KnNujF5xhxQCQaXQ==}
     hasBin: true
     peerDependencies:
       '@react-three/fiber': '>=8'
@@ -3701,6 +3722,8 @@ snapshots:
       - immer
       - react
 
+  '@pmndrs/msdfonts@0.8.21': {}
+
   '@pmndrs/msdfonts@0.8.7': {}
 
   '@pmndrs/pointer-events@6.6.1': {}
@@ -3725,6 +3748,18 @@ snapshots:
 
   '@pmndrs/uikit@0.5.4(three@0.173.0)(ts-node@10.9.2(@types/node@22.13.0)(typescript@5.7.3))':
     dependencies:
+      '@preact/signals-core': 1.8.0
+      inline-style-parser: 0.2.4
+      node-html-parser: 6.1.13
+      three: 0.173.0
+      tw-to-css: 0.0.12(ts-node@10.9.2(@types/node@22.13.0)(typescript@5.7.3))
+      yoga-layout: 3.2.1
+    transitivePeerDependencies:
+      - ts-node
+
+  '@pmndrs/uikit@0.8.21(three@0.173.0)(ts-node@10.9.2(@types/node@22.13.0)(typescript@5.7.3))':
+    dependencies:
+      '@pmndrs/msdfonts': 0.8.21
       '@preact/signals-core': 1.8.0
       inline-style-parser: 0.2.4
       node-html-parser: 6.1.13
@@ -3900,6 +3935,26 @@ snapshots:
       prettier: 3.4.2
       prompts: 2.4.2
       react: 19.0.0
+      zod: 3.24.1
+      zustand: 4.5.6(@types/react@19.0.8)(react@19.0.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - three
+      - ts-node
+
+  '@react-three/uikit@0.8.21(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.173.0))(@types/react@19.0.8)(react@19.0.0)(three@0.173.0)(ts-node@10.9.2(@types/node@22.13.0)(typescript@5.7.3))':
+    dependencies:
+      '@pmndrs/uikit': 0.8.21(three@0.173.0)(ts-node@10.9.2(@types/node@22.13.0)(typescript@5.7.3))
+      '@preact/signals-core': 1.8.0
+      '@react-three/fiber': 9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.173.0)
+      chalk: 5.4.1
+      commander: 12.1.0
+      ora: 8.1.1
+      prettier: 3.4.2
+      prompts: 2.4.2
+      react: 19.0.0
+      suspend-react: 0.1.3(react@19.0.0)
       zod: 3.24.1
       zustand: 4.5.6(@types/react@19.0.8)(react@19.0.0)
     transitivePeerDependencies:
