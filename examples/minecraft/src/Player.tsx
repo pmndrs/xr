@@ -1,5 +1,5 @@
-import { useKeyboardControls } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { PointerLockControls, useKeyboardControls } from '@react-three/drei'
+import { useFrame, useThree } from '@react-three/fiber'
 import {
   CapsuleCollider,
   interactionGroups,
@@ -30,6 +30,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
   const rigidBodyRef = useRef<RapierRigidBody>(null)
   const { rapier, world } = useRapier()
   const [, getKeys] = useKeyboardControls()
+  const { camera } = useThree()
 
   const playerMove = ({
     forward,
@@ -38,6 +39,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     right,
     rotationYVelocity,
     velocity,
+    camera,
     newVelocity,
   }: {
     forward: boolean
@@ -46,6 +48,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     right: boolean
     rotationYVelocity: number
     velocity?: Vector3Object
+    camera?: THREE.Camera
     newVelocity?: THREE.Vector3
   }) => {
     if (rigidBodyRef.current == null) {
@@ -56,10 +59,15 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
     }
 
     //apply rotation
-    const { x, y, z, w } = rigidBodyRef.current.rotation()
-    quaternionHelper.set(x, y, z, w)
-    quaternionHelper.multiply(quaternionHelper2.setFromEuler(eulerHelper.set(0, rotationYVelocity, 0, 'YXZ')))
-    rigidBodyRef.current?.setRotation(quaternionHelper, true)
+    if (!camera) {
+      const { x, y, z, w } = rigidBodyRef.current.rotation()
+      quaternionHelper.set(x, y, z, w)
+      quaternionHelper.multiply(quaternionHelper2.setFromEuler(eulerHelper.set(0, rotationYVelocity, 0, 'YXZ')))
+      rigidBodyRef.current?.setRotation(quaternionHelper, true)
+    } else if (camera) {
+      quaternionHelper.setFromEuler(camera.rotation)
+      rigidBodyRef.current?.setRotation(quaternionHelper, true)
+    }
 
     if (newVelocity) {
       // If we have a new velocity, we're in VR mode
@@ -129,6 +137,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
         right,
         rotationYVelocity: 0,
         velocity,
+        camera: state.camera,
       })
 
       if (jump) {
@@ -169,6 +178,8 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
           <Axe position={[0.3, -0.35, 0.5]} />
         </group>
       </IfInSessionMode>
+
+      <PointerLockControls args={[camera]} />
     </>
   )
 }
