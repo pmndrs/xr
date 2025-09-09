@@ -51,7 +51,7 @@ function useScreenHandles(
     [canvas, HandlesClass, getCamera, providedStore],
   )
 
-  useApplyScreenCameraState(handles.getStore(), !disabled, damping, providedCamera)
+  useApplyScreenCameraState(handles.getStore(), disabled, damping, providedCamera)
 
   useFrame((_, deltaTime) => handles.update(deltaTime * 1000))
   const scene = useThree((s) => s.scene)
