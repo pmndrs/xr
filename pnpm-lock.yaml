@@ -180,9 +180,6 @@ importers:
 
   examples/hit-testing:
     dependencies:
-      '@react-three/handle':
-        specifier: workspace:~
-        version: link:../../packages/react/handle
       '@react-three/uikit':
         specifier: ^0.8.21
         version: 0.8.21(@react-three/fiber@9.0.0-rc.5(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(three@0.173.0))(@types/react@19.0.8)(react@19.0.0)(three@0.173.0)(ts-node@10.9.2(@types/node@22.13.0)(typescript@5.7.3))
