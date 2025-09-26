@@ -8,7 +8,7 @@ import {
   useRapier,
   Vector3Object,
 } from '@react-three/rapier'
-import { IfInSessionMode } from '@react-three/xr'
+import { IfInSessionMode, useXR } from '@react-three/xr'
 import { useRef } from 'react'
 import * as THREE from 'three'
 import { Axe } from './Axe.jsx'
@@ -31,6 +31,7 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
   const { rapier, world } = useRapier()
   const [, getKeys] = useKeyboardControls()
   const { camera } = useThree()
+  const { mode } = useXR()
 
   const playerMove = ({
     forward,
@@ -137,7 +138,8 @@ export function Player({ lerp = THREE.MathUtils.lerp }) {
         right,
         rotationYVelocity: 0,
         velocity,
-        camera: state.camera,
+        // Don't pass the camera in AR/VR mode, as we want the player to control rotation
+        camera: mode?.includes('immersive-ar') || mode?.includes('immersive-vr') ? undefined : state.camera,
       })
 
       if (jump) {
