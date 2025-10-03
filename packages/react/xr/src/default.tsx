@@ -173,6 +173,7 @@ export function DefaultXRHandTouchPointer(props: DefaultXRHandTouchPointerOption
  * #### `model` - Options for configuring the controller apperance
  * #### `grabPointer` - Options for configuring the grab pointer
  * #### `rayPointer` - Options for configuring the ray pointer
+ * #### `teleportPointer` - Options for configuring the teleport pointer
  */
 export function DefaultXRController(props: DefaultXRControllerOptions) {
   const modelOptions = props.model

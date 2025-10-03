@@ -46,7 +46,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "generate_docs": "typedoc",
+    "generate:docs": "typedoc",
     "check:prettier": "prettier --check src",
     "check:eslint": "eslint \"src/**/*.{ts,tsx}\"",
     "fix:prettier": "prettier --write src",

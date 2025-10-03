@@ -50,12 +50,12 @@ export const XRControllerComponent = forwardRef<
 
 /**
  * Hook for subscribing to a button state change event on the controller
+ * @param controller the controller to listen for the event
  * @param id of the button
  * @param onChange callback that gets executed when the state of the button changes
- * @param handedness of the controller
  */
 export function useXRControllerButtonEvent(
-  controller: XRControllerState,
+  controller: XRControllerState | undefined,
   id: XRControllerGamepadComponentId,
   onChange: (state: XRControllerGamepadComponentState['state']) => void,
 ): void {

@@ -678,12 +678,15 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
       if (session == null || xrManager == null) {
         return
       }
+      const xrCamera = xrManager.getCamera()
+      //update camera aspect ratio
+      xrCamera.aspect = xrCamera.projectionMatrix.elements[5] / xrCamera.projectionMatrix.elements[0]
+
       const currentLayers = session?.renderState.layers
       if (currentLayers == null) {
         return
       }
       //layer sorting
-      const xrCamera = xrManager.getCamera()
       xrCamera.getWorldPosition(cameraWorldPosition)
       ;(layerEntries as Array<XRLayerEntry>).sort((entryA, entryB) => {
         const renderOrderDifference = entryA.renderOrder - entryB.renderOrder
@@ -753,10 +756,11 @@ async function setFrameRate(session: XRSession, frameRate: FrameRateOption): Pro
     if (value === false) {
       return
     }
-    return session.updateTargetFrameRate(value)
+    await session.updateTargetFrameRate(value)
+    return
   }
   const multiplier = frameRate === 'high' ? 1 : frameRate === 'mid' ? 0.5 : 0
-  return session.updateTargetFrameRate(supportedFrameRates[Math.ceil((supportedFrameRates.length - 1) * multiplier)])
+  await session.updateTargetFrameRate(supportedFrameRates[Math.ceil((supportedFrameRates.length - 1) * multiplier)])
 }
 
 async function enterXRSession(
@@ -776,20 +780,19 @@ async function enterXRSession(
     )
   }
   const session = await navigator.xr.requestSession(mode, buildXRSessionInit(mode, domOverlayRoot, options))
-  setupXRSession(session, manager, options)
+  await setupXRSession(session, manager, options)
   return session
 }
 
-function setupXRSession(
+async function setupXRSession(
   session: XRSession,
   manager: WebXRManager,
   options: XRStoreOptions<XRElementImplementations> | undefined,
 ) {
-  setFrameRate(session, options?.frameRate ?? 'high')
-  setupXRManager(manager, session, options)
+  await Promise.all([setFrameRate(session, options?.frameRate ?? 'high'), setupXRManager(manager, session, options)])
 }
 
-function setupXRManager(
+async function setupXRManager(
   xr: WebXRManager,
   session: XRSession,
   options: XRStoreOptions<XRElementImplementations> | undefined,
@@ -809,7 +812,7 @@ function setupXRManager(
   if (frameBufferScaling != null) {
     xr?.setFramebufferScaleFactor(frameBufferScaling)
   }
-  xr?.setSession(session)
+  await xr?.setSession(session)
 }
 
 const allSessionModes: Array<XRSessionMode> = ['immersive-ar', 'immersive-vr', 'inline']
