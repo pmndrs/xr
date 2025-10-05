@@ -1,5 +1,5 @@
 import { applyDampedScreenCameraState, defaultApply, HandleState, HandleStore } from '@pmndrs/handle'
-import { getVoidObject, PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
+import { getVoidObject, PointerEvent } from '@pmndrs/pointer-events'
 import { PositionalAudio, RoundedBox, useGLTF } from '@react-three/drei'
 import { Canvas, Color, extend, RootState, useFrame, useThree } from '@react-three/fiber'
 import { OrbitHandles, Handle, HandleTarget, createScreenCameraStore, PivotHandles } from '@react-three/handle'
@@ -38,7 +38,6 @@ import {
   Group,
   Mesh,
   Object3D,
-  Object3DEventMap,
   Quaternion,
   Scene as SceneImpl,
   ShaderMaterial,
@@ -430,7 +429,7 @@ function Scene({ isNotInRT = false }: { isNotInRT?: boolean }) {
 
   const scene = useThree((s) => s.scene)
   useEffect(() => {
-    const voidObject = getVoidObject(scene) as Object3D<Object3DEventMap & PointerEventsMap>
+    const voidObject = getVoidObject(scene) as Object3D
     const fn = () => useSceneStore.setState({ selected: undefined })
     voidObject.addEventListener('click', fn)
     return () => voidObject.removeEventListener('click', fn)

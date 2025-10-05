@@ -1,6 +1,5 @@
 import { HandleOptions, HandleStore } from '../store.js'
-import type { PointerEventsMap } from '@pmndrs/pointer-events'
-import type { Object3D, Object3DEventMap } from 'three'
+import type { Object3D } from 'three'
 
 export class DragHandle<T = unknown> {
   private connections: Array<{ store: HandleStore<T>; unbind: () => void }>
@@ -14,7 +13,7 @@ export class DragHandle<T = unknown> {
       }))
       return {
         store,
-        unbind: store.bind(object as Object3D<PointerEventsMap & Object3DEventMap>),
+        unbind: store.bind(object as Object3D),
       }
     })
   }

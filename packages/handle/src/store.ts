@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Object3D, Object3DEventMap, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
+import { Euler, Matrix4, Object3D, Quaternion, Vector2Tuple, Vector3, Vector3Tuple } from 'three'
 import {
   computeTranslateAsHandleTransformState,
   TranslateAsHandlePointerData,
@@ -16,7 +16,7 @@ import {
 } from './computations/two-pointer.js'
 import { Axis, HandleState, HandleStateImpl, HandleTransformState } from './state.js'
 import { getWorldDirection } from './utils.js'
-import type { PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
+import type { PointerEvent } from '@pmndrs/pointer-events'
 
 export type HandleOptions<T> = {
   /**
@@ -331,7 +331,7 @@ export class HandleStore<T>
     }
   }
 
-  bind(handle: Object3D<PointerEventsMap & Object3DEventMap>): () => void {
+  bind(handle: Object3D): () => void {
     const { onPointerDown, onPointerMove, onPointerUp } = this.handlers
     handle.addEventListener('pointerdown', onPointerDown)
     handle.addEventListener('pointermove', onPointerMove)

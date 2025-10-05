@@ -1,5 +1,5 @@
-import { PointerEventsMap, PointerEvent } from '@pmndrs/pointer-events'
-import { Object3D, Object3DEventMap } from 'three'
+import { PointerEvent } from '@pmndrs/pointer-events'
+import { Object3D } from 'three'
 import { HandleState } from '../state.js'
 import { defaultApply, HandleOptions, HandleStore } from '../store.js'
 import { TransformHandlesSpace } from './index.js'
@@ -45,11 +45,7 @@ export class HandlesContext {
     }
   }
 
-  registerHandle(
-    store: HandleStore<unknown>,
-    object: Object3D<PointerEventsMap & Object3DEventMap>,
-    tag: string,
-  ): () => void {
+  registerHandle(store: HandleStore<unknown>, object: Object3D, tag: string): () => void {
     const entry: (typeof this.handles)[number] = {
       object,
       store,

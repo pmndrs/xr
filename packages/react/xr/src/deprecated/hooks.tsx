@@ -63,8 +63,8 @@ export function useInteraction(
             handlerRef.current?.({ intersection: event, intersections: [event], target: event.pointerState })
           }
     const eventName = typeof translation === 'string' ? translation : translation.type
-    current.addEventListener(eventName as any, fn)
-    return () => current.removeEventListener(eventName as any, fn)
+    current.addEventListener(eventName as 'pointerdown', fn)
+    return () => current.removeEventListener(eventName as 'pointerdown', fn)
   }, [ref, type])
 }
 

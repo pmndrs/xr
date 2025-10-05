@@ -1,10 +1,4 @@
-import {
-  AllowedPointerEvents,
-  AllowedPointerEventsType,
-  PointerOptions,
-  Pointer,
-  PointerEventsMap,
-} from '@pmndrs/pointer-events'
+import { AllowedPointerEvents, AllowedPointerEventsType, PointerOptions, Pointer } from '@pmndrs/pointer-events'
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline'
 import {
   BufferGeometry,
@@ -13,7 +7,6 @@ import {
   Euler,
   Mesh,
   Object3D,
-  Object3DEventMap,
   QuadraticBezierCurve3,
   Quaternion,
   Vector3,
@@ -25,7 +18,7 @@ import { clamp } from 'three/src/math/MathUtils.js'
  * marks its children as teleportable
  */
 export function makeTeleportTarget(
-  root: Object3D<Object3DEventMap & PointerEventsMap>,
+  root: Object3D,
   camera: Camera | (() => Camera),
   onTeleport: (pointer: Vector3, event: PointerEvent) => void,
 ) {

@@ -1,14 +1,5 @@
-import { getVoidObject, PointerEventsMap, WheelEvent } from '@pmndrs/pointer-events'
-import {
-  Object3D,
-  Object3DEventMap,
-  OrthographicCamera,
-  PerspectiveCamera,
-  Scene,
-  Vector2,
-  Vector3,
-  Vector3Tuple,
-} from 'three'
+import { getVoidObject, WheelEvent } from '@pmndrs/pointer-events'
+import { OrthographicCamera, PerspectiveCamera, Scene, Vector2, Vector3, Vector3Tuple } from 'three'
 import { StoreApi } from 'zustand/vanilla'
 import { defaultScreenCameraApply, ScreenCameraState, ScreenCameraStateAndFunctions } from './camera.js'
 import { ScreenHandleStore } from './store.js'
@@ -78,7 +69,7 @@ export class ZoomScreenHandleStore extends ScreenHandleStore<{ distance: number;
   }
 
   bind(scene: Scene): () => void {
-    const voidObject = getVoidObject(scene) as Object3D<Object3DEventMap & PointerEventsMap>
+    const voidObject = getVoidObject(scene)
     const fn = this.onWheel.bind(this)
     voidObject.addEventListener('wheel', fn)
 

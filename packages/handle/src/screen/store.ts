@@ -1,5 +1,5 @@
-import { getVoidObject, PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
-import { Object3D, Object3DEventMap, Scene, Vector2 } from 'three'
+import { getVoidObject, PointerEvent } from '@pmndrs/pointer-events'
+import { Scene, Vector2 } from 'three'
 
 export class ScreenHandleStore<T = unknown> {
   private map = new Map<
@@ -24,7 +24,7 @@ export class ScreenHandleStore<T = unknown> {
     const down = this.onPointerDown.bind(this)
     const up = this.onPointerUp.bind(this)
     const move = this.onPointerMove.bind(this)
-    const voidObject = getVoidObject(scene) as Object3D<Object3DEventMap & PointerEventsMap>
+    const voidObject = getVoidObject(scene)
     voidObject.addEventListener('pointermove', move)
     voidObject.addEventListener('pointerdown', down)
     voidObject.addEventListener('pointerup', up)

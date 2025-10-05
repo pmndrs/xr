@@ -1,7 +1,23 @@
+import type { PointerEvent, WheelEvent } from './event.js'
 import type { AllowedPointerEvents, AllowedPointerEventsType } from './pointer.js'
 import type { createStore } from '@react-three/fiber/dist/declarations/src/core/store.js'
 
 declare module 'three' {
+  interface Object3DEventMap {
+    pointermove: PointerEvent
+    pointercancel: PointerEvent
+    pointerdown: PointerEvent
+    pointerup: PointerEvent
+    pointerenter: PointerEvent
+    pointerleave: PointerEvent
+    pointerover: PointerEvent
+    pointerout: PointerEvent
+    click: PointerEvent
+    dblclick: PointerEvent
+    contextmenu: PointerEvent
+    wheel: WheelEvent
+  }
+
   interface Object3D {
     __r3f?: {
       eventCount: number

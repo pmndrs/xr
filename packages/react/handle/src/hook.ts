@@ -47,7 +47,7 @@ export function useHandle<T>(
     if (handle == null) {
       return
     }
-    return store.bind(handle as Object3D<any>)
+    return store.bind(handle)
   }, [store, handleRef, options.bind])
   return store
 }
