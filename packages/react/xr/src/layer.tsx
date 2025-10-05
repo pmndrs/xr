@@ -317,7 +317,7 @@ export const FallbackXRLayerImplementation = forwardRef<
     dpr: number
     renderTargetRef: MutableRefObject<WebGLRenderTarget | undefined>
   }
->(({ src, renderTargetRef, dpr, renderOrder, pixelWidth, pixelHeight, ...props }, ref) => {
+>(({ src, renderTargetRef, dpr, renderOrder, pixelWidth, pixelHeight, blendTextureSourceAlpha, ...props }, ref) => {
   const materialRef = useRef<MeshBasicMaterial>(null)
   useEffect(() => {
     if (materialRef.current == null) {
@@ -337,7 +337,7 @@ export const FallbackXRLayerImplementation = forwardRef<
   }, [src, pixelWidth, pixelHeight, dpr, renderTargetRef])
   return (
     <mesh ref={ref} {...props}>
-      <meshBasicMaterial ref={materialRef} toneMapped={false} />
+      <meshBasicMaterial ref={materialRef} toneMapped={false} transparent={blendTextureSourceAlpha ?? false} />
     </mesh>
   )
 })
