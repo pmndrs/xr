@@ -1,7 +1,7 @@
 ---
 title: from Natuerlich
 description: Migrate your application from natuerlich
-nav: 24
+nav: 25
 ---
 
 @react-three/xr is inspired by natuerlich, and therefore, many things are similar, especially the way interactions are handled. However, a few things have been changed and renamed.
