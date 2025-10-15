@@ -1,4 +1,4 @@
-import { Plane } from '@react-three/drei'
+import { OrbitControls, Plane } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { createXRStore, XR } from '@react-three/xr'
 import * as THREE from 'three'
@@ -20,8 +20,9 @@ export function App() {
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
             <meshBasicMaterial color={'darkgreen'} />
           </Plane>
-          <HUD distance={1.8} />
+          <HUD distance={4} />
         </XR>
+        <OrbitControls />
       </Canvas>
       <button className="enterVRButton" onClick={() => store.enterVR()}>
         {'Enter VR'}

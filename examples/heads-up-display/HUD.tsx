@@ -1,38 +1,52 @@
+import { Box } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { Container, Text } from '@react-three/uikit'
-import { useEffect, useMemo, useRef } from 'react'
+import { XROrigin } from '@react-three/xr'
+import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { useGetTime } from './useGetTime.js'
 
 export function HUD({ distance = 1.5 }: Readonly<{ distance?: number }>) {
   const { camera } = useThree()
-
   const time = useGetTime()
   const groupRef = useRef<THREE.Group | null>(null)
-
-  const baseOffset = useMemo(() => new THREE.Vector3(-0.6, 0.4, -distance), [distance])
+  const originRef = useRef<THREE.Group | null>(null)
 
   useEffect(() => {
     const g = groupRef.current
     if (!g) return
 
-    g.position.copy(baseOffset)
-    g.quaternion.set(0, 0, 0, 1)
+    // Important: set the position BEFORE adding to camera
+    g.position.set(-0.2, 0, -0.2)
+    g.quaternion.identity()
 
-    camera.add(g)
+    originRef.current?.children[0].add(g)
     return () => {
-      camera.remove(g)
+      originRef.current?.children[0].remove(g)
     }
-  }, [camera, baseOffset])
+  }, [camera, distance])
 
-  const formatted = time.toLocaleTimeString()
+  const hudUI = (
+    <Container width={200} depthTest={false} color={'black'}>
+      <Text
+        height={20}
+        flexWrap={'no-wrap'}
+        depthTest={false}
+        color={'white'}
+      >{`Time: ${time.toLocaleTimeString()}`}</Text>
+    </Container>
+  )
 
   return (
-    <group ref={groupRef} renderOrder={1000}>
-      <Container depthTest={false}>
-        <Text>{`Time: ${formatted}`}</Text>
-      </Container>
-    </group>
+    <>
+      <XROrigin ref={originRef} />
+      <group ref={groupRef} renderOrder={1000}>
+        <Box args={[0.2, 0.2, 0.01]} position={[0, 0, 0]}>
+          <meshBasicMaterial color="red" depthTest={false} />
+        </Box>
+        <group position={[0, 0, 0]}>{hudUI}</group>
+      </group>
+    </>
   )
 }
 
