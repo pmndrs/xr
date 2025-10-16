@@ -2,7 +2,7 @@ import { OrbitControls, Plane } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { createXRStore, XR } from '@react-three/xr'
 import * as THREE from 'three'
-import HUD from './HUD.js'
+import { HUD } from './HUD.js'
 import './styles.css'
 
 const store = createXRStore()
@@ -20,7 +20,7 @@ export function App() {
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
             <meshBasicMaterial color={'darkgreen'} />
           </Plane>
-          <HUD distance={4} />
+          <HUD />
         </XR>
         <OrbitControls />
       </Canvas>
