@@ -24,9 +24,7 @@ export function App() {
         </XR>
         <OrbitControls />
       </Canvas>
-      <button className="enterVRButton" onClick={() => store.enterVR()}>
-        {'Enter VR'}
-      </button>
+      <button onClick={() => store.enterVR()}>{'Enter VR'}</button>
     </div>
   )
 }

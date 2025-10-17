@@ -140,7 +140,7 @@ export const load = (app) => {
 
           // Update the nav number in the frontmatter
           const content = fs.readFileSync(targetFile, 'utf-8')
-          const updatedContent = content.replace(/nav:\s*\d+/, `nav: ${index + 27}`)
+          const updatedContent = content.replace(/nav:\s*\d+/, `nav: ${index + 28}`)
           fs.writeFileSync(targetFile, updatedContent)
         })
       }

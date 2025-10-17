@@ -67,10 +67,20 @@ body {
   height: 100vh;
 }
 
-.enterVRButton {
-  position: fixed;
-  left: 2rem;
-  top: 2rem;
+button {
+  position: absolute;
+  background: black;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: bold;
+  color: white;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+  bottom: 1rem;
+  left: 50%;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 1);
+  transform: translate(-50%, 0);
 }
 ```
 
