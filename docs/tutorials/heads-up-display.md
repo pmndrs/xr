@@ -4,14 +4,16 @@ description: How to show static information in XR using a "Heads Up Display"
 nav: 12
 ---
 
-A heads up display is a fairly easy thing to implement in React Three XR, but a lot of people seem to want to implement them, so here's a quick tutorial on a simple way to implement a heads up display.
+A heads up display is a fairly easy thing to implement in **React Three XR**. Because it's such a popular feature, this tutorial outlines a simple and effective method for adding a heads up display to your React Three XR applications.
 
 
-First thing to do is to create a new React Three XR project, and import UIKit. We will use UIKit to create the elements of our heads up display.
+### Setup
+
+First thing to do is to create a new React Three XR project, and import [UIKit](https://pmndrs.github.io/uikit/docs/getting-started/introduction). We will use UIKit to create the elements of our heads up display.
 
 `npm i @react-three/uikit`
 
-Next, we need a basic scene to start out with.
+Next, we need a basic scene to start out with. Put the following code in your `app.tsx` file:
 
 ```tsx
 import { Box } from '@react-three/drei'
@@ -45,6 +47,8 @@ export function App() {
 }
 ```
 
+And the following in your `styles.css` file:
+
 ```css
 html {
   box-sizing: border-box;
@@ -70,6 +74,8 @@ body {
 }
 ```
 
+### Creating the Heads Up Display Component
+
 Now that we have the basic scene, it's on to the fun bit! Create a new file called `HUD.tsx`, and fill it with a new function component.
 
 ```tsx
@@ -83,11 +89,11 @@ export function HUD() {
 
 With our component created, it's time to get to work on our heads up display! For that we need to think a little bit about how the heads up display actually works. Essentially, our plan here is to take bits of UI in our scene and parent them to the xr camera so that when the user moves their head, the UI moves in sync in front of them. From the user's perspective, the UI will appear basically 2D in front of them. Like so:
 
-<img src="../assets/hud-diagram.png" style={{ maxWidth: '400px', marginTop: '1rem' }} />
+<img src="./HUD_example_POV.png" style={{ maxWidth: '400px', marginTop: '1rem' }} />
 
 Though in reality, if the user could see themselves in 3rd person, it would look more like this:
 
-<img src="../assets/hud-diagram-3rd-person.png" style={{ maxWidth: '400px', marginTop: '1rem' }} />
+<img src="./HUD_example_3rd_person.gif" style={{ maxWidth: '400px', marginTop: '1rem' }} />
 
 With our plan figured out, let's add some UI to the scene, and parent it to the camera. We'll start by importing UIKit, and placing the `<XROrigin />`, a `<group>` for all of our HUD elements, and a UIKit container in the return of our function component.
 
@@ -108,7 +114,7 @@ export function HUD() {
 }
 ```
 
-With that done, we need something to display in our heads up display. A common element in heads up displays is showing the time, so I thought that would be simple and fun to display here. Here is a simple hook that will display the current time, updating every second. Create a new file called `useGetTime.ts` and add the following code:
+With that done, we need something to display in our heads up display. A common element in heads up displays is a clock, so that seems like the perfect thing to include in our component. Here is a simple hook that will display the current time, updating every second. Create a new file called `useGetTime.ts` and add the following code:
 
 ```tsx
 import { useEffect, useState } from 'react'
@@ -289,4 +295,4 @@ export function App() {
 }
 ```
 
-Feel free to experiment with adding more elements to your heads up display. [Link to the complete example here](https://github.com/react-xr/react-xr/examples/heads-up-display). Happy coding!
+Feel free to experiment with adding more elements to your heads up display. [Link to the complete example here](https://pmndrs.github.io/xr/examples/heads-up-display). Happy coding!
