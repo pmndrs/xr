@@ -100,12 +100,18 @@ ShowIfFacingCamera ⛔
 IfSessionVisible ⛔
 ShowIfSessionVisible ⛔
 IfInSessionMode ☑️ : Needs usage snippet, and links to tutorial and example in jsdoc
-ShowIfInSessionMode ⛔
-IfSessionModeSupported ⛔
-ShowIfSessionModeSupported ⛔
-useXRSessionFeatureEnabled ⛔
+ShowIfInSessionMode ⛔ - Checks visibilty only, not rendering
+IfSessionModeSupported ⛔ - Doesn't render if toggled off
+ShowIfSessionModeSupported ⛔ - Checks visibilty only, not rendering
+useXRSessionFeatureEnabled ⛔ - Check for if MeshDetection is enabled
 useXRSessionModeSupported ⛔
 useXRSessionVisibilityState ⛔
+
+
+
+
+
+
 Guards allow to conditionally display or include content. For instance, the `IfInSessionMode` guard allows only displaying a background when the session is not an AR session. The `IfInSessionMode` can receive either a list of `allow` session modes or a list of `deny` session modes.
 
 ```tsx
