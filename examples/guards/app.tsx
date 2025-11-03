@@ -1,7 +1,8 @@
 import { OrbitControls, Plane } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import { createXRStore, IfSessionModeSupported, XR } from '@react-three/xr'
+import { createXRStore, IfSessionModeSupported, ShowIfSessionModeSupported, XR } from '@react-three/xr'
 import * as THREE from 'three'
+import { Message } from './Message.js'
 import './styles.css'
 
 const store = createXRStore()
@@ -21,15 +22,15 @@ export function App() {
           </Plane>
           <OrbitControls />
         </XR>
+        <ShowIfSessionModeSupported mode="immersive-vr">
+          <Message message="This text is only visible when VR sessions are supported" />
+        </ShowIfSessionModeSupported>
       </Canvas>
       <IfSessionModeSupported mode="immersive-vr">
         <button onClick={() => store.enterVR()}>{'Enter VR'}</button>
       </IfSessionModeSupported>
       <IfSessionModeSupported mode="immersive-ar">
         <button onClick={() => store.enterAR()}>{'Enter AR'}</button>
-      </IfSessionModeSupported>
-      <IfSessionModeSupported mode="inline">
-        <span className='desktopMessage'>{"You're on desktop lols"}</span>
       </IfSessionModeSupported>
     </div>
   )

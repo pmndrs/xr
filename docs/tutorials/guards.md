@@ -39,6 +39,9 @@ export function App() {
       <button className="enterVRButton" onClick={() => store.enterVR()}>
         {'Enter VR'}
       </button>
+      <button className="enterARButton" onClick={() => store.enterAR()}>
+        {'Enter AR'}
+      </button>
     </div>
   )
 }
@@ -81,19 +84,31 @@ button {
 ```
 
 # Our First Guard
-Already in our application we have something worth putting a guard on. We have an XR scene already to go with an enter VR button, but what if the user is on a device that doesn't support VR? We can use the `IfInSessionMode` guard to only show the enter VR button when the user's device supports immersive VR sessions. `IfInSessionMode` accepts two props: `allow` and `deny`. The `allow` prop allows you to specify which in which sessions you content should be shown. `deny` does the opposite, specifying which sessions your content should not be shown in. In our case, we want to use the `allow` prop and only show the button when the session mode is `immersive-vr`.
+Already in our application we have something worth putting a guard on. We have an XR scene already to go with an enter VR button, but what if the user is on a device that doesn't support VR? We can use the `IfSessionModeSupported` guard to only show the enter VR button when the user's device supports immersive VR sessions. `IfSessionModeSupported` takes a `mode` prop which can be set to `immersive-vr`, `immersive-ar`, or `inline`. Let's wrap our enter VR and enter AR buttons with the `IfSessionModeSupported` guard.
 
 ```tsx
 import { IfInSessionMode } from '@react-three/xr'
 
 //... Previous code
-    <IfInSessionMode allow="immersive-vr">
+    <IfSessionModeSupported mode="immersive-vr">
       <button className="enterVRButton" onClick={() => store.enterVR()}>
         {'Enter VR'}
       </button>
-    </IfInSessionMode>
+    </IfSessionModeSupported>
+    <IfSessionModeSupported mode="immersive-ar">
+      <button className="enterARButton" onClick={() => store.enterAR()}>
+        {'Enter AR'}
+      </button>
+    </IfSessionModeSupported>
 //... Previous code
 ```
+
+# ShowIfInSessionMode
+If you look in the API you might notice that there is also a `ShowIfSessionModeSupported` guard. There are 2 main differences between `ShowIfSessionModeSupported` and `IfSessionModeSupported`. The first difference is that `ShowIfSessionModeSupported` only works within the react-three/fiber canvas. The second difference is that `IfSessionModeSupported` will not **render** its children at all if mode doesn't match the session, while `ShowIfSessionModeSupported` will render its children but set their visibility to false. This means that with `ShowIfSessionModeSupported`, the components will still exist in the scene, but they will not be visible. We can demonstrate this by making a simple message component that we will only show when VR sessions are supported. Add a new file called `Message.tsx` with the following code:
+
+```tsx
+```
+
 
 IfFacingCamera ⛔
 ShowIfFacingCamera ⛔

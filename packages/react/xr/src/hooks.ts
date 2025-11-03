@@ -96,6 +96,7 @@ export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error:
           .isSessionSupported(mode)
           .then((isSupported) => {
             sessionSupported = isSupported
+            console.log('Session mode supported:', mode, isSupported)
             if (canceled) {
               return
             }
