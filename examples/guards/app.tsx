@@ -5,7 +5,7 @@ import * as THREE from 'three'
 import { Message } from './Message.js'
 import './styles.css'
 
-const store = createXRStore()
+const store = createXRStore({ offerSession: false })
 
 const axisColor = new THREE.Color('#9d3d4a')
 const gridColor = new THREE.Color('#4f4f4f')

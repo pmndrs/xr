@@ -19,7 +19,7 @@ import { Canvas } from '@react-three/fiber'
 import { createXRStore, XR } from '@react-three/xr'
 import './styles.css'
 
-const store = createXRStore()
+const store = createXRStore({ offerSession: false })
 
 const axisColor = new THREE.Color('#9d3d4a')
 const gridColor = new THREE.Color('#4f4f4f')
@@ -103,12 +103,64 @@ import { IfInSessionMode } from '@react-three/xr'
 //... Previous code
 ```
 
-# ShowIfInSessionMode
-If you look in the API you might notice that there is also a `ShowIfSessionModeSupported` guard. There are 2 main differences between `ShowIfSessionModeSupported` and `IfSessionModeSupported`. The first difference is that `ShowIfSessionModeSupported` only works within the react-three/fiber canvas. The second difference is that `IfSessionModeSupported` will not **render** its children at all if mode doesn't match the session, while `ShowIfSessionModeSupported` will render its children but set their visibility to false. This means that with `ShowIfSessionModeSupported`, the components will still exist in the scene, but they will not be visible. We can demonstrate this by making a simple message component that we will only show when VR sessions are supported. Add a new file called `Message.tsx` with the following code:
+# ShowIfSessionModeSupported
+If you look in the API you might notice that there is also a `ShowIfSessionModeSupported` guard. There are 2 main differences between `ShowIfSessionModeSupported` and `IfSessionModeSupported`. The first difference is that `ShowIfSessionModeSupported` only works within the react-three/fiber canvas. The second difference is that `IfSessionModeSupported` will not **render** its children at all if mode doesn't match the session, while `ShowIfSessionModeSupported` will render its children but set their **visibility** to false. This means that with `ShowIfSessionModeSupported`, the components will still exist in the scene, but they will not be visible. We can demonstrate this by making a simple message component that we will only show when VR sessions are supported. Add a new file called `Message.tsx` with the following code:
 
+Messages.tsx:
 ```tsx
+import { Container, Text } from '@react-three/uikit'
+
+interface MessageProps {
+  message: string
+}
+
+export const Message = ({ message }: MessageProps) => {
+  console.log('But I am still rendered no matter what!')
+  return (
+    <group position={[-2, 4, 0]}>
+      <Container borderRadius={50} backgroundColor={'black'} padding={5}>
+        <Text color={'white'}>{message}</Text>
+      </Container>
+    </group>
+  )
+}
 ```
 
+Now add the `<Message />` component into our scene wrapped with the `ShowIfSessionModeSupported` guard:
+
+```tsx
+//... Previous code
+import { createXRStore, IfSessionModeSupported, ShowIfSessionModeSupported, XR } from '@react-three/xr'
+import { Message } from './Message.js'
+//... Previous code
+        <XR store={store}>
+          <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
+            <meshBasicMaterial color={'darkgreen'} />
+          </Plane>
+          <OrbitControls />
+        </XR>
+        {/* Show message when VR is supported */}
+        <ShowIfSessionModeSupported mode="immersive-vr">
+          <Message message="VR is supported on this device!" />
+        </ShowIfSessionModeSupported>
+//... Previous code
+```
+
+Notice that when you run the application on your desktop web browser, you will see the message in the console from the `Message` component, but you won't see the `UIKit` message rendered in the scene. The next components that we are going to cover also have both show and conditional render versions, but for simplicity, we are only going to cover the versions that optionally render going forward.
+
+# IfFacingCamera
+
+# IfSessionVisible
+
+# IfInSessionMode
+
+# Hooks
+
+### useXRSessionFeatureEnabled
+
+### useXRSessionModeSupported
+
+### useXRSessionVisibilityState
 
 IfFacingCamera ⛔
 ShowIfFacingCamera ⛔
@@ -118,6 +170,7 @@ IfInSessionMode ☑️ : Needs usage snippet, and links to tutorial and example 
 ShowIfInSessionMode ⛔ - Checks visibilty only, not rendering
 IfSessionModeSupported ⛔ - Doesn't render if toggled off
 ShowIfSessionModeSupported ⛔ - Checks visibilty only, not rendering
+
 useXRSessionFeatureEnabled ⛔ - Check for if MeshDetection is enabled
 useXRSessionModeSupported ⛔
 useXRSessionVisibilityState ⛔
