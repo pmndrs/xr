@@ -175,189 +175,193 @@ function MusicPlayer() {
               height={height}
               alignItems="center"
               pixelSize={0.0015}
+              flexDirection="column"
               {...{ '*': { borderColor: colors.background } }}
             >
-              <Handle
-                translate="as-scale"
-                targetRef={innerTarget}
-                apply={(state) => {
-                  if (state.first) {
-                    intialMaxHeight.current = height.value
-                    intialWidth.current = width.value
-                  } else if (intialMaxHeight.current != null && intialWidth.current != null) {
-                    height.value = clamp(state.current.scale.y * intialMaxHeight.current, 250, 700)
-                    width.value = clamp(state.current.scale.x * intialWidth.current, 300, 1000)
-                  }
-                }}
-                handleRef={handleRef}
-                rotate={false}
-                multitouch={false}
-                scale={{ z: false }}
-              >
-                <Container
-                  pointerEventsType={{ deny: 'touch' }}
-                  ref={containerRef}
-                  positionType="absolute"
-                  positionTop={-13}
-                  width={26}
-                  height={26}
-                  backgroundColor={colors.background}
-                  borderRadius={100}
-                  positionRight={-26}
-                  panelMaterialClass={GlassMaterial}
-                  borderBend={0.4}
-                  borderWidth={4}
-                ></Container>
-              </Handle>
-              <Container alignItems="center" flexGrow={1} width="100%" flexDirection="column-reverse" gapRow={8}>
-                <BarHandle ref={storeRef} />
-                <Container
-                  display="flex"
-                  alignItems="center"
-                  flexShrink={0}
-                  paddingLeft={16}
-                  paddingRight={16}
-                  paddingTop={4}
-                  paddingBottom={4}
-                  backgroundColor={colors.background}
-                  borderRadius={16}
-                  panelMaterialClass={MetalMaterial}
-                  borderBend={0.4}
-                  borderWidth={4}
-                  flexDirection="row"
-                  gapColumn={16}
-                  width="90%"
-                  zIndexOffset={10}
-                  transformTranslateZ={10}
-                  marginTop={-30}
-                  maxWidth={350}
-                  maxHeight={40}
-                  pointerEvents="none"
+              <Container flexDirection="row" width="100%" height={26} flexShrink={0} justifyContent="flex-end">
+                <Handle
+                  translate="as-scale"
+                  targetRef={innerTarget}
+                  apply={(state) => {
+                    if (state.first) {
+                      intialMaxHeight.current = height.value
+                      intialWidth.current = width.value
+                    } else if (intialMaxHeight.current != null && intialWidth.current != null) {
+                      height.value = clamp(state.current.scale.y * intialMaxHeight.current, 250, 700)
+                      width.value = clamp(state.current.scale.x * intialWidth.current, 300, 1000)
+                    }
+                  }}
+                  handleRef={handleRef}
+                  rotate={false}
+                  multitouch={false}
+                  scale={{ z: false }}
                 >
-                  <MenuIcon width={16} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
-                  <Text
-                    fontSize={14}
-                    fontWeight={500}
-                    lineHeight={28}
-                    color="rgb(17,24,39)"
-                    dark={{ color: 'rgb(243,244,246)' }}
-                  >
-                    Music Player
-                  </Text>
-                  <Container flexGrow={1} />
-                  <ExpandIcon width={16} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
-                  <ConstructionIcon width={16} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
-                </Container>
-                <Container width="100%" flexDirection="row" flexGrow={1}>
                   <Container
-                    display={sidePanelDisplay}
-                    flexDirection="column"
-                    borderLeftRadius={16}
-                    backgroundColor="#555555"
-                    borderColor="#555555"
+                    ref={containerRef}
+                    pointerEventsType={{ deny: 'touch' }}
+                    width={26}
+                    height={26}
+                    backgroundColor={colors.background}
+                    borderRadius={100}
                     panelMaterialClass={GlassMaterial}
+                    borderBend={0.4}
                     borderWidth={4}
-                    borderRightWidth={2}
-                    borderBend={0.4}
-                    width={menuWidth}
-                    height="100%"
-                    padding={16}
-                    gapRow={16}
-                    flexShrink={1}
-                  >
-                    <WidthHandle targetRef={innerTarget} width={menuWidth} />
-                    <Text marginBottom={8} fontSize={20} fontWeight="semi-bold" color={colors.cardForeground}>
-                      Your Content
-                    </Text>
-
-                    <Container flexDirection="row" alignItems="center" justifyContent="space-between">
-                      <Text color={colors.cardForeground}>Playlists</Text>
-                      <ListIcon width={16} color={colors.cardForeground} />
-                    </Container>
-                    <Container flexDirection="row" alignItems="center" justifyContent="space-between">
-                      <Text color={colors.cardForeground}>Favorites</Text>
-                      <HeartIcon width={16} color={colors.cardForeground} />
-                    </Container>
-
-                    <Container flexDirection="row" alignItems="center" justifyContent="space-between">
-                      <Text color={colors.cardForeground}>History</Text>
-                      <BackpackIcon width={16} color={colors.cardForeground} />
-                    </Container>
-                  </Container>
-
+                  ></Container>
+                </Handle>
+              </Container>
+              <Container flexDirection="row" flexGrow={1} width="100%">
+                <Container alignItems="center" flexGrow={1} flexDirection="column-reverse" gapRow={8}>
+                  <BarHandle ref={storeRef} />
                   <Container
-                    flexGrow={1}
-                    scrollbarBorderRadius={4}
-                    scrollbarColor={withOpacity(colors.foreground, 0.2)}
-                    flexDirection="column"
-                    overflow="scroll"
-                    paddingLeft={paddingLeft}
-                    panelMaterialClass={GlassMaterial}
-                    borderBend={0.4}
+                    display="flex"
+                    alignItems="center"
+                    flexShrink={0}
+                    paddingLeft={16}
+                    paddingRight={16}
+                    paddingTop={4}
+                    paddingBottom={4}
                     backgroundColor={colors.background}
                     borderRadius={16}
-                    borderLeftRadius={borderLeftRadius}
+                    panelMaterialClass={MetalMaterial}
+                    borderBend={0.4}
                     borderWidth={4}
-                    borderLeftWidth={0}
+                    flexDirection="row"
+                    gapColumn={16}
+                    width="90%"
+                    zIndex={1}
+                    marginTop={-30}
+                    maxWidth={350}
+                    maxHeight={40}
+                    pointerEvents="none"
                   >
-                    <Container flexShrink={0} padding={16} flexDirection="column" gapRow={16}>
-                      <Container display="flex" flexDirection="row" gapColumn={16}>
-                        <Image height={64} src="picture.jpg" width={64} aspectRatio={1} objectFit="cover" borderRadius={1000} />
-                        <Container flexDirection="column" justifyContent="center" gapRow={4}>
-                          <Text fontSize={18} fontWeight={500} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
-                            Blowin' in the Wind
-                          </Text>
-                          <Text fontSize={14} color="rgb(107,114,128)" dark={{ color: 'rgb(156,163,175)' }}>
-                            Bob Dylan
-                          </Text>
-                        </Container>
+                    <MenuIcon width={16} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                    <Text
+                      fontSize={14}
+                      fontWeight={500}
+                      lineHeight={28}
+                      color="rgb(17,24,39)"
+                      dark={{ color: 'rgb(243,244,246)' }}
+                    >
+                      Music Player
+                    </Text>
+                    <Container flexGrow={1} />
+                    <ExpandIcon width={16} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                    <ConstructionIcon width={16} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                  </Container>
+                  <Container width="100%" flexDirection="row" flexGrow={1}>
+                    <Container
+                      display={sidePanelDisplay}
+                      flexDirection="column"
+                      borderLeftRadius={16}
+                      backgroundColor="#555555"
+                      borderColor="#555555"
+                      panelMaterialClass={GlassMaterial}
+                      borderWidth={4}
+                      borderRightWidth={2}
+                      borderBend={0.4}
+                      width={menuWidth}
+                      height="100%"
+                      padding={16}
+                      gapRow={16}
+                      flexShrink={1}
+                    >
+                      <WidthHandle targetRef={innerTarget} width={menuWidth} />
+                      <Text marginBottom={8} fontSize={20} fontWeight="semi-bold" color={colors.cardForeground}>
+                        Your Content
+                      </Text>
+
+                      <Container flexDirection="row" alignItems="center" justifyContent="space-between">
+                        <Text color={colors.cardForeground}>Playlists</Text>
+                        <ListIcon width={16} color={colors.cardForeground} />
                       </Container>
-                      <Slider />
-                      <Container display="flex" justifyContent="space-between">
-                        <Button size="icon" variant="ghost">
-                          <ArrowLeftIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
-                        </Button>
-                        <Button size="icon" variant="ghost" padding={8}>
-                          <PlayIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
-                        </Button>
-                        <Button size="icon" variant="ghost">
-                          <ArrowRightIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
-                        </Button>
+                      <Container flexDirection="row" alignItems="center" justifyContent="space-between">
+                        <Text color={colors.cardForeground}>Favorites</Text>
+                        <HeartIcon width={16} color={colors.cardForeground} />
+                      </Container>
+
+                      <Container flexDirection="row" alignItems="center" justifyContent="space-between">
+                        <Text color={colors.cardForeground}>History</Text>
+                        <BackpackIcon width={16} color={colors.cardForeground} />
                       </Container>
                     </Container>
-                    <Container flexShrink={0} padding={16} flexDirection="column" gapRow={8}>
-                      <Text fontSize={18} fontWeight={500} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} marginBottom={8}>
-                        Playlist
-                      </Text>
-                      <Container flexDirection="column" gapRow={12}>
-                        <Container display="flex" alignItems="center" justifyContent="space-between">
-                          <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
-                            Like a Rolling Stone
-                          </Text>
-                          <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+
+                    <Container
+                      flexGrow={1}
+                      scrollbarBorderRadius={4}
+                      scrollbarColor={withOpacity(colors.foreground, 0.2)}
+                      flexDirection="column"
+                      overflow="scroll"
+                      paddingLeft={paddingLeft}
+                      panelMaterialClass={GlassMaterial}
+                      borderBend={0.4}
+                      backgroundColor={colors.background}
+                      borderRadius={16}
+                      borderLeftRadius={borderLeftRadius}
+                      borderWidth={4}
+                      borderLeftWidth={0}
+                    >
+                      <Container flexShrink={0} padding={16} flexDirection="column" gapRow={16}>
+                        <Container display="flex" flexDirection="row" gapColumn={16}>
+                          <Image height={64} src="picture.jpg" width={64} aspectRatio={1} objectFit="cover" borderRadius={1000} />
+                          <Container flexDirection="column" justifyContent="center" gapRow={4}>
+                            <Text fontSize={18} fontWeight={500} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
+                              Blowin' in the Wind
+                            </Text>
+                            <Text fontSize={14} color="rgb(107,114,128)" dark={{ color: 'rgb(156,163,175)' }}>
+                              Bob Dylan
+                            </Text>
+                          </Container>
                         </Container>
-                        <Container display="flex" alignItems="center" justifyContent="space-between">
-                          <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
-                            The Times They Are a-Changin'
-                          </Text>
-                          <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                        <Container paddingX={16}>
+                          <Slider defaultValue={[50]} />
                         </Container>
-                        <Container display="flex" alignItems="center" justifyContent="space-between">
-                          <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
-                            Subterranean Homesick Blues
-                          </Text>
-                          <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                        <Container display="flex" justifyContent="space-between">
+                          <Button size="icon" variant="ghost">
+                            <ArrowLeftIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                          </Button>
+                          <Button size="icon" variant="ghost" padding={8}>
+                            <PlayIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                          </Button>
+                          <Button size="icon" variant="ghost">
+                            <ArrowRightIcon color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                          </Button>
                         </Container>
-                        <Container display="flex" alignItems="center" justifyContent="space-between">
-                          <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
-                            Like a Rolling Stone
-                          </Text>
-                          <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                      </Container>
+                      <Container flexShrink={0} padding={16} flexDirection="column" gapRow={8}>
+                        <Text fontSize={18} fontWeight={500} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} marginBottom={8}>
+                          Playlist
+                        </Text>
+                        <Container flexDirection="column" gapRow={12}>
+                          <Container display="flex" alignItems="center" justifyContent="space-between">
+                            <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
+                              Like a Rolling Stone
+                            </Text>
+                            <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                          </Container>
+                          <Container display="flex" alignItems="center" justifyContent="space-between">
+                            <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
+                              The Times They Are a-Changin'
+                            </Text>
+                            <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                          </Container>
+                          <Container display="flex" alignItems="center" justifyContent="space-between">
+                            <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
+                              Subterranean Homesick Blues
+                            </Text>
+                            <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                          </Container>
+                          <Container display="flex" alignItems="center" justifyContent="space-between">
+                            <Text fontSize={14} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }}>
+                              Like a Rolling Stone
+                            </Text>
+                            <PlayIcon width={20} color="rgb(17,24,39)" dark={{ color: 'rgb(243,244,246)' }} />
+                          </Container>
                         </Container>
                       </Container>
                     </Container>
                   </Container>
                 </Container>
+                <Container width={26} flexShrink={0} />
               </Container>
             </Container>
           </group>
@@ -422,22 +426,19 @@ const BarHandle = forwardRef<HandleStore<any>, {}>((props, ref) => {
   return (
     <Handle ref={ref} handleRef={handleRef} targetRef="from-context" scale={false} multitouch={false} rotate={false}>
       <Container
+        ref={containerRef}
         panelMaterialClass={GlassMaterial}
         borderBend={0.4}
         borderWidth={4}
         pointerEventsType={{ deny: 'touch' }}
         marginTop={4}
         hover={{
-          maxWidth: 240,
-          width: '100%',
           backgroundColor: colors.accent,
-          marginX: 10,
-          marginTop: 6,
-          height: 18,
+          transformScaleX: 1.2,
+          transformScaleY: 1.3,
           transformTranslateY: 2,
         }}
         cursor="pointer"
-        ref={containerRef}
         width="90%"
         maxWidth={200}
         height={14}
