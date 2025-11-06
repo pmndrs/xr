@@ -149,16 +149,65 @@ import { Message } from './Message.js'
 Notice that when you run the application on your desktop web browser, you will see the message in the console from the `Message` component, but you won't see the `UIKit` message rendered in the scene. The next components that we are going to cover also have both show and conditional render versions, but for simplicity, we are only going to cover the versions that optionally render going forward.
 
 # IfFacingCamera
-This guard allows us to only render children when they are facing the camera. This can be helpful for optimizing performance by not showing things that the user can't see. To show off this guard, let's create a simple spinning box that will only render when it is facing the camera. First, create a new file called `SpinningBox.tsx` with the following code:
+This guard allows us to only render children when they are seen by the camera from a specific direction. This can be helpful for optimizing performance by not showing things that the user can't see.To show off this guard, let's create a simple spinning box that will only render viewed from the camera from the -z axis. First, create a new file called `SpinningBox.tsx` with the following code:
 
 SpinningBox.tsx:
 ```tsx
+import { Box } from '@react-three/drei'
+import { useFrame } from '@react-three/fiber'
+import { IfFacingCamera } from '@react-three/xr'
+import { useRef } from 'react'
+import * as THREE from 'three'
 
+interface SpinningBoxProps {
+  position?: [number, number, number]
+}
+
+const cameraDirectionHelper = new THREE.Vector3(0, 0, -1)
+
+export const SpinningBox = ({ position }: SpinningBoxProps) => {
+  const boxRef = useRef<THREE.Mesh>(null)
+
+  useFrame((state, delta) => {
+    const box = boxRef.current
+    if (box) {
+      box.rotation.y += delta
+    }
+  })
+
+  return (
+    <>
+      <IfFacingCamera direction={cameraDirectionHelper} angle={Math.PI}>
+        <Box ref={boxRef} position={position}>
+          <meshBasicMaterial color="orange" />
+        </Box>
+      </IfFacingCamera>
+    </>
+  )
+}
 ```
 
-# IfSessionVisible
+Now import and add the `SpinningBox` component into our scene:
+
+App.tsx:
+```tsx
+//... Previous code
+import { SpinningBox } from './SpinningBox.js'
+//... Previous code
+        <XR store={store}>
+          <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
+            <meshBasicMaterial color={'darkgreen'} />
+          </Plane>
+          <SpinningBox position={[0, 1, 0]} />
+          <OrbitControls />
+        </XR>
+//... Previous code
+```
+If you look at the scene now, you will not be able to see the spinning box, but if you rotate it around to view from the -z axis, the box will appear and start spinning.
 
 # IfInSessionMode
+
+# IfSessionVisible
 
 # Hooks
 

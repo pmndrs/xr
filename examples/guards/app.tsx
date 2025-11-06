@@ -21,7 +21,7 @@ export function App() {
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
             <meshBasicMaterial color={'darkgreen'} />
           </Plane>
-            <SpinningBox position={[0, 1, 0]} />
+          <SpinningBox position={[1, 1, 0]} />
           <OrbitControls />
         </XR>
         <ShowIfSessionModeSupported mode="immersive-vr">
