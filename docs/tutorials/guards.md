@@ -149,6 +149,12 @@ import { Message } from './Message.js'
 Notice that when you run the application on your desktop web browser, you will see the message in the console from the `Message` component, but you won't see the `UIKit` message rendered in the scene. The next components that we are going to cover also have both show and conditional render versions, but for simplicity, we are only going to cover the versions that optionally render going forward.
 
 # IfFacingCamera
+This guard allows us to only render children when they are facing the camera. This can be helpful for optimizing performance by not showing things that the user can't see. To show off this guard, let's create a simple spinning box that will only render when it is facing the camera. First, create a new file called `SpinningBox.tsx` with the following code:
+
+SpinningBox.tsx:
+```tsx
+
+```
 
 # IfSessionVisible
 

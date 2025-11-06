@@ -3,9 +3,10 @@ import { Canvas } from '@react-three/fiber'
 import { createXRStore, IfSessionModeSupported, ShowIfSessionModeSupported, XR } from '@react-three/xr'
 import * as THREE from 'three'
 import { Message } from './Message.js'
+import { SpinningBox } from './SpinningBox.js'
 import './styles.css'
 
-const store = createXRStore({ offerSession: false })
+const store = createXRStore({ offerSession: false, emulate: false })
 
 const axisColor = new THREE.Color('#9d3d4a')
 const gridColor = new THREE.Color('#4f4f4f')
@@ -20,6 +21,7 @@ export function App() {
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
             <meshBasicMaterial color={'darkgreen'} />
           </Plane>
+            <SpinningBox position={[0, 1, 0]} />
           <OrbitControls />
         </XR>
         <ShowIfSessionModeSupported mode="immersive-vr">
