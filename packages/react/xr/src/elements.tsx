@@ -1,7 +1,6 @@
 import { resolveInputSourceImplementation } from '@pmndrs/xr/internals'
 import { context, reconciler, useStore } from '@react-three/fiber'
 import { ReactNode, Suspense, useMemo } from 'react'
-import { shallow } from 'zustand/shallow'
 import { xrInputSourceStateContext, xrSpaceContext } from './contexts.js'
 import {
   DefaultXRController,
@@ -55,7 +54,7 @@ export function XRElements({ children }: { children?: ReactNode }) {
 }
 
 function XRControllers() {
-  const controllerStates = useXR((xr) => xr.inputSourceStates.filter((state) => state.type === 'controller'), shallow)
+  const controllerStates = useXR((xr) => xr.controllerStates)
   let Implementation = useXR((xr) => xr.controller)
   if (Implementation === false) {
     return null
@@ -82,7 +81,7 @@ function XRControllers() {
 }
 
 function XRHands() {
-  const handStates = useXR((xr) => xr.inputSourceStates.filter((state) => state.type === 'hand'), shallow)
+  const handStates = useXR((xr) => xr.handStates)
   const Implementation = useXR((xr) => xr.hand)
   if (Implementation === false) {
     return null
@@ -109,10 +108,7 @@ function XRHands() {
 }
 
 function XRTransientPointers() {
-  const transientPointerStates = useXR(
-    (xr) => xr.inputSourceStates.filter((state) => state.type === 'transientPointer'),
-    shallow,
-  )
+  const transientPointerStates = useXR((xr) => xr.transientPointerStates)
   const Implementation = useXR((xr) => xr.transientPointer)
   if (Implementation === false) {
     return null
@@ -143,7 +139,7 @@ function XRTransientPointers() {
 }
 
 function XRGazes() {
-  const gazeStates = useXR((xr) => xr.inputSourceStates.filter((state) => state.type === 'gaze'), shallow)
+  const gazeStates = useXR((xr) => xr.gazeStates)
   const Implementation = useXR((xr) => xr.gaze)
   if (Implementation === false) {
     return null
@@ -170,7 +166,7 @@ function XRGazes() {
 }
 
 function XRScreenInputs() {
-  const screenInputStates = useXR((xr) => xr.inputSourceStates.filter((state) => state.type === 'screenInput'), shallow)
+  const screenInputStates = useXR((xr) => xr.screenInputStates)
   const Implementation = useXR((xr) => xr.screenInput)
   if (Implementation === false) {
     return null

@@ -77,14 +77,14 @@ export function setupSyncXRElements(
   )
   const unsubscribe = store.subscribe((s, prev) => {
     inputGroup.visible = s.visibilityState === 'visible'
-    syncControllers(s.session, s.inputSourceStates, prev.inputSourceStates, s.controller, prev.controller)
-    syncGazes(s.session, s.inputSourceStates, prev.inputSourceStates, s.gaze, prev.gaze)
-    syncHands(s.session, s.inputSourceStates, prev.inputSourceStates, s.hand, prev.hand)
-    syncScreenInputs(s.session, s.inputSourceStates, prev.inputSourceStates, s.screenInput, prev.screenInput)
+    syncControllers(s.session, s.controllerStates, prev.controllerStates, s.controller, prev.controller)
+    syncGazes(s.session, s.gazeStates, prev.gazeStates, s.gaze, prev.gaze)
+    syncHands(s.session, s.handStates, prev.handStates, s.hand, prev.hand)
+    syncScreenInputs(s.session, s.screenInputStates, prev.screenInputStates, s.screenInput, prev.screenInput)
     syncTransientPointers(
       s.session,
-      s.inputSourceStates,
-      prev.inputSourceStates,
+      s.transientPointerStates,
+      prev.transientPointerStates,
       s.transientPointer,
       prev.transientPointer,
     )
@@ -155,8 +155,8 @@ function setupSync<K extends keyof XRInputSourceStateMap, I>(
   let cleanupMap = new Map<XRInputSourceStateMap[K], (() => void) | undefined>()
   return (
     session: XRSession | undefined,
-    values: ReadonlyArray<XRInputSourceState>,
-    prevValues: ReadonlyArray<XRInputSourceState>,
+    values: ReadonlyArray<XRInputSourceStateMap[K]>,
+    prevValues: ReadonlyArray<XRInputSourceStateMap[K]>,
     impl: I,
     prevImpl: I,
   ) => {
@@ -171,10 +171,8 @@ function setupSync<K extends keyof XRInputSourceStateMap, I>(
     if (session != null) {
       for (let i = 0; i < valuesLength; i++) {
         const value = values[i]
-        if (value.type != key) {
-          continue
-        }
-        let cleanup = cleanupMap.get(value as XRInputSourceStateMap[K])
+        // No need to check value.type - array is already pre-filtered
+        let cleanup = cleanupMap.get(value)
         const wasCreated = cleanupMap.delete(value as XRInputSourceStateMap[K])
         if (!wasCreated) {
           cleanup = create(session, value as XRInputSourceStateMap[K], impl)
