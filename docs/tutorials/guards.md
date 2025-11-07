@@ -198,6 +198,7 @@ import { SpinningBox } from './SpinningBox.js'
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
             <meshBasicMaterial color={'darkgreen'} />
           </Plane>
+          {/* Add the SpinningBox component */}
           <SpinningBox position={[0, 1, 0]} />
           <OrbitControls />
         </XR>
@@ -206,10 +207,73 @@ import { SpinningBox } from './SpinningBox.js'
 If you look at the scene now, you will not be able to see the spinning box, but if you rotate it around to view from the -z axis, the box will appear and start spinning.
 
 # IfInSessionMode
+While expiramenting with the previous guards, you were likely using the `<OrbitControls />` component to move the camera around. In desktop react-three/fiber applications, the orbit controls are a very handy way to move the camera around and explore your scene. Unfortunately, the `<OrbitControls />` component does not play nicely with XR sessions. Luckily, we have a guard that can help us in this situation. The `IfInSessionMode` guard allows us to conditionally render components based on the current XR session mode. It accepts two props, a deny, and an allow list. In our case we want to **deny** our content when we are in an "immersive-ar", or an "immersive-vr" session. In the `App.tsx` file, wrap the `<OrbitControls />` component with the `IfInSessionMode` guard, and set it to deny both "immersive-ar" and "immersive-vr" modes:
+
+App.tsx:
+```tsx
+//... Previous code
+import { createXRStore, IfSessionModeSupported, ShowIfSessionModeSupported, XR } from '@react-three/xr'
+//... Previous code
+// Wrap OrbitControls with IfInSessionMode
+<IfInSessionMode deny={['immersive-ar', 'immersive-vr']}>
+  <OrbitControls />
+</IfInSessionMode>
+//... Previous code
+```
 
 # IfSessionVisible
+We are down to our last component guard! This guard is more of a special use guard. The `IfSessionVisible` guard allows us to conditionally render content based on whether the XR session is visible or not. This can be useful for pausing certain effects or animations when the session is not visible to the user. For example, if the user switches to another tab or minimizes the browser window, we might want to pause certain animations to save resources. To demonstrate this guard, let's create a simple box that hides whenever the session is paused. Create a new file called `ShyBox.tsx` with the following code:
+
+ShyBox.tsx:
+```tsx
+import { Box } from '@react-three/drei'
+import { IfSessionVisible } from '@react-three/xr'
+import { useRef } from 'react'
+import * as THREE from 'three'
+
+interface ShyBoxProps {
+  position?: [number, number, number]
+}
+
+export const ShyBox = ({ position }: ShyBoxProps) => {
+  const boxRef = useRef<THREE.Mesh>(null)
+
+  return (
+    <IfSessionVisible>
+      <Box ref={boxRef} position={position}>
+        <meshBasicMaterial color="lightblue" />
+      </Box>
+    </IfSessionVisible>
+  )
+}
+```
+
+Now import and add the `ShyBox` component into our scene:
+
+App.tsx:
+```tsx
+//... Previous code
+import { ShyBox } from './ShyBox.js'
+//... Previous code
+        <XR store={store}>
+          <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
+            <meshBasicMaterial color={'darkgreen'} />
+          </Plane>
+          {/* Add the ShyBox component */}
+          <ShyBox position={[2, 1, 0]} />
+          <SpinningBox position={[0, 1, 0]} />
+          <IfInSessionMode deny={['immersive-ar', 'immersive-vr']}>
+            <OrbitControls />
+          </IfInSessionMode>
+        </XR>
+//... Previous code
+```
+
+The best way to test this guard is to run the application in a VR session, then press the menu button on your VR controller to bring up the system menu. You should see the `ShyBox` disappear when the system menu is open, and reappear when you close the menu.
+
 
 # Hooks
+We've made it through all of the component guards 🥳. All that's left now is to explore the hooks that are provided by `@react-three/xr`. Many of the components that we've covered so far use these hooks under the hood. 
 
 ### useXRSessionFeatureEnabled
 

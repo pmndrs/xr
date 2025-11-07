@@ -23,7 +23,7 @@ export const SpinningBox = ({ position }: SpinningBoxProps) => {
   return (
     <>
       <IfFacingCamera direction={cameraDirectionHelper} angle={Math.PI}>
-        <Box ref={boxRef} position={position}>
+        <Box ref={boxRef} args={[0.5, 0.5, 0.5]} position={position}>
           <meshBasicMaterial color="orange" />
         </Box>
       </IfFacingCamera>
