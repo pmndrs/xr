@@ -269,6 +269,16 @@ export class Pointer {
   }
 
   /**
+   * computes and commits a move
+   */
+  over(scene: Object3D, nativeEvent: NativeEvent): void {
+    if (!this.wasMoved) {
+      this.intersection = this.computeIntersection('pointer', scene, nativeEvent)
+      this.commit(nativeEvent, false)
+    }
+  }
+
+  /**
    * emits a move without (re-)computing the intersection
    * just emitting a move event to the current intersection
    */
