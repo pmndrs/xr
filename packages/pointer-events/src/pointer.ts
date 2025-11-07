@@ -269,7 +269,7 @@ export class Pointer {
   }
 
   /**
-   * computes and commits a move
+   * computes and commits the pointer if a move has not yet occured
    */
   over(scene: Object3D, nativeEvent: NativeEvent): void {
     if (!this.wasMoved) {
