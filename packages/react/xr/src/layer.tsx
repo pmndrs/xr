@@ -565,5 +565,8 @@ function ChildrenToRenderTarget({
     gl.getSize = oldGetSize
     gl.getDrawingBufferSize = oldGetDrawingBufferSize
   }, renderPriority)
+  // In zustand 5.x, React Three Fiber's store is a UseBoundStore
+  // createPortal expects a vanilla store with getState/setState/subscribe
+  // @ts-expect-error - R3F's store types changed in v9 with zustand 5.x, but portal still works
   return <>{reconciler.createPortal(<context.Provider value={store}>{children}</context.Provider>, store, null)}</>
 }

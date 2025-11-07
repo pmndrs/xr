@@ -19,15 +19,24 @@ export function XRElements({ children }: { children?: ReactNode }) {
   const origin = useXR((xr) => xr.origin)
   const visible = useXRSessionVisibilityState() === 'visible'
   const store = useStore()
-  const storeWithOriginAsScene = useMemo(
-    () =>
-      Object.assign({}, store, {
-        getState() {
-          return { ...store.getState(), scene: origin }
-        },
-      }),
-    [origin, store],
-  )
+  const storeWithOriginAsScene = useMemo(() => {
+    let cachedState: any = null
+    let lastOrigin: any = null
+    let lastStoreState: any = null
+
+    return Object.assign({}, store, {
+      getState() {
+        const currentStoreState = store.getState()
+        // Only create new object if origin or store state actually changed
+        if (lastOrigin !== origin || lastStoreState !== currentStoreState) {
+          cachedState = { ...currentStoreState, scene: origin }
+          lastOrigin = origin
+          lastStoreState = currentStoreState
+        }
+        return cachedState
+      },
+    })
+  }, [origin, store])
   if (origin == null || referenceSpace == null) {
     return null
   }
