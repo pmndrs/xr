@@ -103,7 +103,7 @@ import { IfInSessionMode } from '@react-three/xr'
 //... Previous code
 ```
 
-# ShowIfSessionModeSupported
+### ShowIfSessionModeSupported
 If you look in the API you might notice that there is also a `ShowIfSessionModeSupported` guard. There are 2 main differences between `ShowIfSessionModeSupported` and `IfSessionModeSupported`. The first difference is that `ShowIfSessionModeSupported` only works within the react-three/fiber canvas. The second difference is that `IfSessionModeSupported` will not **render** its children at all if mode doesn't match the session, while `ShowIfSessionModeSupported` will render its children but set their **visibility** to false. This means that with `ShowIfSessionModeSupported`, the components will still exist in the scene, but they will not be visible. We can demonstrate this by making a simple message component that we will only show when VR sessions are supported. Add a new file called `Message.tsx` with the following code:
 
 Messages.tsx:
@@ -148,7 +148,7 @@ import { Message } from './Message.js'
 
 Notice that when you run the application on your desktop web browser, you will see the message in the console from the `Message` component, but you won't see the `UIKit` message rendered in the scene. The next components that we are going to cover also have both show and conditional render versions, but for simplicity, we are only going to cover the versions that optionally render going forward.
 
-# IfFacingCamera
+### IfFacingCamera
 This guard allows us to only render children when they are seen by the camera from a specific direction. This can be helpful for optimizing performance by not showing things that the user can't see.To show off this guard, let's create a simple spinning box that will only render viewed from the camera from the -z axis. First, create a new file called `SpinningBox.tsx` with the following code:
 
 SpinningBox.tsx:
@@ -206,7 +206,7 @@ import { SpinningBox } from './SpinningBox.js'
 ```
 If you look at the scene now, you will not be able to see the spinning box, but if you rotate it around to view from the -z axis, the box will appear and start spinning.
 
-# IfInSessionMode
+### IfInSessionMode
 While expiramenting with the previous guards, you were likely using the `<OrbitControls />` component to move the camera around. In desktop react-three/fiber applications, the orbit controls are a very handy way to move the camera around and explore your scene. Unfortunately, the `<OrbitControls />` component does not play nicely with XR sessions. Luckily, we have a guard that can help us in this situation. The `IfInSessionMode` guard allows us to conditionally render components based on the current XR session mode. It accepts two props, a deny, and an allow list. In our case we want to **deny** our content when we are in an "immersive-ar", or an "immersive-vr" session. In the `App.tsx` file, wrap the `<OrbitControls />` component with the `IfInSessionMode` guard, and set it to deny both "immersive-ar" and "immersive-vr" modes:
 
 App.tsx:
@@ -221,7 +221,7 @@ import { createXRStore, IfSessionModeSupported, ShowIfSessionModeSupported, XR }
 //... Previous code
 ```
 
-# IfSessionVisible
+### IfSessionVisible
 We are down to our last component guard! This guard is more of a special use guard. The `IfSessionVisible` guard allows us to conditionally render content based on whether the XR session is visible or not. This can be useful for pausing certain effects or animations when the session is not visible to the user. For example, if the user switches to another tab or minimizes the browser window, we might want to pause certain animations to save resources. To demonstrate this guard, let's create a simple box that hides whenever the session is paused. Create a new file called `ShyBox.tsx` with the following code:
 
 ShyBox.tsx:
@@ -273,22 +273,91 @@ The best way to test this guard is to run the application in a VR session, then 
 
 
 # Hooks
-We've made it through all of the component guards 🥳. All that's left now is to explore the hooks that are provided by `@react-three/xr`. Many of the components that we've covered so far use these hooks under the hood. 
+We've made it through all of the component guards 🥳. All that's left now is to explore the hooks that are provided by `@react-three/xr`. Many of the components that we've covered so far use these hooks under the hood, and they can be useful for implementing logic based off of the state of the session rather than just hiding and displaying things. 
 
 ### useXRSessionFeatureEnabled
+`useXRsessionFeatureEnabled` lets you check if a feature is enabled in the current XR session. For example, you can check if `hand-tracking` is available on your device. The full list of features can be found here at [MDN](https://developer.mozilla.org/en-US/docs/Web/API/XRSystem/requestSession#session_features). For our little demo app here, we're going to create a little panel that shows which features are supported by our device. Create a new file called `SupportedFeaturesPanel.tsx` with the following code:
 
-### useXRSessionModeSupported
+SupportedFeaturesPanel.tsx:
+```tsx
+import { Container, Text } from '@react-three/uikit'
+import { useXRSessionFeatureEnabled } from '@react-three/xr'
+
+interface SupportedFeaturesPanelProps {
+  position?: [number, number, number]
+}
+
+export const SupportedFeaturesPanel = ({ position }: SupportedFeaturesPanelProps) => {
+  const canUseAnchors = useXRSessionFeatureEnabled('anchors')
+  const canUseBoundedFloor = useXRSessionFeatureEnabled('bounded-floor')
+  const canUseDepthSensing = useXRSessionFeatureEnabled('depth-sensing')
+  const canUseDomOverlay = useXRSessionFeatureEnabled('dom-overlay')
+  const canUseHandTracking = useXRSessionFeatureEnabled('hand-tracking')
+  const canUseHitTest = useXRSessionFeatureEnabled('hit-test')
+  const canUseLayers = useXRSessionFeatureEnabled('layers')
+  const canUseLightEstimation = useXRSessionFeatureEnabled('light-estimation')
+  const canUseLocal = useXRSessionFeatureEnabled('local')
+  const canUseLocalFloor = useXRSessionFeatureEnabled('local-floor')
+  const canUseSecondaryViews = useXRSessionFeatureEnabled('secondary-views')
+  const canUseUnbounded = useXRSessionFeatureEnabled('unbounded')
+  const canUseViewer = useXRSessionFeatureEnabled('viewer')
+
+  const getTextColor = (enabled: boolean) => (enabled ? 'lightgreen' : 'red')
+
+  return (
+    <group position={position}>
+      <Container
+        width={200}
+        height={280}
+        padding={5}
+        backgroundColor={'#222222'}
+        borderRadius={0.5}
+        display={'flex'}
+        flexDirection={'column'}
+      >
+        <Text color={'white'}>{'Supported Features:'}</Text>
+        <Text color={getTextColor(canUseAnchors)}>{`Anchors: ${canUseAnchors}`}</Text>
+        <Text color={getTextColor(canUseBoundedFloor)}>{`Bounded Floor: ${canUseBoundedFloor}`}</Text>
+        <Text color={getTextColor(canUseDepthSensing)}>{`Depth Sensing: ${canUseDepthSensing}`}</Text>
+        <Text color={getTextColor(canUseDomOverlay)}>{`DOM Overlay: ${canUseDomOverlay}`}</Text>
+        <Text color={getTextColor(canUseHandTracking)}>{`Hand Tracking: ${canUseHandTracking}`}</Text>
+        <Text color={getTextColor(canUseHitTest)}>{`Hit Test: ${canUseHitTest}`}</Text>
+        <Text color={getTextColor(canUseLayers)}>{`Layers: ${canUseLayers}`}</Text>
+        <Text color={getTextColor(canUseLightEstimation)}>{`Light Estimation: ${canUseLightEstimation}`}</Text>
+        <Text color={getTextColor(canUseLocal)}>{`Local: ${canUseLocal}`}</Text>
+        <Text color={getTextColor(canUseLocalFloor)}>{`Local Floor: ${canUseLocalFloor}`}</Text>
+        <Text color={getTextColor(canUseSecondaryViews)}>{`Secondary Views: ${canUseSecondaryViews}`}</Text>
+        <Text color={getTextColor(canUseUnbounded)}>{`Unbounded: ${canUseUnbounded}`}</Text>
+        <Text color={getTextColor(canUseViewer)}>{`Viewer: ${canUseViewer}`}</Text>
+      </Container>
+    </group>
+  )
+}
+```
+
+Now add the `SupportedFeaturesPanel` component into our scene, and we have a nice view of what features are supported by our device.
+
+App.tsx:
+```tsx
+//... Previous code
+import { SupportedFeaturesPanel } from './SupportedFeaturesPanel.js'
+//... Previous code
+        <XR store={store}>
+          <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
+            <meshBasicMaterial color={'darkgreen'} />
+          </Plane>
+          <ShyBox position={[2, 1, 0]} />
+          <SpinningBox position={[0, 1, 0]} />
+          {/* Add the SupportedFeaturesPanel component */}
+          <SupportedFeaturesPanel position={[0, 2, -3]} />
+          {/* Previous code */}
+```
 
 ### useXRSessionVisibilityState
 
-IfFacingCamera ⛔
-ShowIfFacingCamera ⛔
-IfSessionVisible ⛔
-ShowIfSessionVisible ⛔
-IfInSessionMode ☑️ : Needs usage snippet, and links to tutorial and example in jsdoc
-ShowIfInSessionMode ⛔ - Checks visibilty only, not rendering
-IfSessionModeSupported ⛔ - Doesn't render if toggled off
-ShowIfSessionModeSupported ⛔ - Checks visibilty only, not rendering
+### useXRSessionModeSupported
+
+
 
 useXRSessionFeatureEnabled ⛔ - Check for if MeshDetection is enabled
 useXRSessionModeSupported ⛔

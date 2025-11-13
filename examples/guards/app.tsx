@@ -6,6 +6,7 @@ import { Message } from './Message.js'
 import { ShyBox } from './ShyBox.js'
 import { SpinningBox } from './SpinningBox.js'
 import './styles.css'
+import { SupportedFeaturesPanel } from './SupportedFeaturesPanel.js'
 
 const store = createXRStore({ offerSession: false, emulate: false })
 
@@ -24,6 +25,7 @@ export function App() {
           </Plane>
           <ShyBox position={[-2, 1, 0]} />
           <SpinningBox position={[2, 1, 0]} />
+          <SupportedFeaturesPanel position={[0, 2, -3]} />
           <IfInSessionMode deny={['immersive-ar', 'immersive-vr']}>
             <OrbitControls />
           </IfInSessionMode>
