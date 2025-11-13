@@ -1,7 +1,6 @@
 import { Box } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
-import { IfSessionVisible } from '@react-three/xr'
-import { useRef, useState } from 'react'
+import { useXRSessionVisibilityState } from '@react-three/xr'
+import { useEffect, useState } from 'react'
 import * as THREE from 'three'
 
 interface ColorChangingBoxProps {
@@ -9,21 +8,18 @@ interface ColorChangingBoxProps {
 }
 
 export const ColorChangingBox = ({ position }: ColorChangingBoxProps) => {
-  const boxRef = useRef<THREE.Mesh>(null)
   const [color, setColor] = useState(new THREE.Color('blue'))
+  const visState = useXRSessionVisibilityState()
 
-  useFrame(() => {
-    const box = boxRef.current
-    if (box) {
-      // box.material.color = color
+  useEffect(() => {
+    if (visState === 'hidden') {
+      setColor(new THREE.Color(Math.random() * 0xffffff))
     }
-  })
+  }, [visState])
 
   return (
-    <IfSessionVisible>
-      <Box ref={boxRef} position={position} onClick={() => setColor(new THREE.Color(Math.random() * 0xffffff))}>
-        <meshBasicMaterial color={color} />
-      </Box>
-    </IfSessionVisible>
+    <Box position={position} args={[0.5, 0.5, 0.5]}>
+      <meshBasicMaterial color={color} />
+    </Box>
   )
 }

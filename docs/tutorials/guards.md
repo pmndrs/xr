@@ -342,52 +342,123 @@ App.tsx:
 //... Previous code
 import { SupportedFeaturesPanel } from './SupportedFeaturesPanel.js'
 //... Previous code
-        <XR store={store}>
-          <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
-            <meshBasicMaterial color={'darkgreen'} />
-          </Plane>
-          <ShyBox position={[2, 1, 0]} />
-          <SpinningBox position={[0, 1, 0]} />
-          {/* Add the SupportedFeaturesPanel component */}
-          <SupportedFeaturesPanel position={[0, 2, -3]} />
-          {/* Previous code */}
+        <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
+          <meshBasicMaterial color={'darkgreen'} />
+        </Plane>
+        <ShyBox position={[2, 1, 0]} />
+        <SpinningBox position={[0, 1, 0]} />
+        {/* Add the SupportedFeaturesPanel component */}
+        <SupportedFeaturesPanel position={[0, 2, -3]} />
+        {/* Previous code */}
 ```
 
 ### useXRSessionVisibilityState
+The `useXRSessionVisibilityState` hook allows you to get the current visibility state of the XR session. The visibility state can be one of three values: `visible`, `hidden`, or `visible-blurred`. This can be useful for pausing or resuming animations or effects based on whether the session is currently visible to the user. In our demo here, we're going to create a box that changes color based on the visibility state of the session. Create a new file called `ColorChangingBox.tsx` with the following code:
 
-### useXRSessionModeSupported
-
-
-
-useXRSessionFeatureEnabled ⛔ - Check for if MeshDetection is enabled
-useXRSessionModeSupported ⛔
-useXRSessionVisibilityState ⛔
-
-
-
-
-
-
-Guards allow to conditionally display or include content. For instance, the `IfInSessionMode` guard allows only displaying a background when the session is not an AR session. The `IfInSessionMode` can receive either a list of `allow` session modes or a list of `deny` session modes.
-
+ColorChangingBox.tsx:
 ```tsx
-import { Canvas } from '@react-three/fiber'
-import { IfInSessionMode, XR, createXRStore } from '@react-three/xr'
+import { Box } from '@react-three/drei'
+import { useXRSessionVisibilityState } from '@react-three/xr'
+import { useEffect, useState } from 'react'
+import * as THREE from 'three'
 
-const store = createXRStore()
+interface ColorChangingBoxProps {
+  position?: [number, number, number]
+}
 
-export function App() {
+export const ColorChangingBox = ({ position }: ColorChangingBoxProps) => {
+  const [color, setColor] = useState(new THREE.Color('blue'))
+  const visState = useXRSessionVisibilityState()
+
+  useEffect(() => {
+    if (visState === 'hidden') {
+      setColor(new THREE.Color(Math.random() * 0xffffff))
+    }
+  }, [visState])
+
   return (
-    <>
-      <button onClick={() => store.enterAR()}>Enter AR</button>
-      <Canvas>
-        <XR store={store}>
-          <IfInSessionMode deny="immersive-ar">
-            <color args={['red']} attach="background" />
-          </IfInSessionMode>
-        </XR>
-      </Canvas>
-    </>
- )
+    <Box position={position} args={[0.5, 0.5, 0.5]}>
+      <meshBasicMaterial color={color} />
+    </Box>
+  )
 }
 ```
+
+Add the box to our scene next to the other boxes:
+
+App.tsx:
+```tsx
+//... Previous code
+import { ColorChangingBox } from './ColorChangingBox.js'
+//... Previous code
+        <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
+          <meshBasicMaterial color={'darkgreen'} />
+        </Plane>
+        <ShyBox position={[-2, 1, 0]} />
+        <SpinningBox position={[2, 1, 0]} />
+        <SupportedFeaturesPanel position={[0, 2, -3]} />
+        {/* Add the ColorChangingBox component */}
+        <ColorChangingBox position={[1.5, 1, -2]} />
+//... Previous code
+```
+
+Now when wearing a VR headset, if you pause the application by bringing up the system menu, the box will change to a random color.
+
+### useXRSessionModeSupported
+We've finally made it to the last hook! The `useXRSessionModeSupported` hook allows you to check if a specific session mode is supported by the current device. This can be useful for conditionally enabling or disabling features based on the capabilities of the device. For example, you might want to check if `immersive-ar` is supported before showing an AR-specific feature in your application. In our case, we're going to keep things nice and simple and show another panel that displays which session modes are supported by our current device. Create a new file called `SupportedSessionModesPanel.tsx` with the following code:
+
+SupportedSessionModesPanel.tsx:
+```tsx
+import { Container, Text } from '@react-three/uikit'
+import { useXRSessionModeSupported } from '@react-three/xr'
+
+interface SupportedSessionModesPanelProps {
+  position?: [number, number, number]
+}
+
+export const SupportedSessionModesPanel = ({ position }: SupportedSessionModesPanelProps) => {
+  const supportsImmersiveVR = useXRSessionModeSupported('immersive-vr')
+  const supportsImmersiveAR = useXRSessionModeSupported('immersive-ar')
+  const supportsInline = useXRSessionModeSupported('inline')
+
+  const getTextColor = (supported?: boolean) => (supported ? 'lightgreen' : 'red')
+
+  return (
+    <group position={position}>
+      <Container
+        width={200}
+        height={120}
+        padding={5}
+        backgroundColor={'#222222'}
+        borderRadius={0.5}
+        display={'flex'}
+        flexDirection={'column'}
+      >
+        <Text color={'white'}>{'Supported Session Modes:'}</Text>
+        <Text color={getTextColor(supportsImmersiveVR)}>{`Immersive VR: ${supportsImmersiveVR}`}</Text>
+        <Text color={getTextColor(supportsImmersiveAR)}>{`Immersive AR: ${supportsImmersiveAR}`}</Text>
+        <Text color={getTextColor(supportsInline)}>{`Inline: ${supportsInline}`}</Text>
+      </Container>
+    </group>
+  )
+}
+```
+
+By now you should be well familiar with the drill. Add the `SupportedSessionModesPanel` component into our scene next to the other panel:
+
+App.tsx:
+```tsx
+//... Previous code
+import { SupportedSessionModesPanel } from './SupportedSessionModesPanel.js'
+//... Previous code
+          <ShyBox position={[-2, 1, 0]} />
+          <SpinningBox position={[2, 1, 0]} />
+          <SupportedFeaturesPanel position={[2, 3, -3]} />
+          {/* Add the SupportedSessionModesPanel component */}
+          <SupportedSessionModesPanel position={[-2, 3.7, -3]} />
+          <ColorChangingBox position={[1.5, 1, -2]} />
+//... Previous code
+```
+
+# Conclusion
+With that we've covered all of the guards and hooks that allow you to implement conditional rendering and logic into your XR applications. Best of luck using these techniques and happy coding!
