@@ -29,6 +29,18 @@ interface InSessionModeProps {
  * #### `children?` - `ReactNode` The ReactNode elements to conditionally show.
  * #### `allow?` - `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` The session mode(s) where the children will be shown. If not provided, the children will be shown in all modes except the ones in `deny`.
  * #### `deny?` - `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` The session mode(s) where the children will be hidden.
+ * @example
+ * ```tsx
+ * <ShowIfInSessionMode allow="immersive-vr">
+ *   <VRExclusiveComponents />
+ * </ShowIfInSessionMode>
+ *
+ * <ShowIfInSessionMode deny="immersive-vr">
+ *   <NonVRComponents />
+ * </ShowIfInSessionMode>
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function ShowIfInSessionMode({ children, allow, deny }: InSessionModeProps) {
   const visible = useIsInSessionMode(allow, deny)
@@ -43,6 +55,18 @@ export function ShowIfInSessionMode({ children, allow, deny }: InSessionModeProp
  * #### `children?` - `ReactNode` The ReactNode elements to conditionally render.
  * #### `allow?` - `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` The session mode(s) where the children will be rendered. If not provided, the children will be rendered in all modes except the ones in `deny`.
  * #### `deny?` - `XRSessionMode | ReadonlyArray<XRSessionMode | undefined>` The session mode(s) where the children will not be rendered.
+ * @example
+ * ```tsx
+ * <IfInSessionMode allow="immersive-vr">
+ *   <VRExclusiveComponents />
+ * </IfInSessionMode>
+ *
+ * <IfInSessionMode deny="immersive-vr">
+ *   <NonVRComponents />
+ * </IfInSessionMode>
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function IfInSessionMode({ children, allow, deny }: InSessionModeProps) {
   const visible = useIsInSessionMode(allow, deny)

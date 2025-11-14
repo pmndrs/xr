@@ -95,7 +95,7 @@ button {
 ```
 
 ### Our First Guard
-Already in our application we have something worth putting a guard on. We have an XR scene already to go with an enter VR button, but what if the user is on a device that doesn't support VR? We can use the `IfSessionModeSupported` guard to only show the enter VR button when the user's device supports immersive VR sessions. `IfSessionModeSupported` takes a `mode` prop which can be set to `immersive-vr`, `immersive-ar`, or `inline`. Let's wrap our enter VR and enter AR buttons with the `IfSessionModeSupported` guard.
+Our simple demo here already has something worth putting a guard on. We have an XR scene ready to launch from the enter VR button, but what if the user is on a device that doesn't support VR? We can use the `IfSessionModeSupported` guard to only show the enter VR button when the user's device supports immersive VR sessions. `IfSessionModeSupported` takes a `mode` prop which can be set to `immersive-vr`, `immersive-ar`, or `inline`. Let's wrap our enter VR and enter AR buttons with the `IfSessionModeSupported` guard.
 
 **App.tsx:**
 ```tsx
@@ -484,5 +484,5 @@ import { SupportedSessionModesPanel } from './SupportedSessionModesPanel.js'
 ### Conclusion
 With that, we've covered all of the guards and hooks that allow you to implement conditional rendering and logic into your XR applications. Best of luck using these techniques and happy coding!
 
-- *The example project can be found here: [Guard Example](https://pmndrs.github.io/xr/examples/guards/)*
-- *Full source code for this tutorial can be found here: [Guard Example Source](https://github.com/pmndrs/xr/tree/main/examples/guards)*
+- *The example project can be found here: [Guards Example](https://pmndrs.github.io/xr/examples/guards/)*
+- *Full source code for this tutorial can be found here: [Guards Example Source](https://github.com/pmndrs/xr/tree/main/examples/guards)*
