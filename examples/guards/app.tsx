@@ -39,10 +39,14 @@ export function App() {
         </ShowIfSessionModeSupported>
       </Canvas>
       <IfSessionModeSupported mode="immersive-vr">
-        <button onClick={() => store.enterVR()}>{'Enter VR'}</button>
+        <button className="enterVRButton" onClick={() => store.enterVR()}>
+          {'Enter VR'}
+        </button>
       </IfSessionModeSupported>
       <IfSessionModeSupported mode="immersive-ar">
-        <button onClick={() => store.enterAR()}>{'Enter AR'}</button>
+        <button className="enterARButton" onClick={() => store.enterAR()}>
+          {'Enter AR'}
+        </button>
       </IfSessionModeSupported>
     </div>
   )
