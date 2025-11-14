@@ -6,7 +6,7 @@ nav: 20
 
 One of the coolest features of web development is the amount of devices that you can reach with your application. Everything from desktop browsers to mobile phones, and even some watches are able to visit webpages. While a large number of devices can access your application, not all of them are able to provide the same experiences. It's important to remember this and plan accordingly when building your application. This tutorial will show you how to conditionally enable or disable parts of your application based on the client's current device using the various "guard" components provided by `@react-three/xr`.
 
-# Setup
+### Setup
 As always, we need a new project to work with. Create a new React vite project and install the following dependencies:
 `npm i three @react-three/fiber @react-three/xr @react-three/drei @react-three/uikit; npm i -D @types/three`
 
@@ -94,7 +94,7 @@ button {
 }
 ```
 
-# Our First Guard
+### Our First Guard
 Already in our application we have something worth putting a guard on. We have an XR scene already to go with an enter VR button, but what if the user is on a device that doesn't support VR? We can use the `IfSessionModeSupported` guard to only show the enter VR button when the user's device supports immersive VR sessions. `IfSessionModeSupported` takes a `mode` prop which can be set to `immersive-vr`, `immersive-ar`, or `inline`. Let's wrap our enter VR and enter AR buttons with the `IfSessionModeSupported` guard.
 
 **App.tsx:**
@@ -288,7 +288,7 @@ The best way to test this guard is to run the application in a VR session, then 
 > Some VR devices may count bringing up the system menu as "blurring" the session rather than hiding it. If this happens to you, you can get the same effect by using the `useXRSessionVisibilityState` hook which we will cover in the next section, and checking for 'visible-blurred' instead of 'hidden'👍
 
 
-# Hooks
+### Hooks
 We've made it through all of the component guards 🥳. All that's left now is to explore the hooks that are provided by `@react-three/xr`. Many of the components that we've covered so far use these hooks under the hood, and they can be useful for implementing logic based off of the state of the session rather than just hiding and displaying things. 
 
 ### useXRSessionFeatureEnabled
@@ -481,5 +481,5 @@ import { SupportedSessionModesPanel } from './SupportedSessionModesPanel.js'
 //... Previous code
 ```
 
-# Conclusion
+### Conclusion
 With that, we've covered all of the guards and hooks that allow you to implement conditional rendering and logic into your XR applications. Best of luck using these techniques and happy coding!
