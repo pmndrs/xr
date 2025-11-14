@@ -12,7 +12,7 @@ export const ColorChangingBox = ({ position }: ColorChangingBoxProps) => {
   const visState = useXRSessionVisibilityState()
 
   useEffect(() => {
-    if (visState === 'hidden') {
+    if (visState !== 'visible') {
       setColor(new THREE.Color(Math.random() * 0xffffff))
     }
   }, [visState])

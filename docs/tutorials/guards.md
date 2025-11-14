@@ -129,7 +129,7 @@ interface MessageProps {
 export const Message = ({ message }: MessageProps) => {
   console.log('But I am still rendered no matter what!')
   return (
-    <group position={[-2, 4, 0]}>
+    <group position={[-2, 2, -3]}>
       <Container borderRadius={50} backgroundColor={'black'} padding={5}>
         <Text color={'white'}>{message}</Text>
       </Container>
@@ -284,10 +284,6 @@ import { ShyBox } from './ShyBox.js'
 
 The best way to test this guard is to run the application in a VR session, then press the menu button on your VR controller to bring up the system menu. You should see the `ShyBox` disappear when the system menu is open, and reappear when you close the menu.
 
-> [!NOTE]
-> Some VR devices may count bringing up the system menu as "blurring" the session rather than hiding it. If this happens to you, you can get the same effect by using the `useXRSessionVisibilityState` hook which we will cover in the next section, and checking for 'visible-blurred' instead of 'hidden'👍
-
-
 ### Hooks
 We've made it through all of the component guards 🥳. All that's left now is to explore the hooks that are provided by `@react-three/xr`. Many of the components that we've covered so far use these hooks under the hood, and they can be useful for implementing logic based off of the state of the session rather than just hiding and displaying things. 
 
@@ -389,7 +385,7 @@ export const ColorChangingBox = ({ position }: ColorChangingBoxProps) => {
   const visState = useXRSessionVisibilityState()
 
   useEffect(() => {
-    if (visState === 'hidden') {
+    if (visState !== 'visible') {
       setColor(new THREE.Color(Math.random() * 0xffffff))
     }
   }, [visState])
@@ -421,9 +417,6 @@ import { ColorChangingBox } from './ColorChangingBox.js'
 ```
 
 Now when wearing a VR headset, if you pause the application by bringing up the system menu, the box will change to a random color.
-
-> [!NOTE]
-> As mentioned earlier, some VR devices may count bringing up the system menu as "blurring" the session rather than hiding it. If you don't see the box change color, try checking for 'visible-blurred' in the `useEffect` instead of 'hidden'👍
 
 ### useXRSessionModeSupported
 We've finally made it to the last hook! The `useXRSessionModeSupported` hook allows you to check if a specific session mode is supported by the current device. This can be useful for conditionally enabling or disabling features based on the capabilities of the device. For example, you might want to check if `immersive-ar` is supported before showing an AR-specific feature in your application. In our case, we're going to keep things nice and simple and show another panel that displays which session modes are supported by our current device. Create a new file called `SupportedSessionModesPanel.tsx` with the following code:
