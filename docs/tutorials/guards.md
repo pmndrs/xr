@@ -483,3 +483,6 @@ import { SupportedSessionModesPanel } from './SupportedSessionModesPanel.js'
 
 ### Conclusion
 With that, we've covered all of the guards and hooks that allow you to implement conditional rendering and logic into your XR applications. Best of luck using these techniques and happy coding!
+
+- *The example project can be found here: [Guard Example](https://pmndrs.github.io/xr/examples/guards/)*
+- *Full source code for this tutorial can be found here: [Guard Example Source](https://github.com/pmndrs/xr/tree/main/examples/guards)*
