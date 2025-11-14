@@ -61,5 +61,5 @@ export function IfFacingCamera({ children, direction, angle = Math.PI / 2 }: Fac
   const ref = useRef<Group>(null)
   const [show, setShow] = useState(false)
   useIsFacingCamera(ref, setShow, direction, angle)
-  return <group ref={ref}>{show ? children : null}</group>
+  return show ? <>{children}</> : null
 }
