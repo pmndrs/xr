@@ -5,7 +5,16 @@ import { XRControllerLayoutLoaderOptions, updateXRControllerState } from './cont
 import { XRHandLoaderOptions } from './hand/index.js'
 import { updateXRHandState } from './hand/state.js'
 import { XRSessionInitOptions, buildXRSessionInit } from './init.js'
-import { XRInputSourceState, XRInputSourceStateMap, createSyncXRInputSourceStates } from './input.js'
+import {
+  XRInputSourceState,
+  XRInputSourceStateMap,
+  createSyncXRInputSourceStates,
+  XRControllerState,
+  XRHandState,
+  XRTransientPointerState,
+  XRGazeState,
+  XRScreenInputState,
+} from './input.js'
 import { XRLayerEntry } from './layer.js'
 import type { EmulatorOptions } from './emulate.js'
 
@@ -153,6 +162,26 @@ export type XRState<T extends XRElementImplementations> = Readonly<
      * all xr input sources
      */
     inputSourceStates: ReadonlyArray<XRInputSourceState>
+    /**
+     * all active controller states
+     */
+    controllerStates: ReadonlyArray<XRControllerState>
+    /**
+     * all active hand tracking states
+     */
+    handStates: ReadonlyArray<XRHandState>
+    /**
+     * all active transient pointer states
+     */
+    transientPointerStates: ReadonlyArray<XRTransientPointerState>
+    /**
+     * all active gaze input states
+     */
+    gazeStates: ReadonlyArray<XRGazeState>
+    /**
+     * all active screen input states
+     */
+    screenInputStates: ReadonlyArray<XRScreenInputState>
     /**
      * the detected `XRPlane`s
      */
@@ -385,6 +414,11 @@ const baseInitialState: Omit<
   mode: null,
   frameRate: undefined,
   inputSourceStates: [],
+  controllerStates: [],
+  handStates: [],
+  transientPointerStates: [],
+  gazeStates: [],
+  screenInputStates: [],
   detectedMeshes: [],
   detectedPlanes: [],
   layerEntries: [],
@@ -503,7 +537,7 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
   }
 
   const syncXRInputSourceStates = createSyncXRInputSourceStates(
-    (state) => store.setState({ inputSourceStates: [...store.getState().inputSourceStates, state] }),
+    (state) => store.setState({ ...store.getState(), inputSourceStates: [...store.getState().inputSourceStates, state] }),
     options,
   )
   const bindToSession = createBindToSession(store, syncXRInputSourceStates, options?.secondaryInputSources ?? false)
@@ -858,9 +892,9 @@ function createBindToSession(
 
     const applySourcesChange = () => {
       inputSourceChangesTimeout = undefined
-      store.setState({
-        inputSourceStates: syncXRInputSourceStates(session, store.getState().inputSourceStates, inputSourceChangesList),
-      })
+      store.setState(
+        syncXRInputSourceStates(session, store.getState().inputSourceStates, inputSourceChangesList),
+      )
       inputSourceChangesList.length = 0
     }
     const onSourcesChange = (isPrimary: boolean, e: XRInputSourcesChangeEvent) => {
@@ -907,7 +941,6 @@ function createBindToSession(
     if (secondayInputSources) {
       initialChanges.push({ isPrimary: false, added: session.trackedSources })
     }
-    const inputSourceStates = syncXRInputSourceStates(session, [], initialChanges)
 
     cleanupSession = () => {
       //cleanup
@@ -921,7 +954,7 @@ function createBindToSession(
     }
 
     return {
-      inputSourceStates,
+      ...syncXRInputSourceStates(session, [], initialChanges),
       frameRate: session.frameRate,
       visibilityState: session.visibilityState,
       detectedMeshes: [],
