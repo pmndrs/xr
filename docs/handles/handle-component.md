@@ -1,7 +1,7 @@
 ---
 title: Handle Component  
 description: The Handle and HandleTarget components and their properties  
-nav: 24  
+nav: 25  
 ---
 
 The `Handle` component is the core component of the `@react-three/handle` library, which is built on the `HandleStore`. This store provides developers with more control over the current state and user interactions.

@@ -1,7 +1,7 @@
 ---
 title: Hit Test
 description: How to add hit testing capabilities to your AR experiences
-nav: 19
+nav: 20
 ---
 
 Hit testing is a technique that allows developers to check for intersections with real-world surfaces in AR experiences. `@react-three/xr` provides hooks and components for setting up hit testing. This tutorial covers all the hit testing hooks available in React Three XR and demonstrates how to use them effectively.
