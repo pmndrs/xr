@@ -55,7 +55,10 @@ export type HandleOptions<T> = {
      */
     uniform?: boolean
   }
-  //TODO: filter
+  /**
+   * Filter interaction. Return false to ignore the event.
+   */
+  filter?: (event: PointerEvent) => boolean
   /**
    * @default true
    */
@@ -160,6 +163,9 @@ export class HandleStore<T>
   }
 
   private onPointerDown(event: PointerEvent): void {
+    if (this.getOptions().filter?.(event) === false) {
+      return
+    }
     this.stopPropagation(event)
     if (!this.capturePointer(event.pointerId, event.object)) {
       return

@@ -62,6 +62,9 @@ In situations where the handle target is placed inside a constantly changing gro
 **multitouch**  
 By default, handles can be interacted with using multiple input devices. By setting `multitouch` to `false`, only the first input device will be used.
 
+**filter**  
+Allows to filter interactions based on the event. Return `false` to ignore the event.
+
 **stopPropagation**  
 By default, events that occur on handles are not propagated upwards and therefore do not reach their ancestors. Setting `stopPropagation` to `false` will re-enable event propagation for events that occur on the handle.
 
