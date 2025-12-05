@@ -48,8 +48,10 @@ export function getSpaceFromAncestors(
   originReferenceSpace?: XRReferenceSpace,
   targetOffsetMatrix?: Matrix4,
 ) {
+  // Ensure world matrices are up to date for targetObject and all ancestors
+  object.updateWorldMatrix(true, false)
   targetOffsetMatrix?.copy(object.matrix)
-  const result = getXRSpaceFromAncestorsRec(object.parent, targetOffsetMatrix)
+  const result = getXRSpaceFromAncestorsRec(object.parent, object, targetOffsetMatrix)
   if (result != null) {
     return result
   }
@@ -71,16 +73,25 @@ function computeOriginReferenceSpaceOffset(object: Object3D, origin: Object3D | 
   target.copy(origin.matrixWorld).invert().multiply(object.matrixWorld)
 }
 
+/**
+ * Recursively searches ancestors for an xrSpace.
+ * @requires The world matrices of targetObject and all its ancestors must be up to date.
+ */
 function getXRSpaceFromAncestorsRec(
   object: Object3D | null,
+  targetObject: Object3D,
   targetOffsetMatrix: Matrix4 | undefined,
 ): XRSpace | undefined {
   if (object == null) {
     return undefined
   }
   if (object.xrSpace != null) {
+    // Calculate offset using world matrices instead of accumulating local matrices.
+    // This correctly handles components that override updateWorldMatrix (e.g., UIKit Content).
+    if (targetOffsetMatrix != null) {
+      targetOffsetMatrix.copy(object.matrixWorld).invert().multiply(targetObject.matrixWorld)
+    }
     return object.xrSpace
   }
-  targetOffsetMatrix?.premultiply(object.matrix)
-  return getXRSpaceFromAncestorsRec(object.parent, targetOffsetMatrix)
+  return getXRSpaceFromAncestorsRec(object.parent, targetObject, targetOffsetMatrix)
 }
