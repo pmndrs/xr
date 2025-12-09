@@ -75,7 +75,7 @@ function computeOriginReferenceSpaceOffset(object: Object3D, origin: Object3D | 
 
 /**
  * Recursively searches ancestors for an xrSpace.
- * @requires The world matrices of targetObject and all its ancestors must be up to date.
+ * @requires The world matrices of object, all its ancestors, and the world matrix of targetObject must be up to date.
  */
 function getXRSpaceFromAncestorsRec(
   object: Object3D | null,
