@@ -156,9 +156,7 @@ export function UNSAFE_useXRStore() {
 /**
  * Hook for reading the state from the xr store
  */
-export function useXR<T = XRState>(
-  selector: (s: XRState) => T = (state) => state as unknown as T,
-  equalityFn?: (a: T, b: T) => boolean,
-) {
-  return useStore(useXRStore(), selector, equalityFn)
+export function useXR<T = XRState>(selector: (s: XRState) => T = (state) => state as unknown as T) {
+  const store = useXRStore()
+  return useStore(store, selector)
 }
