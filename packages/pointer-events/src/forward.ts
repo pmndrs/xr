@@ -156,6 +156,9 @@ function forwardEvents(
       case 'move':
         pointer.move(scene, event)
         return
+      case 'over':
+        pointer.move(scene, event)
+        return
       case 'wheel':
         pointer.wheel(scene, event as any)
         return
@@ -198,6 +201,7 @@ function forwardEvents(
   }
 
   const pointerMoveListener = onEvent.bind(null, 'move')
+  const pointerOverListener = onEvent.bind(null, 'over')
   const pointerCancelListener = onEvent.bind(null, 'cancel')
   const pointerDownListener = onEvent.bind(null, 'down')
   const pointerUpListener = onEvent.bind(null, 'up')
@@ -205,6 +209,7 @@ function forwardEvents(
   const pointerLeaveListener = onEvent.bind(null, 'exit')
 
   from.addEventListener('pointermove', pointerMoveListener)
+  from.addEventListener('pointerover', pointerOverListener)
   from.addEventListener('pointercancel', pointerCancelListener)
   from.addEventListener('pointerdown', pointerDownListener)
   from.addEventListener('pointerup', pointerUpListener)
@@ -214,6 +219,7 @@ function forwardEvents(
   return {
     destroy() {
       from.removeEventListener('pointermove', pointerMoveListener)
+      from.removeEventListener('pointerover', pointerOverListener)
       from.removeEventListener('pointercancel', pointerCancelListener)
       from.removeEventListener('pointerdown', pointerDownListener)
       from.removeEventListener('pointerup', pointerUpListener)
