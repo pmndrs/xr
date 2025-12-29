@@ -445,6 +445,84 @@ describe('compare dom vs own canvas pointer events', () => {
     await context.close()
   })
 
+  it('should handle pointer leaving with button held and returning without button', async () => {
+    const context = await browser.newContext(devices['Desktop Chrome'])
+    const {
+      viewport: { width, height },
+    } = devices['Desktop Chrome']
+
+    await testSetup(
+      context,
+      [
+        {
+          rotation: [0, 0, 0],
+          translate: [0, 0, 0],
+          scale: [0.5, 0.5, 1],
+          type: 'rectangle',
+          capture: true,
+        },
+      ],
+      async (page, expectMessages) => {
+        await page.mouse.move(width * 0.5, height * 0.5)
+        await page.mouse.down()
+        await expectMessages('0 pointerover', '0 pointerenter', '0 pointermove', '0 pointerdown')
+
+        // Simulate leaving window with button held
+        await page.evaluate(() => {
+          const canvas = document.querySelector('canvas')!
+          canvas.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true, pointerId: 1, buttons: 1 }))
+        })
+
+        // Simulate returning without button (released outside)
+        await page.mouse.up() // Release
+        await page.mouse.move(width * 0.5, height * 0.5)
+        await expectMessages('0 pointerup', '0 click', '0 pointermove')
+      },
+    )
+
+    await context.close()
+  })
+
+  it('should preserve capture when pointer leaves and re-enters window', async () => {
+    const context = await browser.newContext(devices['Desktop Chrome'])
+    const {
+      viewport: { width, height },
+    } = devices['Desktop Chrome']
+
+    await testSetup(
+      context,
+      [
+        {
+          rotation: [0, 0, 0],
+          translate: [0, 0, 0],
+          scale: [0.5, 0.5, 1],
+          type: 'rectangle',
+          capture: true,
+        },
+      ],
+      async (page, expectMessages) => {
+        await page.mouse.move(width * 0.5, height * 0.5)
+        await page.mouse.down()
+        await expectMessages('0 pointerover', '0 pointerenter', '0 pointermove', '0 pointerdown')
+
+        // Simulate leaving the window by dispatching pointerleave with button held
+        await page.evaluate(() => {
+          const canvas = document.querySelector('canvas')!
+          canvas.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true, pointerId: 1, buttons: 1 }))
+        })
+
+        // Move back in - should still be captured
+        await page.mouse.move(width * 0.5, height * 0.5)
+        await expectMessages('0 pointermove')
+
+        await page.mouse.up()
+        await expectMessages('0 pointerup', '0 click')
+      },
+    )
+
+    await context.close()
+  })
+
   //TODO: nesting (pointer enter vs pointer over and pointer leave vs pointer out)
   //TODO: test browser blur
   //TODO: test event propagation

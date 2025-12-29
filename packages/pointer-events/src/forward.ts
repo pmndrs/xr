@@ -59,8 +59,10 @@ export function forwardHtmlEvents(
     htmlEventToCoords.bind(null, fromElement),
     fromElement.setPointerCapture.bind(fromElement),
     (pointerId) => {
-      if (fromElement.hasPointerCapture(pointerId)) {
+      try {
         fromElement.releasePointerCapture(pointerId)
+      } catch {
+        // Pointer may have already been released (e.g., left window)
       }
     },
     {
@@ -197,12 +199,24 @@ function forwardEvents(
     }
   }
 
-  const pointerMoveListener = onEvent.bind(null, 'move')
+  const pointerMoveListener = (event: ForwardablePointerEvent) => {
+    const capture = pointerMap.get(event.pointerId)?.getPointerCapture()
+    if (capture != null && forwardPointerCapture) {
+      setPointerCapture(event.pointerId)
+    }
+    onEvent('move', event)
+  }
   const pointerCancelListener = onEvent.bind(null, 'cancel')
   const pointerDownListener = onEvent.bind(null, 'down')
   const pointerUpListener = onEvent.bind(null, 'up')
   const wheelListener = onEvent.bind(null, 'wheel')
-  const pointerLeaveListener = onEvent.bind(null, 'exit')
+  const pointerLeaveListener = (event: ForwardablePointerEvent & { buttons?: number }) => {
+    const capture = pointerMap.get(event.pointerId)?.getPointerCapture()
+    if (capture != null && event.buttons) {
+      return
+    }
+    onEvent('exit', event)
+  }
 
   from.addEventListener('pointermove', pointerMoveListener)
   from.addEventListener('pointercancel', pointerCancelListener)
