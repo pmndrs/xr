@@ -16,23 +16,15 @@ import { ZoomScreenHandleStore } from './zoom.js'
 
 const vectorHelper = new Vector3()
 
-/** Default speed multiplier for vertical scroll → zoom */
 const DEFAULT_ZOOM_SPEED = 0.01
-/** Default speed multiplier for horizontal scroll → yaw rotation */
 const DEFAULT_YAW_SPEED = 0.002
-/** Default speed multiplier for pinch (ctrl+scroll) → pitch rotation */
 const DEFAULT_PITCH_SPEED = 0.02
-/** Default speed multiplier for shift+scroll → pan */
 const DEFAULT_PAN_SPEED = 0.0005
 
 export interface MapHandlesWheelOptions {
-  /** Vertical scroll zoom speed, or false to disable. Default: 0.01 */
   zoom?: number | false
-  /** Horizontal scroll yaw speed, or false to disable. Default: 0.002 */
   yaw?: number | false
-  /** Ctrl+scroll pitch speed, or false to disable. Default: 0.02 */
   pitch?: number | false
-  /** Shift+scroll pan speed, or false to disable. Default: 0.0005 */
   pan?: number | false
 }
 
@@ -120,9 +112,6 @@ export class MapHandles {
     this.updateDamping(deltaTime)
   }
 
-  /**
-   * Binds wheel event handling for scroll/pinch gestures.
-   */
   bindWheel(scene: Scene) {
     const voidObject = getVoidObject(scene)
     const onWheel = this.onWheel.bind(this)
