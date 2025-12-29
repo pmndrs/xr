@@ -56,7 +56,7 @@ import { useXR, useXRStore } from './xr.js'
 
 export type XRLayerProperties = XRLayerOptions &
   XRLayerDynamicProperties &
-  Omit<ThreeElements['mesh'], 'geometry' | 'ref'> & {
+  Omit<ThreeElements['mesh'], 'geometry'> & {
     renderPriority?: number
     children?: ReactNode
     pixelWidth?: number
@@ -80,16 +80,19 @@ export type XRLayerProperties = XRLayerOptions &
  * #### `chromaticAberrationCorrection` - Property to configure whether chromatic abberration should be corrected by the layer.
  * #### `quality` - Property to configure for what type of content the layer should be optimized ("default", "text-optimized", "graphics-optimized").
  */
-export function XRLayer({
-  src,
-  pixelWidth = 1024,
-  pixelHeight = 1024,
-  dpr = 1,
-  renderPriority = 0,
-  children,
-  customRender,
-  ...props
-}: XRLayerProperties) {
+export const XRLayer = forwardRef<Mesh, XRLayerProperties>(function XRLayer(
+  {
+    src,
+    pixelWidth = 1024,
+    pixelHeight = 1024,
+    dpr = 1,
+    renderPriority = 0,
+    children,
+    customRender,
+    ...props
+  },
+  forwardedRef,
+) {
   const [hasSize, setHasSize] = useState(false)
   const ref = useRef<Mesh>(null)
   const renderTargetRef = useRef<WebGLRenderTarget | undefined>(undefined)
@@ -113,6 +116,8 @@ export function XRLayer({
   )
   const store = useLayerStore(pixelWidth, pixelHeight, dpr)
   useForwardEvents(store, ref, [hasSize, layersEnabled])
+  // hasSize and layersEnabled are deps because ref.current is only populated after children render
+  useImperativeHandle(forwardedRef, () => ref.current!, [hasSize, layersEnabled])
   if (!hasSize) {
     return null
   }
@@ -155,7 +160,7 @@ export function XRLayer({
       )}
     </>
   )
-}
+})
 
 export const XRLayerImplementation = forwardRef<
   Mesh,
