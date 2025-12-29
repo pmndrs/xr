@@ -8,6 +8,9 @@ import { convertScreenSpaceMovementToGlobalPan } from './utils.js'
 const resultHelper = new Vector3()
 const centerHelper = new Vector2()
 
+const WHEEL_ZOOM_SPEED = 0.01
+const PINCH_ZOOM_SPEED = 0.1
+
 export class ZoomScreenHandleStore extends ScreenHandleStore<{ distance: number; origin: Readonly<Vector3Tuple> }> {
   constructor(
     private readonly store: StoreApi<ScreenCameraStateAndFunctions>,
@@ -16,6 +19,7 @@ export class ZoomScreenHandleStore extends ScreenHandleStore<{ distance: number;
     public customApply?: typeof defaultScreenCameraApply,
     public speed?: number,
     public zoomToPointer?: boolean,
+    private readonly skipWheel = false,
   ) {
     super(
       ({ distance: initialDistance, origin: initialOrigin }, map) => {
@@ -50,7 +54,9 @@ export class ZoomScreenHandleStore extends ScreenHandleStore<{ distance: number;
   }
 
   private onWheel(e: WheelEvent) {
-    const zoomFactor = Math.pow(0.95, (this.speed ?? 1) * e.deltaY * 0.01)
+    ;(e.nativeEvent as globalThis.WheelEvent).preventDefault?.()
+    const speedMultiplier = e.ctrlKey ? PINCH_ZOOM_SPEED : WHEEL_ZOOM_SPEED
+    const zoomFactor = Math.pow(0.95, (this.speed ?? 1) * e.deltaY * speedMultiplier)
     const update: Partial<ScreenCameraState> = {
       distance: this.store.getState().distance / zoomFactor,
     }
@@ -69,11 +75,16 @@ export class ZoomScreenHandleStore extends ScreenHandleStore<{ distance: number;
   }
 
   bind(scene: Scene): () => void {
+    const unbind = super.bind(scene)
+
+    if (this.skipWheel) {
+      return unbind
+    }
+
     const voidObject = getVoidObject(scene)
     const fn = this.onWheel.bind(this)
     voidObject.addEventListener('wheel', fn)
 
-    const unbind = super.bind(scene)
     return () => {
       unbind()
       voidObject.removeEventListener('wheel', fn)
