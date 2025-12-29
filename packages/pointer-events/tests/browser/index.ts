@@ -1,6 +1,3 @@
-import { PointerEventsMap, forwardHtmlEvents } from '../../src/index.js'
-//@ts-ignore
-import e from './elements.json'
 import {
   Scene,
   OrthographicCamera,
@@ -13,6 +10,9 @@ import {
   Object3DEventMap,
   WebGLRenderer,
 } from 'three'
+import e from './elements.json'
+import { PointerEventsMap, forwardHtmlEvents } from '../../src/index.js'
+//@ts-ignore
 
 const scene = new Scene()
 const canvas = document.getElementById('canvas') as HTMLCanvasElement

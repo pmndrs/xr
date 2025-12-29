@@ -1,7 +1,7 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { resolve } from 'path'
 import { Browser, BrowserContext, Page, chromium, devices } from 'playwright'
 import { createServer, ViteDevServer } from 'vite'
-import { resolve } from 'path'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 let browser: Browser
 let server: ViteDevServer

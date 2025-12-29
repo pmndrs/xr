@@ -1,7 +1,7 @@
-import { bench, describe } from 'vitest'
-import { createRayPointer } from '../src/pointer/index.js'
 import { BoxGeometry, Mesh, Object3D, PerspectiveCamera, Raycaster, Scene } from 'three'
+import { bench, describe } from 'vitest'
 import { CombinedPointer } from '../src/combine.js'
+import { createRayPointer } from '../src/pointer/index.js'
 
 const camera = new PerspectiveCamera()
 const combinedPointer = new CombinedPointer(true)

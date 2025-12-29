@@ -1,5 +1,5 @@
-import { afterAll, describe, it } from 'vitest'
 import { chromium, devices } from 'playwright'
+import { afterAll, describe, it } from 'vitest'
 import { testSetup } from './utils.js'
 
 const browser = await chromium.launch({ headless: true })

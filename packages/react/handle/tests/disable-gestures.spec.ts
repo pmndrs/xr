@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
-import { useDisableGestures } from '../src/disable-gestures'
 import { existsSync, readFileSync } from 'fs'
 import { resolve } from 'path'
+import { describe, expect, it } from 'vitest'
+import { useDisableGestures } from '../src/disable-gestures.js'
 
 describe('disable-gestures', () => {
   it('useDisableGestures should be a function', () => {

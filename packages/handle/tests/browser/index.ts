@@ -1,5 +1,5 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, GridHelper } from 'three'
 import { forwardHtmlEvents } from '@pmndrs/pointer-events'
+import { Scene, PerspectiveCamera, WebGLRenderer, GridHelper } from 'three'
 import { MapHandles, MapHandlesWheelOptions } from '../../src/screen/map.js'
 
 // Parse wheel options from URL params
