@@ -75,6 +75,14 @@ function useScreenHandles(
   handles.zoom.customApply = apply
   handles.zoom.speed = typeof zoom === 'boolean' ? undefined : zoom?.speed
   handles.zoom.filter = typeof zoom === 'boolean' ? undefined : zoom?.filter
+
+  // Wheel (MapHandles only)
+  useEffect(() => {
+    if (disabled) return
+    if ('bindWheel' in handles) {
+      return (handles as MapHandlesImpl).bindWheel(scene)
+    }
+  }, [handles, disabled, scene])
 }
 
 export function useApplyScreenCameraState(

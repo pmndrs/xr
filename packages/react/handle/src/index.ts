@@ -1,4 +1,5 @@
 export * from './hook.js'
+export * from './disable-gestures.js'
 export * from './component.js'
 export * from './handles/index.js'
 export {

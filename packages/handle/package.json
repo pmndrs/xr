@@ -7,7 +7,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc",
-    "test": "mocha ./tests/*.spec.ts",
+    "test": "vitest run",
     "check:prettier": "prettier --check src",
     "check:eslint": "eslint \"src/**/*.{ts,tsx}\"",
     "fix:prettier": "prettier --write src",
@@ -34,6 +34,12 @@
   "dependencies": {
     "@pmndrs/pointer-events": "workspace:~",
     "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "playwright": "^1.40.0",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0",
+    "three": "*"
   },
   "files": [
     "dist"

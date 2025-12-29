@@ -18,8 +18,13 @@
     "url": "git@github.com:pmndrs/xr.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/disable-gestures.css"
   ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./disable-gestures.css": "./src/disable-gestures.css"
+  },
   "publishConfig": {
     "main": "dist/index.js"
   },
@@ -35,10 +40,12 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
-    "@react-three/fiber": "rc"
+    "@react-three/fiber": "rc",
+    "vitest": "^1.0.0"
   },
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
     "check:prettier": "prettier --check src",
     "check:eslint": "eslint \"src/**/*.{ts,tsx}\"",
     "fix:prettier": "prettier --write src",
