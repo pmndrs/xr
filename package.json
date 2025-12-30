@@ -15,8 +15,8 @@
     "@types/webxr": "^0.5.21",
     "@typescript-eslint/eslint-plugin": "^7.12.0",
     "@typescript-eslint/parser": "^7.12.0",
-    "@vitejs/plugin-basic-ssl": "^1.1.0",
-    "@vitejs/plugin-react": "^4.3.0",
+    "@vitejs/plugin-basic-ssl": "^2.1.0",
+    "@vitejs/plugin-react": "^5.1.0",
     "chai": "^5.1.2",
     "eslint": "^8",
     "eslint-config-prettier": "^9.1.0",
@@ -33,7 +33,7 @@
     "react-dom": "^19",
     "three": "latest",
     "typescript": "^5.5.4",
-    "vite": "^5.2.11"
+    "vite": "^7.2.2"
   },
   "dependencies": {
     "ts-node": "^10.9.2"
