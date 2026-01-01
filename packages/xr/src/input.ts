@@ -75,6 +75,15 @@ export type XRInputSourceStateMap = {
   screenInput: XRScreenInputState
 }
 
+export type XRInputSourceStatesObject = {
+  inputSourceStates: ReadonlyArray<XRInputSourceState>
+  controllerStates: ReadonlyArray<XRControllerState>
+  handStates: ReadonlyArray<XRHandState>
+  transientPointerStates: ReadonlyArray<XRTransientPointerState>
+  gazeStates: ReadonlyArray<XRGazeState>
+  screenInputStates: ReadonlyArray<XRScreenInputState>
+}
+
 function setupEvents(session: XRSession, events: Array<XRInputSourceEvent>): () => void {
   const listener = (e: XRInputSourceEvent) => events.push(e)
   session.addEventListener('selectstart', listener)
@@ -112,12 +121,19 @@ export function createSyncXRInputSourceStates(
           removed?: XRInputSourceArray | ReadonlyArray<XRInputSource>
         }>
       | 'remove-all',
-  ): ReadonlyArray<XRInputSourceState> => {
+  ): XRInputSourceStatesObject => {
     if (changes === 'remove-all') {
       for (const cleanup of cleanupMap.values()) {
         cleanup()
       }
-      return current
+      return {
+        inputSourceStates: current,
+        controllerStates: [],
+        handStates: [],
+        transientPointerStates: [],
+        gazeStates: [],
+        screenInputStates: [],
+      }
     }
 
     const target = [...current]
@@ -180,6 +196,13 @@ export function createSyncXRInputSourceStates(
       }
     }
 
-    return target
+    return {
+      inputSourceStates: target,
+      controllerStates: target.filter((s): s is XRControllerState => s.type === 'controller'),
+      handStates: target.filter((s): s is XRHandState => s.type === 'hand'),
+      transientPointerStates: target.filter((s): s is XRTransientPointerState => s.type === 'transientPointer'),
+      gazeStates: target.filter((s): s is XRGazeState => s.type === 'gaze'),
+      screenInputStates: target.filter((s): s is XRScreenInputState => s.type === 'screenInput'),
+    }
   }
 }
