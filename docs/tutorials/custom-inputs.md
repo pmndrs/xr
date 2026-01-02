@@ -23,6 +23,12 @@ const axisColor = new THREE.Color('#9d3d4a')
 const gridColor = new THREE.Color('#4f4f4f')
 
 export function App() {
+  const [boxColor, setBoxColor] = useState('orange')
+
+  const onBoxClick = () => {
+    setBoxColor(boxColor === 'orange' ? 'green' : 'orange')
+  }
+
   return (
     <div className="App">
       <Canvas camera={{ position: [5, 3, 5] }}>
@@ -32,11 +38,13 @@ export function App() {
           <Plane args={[10, 10]} rotation={[-Math.PI / 2, 0, 0]}>
             <meshBasicMaterial color={'darkgreen'} />
           </Plane>
+          <Box onClick={onBoxClick}>
+            <meshStandardMaterial color={boxColor} />
+          </Box>
         </XR>
+        <OrbitControls />
       </Canvas>
-      <button className="enterVRButton" onClick={() => store.enterVR()}>
-        {'Enter VR'}
-      </button>
+      <button onClick={() => store.enterVR()}>{'Enter VR'}</button>
     </div>
   )
 }
@@ -86,7 +94,7 @@ The purpose of this section is to demonstrate how to modify the default implemen
 const store = createXRStore({ hand: { rayPointer: { rayModel: { color: 'red' } } } })
 ```
 
-Running your application should now show a red Ray Pointer instead of the default white one. Let's go a step further and modify the behavior of the default hand implementation by adding a touch interaction to the pinky finger. To do this, we need to create a new `CustomHand` component which we will pass into the `createXRStore` function. Create a new file called `CustomHand.tsx` and add the following code:
+Running your application should now show a red `rayPointer` instead of the default white one. Let's go a step further and modify the behavior of the default hand implementation by adding a touch interaction to the pinky finger. To do this, we need to create a new `CustomHand` component which we will pass into the `createXRStore` function. Create a new file called `CustomHand.tsx` and add the following code:
 
 **CustomHand.tsx:**
 ```tsx
@@ -96,12 +104,12 @@ import { Object3D } from 'three'
 
 export function CustomHand() {
   const state = useXRInputSourceStateContext('hand')
-  const middleFingerRef = useRef<Object3D>(null)
-  const pointer = useTouchPointer(middleFingerRef, state)
+  const pinkyFingerRef = useRef<Object3D>(null)
+  const pointer = useTouchPointer(pinkyFingerRef, state)
 
   return (
     <>
-      <XRSpace ref={middleFingerRef} space={state.inputSource.hand.get('middle-finger-tip')!} />
+      <XRSpace ref={pinkyFingerRef} space={state.inputSource.hand.get('pinky-finger-tip')!} />
       <Suspense>
         <XRHandModel />
       </Suspense>
@@ -112,8 +120,65 @@ export function CustomHand() {
 ```
 
 There's a lot to unpack here, so let's take a second to go through it.
+  - `useXRInputSourceStateContext('hand')`: This is a hook that gives access to the state of the hand input source.
+  - `useTouchPointer()`: This hook allows us to create a touch pointer, and attach it to a specific reference space.
+  - `XRHandModel`: This component is the default hand model provided by @react-three/xr. By including it here, we get the default hand with our custom touch interaction. On top of it.
 
-// TODO: Continue from here
+With our `CustomHand` component created, we can now pass it into the `createXRStore` function like so:
+
+**App.tsx:**
+```tsx
+//Previous Code...
+import { CustomHand } from './CustomHand'
+//Previous Code...
+
+const store = createXRStore({ hand: CustomHand })
+//Previous Code...
+```
+
+With our custom hand component passed into the store, we can now use our pinky finger touch pointer to change the color of the box in our scene.
+
+
+### Custom Models
+So far we've seen how to tweak the default implementation, and how to add interactions onto the default models, but what if we want to add our own custom models for the hands? Adding a custom model is tricky, but not impossible. Technically any gltf should be fine, however, if you want it to animate, then it will need to have the necessary armature, and the bones will need to be named correctly. If you are interested in creating your own animated hand model, the easiest way to do so would be to start with the [default hand model gltf found here](https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets@1.0.20/dist/profiles/generic-hand/). This model has the correct armature and bone names to work with WebXR, so you can use it as a starting point, or as a template for your own model. When you have your model ready, you can use the starting code for the default hand as a base, and load in your model instead of the default one. The default implementation is found [here](https://github.com/pmndrs/xr/blob/main/packages/react/xr/src/hand.tsx). For this tutorial, we'll keep things simple and just use a sphere to represent our hand. Create a new file called `CustomHandModel.tsx` and add the following code:
+
+**CustomHandModel.tsx:**
+
+```tsx
+import { Sphere } from '@react-three/drei'
+
+export function CustomHandModel() {
+  return (
+    <group>
+      <Sphere args={[0.05, 32, 32]} position={[0, 0, 0]}>
+        <meshStandardMaterial color="blue" />
+      </Sphere>
+    </group>
+  )
+}
+```
+
+once we have our custom hand model, swap it out for our `CustomHand` in the `app.tsx`. 
+
+**app.tsx**
+
+```tsx
+//Previous Code ...
+import { CustomHandModel } from './CustomHandModel'
+//Previous Code ...
+
+const store = createXRStore({ hand: CustomHandModel })
+//Previous Code ...
+```
+
+With that done, we should now have blue spheres representing our hands in our scene.
+
+
+### Customizing Controllers
+
+
+// TODO: Continue here
+
 
 
 

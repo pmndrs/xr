@@ -11,12 +11,12 @@ import { Object3D } from 'three'
 
 export function CustomHand() {
   const state = useXRInputSourceStateContext('hand')
-  const middleFingerRef = useRef<Object3D>(null)
-  const pointer = useTouchPointer(middleFingerRef, state)
+  const pinkyFingerRef = useRef<Object3D>(null)
+  const pointer = useTouchPointer(pinkyFingerRef, state)
 
   return (
     <>
-      <XRSpace ref={middleFingerRef} space={state.inputSource.hand.get('pinky-finger-tip')!} />
+      <XRSpace ref={pinkyFingerRef} space={state.inputSource.hand.get('pinky-finger-tip')!} />
       <Suspense>
         <XRHandModel />
       </Suspense>
