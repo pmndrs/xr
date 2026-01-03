@@ -1,5 +1,6 @@
 import { Box, OrbitControls, Plane } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import { Container, Text } from '@react-three/uikit'
 import { createXRStore, XR } from '@react-three/xr'
 import { useState } from 'react'
 import * as THREE from 'three'
@@ -30,6 +31,18 @@ export function App() {
           <Box onClick={onBoxClick} position={[0, 2, -1]}>
             <meshBasicMaterial color={boxColor} />
           </Box>
+          <group position={[-2, 2, -1]} rotation={[0, Math.PI / 4, 0]}>
+            <Container
+              color={0xffffff}
+              backgroundColor={0x000000}
+              borderRadius={5}
+              padding={2}
+              height={140}
+              width={140}
+            >
+              <Text>{'Using hand tracking, tap the box with your pinky finger to change its color'}</Text>
+            </Container>
+          </group>
         </XR>
         <OrbitControls />
       </Canvas>
