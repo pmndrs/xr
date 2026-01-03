@@ -132,6 +132,7 @@ jobs:
           mkdir -p public/examples/hit-testing
           mkdir -p public/examples/uikit
           mkdir -p public/examples/portal
+          mkdir -p public/examples/customizing-models
           cp -r ./examples/minecraft/dist/* ./public/examples/minecraft
           cp -r ./examples/pingpong/dist/* ./public/examples/pingpong
           cp -r ./examples/rag-doll/dist/* ./public/examples/rag-doll
@@ -144,6 +145,7 @@ jobs:
           cp -r ./examples/hit-testing/dist/* ./public/examples/hit-testing
           cp -r ./examples/uikit/dist/* ./public/examples/uikit
           cp -r ./examples/portal/dist/* ./public/examples/portal
+          cp -r ./examples/customizing-models/dist/* ./public/examples/customizing-models
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
