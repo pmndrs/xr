@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/xr/examples/heads-up-display/',
+  base: '/xr/examples/customizing-models/',
   plugins: [react(), basicSsl()],
   resolve: {
     dedupe: ['@react-three/fiber', 'three'],
