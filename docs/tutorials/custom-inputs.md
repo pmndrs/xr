@@ -180,3 +180,6 @@ With that done, we should now have blue spheres representing our hands in our sc
 ### Where to go from here?
 
 There are many more ways to customize the functionality of `@react-three/xr`. Most of the concepts shown in this tutorial can be applied to building custom controllers, transient pointers, gaze, and screen input implementations as needed for your own applications. All you have to do is find the default implementation, then tweak or replace it as necessary. Good luck, and as always, happy coding! 
+
+- *The example project can be found here: [Customization Example](https://pmndrs.github.io/xr/examples/customizing-models/)*
+- *Full source code for this tutorial can be found here: [Customization Example Source](https://github.com/pmndrs/xr/tree/main/examples/customizing-models)*
