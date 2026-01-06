@@ -81,16 +81,7 @@ export type XRLayerProperties = XRLayerOptions &
  * #### `quality` - Property to configure for what type of content the layer should be optimized ("default", "text-optimized", "graphics-optimized").
  */
 export const XRLayer = forwardRef<Mesh, XRLayerProperties>(function XRLayer(
-  {
-    src,
-    pixelWidth = 1024,
-    pixelHeight = 1024,
-    dpr = 1,
-    renderPriority = 0,
-    children,
-    customRender,
-    ...props
-  },
+  { src, pixelWidth = 1024, pixelHeight = 1024, dpr = 1, renderPriority = 0, children, customRender, ...props },
   forwardedRef,
 ) {
   const [hasSize, setHasSize] = useState(false)
