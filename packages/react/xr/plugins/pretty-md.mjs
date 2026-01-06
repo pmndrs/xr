@@ -1,25 +1,25 @@
 import fs from 'fs'
 import { dirname, join, resolve } from 'path'
+import { fileURLToPath } from 'url'
 import { Converter } from 'typedoc'
 import { MarkdownPageEvent, MarkdownRendererEvent } from 'typedoc-plugin-markdown'
-import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const kindsToExclude = [
-  1, //"Project"
-  2, //"Module"
-  4, //"Namespace"
-  8388608, //"Document"
+  1, // "Project"
+  2, // "Module"
+  4, // "Namespace"
+  8388608, // "Document"
 ]
 
 export const load = (app) => {
-  app.converter.on(Converter.EVENT_RESOLVE_END, (whatami) => {
+  app.converter.on(Converter.EVENT_RESOLVE_END, () => {
     // Happens before the MarkdownPageEvents
   })
 
   app.renderer.markdownHooks.on('page.begin', (page) => {
-    let deprecatedTag = undefined
+    let deprecatedTag
     if (page.page?.model?.comment) {
       deprecatedTag = page.page.model.comment.blockTags.find((t) => t.tag === '@deprecated')
     } else if (page.page?.model?.signatures) {
@@ -28,7 +28,6 @@ export const load = (app) => {
     if (deprecatedTag) {
       return `> [!CAUTION]\n> Deprecated: ${deprecatedTag.content.reduce((p, x) => p + x.text, '')}\n\n`
     }
-    return
   })
 
   app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
@@ -67,6 +66,7 @@ export const load = (app) => {
       /#### `(.*)` - (.*)/g,
       '<span style={{fontSize: 24, color: "rgb(var(--color-primary))"}}>**$1**</span>\n\n$2\n',
     )
+
     // Shrink headers that should be smaller, and tweak the color
     // page.contents = page.contents.replace(/####? (.*)\n/g, '**$1**\n')
     // NOTE: This here is another option for the above, tweaks the param color and size
@@ -74,6 +74,7 @@ export const load = (app) => {
       /####? (.*)\n/g,
       '<span style={{fontSize: 24, color: "rgb(var(--color-primary))"}}>**$1**</span>\n',
     )
+
     // Add a divider after Returns
     page.contents = page.contents.replace(/## Returns\n\n/g, '## Returns\n---\n')
   })

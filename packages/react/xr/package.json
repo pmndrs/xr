@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@react-three/fiber": "rc",
-    "typedoc": "^0.28.3",
+    "typedoc": "^0.28.7",
     "typedoc-plugin-frontmatter": "^1.3.0",
     "typedoc-plugin-markdown": "^4.6.3"
   },
