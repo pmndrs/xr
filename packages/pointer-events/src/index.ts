@@ -1,6 +1,6 @@
 import type { PointerEvent, WheelEvent } from './event.js'
 import type { AllowedPointerEvents, AllowedPointerEventsType } from './pointer.js'
-import type { createStore } from '@react-three/fiber/dist/declarations/src/core/store.js'
+import type { R3FInstance } from './r3f-compat.js'
 
 declare module 'three' {
   interface Object3DEventMap {
@@ -19,11 +19,7 @@ declare module 'three' {
   }
 
   interface Object3D {
-    __r3f?: {
-      eventCount: number
-      handlers: Record<string, ((e: any) => void) | undefined>
-      root: ReturnType<typeof createStore>
-    }
+    __r3f?: R3FInstance
     /**
      * undefined and true means the transformation is ready
      * false means transformation is not ready

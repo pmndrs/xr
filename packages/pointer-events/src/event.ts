@@ -2,7 +2,7 @@ import { BaseEvent, Face, Object3D, Quaternion, Ray, Vector2, Vector3 } from 'th
 import { HtmlEvent, Properties } from './html-event.js'
 import { Intersection as ThreeIntersection } from './intersections/index.js'
 import { Pointer } from './pointer.js'
-import type { Camera, IntersectionEvent, Intersection } from '@react-three/fiber/dist/declarations/src/core/events.js'
+import type { Camera, IntersectionEvent, Intersection } from './r3f-compat.js'
 
 export type PointerEventsMap = {
   [Key in keyof PointerEventsHandlers as EventHandlerToEventName<Key>]-?: PointerEventsHandlers[Key]

@@ -97,7 +97,7 @@ export function forwardObjectEvents(
   )
 }
 
-type InternalEventType = 'cancel' | 'down' | 'move' | 'up' | 'wheel' | 'exit'
+type InternalEventType = 'cancel' | 'down' | 'move' | 'over' | 'up' | 'wheel' | 'exit'
 
 /**
  * @returns cleanup function
