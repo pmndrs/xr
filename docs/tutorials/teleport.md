@@ -13,7 +13,7 @@ const store = createXRStore({
 })
 ```
 
-Secondly, we need to control out own state because that gives us the complete control when teleportation should be mixed with more complex behaviors. Therefore we're using `useState` to store the current position. But we can also use any other local or global state manager.
+Secondly, we need to control our own state because that gives us the complete control when teleportation should be mixed with more complex behaviors. Therefore we're using `useState` to store the current position. But we can also use any other local or global state manager.
 
 ```tsx
 const [position, setPosition] = useState(new Vector3())
