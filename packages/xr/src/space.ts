@@ -13,7 +13,15 @@ export function createGetXRSpaceMatrix(
     if (resolvedReferenceSpace == null) {
       return false
     }
-    const pose = frame?.getPose(space, resolvedReferenceSpace)
+    let pose: XRPose | undefined
+    try {
+      pose = frame?.getPose(space, resolvedReferenceSpace)
+    } catch {
+      // XRSpace from a previous session may still be referenced during
+      // the first few frames after re-entering VR, causing an
+      // InvalidStateError ("XRSpace and XRFrame sessions do not match").
+      return false
+    }
     if (pose == null) {
       return false
     }
