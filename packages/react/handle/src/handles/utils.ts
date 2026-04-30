@@ -9,6 +9,7 @@ type ControlsProto = {
 
 export function useApplyThatDisablesDefaultControls<T>(apply: HandleOptions<T>['apply']): HandleOptions<T>['apply'] {
   const controls = useThree((s) => s.controls as unknown as ControlsProto | undefined)
+  const invalidate = useThree((s) => s.invalidate)
   return useCallback(
     (state: HandleState<T>, target: Object3D) => {
       if (controls != null && state.first) {
@@ -17,9 +18,11 @@ export function useApplyThatDisablesDefaultControls<T>(apply: HandleOptions<T>['
       if (controls != null && state.last) {
         controls.enabled = true
       }
-      return (apply ?? defaultApply)(state, target)
+      const result = (apply ?? defaultApply)(state, target)
+      invalidate()
+      return result
     },
-    [apply, controls],
+    [apply, controls, invalidate],
   )
 }
 
