@@ -1,4 +1,4 @@
-import { HandleOptions as BaseHandleOptions, HandleStore, defaultApply } from '@pmndrs/handle'
+import { HandleOptions as BaseHandleOptions, HandleState, HandleStore, defaultApply } from '@pmndrs/handle'
 import { useFrame, useThree } from '@react-three/fiber'
 import { RefObject, useEffect, useMemo, useRef } from 'react'
 import { Object3D } from 'three'
@@ -38,13 +38,23 @@ export function useHandle<T>(
   invalidateRef.current = invalidate
   const store = useMemo(
     () =>
-      new HandleStore(target, () => {
+      new HandleStore<T>(target, () => {
         const opts = { ...getHandleOptionsRef.current?.(), ...optionsRef.current }
-        const apply = opts.apply ?? defaultApply
+        const userApply = opts.apply
+        if (userApply == null) {
+          return {
+            ...opts,
+            apply: (state: HandleState<T>, target: Object3D) => {
+              const result = defaultApply(state, target)
+              invalidateRef.current()
+              return result
+            },
+          }
+        }
         return {
           ...opts,
-          apply: (state, target) => {
-            const result = apply(state, target)
+          apply: (state: HandleState<T>, target: Object3D) => {
+            const result = userApply(state, target)
             invalidateRef.current()
             return result
           },
