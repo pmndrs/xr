@@ -10,7 +10,7 @@ const store = createXRStore({
   hand: { right: HandWithWatch, left: false },
   controller: () => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const hasHands = useXR((xr) => xr.inputSourceStates.find((state) => state.type === 'hand') != null)
+    const hasHands = useXR((xr) => xr.handStates.length > 0)
     return (
       <>
         <XRSpace space="target-ray-space">
