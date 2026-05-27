@@ -44,7 +44,7 @@ export const XRSpace = forwardRef<
     internalRef.current = group
   }, [])
   return (
-    <group xrSpace={resolvedSpace} matrixAutoUpdate={false} ref={setRef}>
+    <group userData={{ xrSpace: space }} xrSpace={resolvedSpace} matrixAutoUpdate={false} ref={setRef}>
       {resolvedSpace && <xrSpaceContext.Provider value={resolvedSpace}>{children}</xrSpaceContext.Provider>}
     </group>
   )

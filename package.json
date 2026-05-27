@@ -2,6 +2,10 @@
   "author": "Bela Bohlender",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "docs:combine": "node scripts/combine-docs.mjs",
+    "eval:pmndrs-xr": "node scripts/eval-pmndrs-xr.mjs"
+  },
   "devDependencies": {
     "@react-three/drei": "rc",
     "@react-three/eslint-plugin": "^0.1.1",
@@ -33,7 +37,8 @@
     "react-dom": "^19",
     "three": "latest",
     "typescript": "^5.5.4",
-    "vite": "^7.2.2"
+    "vite": "^7.2.2",
+    "vitexec": "0.1.6"
   },
   "dependencies": {
     "ts-node": "^10.9.2"

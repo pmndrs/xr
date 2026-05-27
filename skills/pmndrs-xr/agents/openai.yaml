@@ -1,0 +1,4 @@
+interface:
+  display_name: "PMNDRS XR"
+  short_description: "Build and validate polished WebXR experiences"
+  default_prompt: "Use $pmndrs-xr to build a polished WebXR experience with in-scene UI, store-based session setup, real spatial input, and vitexec/IWER validation."

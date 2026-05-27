@@ -105,6 +105,9 @@ importers:
       vite:
         specifier: ^7.2.2
         version: 7.2.2(@types/node@22.13.0)(jiti@1.21.7)(yaml@2.7.1)
+      vitexec:
+        specifier: 0.1.6
+        version: 0.1.6(vite@7.2.2(@types/node@22.13.0)(jiti@1.21.7)(yaml@2.7.1))
 
   examples/demo-controller:
     dependencies:
@@ -1828,6 +1831,10 @@ packages:
     resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
     engines: {node: '>=18'}
 
+  commander@14.0.3:
+    resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
+    engines: {node: '>=20'}
+
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
@@ -2879,8 +2886,18 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  playwright-core@1.59.1:
+    resolution: {integrity: sha512-HBV/RJg81z5BiiZ9yPzIiClYV/QMsDCKUyogwH9p3MCP6IYjUFu/MActgYAvK0oWyV9NlwM3GLBjADyWgydVyg==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   playwright@1.50.1:
     resolution: {integrity: sha512-G8rwsOQJ63XG6BbKj2w5rHeavFjy5zynBA9zsJMMtBoe/Uf757oG12NXz6e6OirF7RCrTVAKFXbLmn1RbL7Qaw==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.59.1:
+    resolution: {integrity: sha512-C8oWjPR3F81yljW9o5OxcWzfh6avkVwDD2VYdwIGqTkl+OGFISgypqzfu7dOe4QNLL2aqcWBmI3PMtLIK233lw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -3605,6 +3622,12 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  vitexec@0.1.6:
+    resolution: {integrity: sha512-CjVDWSSnBJ6KHVxJemk71Jt+uBk/nJQ7TQOl3YXx5BUAAFBECuFoIrjMqzfP9tpYCBPx52D0N+XY8VfvFmbXFw==}
+    hasBin: true
+    peerDependencies:
+      vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
 
   webgl-constants@1.1.1:
     resolution: {integrity: sha512-LkBXKjU5r9vAW7Gcu3T5u+5cvSvh5WwINdr0C+9jpzVB41cjQAP5ePArDtk/WHYdVj0GefCgM73BA7FlIiNtdg==}
@@ -5097,6 +5120,8 @@ snapshots:
 
   commander@12.1.0: {}
 
+  commander@14.0.3: {}
+
   commander@4.1.1: {}
 
   concat-map@0.0.1: {}
@@ -6282,9 +6307,17 @@ snapshots:
 
   playwright-core@1.50.1: {}
 
+  playwright-core@1.59.1: {}
+
   playwright@1.50.1:
     dependencies:
       playwright-core: 1.50.1
+    optionalDependencies:
+      fsevents: 2.3.2
+
+  playwright@1.59.1:
+    dependencies:
+      playwright-core: 1.59.1
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -7113,6 +7146,12 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  vitexec@0.1.6(vite@7.2.2(@types/node@22.13.0)(jiti@1.21.7)(yaml@2.7.1)):
+    dependencies:
+      commander: 14.0.3
+      playwright: 1.59.1
+      vite: 7.2.2(@types/node@22.13.0)(jiti@1.21.7)(yaml@2.7.1)
 
   webgl-constants@1.1.1: {}
 
