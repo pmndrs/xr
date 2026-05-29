@@ -202,6 +202,18 @@ importers:
         specifier: workspace:~
         version: link:../../packages/react/xr
 
+  examples/map-handles:
+    dependencies:
+      '@pmndrs/pointer-events':
+        specifier: workspace:~
+        version: link:../../packages/pointer-events
+      '@react-three/handle':
+        specifier: workspace:~
+        version: link:../../packages/react/handle
+      '@react-three/xr':
+        specifier: workspace:~
+        version: link:../../packages/react/xr
+
   examples/minecraft:
     dependencies:
       '@react-three/rapier':
@@ -472,7 +484,7 @@ importers:
         version: 0.173.0
       zustand:
         specifier: ^4.5.2
-        version: 4.5.6(@types/react@19.0.8)(react@19.0.0)
+        version: 4.5.6(@types/react@19.0.8)(react@18.3.1)
 
 packages:
 
