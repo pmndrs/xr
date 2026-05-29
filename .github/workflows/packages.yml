@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
+      id-token: write # Required for OIDC
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -17,9 +19,11 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 22
+          registry-url: https://registry.npmjs.org/
+          package-manager-cache: false
 
       - uses: pnpm/action-setup@v2
         name: Install pnpm
@@ -56,9 +60,6 @@ jobs:
 
       - name: Set Version
         run: pnpm -F './packages/**/*' exec json -f "package.json" -I -e 'this.version = "${{ steps.gitversion.outputs.fullSemVer }}"'
-
-      - name: Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${{ secrets.NPM_TOKEN }}"
 
       - id: check-pointer-events
         uses: PostHog/check-package-version@v2
@@ -109,4 +110,3 @@ jobs:
         if: steps.check-xr-react.outputs.is-new-version == 'true'
         working-directory: ./packages/react/xr
         run: pnpm publish --access public --no-git-checks --tag latest
-
