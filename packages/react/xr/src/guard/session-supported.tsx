@@ -12,6 +12,14 @@ interface SessionModeSupportedProps {
  * @param props
  * #### `children?` - `ReactNode` The ReactNode elements to conditionally show.
  * #### `mode` - `XRSessionMode` The session mode used to determine if the children will be shown.
+ * @example
+ * ```tsx
+ * <ShowIfSessionModeSupported mode="immersive-vr">
+ *   <VRExclusiveComponents />
+ * </ShowIfSessionModeSupported>
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function ShowIfSessionModeSupported({ children, mode }: SessionModeSupportedProps) {
   const supported = useXRSessionModeSupported(mode)
@@ -24,6 +32,14 @@ export function ShowIfSessionModeSupported({ children, mode }: SessionModeSuppor
  * @param props
  * #### `children?` - `ReactNode` The ReactNode elements to conditionally render.
  * #### `mode` - `XRSessionMode` The session mode used to determine if the children will be rendered.
+ * @example
+ * ```tsx
+ * <IfSessionModeSupported mode="immersive-vr">
+ *   <VRExclusiveComponents />
+ * </IfSessionModeSupported>
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function IfSessionModeSupported({ children, mode }: SessionModeSupportedProps) {
   const supported = useXRSessionModeSupported(mode)

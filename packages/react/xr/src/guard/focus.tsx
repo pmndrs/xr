@@ -11,6 +11,14 @@ interface SessionVisibleProps {
  *
  * @param props ‎
  * #### `children?` - `ReactNode` The ReactNode elements to conditionally show.
+ * @example
+ * ```tsx
+ * <ShowIfSessionVisible>
+ *   <Box />
+ * </ShowIfSessionVisible>
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function ShowIfSessionVisible({ children }: SessionVisibleProps) {
   const state = useXRSessionVisibilityState()
@@ -23,6 +31,14 @@ export function ShowIfSessionVisible({ children }: SessionVisibleProps) {
  *
  * @param props ‎
  * #### `children?` - `ReactNode` The ReactNode elements to conditionally show.
+ * @example
+ * ```tsx
+ * <IfSessionVisible>
+ *   <Box />
+ * </IfSessionVisible>
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function IfSessionVisible({ children }: SessionVisibleProps) {
   const state = useXRSessionVisibilityState()
