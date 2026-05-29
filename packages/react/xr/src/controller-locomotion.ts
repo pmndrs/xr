@@ -23,6 +23,46 @@ import { useXRStore } from './xr.js'
  * #### `rotationOptions.speed` - If `type` is 'smooth', this specifies the speed at which the user's view rotates.
  *
  * @param translationControllerHand Specifies which hand will control the movement. Can be either 'left' or 'right'.
+ * @example 
+ * // Example showing basic usage
+ * export const userMovement = () => {
+ *   const originRef = useRef<THREE.Group>(null);
+ *   useXRControllerLocomotion(originRef);
+ *   return <XROrigin ref={originRef} />
+ * }
+ *
+ * // Example using rapier physics
+ * export const userMovementWithPhysics = () => {
+ *   const userRigidBodyRef = useRef<RapierRigidBody>(null);
+ *
+ *   const userMove = (inputVector: Vector3, rotationInfo: Euler) => {
+ *   if (userRigidBodyRef.current) {
+ *      const currentLinvel = userRigidBodyRef.current.linvel()
+ *      const newLinvel = { x: inputVector.x, y: currentLinvel.y, z: inputVector.z }
+ *      userRigidBodyRef.current.setLinvel(newLinvel, true)
+ *      userRigidBodyRef.current.setRotation(new Quaternion().setFromEuler(rotationInfo), true)
+ *    }
+ *  }
+
+ *  useXRControllerLocomotion(userMove)
+
+ *  return <>
+ *    <RigidBody
+ *      ref={userRigidBodyRef}
+ *      colliders={false}
+ *      type='dynamic'
+ *      position={[0, 2, 0]}
+ *      enabledRotations={[false, false, false]}
+ *      canSleep={false}
+ *    >
+ *      <CapsuleCollider args={[.3, .5]} />
+ *      <XROrigin position={[0, -1, 0]} />
+ *    </RigidBody>
+ *  </>
+ * } 
+ * 
+ * @see {@link https://pmndrs.github.io/xr/examples/minecraft/ | demo}
+ * @see {@link https://github.com/pmndrs/xr/blob/main/examples/minecraft/src/VRPlayerControl.tsx | source for demo}
  */
 export function useXRControllerLocomotion(
   target:
