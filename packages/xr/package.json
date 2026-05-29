@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:pmndrs/xr.git"
+    "url": "https://github.com/pmndrs/xr"
   },
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
