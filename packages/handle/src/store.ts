@@ -117,7 +117,7 @@ export class HandleStore<T>
   public readonly handlers = {
     onPointerDown: this.onPointerDown.bind(this),
     onPointerMove: this.onPointerMove.bind(this),
-    onPointerUp: this.onPointerUp.bind(this),
+    onPointerEnd: this.onPointerEnd.bind(this),
   }
 
   constructor(
@@ -209,12 +209,13 @@ export class HandleStore<T>
     }
   }
 
-  private onPointerUp(event: PointerEvent): void {
-    if (!this.capturedObjects.has(event.pointerId)) {
+  private onPointerEnd(event: PointerEvent): void {
+    const object = this.capturedObjects.get(event.pointerId)
+    if (object == null) {
       return
     }
     this.stopPropagation(event)
-    this.releasePointer(event.pointerId, event.object, event)
+    this.releasePointer(event.pointerId, object, event)
   }
 
   update(time: number) {
@@ -338,14 +339,16 @@ export class HandleStore<T>
   }
 
   bind(handle: Object3D): () => void {
-    const { onPointerDown, onPointerMove, onPointerUp } = this.handlers
+    const { onPointerDown, onPointerMove, onPointerEnd } = this.handlers
     handle.addEventListener('pointerdown', onPointerDown)
     handle.addEventListener('pointermove', onPointerMove)
-    handle.addEventListener('pointerup', onPointerUp)
+    handle.addEventListener('pointercancel', onPointerEnd)
+    handle.addEventListener('pointerup', onPointerEnd)
     return () => {
       handle.removeEventListener('pointerdown', onPointerDown)
       handle.removeEventListener('pointermove', onPointerMove)
-      handle.removeEventListener('pointerup', onPointerUp)
+      handle.removeEventListener('pointercancel', onPointerEnd)
+      handle.removeEventListener('pointerup', onPointerEnd)
       this.cancel()
     }
   }

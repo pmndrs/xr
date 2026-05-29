@@ -1,8 +1,80 @@
-import { afterAll, describe, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { chromium, devices } from 'playwright'
 import { testSetup } from './utils.js'
+import { Object3D, PerspectiveCamera, Quaternion, Scene, Vector3 } from 'three'
+import { Intersection, Intersector, Pointer } from '../src/index.js'
 
 const browser = await chromium.launch({ headless: true })
+
+describe('pointer exit/cancel state', () => {
+  it('should cancel active captured pointers on exit', () => {
+    const scene = new Scene()
+    const object = new Object3D()
+    scene.add(object)
+
+    const camera = new PerspectiveCamera()
+    const intersection = createIntersection(object)
+    const releases: Array<void> = []
+    const pointer = new Pointer(
+      100_001,
+      'screen-mouse',
+      undefined,
+      new StaticIntersector(intersection),
+      () => camera,
+      undefined,
+      undefined,
+      () => releases.push(undefined),
+    )
+
+    let cancelCount = 0
+    object.addEventListener('pointercancel', () => cancelCount++)
+
+    pointer.move(scene, { timeStamp: 0 })
+    pointer.down({ timeStamp: 1, button: 0 })
+    pointer.setCapture(object)
+    expect(pointer.getButtonsDown().has(0)).to.equal(true)
+
+    pointer.exit({ timeStamp: 2 })
+
+    expect(cancelCount).to.equal(1)
+    expect(pointer.getButtonsDown().size).to.equal(0)
+    expect(releases).to.have.length(1)
+  })
+})
+
+class StaticIntersector implements Intersector {
+  constructor(private readonly intersection: Intersection) {}
+
+  intersectPointerCapture(): Intersection {
+    return this.intersection
+  }
+
+  isReady(): boolean {
+    return true
+  }
+
+  startIntersection(): void {}
+
+  executeIntersection(): void {}
+
+  finalizeIntersection(): Intersection {
+    return this.intersection
+  }
+}
+
+function createIntersection(object: Object3D): Intersection {
+  const point = new Vector3()
+  return {
+    object,
+    distance: 0,
+    point,
+    pointerPosition: new Vector3(),
+    pointerQuaternion: new Quaternion(),
+    pointOnFace: point.clone(),
+    localPoint: point.clone(),
+    details: { type: 'ray' },
+  }
+}
 
 describe('compare dom vs own canvas pointer events', () => {
   afterAll(async () => {

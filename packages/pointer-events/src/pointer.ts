@@ -154,10 +154,7 @@ export class Pointer {
       return
     }
 
-    if (this.pointerCapture != null) {
-      this.parentReleasePointerCapture?.()
-      this.pointerCapture = undefined
-    }
+    this.clearPointerCapture()
 
     if (object != null && this.intersection != null) {
       this.pointerCapture = { object, intersection: this.intersection }
@@ -185,8 +182,7 @@ export class Pointer {
       return
     }
     if (!enabled && this.pointerCapture != null) {
-      this.parentReleasePointerCapture?.()
-      this.pointerCapture = undefined
+      this.clearPointerCapture()
     }
     this.enabled = enabled
     if (commit) {
@@ -330,7 +326,7 @@ export class Pointer {
       clickThresholdMs = clickThesholdMs ?? 300,
     } = this.options
 
-    this.pointerCapture = undefined
+    this.clearPointerCapture()
     const isClicked = getIsClicked(
       this.buttonsDownTime,
       this.intersection.object[buttonsDownTimeKey],
@@ -371,14 +367,11 @@ export class Pointer {
   }
 
   cancel(nativeEvent: NativeEvent): void {
-    if (!this.enabled) {
-      return
-    }
-    if (!this.wasMoved) {
-      this.onFirstMove.push(this.cancel.bind(this, nativeEvent))
-      return
-    }
-    if (this.intersection == null) {
+    this.buttonsDown.clear()
+    this.buttonsDownTime.clear()
+    this.clearPointerCapture()
+    this.onFirstMove.length = 0
+    if (!this.enabled || !this.wasMoved || this.intersection == null) {
       return
     }
     //pointer cancel
@@ -421,17 +414,24 @@ export class Pointer {
   }
 
   exit(nativeEvent: NativeEvent): void {
+    if (this.buttonsDown.size > 0 || this.pointerCapture != null) {
+      this.cancel(nativeEvent)
+    }
     if (this.wasMoved) {
       //reset state
-      if (this.pointerCapture != null) {
-        this.parentReleasePointerCapture?.()
-        this.pointerCapture = undefined
-      }
       this.intersection = undefined
       this.commit(nativeEvent, false)
     }
     this.onFirstMove.length = 0
     this.wasMoved = false
+  }
+
+  private clearPointerCapture(): void {
+    if (this.pointerCapture == null) {
+      return
+    }
+    this.parentReleasePointerCapture?.()
+    this.pointerCapture = undefined
   }
 }
 

@@ -22,16 +22,18 @@ export class ScreenHandleStore<T = unknown> {
 
   bind(scene: Scene): () => void {
     const down = this.onPointerDown.bind(this)
-    const up = this.onPointerUp.bind(this)
+    const end = this.onPointerEnd.bind(this)
     const move = this.onPointerMove.bind(this)
     const voidObject = getVoidObject(scene)
     voidObject.addEventListener('pointermove', move)
     voidObject.addEventListener('pointerdown', down)
-    voidObject.addEventListener('pointerup', up)
+    voidObject.addEventListener('pointercancel', end)
+    voidObject.addEventListener('pointerup', end)
     return () => {
       voidObject.removeEventListener('pointermove', move)
       voidObject.removeEventListener('pointerdown', down)
-      voidObject.removeEventListener('pointerup', up)
+      voidObject.removeEventListener('pointercancel', end)
+      voidObject.removeEventListener('pointerup', end)
     }
   }
 
@@ -49,7 +51,7 @@ export class ScreenHandleStore<T = unknown> {
     this.save()
   }
 
-  private onPointerUp(e: PointerEvent) {
+  private onPointerEnd(e: PointerEvent) {
     if (!this.map.delete(e.pointerId)) {
       return
     }
