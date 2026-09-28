@@ -1,4 +1,4 @@
-import { BoxGeometry, ColorRepresentation, Mesh, MeshBasicMaterial } from 'three'
+import { ColorRepresentation, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
 import { HandlesContext } from '../context.js'
 import { HandlesProperties } from '../index.js'
 import { handleXRayMaterialProperties, setupHandlesContextHoverMaterial } from '../material.js'
@@ -28,7 +28,7 @@ export class PivotUniformScaleHandle extends RegisteredHandle {
       disabled,
     })
 
-    const mesh = new Mesh(new BoxGeometry(0.08, 0.08, 0.08), material)
+    const mesh = new Mesh(new SphereGeometry(0.04), material)
     mesh.renderOrder = Infinity
     mesh.pointerEventsOrder = Infinity
     mesh.position.setScalar(0.5)
