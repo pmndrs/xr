@@ -75,7 +75,7 @@ In contrast to the transform handles, the pivot handles only operate in local sp
 ### Properties
 
 **scale**  
-The `scale` property allows configuring if and how the user can scale the pivot handles. Setting `scale` to `false` disables scaling. Setting `scale` to `x` restricts scaling to the x-axis and only shows the user interface elements for scaling on the x-axis. Similarly, setting `scale` to `{ x: false }` hides the user interface elements for scaling on the x-axis and only allows scaling on the y- and z-axes.
+The `scale` property allows configuring if and how the user can scale the pivot handles. Setting `scale` to `false` disables scaling. Setting `scale` to `x` restricts scaling to the x-axis and only shows the user interface elements for scaling on the x-axis. Similarly, setting `scale` to `{ x: false }` hides the user interface elements for scaling on the x-axis and only allows scaling on the y- and z-axes. When scaling is allowed on all axes, a uniform scale handle is shown in addition to the per-axis handles. Scale limits such as `{ x: [0.5, 2] }` are also respected by the uniform scale handle.
 
 **translation**  
 The `translation` property allows configuring if and how the user can translate the pivot handles. Setting `translation` to `false` disables translation. Setting `translation` to `x` restricts translation to the x-axis and only shows the user interface elements for translation on the x-axis. Similarly, setting `translation` to `{ x: false }` hides the user interface elements for translation on the x-axis and only allows translation on the y- and z-axes.
