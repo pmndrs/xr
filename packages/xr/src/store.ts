@@ -642,7 +642,8 @@ export function createXRStore<T extends XRElementImplementations>(options?: XRSt
     },
     onBeforeFrame(scene: Object3D, camera: Camera, frame: XRFrame | undefined) {
       let update: Partial<Mutable<XRState<T>>> | undefined
-      const referenceSpace = xrManager?.getReferenceSpace() ?? undefined
+      //three.js keeps the reference space of an ended session, which must not leak into the next session
+      const referenceSpace = xrManager?.isPresenting ? (xrManager.getReferenceSpace() ?? undefined) : undefined
       const state = store.getState()
 
       //update origin

@@ -218,7 +218,11 @@ export function useXRSpace(type?: XRSpaceType): XRSpace | XRReferenceSpace | und
       }
       setReferenceSpace(space)
     })
-    return () => void (aborted = true)
+    return () => {
+      aborted = true
+      //the reference space belongs to the previous session
+      setReferenceSpace(undefined)
+    }
   }, [session, type])
   return referenceSpace
 }
