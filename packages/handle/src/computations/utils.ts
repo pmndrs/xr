@@ -81,6 +81,8 @@ export function computeHandleTransformState(
   //compute scale
   if (typeof options.scale != 'object' || !options.scale.uniform) {
     applyTransformOptionsToVector(scale, storeData.initialTargetScale, options.scale ?? true)
+  } else {
+    applyTransformOptionsToUniformScale(scale, storeData.initialTargetScale, options.scale)
   }
 
   return {
@@ -184,6 +186,37 @@ function applyTransformOptionsToVector(target: Vector3, initialVector: Vector3, 
   target.x = applyTransformOptionsToAxis('x', target.x, initialVector.x, options)
   target.y = applyTransformOptionsToAxis('y', target.y, initialVector.y, options)
   target.z = applyTransformOptionsToAxis('z', target.z, initialVector.z, options)
+}
+
+/**
+ * clamps the uniform scale factor so that the scale on every axis stays within its limits
+ */
+function applyTransformOptionsToUniformScale(
+  target: Vector3,
+  initialScale: Vector3,
+  options: Exclude<HandleTransformOptions, boolean | Axis>,
+): void {
+  if (Array.isArray(options)) {
+    return
+  }
+  let min = -Infinity
+  let max = Infinity
+  for (const axis of ['x', 'y', 'z'] as const) {
+    const limits = options[axis]
+    const initial = initialScale[axis]
+    if (!Array.isArray(limits) || initial === 0) {
+      continue
+    }
+    const a = limits[0] / initial
+    const b = limits[1] / initial
+    min = Math.max(min, Math.min(a, b))
+    max = Math.min(max, Math.max(a, b))
+  }
+  if (min === -Infinity && max === Infinity) {
+    return
+  }
+  const factor = target.length() / initialScale.length()
+  target.copy(initialScale).multiplyScalar(clamp(factor, min, max))
 }
 
 /**
