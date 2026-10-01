@@ -1,4 +1,4 @@
-import { Sky, PointerLockControls, KeyboardControls } from '@react-three/drei'
+import { KeyboardControls, Sky } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { interactionGroups, Physics } from '@react-three/rapier'
 import { createXRStore, XR } from '@react-three/xr'
@@ -56,7 +56,6 @@ export function App() {
               <Cube collisionGroups={interactionGroups([0, 1], [0])} position={[0, 0.5, -10]} />
               <Cubes />
             </Physics>
-            <PointerLockControls />
           </XR>
         </Canvas>
       </KeyboardControls>
