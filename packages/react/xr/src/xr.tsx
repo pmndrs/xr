@@ -154,7 +154,8 @@ export function UNSAFE_useXRStore() {
 }
 
 /**
- * Hook for reading the state from the xr store
+ * Used to access all state related to the XR session.
+ * @see {@link https://pmndrs.github.io/xr/docs/tutorials/store}
  */
 export function useXR<T = XRState>(
   selector: (s: XRState) => T = (state) => state as unknown as T,
