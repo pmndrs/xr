@@ -58,7 +58,13 @@ export function useHover(
 /**
  * Gets the visibility state of the XR session.
  *
- * @returns The visibility state of the XR session.
+ * @returns The current visibility state of the XR session.
+ * @example
+ * ```tsx
+ * const visibilityState = useXRSessionVisibilityState()
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function useXRSessionVisibilityState() {
   return useXR((xr) => xr.visibilityState)
@@ -78,6 +84,12 @@ export function useInitRoomCapture() {
  *
  * @param {XRSessionMode} mode - The `XRSessionMode` to check against.
  * @param {(error: any) => void} [onError] - Callback executed when an error occurs.
+ * @example
+ * ```tsx
+ * const isImmersiveVrSupported = useXRSessionModeSupported('immersive-vr')
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void) {
   const onErrorRef = useRef(onError)
@@ -123,8 +135,14 @@ export const useSessionModeSupported = useXRSessionModeSupported
 /**
  * Checks if a specific XR session feature is enabled.
  *
- * @param {string} feature - The XR session feature to check against.
+ * @param {string} feature - The XR session [feature](https://developer.mozilla.org/en-US/docs/Web/API/XRSystem/requestSession#session_features) to check against.
  * @returns {boolean} Whether the feature is enabled.
+ * @example
+ * ```tsx
+ * const isAnchorsEnabled = useXRSessionFeatureEnabled('anchors')
+ * ```
+ * @see [Guards Example](https://pmndrs.github.io/xr/examples/guards/)
+ * @see [Guards Tutorial](https://pmndrs.github.io/xr/docs/tutorials/guards)
  */
 export function useXRSessionFeatureEnabled(feature: string) {
   return useXR(({ session }) => session?.enabledFeatures?.includes(feature) ?? false)
