@@ -1,7 +1,8 @@
-import { Canvas } from '@react-three/fiber'
-import { createXRStore, XR, XROrigin } from '@react-three/xr'
-import { Suspense, useState } from 'react'
-import { MixamoAvatar, VRMAvatar } from './components/avatar.js'
+import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { createXRStore, useXR, XR, XROrigin } from '@react-three/xr'
+import { Suspense, useMemo, useState } from 'react'
+import { BodyRetargeter } from './retarget.js'
+import { createRig, loader } from './rig.js'
 
 const store = createXRStore({
   bodyTracking: true,
@@ -9,15 +10,13 @@ const store = createXRStore({
 })
 
 export function App() {
-  const [avatar, setAvatar] = useState<'vrm' | 'mixamo'>('vrm')
+  const [vrm, setVrm] = useState(true)
   return (
     <>
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={() => store.enterVR()}>Enter VR</button>
         <button onClick={() => store.enterAR()}>Enter AR</button>
-        <button onClick={() => setAvatar(avatar === 'vrm' ? 'mixamo' : 'vrm')}>
-          Switch to {avatar === 'vrm' ? 'Mixamo' : 'VRM'}
-        </button>
+        <button onClick={() => setVrm(!vrm)}>Switch to {vrm ? 'Mixamo' : 'VRM'}</button>
       </div>
       <Canvas style={{ width: '100%', flexGrow: 1 }}>
         <XR store={store}>
@@ -27,11 +26,45 @@ export function App() {
           <gridHelper args={[10, 20, '#444', '#222']} />
           <XROrigin>
             <Suspense fallback={null}>
-              {avatar === 'vrm' ? <VRMAvatar url="AvatarSample_B.vrm" /> : <MixamoAvatar url="mixamo.glb" />}
+              <Avatar url={vrm ? 'AvatarSample_B.vrm' : 'mixamo.glb'} />
             </Suspense>
           </XROrigin>
         </XR>
       </Canvas>
+    </>
+  )
+}
+
+function Avatar({ url }: { url: string }) {
+  // loaded twice: one avatar for the user's own body, one for the mirror
+  const [selfGltf, mirrorGltf] = useLoader(loader, [url, url])
+  const [self, mirror] = useMemo(() => [createRig(selfGltf), createRig(mirrorGltf)], [selfGltf, mirrorGltf])
+  const retargeter = useMemo(() => new BodyRetargeter(mirror), [mirror])
+  const referenceSpace = useXR((xr) => xr.originReferenceSpace)
+  self.hideHead = true
+
+  useFrame((_, delta, frame: XRFrame | undefined) => {
+    const tracked = frame != null && referenceSpace != null && retargeter.update(frame, referenceSpace)
+    self.scene.visible = tracked
+    if (tracked) {
+      retargeter.apply(self)
+      retargeter.apply(mirror)
+    } else {
+      mirror.resetPose()
+      mirror.scene.position.set(0, 0, 0)
+      mirror.scene.scale.setScalar(1)
+      mirror.scene.rotation.y = mirror.facingYaw
+    }
+    self.update(delta)
+    mirror.update(delta)
+  })
+
+  return (
+    <>
+      <primitive object={self.scene} />
+      <group position-z={-2} scale-z={-1}>
+        <primitive object={mirror.scene} />
+      </group>
     </>
   )
 }

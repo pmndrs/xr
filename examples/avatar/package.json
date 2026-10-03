@@ -1,5 +1,6 @@
 {
     "dependencies": {
+        "@pixiv/three-vrm": "^3.5.5",
         "@react-three/xr": "workspace:~"
     },
     "scripts": {
