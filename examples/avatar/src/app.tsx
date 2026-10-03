@@ -1,6 +1,6 @@
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { createXRStore, useXR, XR, XROrigin } from '@react-three/xr'
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { BodyRetargeter } from './retarget.js'
 import { createRig, loader } from './rig.js'
 
@@ -36,12 +36,16 @@ export function App() {
 }
 
 function Avatar({ url }: { url: string }) {
-  // loaded twice: one avatar for the user's own body, one for the mirror
   const [selfGltf, mirrorGltf] = useLoader(loader, [url, url])
   const [self, mirror] = useMemo(() => [createRig(selfGltf), createRig(mirrorGltf)], [selfGltf, mirrorGltf])
   const retargeter = useMemo(() => new BodyRetargeter(mirror), [mirror])
   const referenceSpace = useXR((xr) => xr.originReferenceSpace)
-  self.hideHead = true
+  const camera = useThree((state) => state.camera)
+
+  useEffect(() => {
+    self.firstPerson.setup()
+    camera.layers.enable(self.firstPerson.firstPersonOnlyLayer)
+  }, [self, camera])
 
   useFrame((_, delta, frame: XRFrame | undefined) => {
     const tracked = frame != null && referenceSpace != null && retargeter.update(frame, referenceSpace)

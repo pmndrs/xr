@@ -1,9 +1,9 @@
-import { VRM, VRMHumanBoneList, VRMLoaderPlugin } from '@pixiv/three-vrm'
-import { Bone, Object3D, Quaternion, Vector3 } from 'three'
+import { VRM, VRMFirstPerson, VRMHumanBoneList, VRMHumanBones, VRMHumanoid, VRMLoaderPlugin } from '@pixiv/three-vrm'
+import { Bone, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-// the retargeter writes the raw bones directly, so three-vrm must not overwrite them from the normalized bones
+// we pose the raw bones ourselves
 export const loader = new GLTFLoader()
   .setMeshoptDecoder(MeshoptDecoder)
   .register((parser) => new VRMLoaderPlugin(parser, { autoUpdateHumanBones: false }))
@@ -18,7 +18,7 @@ export function createRig(gltf: GLTF): HumanoidRig {
         bones.set(name, node)
       }
     }
-    return new HumanoidRig(vrm.scene, bones, (delta) => vrm.update(delta))
+    return new HumanoidRig(vrm.scene, bones, vrm.firstPerson!, (delta) => vrm.update(delta))
   }
   const bones = new Map<string, Object3D>()
   gltf.scene.traverse((object) => {
@@ -27,7 +27,12 @@ export function createRig(gltf: GLTF): HumanoidRig {
       bones.set(name, object)
     }
   })
-  return new HumanoidRig(gltf.scene, bones)
+  const humanoid = new VRMHumanoid(
+    Object.fromEntries([...bones].map(([name, node]) => [name, { node }])) as VRMHumanBones,
+  )
+  const meshes: Array<Mesh> = []
+  gltf.scene.traverse((object) => object instanceof Mesh && meshes.push(object))
+  return new HumanoidRig(gltf.scene, bones, new VRMFirstPerson(humanoid, [{ meshes, type: 'auto' }]))
 }
 
 const mixamoBones: Record<string, string> = {
@@ -76,14 +81,13 @@ export class HumanoidRig {
   readonly restLocalPositions = new Map<string, Vector3>()
   readonly restLocalRotations = new Map<string, Quaternion>()
   readonly parents = new Map<string, string | undefined>()
-  // parents always come before their children
   readonly order: Array<string> = []
   readonly facingYaw: number
-  hideHead = false
 
   constructor(
     readonly scene: Object3D,
     readonly bones: Map<string, Object3D>,
+    readonly firstPerson: VRMFirstPerson,
     private readonly onUpdate?: (delta: number) => void,
   ) {
     scene.updateMatrixWorld(true)
@@ -122,14 +126,8 @@ export class HumanoidRig {
   }
 
   update(delta: number): void {
-    const head = this.bones.get('head')!
-    head.scale.setScalar(1)
     this.scene.updateMatrixWorld(true)
     this.onUpdate?.(Math.min(delta, 1 / 30))
-    if (this.hideHead) {
-      head.scale.setScalar(1e-4)
-      head.updateWorldMatrix(false, true)
-    }
   }
 }
 
