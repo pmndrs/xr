@@ -109,6 +109,12 @@ importers:
         specifier: 0.1.6
         version: 0.1.6(vite@7.2.2(@types/node@22.13.0)(jiti@1.21.7)(yaml@2.7.1))
 
+  examples/avatar:
+    dependencies:
+      '@react-three/xr':
+        specifier: workspace:~
+        version: link:../../packages/react/xr
+
   examples/demo-controller:
     dependencies:
       '@pmndrs/xr':
