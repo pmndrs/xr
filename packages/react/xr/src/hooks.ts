@@ -1,6 +1,6 @@
-import { PointerEvent } from '@pmndrs/pointer-events'
-import { RefObject, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
-import { Object3D } from 'three'
+import { PointerEvent, PointerEventsMap } from '@pmndrs/pointer-events'
+import { RefObject, useEffect, useState, useSyncExternalStore } from 'react'
+import { Object3D, Object3DEventMap } from 'three'
 import { useXR } from './xr.js'
 
 /**
@@ -73,46 +73,114 @@ export function useInitRoomCapture() {
   return useXR((xr) => xr.session?.initiateRoomCapture?.bind(xr.session))
 }
 
+// Singleton external store for XR session support
+// This lives outside React to properly work with useSyncExternalStore
+const sessionSupportStore = (() => {
+  const cache = new Map<XRSessionMode, boolean>()
+  const listeners = new Map<XRSessionMode, Set<() => void>>()
+  const errorHandlers = new Map<XRSessionMode, Set<(error: any) => void>>()
+  const pending = new Set<XRSessionMode>()
+  let deviceChangeListenerAttached = false
+
+  const recheckAllModes = () => {
+    cache.clear()
+    pending.clear()
+
+    // Recheck all modes that have listeners
+    for (const [mode, modeListeners] of listeners.entries()) {
+      if (modeListeners.size > 0) {
+        checkSupport(mode)
+      }
+    }
+  }
+
+  const checkSupport = (mode: XRSessionMode) => {
+    if (pending.has(mode)) {
+      return
+    }
+
+    pending.add(mode)
+
+    if (typeof navigator === 'undefined' || !navigator.xr) {
+      cache.set(mode, false)
+      pending.delete(mode)
+      notifyListeners(mode)
+    } else {
+      navigator.xr
+        .isSessionSupported(mode)
+        .then((supported) => {
+          cache.set(mode, supported)
+          pending.delete(mode)
+          notifyListeners(mode)
+        })
+        .catch((error) => {
+          cache.set(mode, false)
+          pending.delete(mode)
+          notifyListeners(mode)
+          // Notify all error handlers for this mode
+          errorHandlers.get(mode)?.forEach((handler) => handler(error))
+        })
+    }
+  }
+
+  const notifyListeners = (mode: XRSessionMode) => {
+    listeners.get(mode)?.forEach((cb) => cb())
+  }
+
+  return {
+    getSnapshot(mode: XRSessionMode): boolean | undefined {
+      return cache.get(mode)
+    },
+
+    subscribe(mode: XRSessionMode, callback: () => void, onError?: (error: any) => void) {
+      // Set up devicechange listener once
+      if (!deviceChangeListenerAttached && typeof navigator !== 'undefined' && navigator.xr) {
+        navigator.xr.addEventListener('devicechange', recheckAllModes)
+        deviceChangeListenerAttached = true
+      }
+
+      // Add listener for this mode
+      if (!listeners.has(mode)) {
+        listeners.set(mode, new Set())
+      }
+      listeners.get(mode)!.add(callback)
+
+      // Add error handler if provided
+      if (onError) {
+        if (!errorHandlers.has(mode)) {
+          errorHandlers.set(mode, new Set())
+        }
+        errorHandlers.get(mode)!.add(onError)
+      }
+
+      // Fetch support status if not cached
+      if (!cache.has(mode)) {
+        checkSupport(mode)
+      }
+
+      // Return unsubscribe function
+      return () => {
+        listeners.get(mode)?.delete(callback)
+        if (onError) {
+          errorHandlers.get(mode)?.delete(onError)
+        }
+      }
+    },
+  }
+})()
+
 /**
  * Checks whether a specific XRSessionMode is supported or not
  *
  * @param {XRSessionMode} mode - The `XRSessionMode` to check against.
- * @param {(error: any) => void} [onError] - Callback executed when an error occurs.
+ * @param {(error: any) => void} onError - Optional callback for errors during support check.
  */
 export function useXRSessionModeSupported(mode: XRSessionMode, onError?: (error: any) => void) {
-  const onErrorRef = useRef(onError)
-  onErrorRef.current = onError
-  const [subscribe, getSnapshot] = useMemo(() => {
-    let sessionSupported: boolean | undefined = undefined
-    return [
-      (onChange: () => void) => {
-        let canceled = false
-        if (typeof navigator === 'undefined' || navigator.xr == null) {
-          sessionSupported = false
-          return () => {}
-        }
-
-        navigator.xr
-          .isSessionSupported(mode)
-          .then((isSupported) => {
-            sessionSupported = isSupported
-            if (canceled) {
-              return
-            }
-            onChange()
-          })
-          .catch((e) => {
-            if (canceled) {
-              return
-            }
-            onErrorRef.current?.(e)
-          })
-        return () => (canceled = true)
-      },
-      () => sessionSupported,
-    ]
-  }, [mode])
-  return useSyncExternalStore(subscribe, getSnapshot)
+  return useSyncExternalStore(
+    (callback) => sessionSupportStore.subscribe(mode, callback, onError),
+    () => sessionSupportStore.getSnapshot(mode),
+    () => undefined, // SSR: return undefined on server
+  )
 }
 
 /**
