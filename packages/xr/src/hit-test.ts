@@ -25,6 +25,7 @@ export async function createXRHitTestSource(
   let options: XRHitTestOptionsInit
   let baseSpace: XRSpace | undefined
   let object: Object3D | undefined
+  let offsetInverse: Matrix4 | undefined
 
   const state = store.getState()
 
@@ -47,6 +48,7 @@ export async function createXRHitTestSource(
 
     //configure for request and compute hit test results
     object = relativeTo
+    offsetInverse = matrixHelper.clone().invert()
     options = { space, offsetRay, entityTypes }
     baseSpace = space
   }
@@ -58,7 +60,7 @@ export async function createXRHitTestSource(
 
   return {
     source,
-    getWorldMatrix: computeWorldMatrixFromXRHitTestResult.bind(null, store, baseSpace, object),
+    getWorldMatrix: computeWorldMatrixFromXRHitTestResult.bind(null, store, baseSpace, object, offsetInverse),
   }
 }
 
@@ -89,6 +91,7 @@ function computeWorldMatrixFromXRHitTestResult(
   store: XRStore<any>,
   baseSpace: XRSpace | undefined,
   object: Object3D | undefined,
+  offsetInverse: Matrix4 | undefined,
   target: Matrix4,
   result: XRHitTestResult,
 ): boolean {
@@ -100,8 +103,12 @@ function computeWorldMatrixFromXRHitTestResult(
   if (pose == null) {
     return false
   }
-  //target = ObjectMatrixWorld? * HitTestMatrix
+  //the pose is relative to the base space, so the offset of the object inside the base space must be removed
+  //target = ObjectMatrixWorld? * OffsetInverse? * HitTestMatrix
   target.fromArray(pose.transform.matrix)
+  if (offsetInverse != null) {
+    target.premultiply(offsetInverse)
+  }
   if (object != null) {
     object.updateWorldMatrix(true, false)
     target.premultiply(object.matrixWorld)
