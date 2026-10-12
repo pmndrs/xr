@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { chromium, devices } from 'playwright'
 import { testSetup } from './utils.js'
 import { Object3D, PerspectiveCamera, Quaternion, Scene, Vector3 } from 'three'
-import { Intersection, Intersector, Pointer } from '../src/index.js'
+import { getPointerById, Intersection, Intersector, Pointer } from '../src/index.js'
 
 const browser = await chromium.launch({ headless: true })
 
@@ -39,6 +39,52 @@ describe('pointer exit/cancel state', () => {
     expect(cancelCount).to.equal(1)
     expect(pointer.getButtonsDown().size).to.equal(0)
     expect(releases).to.have.length(1)
+  })
+})
+
+describe('global pointer map', () => {
+  function createPointer(id: number, object: Object3D, camera: PerspectiveCamera) {
+    return new Pointer(id, 'screen-mouse', undefined, new StaticIntersector(createIntersection(object)), () => camera)
+  }
+
+  it('should not register a pointer that is never used', () => {
+    const object = new Object3D()
+    createPointer(100_004, object, new PerspectiveCamera())
+
+    expect(getPointerById(100_004)).to.equal(undefined)
+  })
+
+  it('should remove the pointer on exit and add it again when it is used', () => {
+    const scene = new Scene()
+    const object = new Object3D()
+    scene.add(object)
+    const pointer = createPointer(100_002, object, new PerspectiveCamera())
+
+    pointer.move(scene, { timeStamp: 0 })
+    expect(getPointerById(100_002)).to.equal(pointer)
+
+    pointer.exit({ timeStamp: 1 })
+    expect(getPointerById(100_002)).to.equal(undefined)
+
+    pointer.move(scene, { timeStamp: 2 })
+    expect(getPointerById(100_002)).to.equal(pointer)
+    object.setPointerCapture(100_002)
+    expect(pointer.hasCaptured(object)).to.equal(true)
+  })
+
+  it('should not remove another pointer with the same id on exit', () => {
+    const scene = new Scene()
+    const object = new Object3D()
+    scene.add(object)
+    const camera = new PerspectiveCamera()
+    const oldPointer = createPointer(100_003, object, camera)
+    const newPointer = createPointer(100_003, object, camera)
+    oldPointer.move(scene, { timeStamp: 0 })
+    newPointer.move(scene, { timeStamp: 1 })
+
+    oldPointer.exit({ timeStamp: 2 })
+
+    expect(getPointerById(100_003)).to.equal(newPointer)
   })
 })
 

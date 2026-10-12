@@ -3,7 +3,7 @@ import { NativeEvent, NativeWheelEvent, PointerEvent } from './event.js'
 import { IntersectionOptions } from './intersections/index.js'
 import { ScreenRayIntersector } from './intersections/ray.js'
 import { generateUniquePointerId } from './pointer/index.js'
-import { GetCamera, Pointer, PointerOptions } from './pointer.js'
+import { GetCamera, getPointerById, Pointer, PointerOptions } from './pointer.js'
 
 export type ForwardablePointerEvent = { pointerId: number; pointerType: string; pointerState?: any } & NativeEvent
 
@@ -181,6 +181,9 @@ function forwardEvents(
         latestMoveEventMap.delete(pointer)
         latestWheelEventMap.delete(pointer)
         pointer.exit(event)
+        if (event.pointerType === 'touch') {
+          pointerMap.delete(event.pointerId)
+        }
         return
     }
   }
@@ -227,6 +230,12 @@ function forwardEvents(
       from.removeEventListener('pointerleave', pointerLeaveListener)
       latestMoveEventMap.clear()
       latestWheelEventMap.clear()
+      for (const pointer of pointerMap.values()) {
+        if (getPointerById(pointer.id) === pointer) {
+          globalThis.pointerEventspointerMap?.delete(pointer.id)
+        }
+      }
+      pointerMap.clear()
     },
     update() {
       const length = eventList.length
