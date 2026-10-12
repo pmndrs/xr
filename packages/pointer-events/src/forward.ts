@@ -57,7 +57,16 @@ export function forwardHtmlEvents(
     typeof getCamera === 'function' ? getCamera : () => getCamera,
     scene,
     htmlEventToCoords.bind(null, fromElement),
-    fromElement.setPointerCapture.bind(fromElement),
+    (pointerId) => {
+      try {
+        fromElement.setPointerCapture(pointerId)
+      } catch (error) {
+        //the pointer can already be inactive when batched events are processed
+        if (!(error instanceof DOMException && error.name === 'NotFoundError')) {
+          throw error
+        }
+      }
+    },
     (pointerId) => {
       if (fromElement.hasPointerCapture(pointerId)) {
         fromElement.releasePointerCapture(pointerId)
