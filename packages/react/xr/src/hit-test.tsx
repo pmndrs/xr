@@ -127,11 +127,7 @@ function useCreateXRHitTestSource(
     if (relativeToResolved == null) {
       return
     }
-    const trackableTypeResolved =
-      trackableTypeKey == null
-        ? undefined
-        : (trackableTypeKey.split(',').filter((type) => type.length > 0) as Array<XRHitTestTrackableType>)
-    createXRHitTestSource(store, session, relativeToResolved, trackableTypeResolved)
+    createXRHitTestSource(store, session, relativeToResolved, trackableType)
       .then((result) => {
         if (cancelled) {
           result?.source.cancel()
@@ -146,6 +142,7 @@ function useCreateXRHitTestSource(
       cancelled = true
       storedResult?.source.cancel()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, store, relativeTo, trackableTypeKey, onLoad])
 }
 
