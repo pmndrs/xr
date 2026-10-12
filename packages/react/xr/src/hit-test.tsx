@@ -133,6 +133,7 @@ function useCreateXRHitTestSource(
         : (trackableTypeKey.split(',').filter((type) => type.length > 0) as Array<XRHitTestTrackableType>)
     createXRHitTestSource(store, session, relativeToResolved, trackableTypeResolved).then((result) => {
       if (cancelled) {
+        result?.source.cancel()
         return
       }
       storedResult = result
