@@ -2,7 +2,7 @@ import { Object3D } from 'three'
 import { XRControllerModelOptions, configureXRControllerModel, loadXRControllerModel } from '../controller/model.js'
 import { createUpdateXRControllerVisuals } from '../controller/visual.js'
 import { XRControllerState } from '../input.js'
-import { onXRFrame } from './utils.js'
+import { disposeModel, onXRFrame } from './utils.js'
 
 /**
  * Component for rendering a 3D model for the XRController
@@ -20,5 +20,9 @@ export class XRControllerModel extends Object3D {
       configureXRControllerModel(model, options)
       update = createUpdateXRControllerVisuals(model, state.layout, state.gamepad)
     })
+  }
+
+  dispose() {
+    disposeModel(this)
   }
 }

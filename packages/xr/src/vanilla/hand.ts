@@ -1,5 +1,5 @@
 import { Object3D } from 'three'
-import { onXRFrame } from './utils.js'
+import { disposeModel, onXRFrame } from './utils.js'
 import {
   XRHandModelOptions,
   configureXRHandModel,
@@ -25,5 +25,6 @@ export class XRHandModel extends Object3D {
 
   dispose() {
     disposeXRHandModel(this)
+    disposeModel(this)
   }
 }
