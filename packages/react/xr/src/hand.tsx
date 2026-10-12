@@ -3,9 +3,10 @@ import {
   cloneXRHandGltf,
   configureXRHandModel,
   createUpdateXRHandVisuals,
+  disposeXRHandModel,
 } from '@pmndrs/xr/internals'
 import { useFrame, useLoader } from '@react-three/fiber'
-import { ReactNode, forwardRef, useImperativeHandle, useMemo } from 'react'
+import { ReactNode, forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
 import { Object3D } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { useXRInputSourceStateContext } from './input.js'
@@ -25,6 +26,7 @@ export const XRHandModel = forwardRef<Object3D, XRHandModelOptions>((options, re
   const state = useXRInputSourceStateContext('hand')
   const gltf = useLoader(GLTFLoader, state.assetPath)
   const model = useMemo(() => cloneXRHandGltf(gltf), [gltf])
+  useEffect(() => () => disposeXRHandModel(model), [model])
   configureXRHandModel(model, options)
   state.object = model
   useImperativeHandle(ref, () => model, [model])
