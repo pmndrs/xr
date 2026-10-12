@@ -115,6 +115,7 @@ function useCreateXRHitTestSource(
 ) {
   const store = useXRStore()
   const session = useStore(store, (s) => s.session)
+  const trackableTypeKey = Array.isArray(trackableType) ? trackableType.join(',') : trackableType
   useEffect(() => {
     if (session == null) {
       return
@@ -126,7 +127,11 @@ function useCreateXRHitTestSource(
     if (relativeToResolved == null) {
       return
     }
-    createXRHitTestSource(store, session, relativeToResolved, trackableType).then((result) => {
+    const trackableTypeResolved =
+      trackableTypeKey == null
+        ? undefined
+        : (trackableTypeKey.split(',').filter((type) => type.length > 0) as Array<XRHitTestTrackableType>)
+    createXRHitTestSource(store, session, relativeToResolved, trackableTypeResolved).then((result) => {
       if (cancelled) {
         return
       }
@@ -138,7 +143,7 @@ function useCreateXRHitTestSource(
       cancelled = true
       storedResult?.source.cancel()
     }
-  }, [session, store, relativeTo, trackableType, onLoad])
+  }, [session, store, relativeTo, trackableTypeKey, onLoad])
 }
 
 /**
