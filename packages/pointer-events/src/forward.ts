@@ -58,17 +58,19 @@ export function forwardHtmlEvents(
     scene,
     htmlEventToCoords.bind(null, fromElement),
     (pointerId) => {
-      //the pointer can already be inactive when batched events are processed
       try {
         fromElement.setPointerCapture(pointerId)
-      } catch {}
+      } catch (error) {
+        //the pointer can already be inactive when batched events are processed
+        if (!(error instanceof DOMException && error.name === 'NotFoundError')) {
+          throw error
+        }
+      }
     },
     (pointerId) => {
-      try {
-        if (fromElement.hasPointerCapture(pointerId)) {
-          fromElement.releasePointerCapture(pointerId)
-        }
-      } catch {}
+      if (fromElement.hasPointerCapture(pointerId)) {
+        fromElement.releasePointerCapture(pointerId)
+      }
     },
     {
       pointerTypePrefix: 'screen-',
