@@ -115,6 +115,7 @@ function useCreateXRHitTestSource(
 ) {
   const store = useXRStore()
   const session = useStore(store, (s) => s.session)
+  const trackableTypeKey = Array.isArray(trackableType) ? trackableType.join(',') : trackableType
   useEffect(() => {
     if (session == null) {
       return
@@ -126,19 +127,23 @@ function useCreateXRHitTestSource(
     if (relativeToResolved == null) {
       return
     }
-    createXRHitTestSource(store, session, relativeToResolved, trackableType).then((result) => {
-      if (cancelled) {
-        return
-      }
-      storedResult = result
-      onLoad(result)
-    })
+    createXRHitTestSource(store, session, relativeToResolved, trackableType)
+      .then((result) => {
+        if (cancelled) {
+          result?.source.cancel()
+          return
+        }
+        storedResult = result
+        onLoad(result)
+      })
+      .catch(console.error)
     return () => {
       onLoad(undefined)
       cancelled = true
       storedResult?.source.cancel()
     }
-  }, [session, store, relativeTo, trackableType, onLoad])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, store, relativeTo, trackableTypeKey, onLoad])
 }
 
 /**
