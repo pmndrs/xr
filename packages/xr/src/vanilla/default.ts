@@ -291,7 +291,10 @@ export function createDefaultXRHand(
   if (modelOptions !== false) {
     const model = new XRHandModel(state, spreadable(modelOptions))
     space.add(model)
-    removeModel = () => space.remove(model)
+    removeModel = () => {
+      space.remove(model)
+      model.dispose()
+    }
   }
   return () => {
     unregisterPointer()
