@@ -19,7 +19,8 @@
     "url": "https://github.com/pmndrs/xr"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "publishConfig": {
     "main": "dist/index.js"

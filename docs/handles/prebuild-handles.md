@@ -56,8 +56,11 @@ Allows configuring the transformation on the z-axis. Setting `z` to `false` disa
 **e**  
 The `e` axis represents the axis for rotating the transform handles in screen space, which is only available when `mode` is set to `rotation`. Setting `e` to `false` disables rotation in screen space and also hides the respective user interface.
 
-**enabled**  
-Setting `enabled` to `false` momentarily disables the transform handles.
+**disabled**  
+Setting `disabled` to `true` momentarily disables the transform handles, which stay visible but greyed out.
+
+**hidden**  
+Setting `hidden` to `true` hides the transform handles and disables them.
 
 **fixed**  
 By default, the transform handles have a fixed size independent of their distance from the camera, which means they scale up when they move away from the camera. Setting `fixed` to `false` will make them appear smaller when further away from the camera.
@@ -92,8 +95,11 @@ Allows overriding the default apply function, giving the developer complete cont
 **stopPropagation**  
 Setting `stopPropagation` to `false` will re-enable event propagation for events that occur on the handles.
 
-**enabled**  
-Setting `enabled` to `false` momentarily disables the pivot handles.
+**disabled**  
+Setting `disabled` to `true` momentarily disables the pivot handles, which stay visible but greyed out.
+
+**hidden**  
+Setting `hidden` to `true` hides the pivot handles and disables them.
 
 **fixed**  
 By default, the pivot handles have a fixed size independent of their distance from the camera, which means they scale up when they move away from the camera. Setting `fixed` to `false` will make them appear smaller when further away from the camera.

@@ -7,7 +7,6 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..')
 const docsDir = path.join(repoRoot, 'docs')
 const outputFile = path.join(repoRoot, 'llms.txt')
-const skillReferencesDir = path.join(repoRoot, 'skills', 'pmndrs-xr', 'references')
 
 const extraReferenceSources = [
   { file: path.join(repoRoot, 'packages', 'xr', 'README.md'), title: '@pmndrs/xr' },
@@ -113,45 +112,12 @@ function compareByNavThenTitle(a, b) {
   return String(a.title).toLowerCase().localeCompare(String(b.title).toLowerCase())
 }
 
-function skillReferenceRelPathForEntry(entry) {
-  return entry.rel.replace(/\.(md|mdx)$/i, '.md')
-}
-
-function renderEntry(entry, { combined }) {
-  const parts = [`# ${entry.title}`]
-  parts.push('')
-  parts.push((combined ? rewriteInternalLinksForCombined(entry.body, entry.file) : entry.body).trim())
-  return parts.join('\n') + '\n'
+function renderEntry(entry) {
+  return `# ${entry.title}\n\n${rewriteInternalLinksForCombined(entry.body, entry.file).trim()}\n`
 }
 
 function renderEntries(entries) {
-  return entries.map((entry) => renderEntry(entry, { combined: true })).join('\n')
-}
-
-function renderReferenceIndex(entries) {
-  const parts = [
-    '# Reference Index',
-    '',
-    'Read the smallest file that matches the task.',
-    '',
-  ]
-  let currentTopLevel = ''
-  const sortedEntries = [...entries].sort((a, b) =>
-    skillReferenceRelPathForEntry(a).localeCompare(skillReferenceRelPathForEntry(b)),
-  )
-  for (const entry of sortedEntries) {
-    const referenceRel = skillReferenceRelPathForEntry(entry)
-    const [topLevel, section = ''] = referenceRel.split('/')
-    const group = section ? `${topLevel}/${section}` : topLevel
-    if (group !== currentTopLevel) {
-      currentTopLevel = group
-      parts.push('')
-      parts.push(`## ${group}`)
-      parts.push('')
-    }
-    parts.push(`- [${entry.title}](${referenceRel})`)
-  }
-  return parts.join('\n') + '\n'
+  return entries.map(renderEntry).join('\n')
 }
 
 async function readEntry(file, { title: forcedTitle } = {}) {
@@ -188,46 +154,9 @@ async function main() {
   const entries = [...docEntries, ...extraEntries]
     .filter((entry) => !isDeprecatedEntry(entry))
     .sort(compareByNavThenTitle)
-  const curatedSkillReferences = await readCuratedSkillReferences()
   await fs.writeFile(outputFile, renderEntries(entries), 'utf8')
 
-  await fs.rm(skillReferencesDir, { recursive: true, force: true })
-  await fs.mkdir(skillReferencesDir, { recursive: true })
-  await fs.writeFile(path.join(skillReferencesDir, 'index.md'), renderReferenceIndex(entries), 'utf8')
-  for (const entry of entries) {
-    const referenceRel = skillReferenceRelPathForEntry(entry)
-    const referencePath = path.join(skillReferencesDir, referenceRel)
-    await fs.mkdir(path.dirname(referencePath), { recursive: true })
-    await fs.writeFile(referencePath, renderEntry(entry, { combined: false }), 'utf8')
-  }
-  for (const reference of curatedSkillReferences) {
-    const referencePath = path.join(skillReferencesDir, reference.rel)
-    await fs.mkdir(path.dirname(referencePath), { recursive: true })
-    await fs.writeFile(referencePath, reference.content, 'utf8')
-  }
-
   console.log(`Wrote combined docs to ${path.relative(repoRoot, outputFile)} (${entries.length} files)`)
-  console.log(`Wrote ${entries.length} structured skill reference files to ${path.relative(repoRoot, skillReferencesDir)}`)
-}
-
-async function readCuratedSkillReferences() {
-  let files
-  try {
-    files = await listFilesRecursively(skillReferencesDir)
-  } catch {
-    return []
-  }
-
-  const generatedRoots = new Set(['docs', 'packages'])
-  const preserved = []
-  for (const file of files) {
-    if (!/\.md$/i.test(file)) continue
-    const rel = path.relative(skillReferencesDir, file).split(path.sep).join('/')
-    const [topLevel] = rel.split('/')
-    if (rel === 'index.md' || generatedRoots.has(topLevel)) continue
-    preserved.push({ rel, content: await fs.readFile(file, 'utf8') })
-  }
-  return preserved
 }
 
 main().catch((error) => {

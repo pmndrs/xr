@@ -31,8 +31,8 @@ The screen camera store contains the current state of the camera, including the 
 **apply**  
 The apply function applies the modifications to the screen camera state that occurred based on user interactions to the screen camera store. Overriding this function allows you to manually modify the screen camera store and prevent or restrict certain modifications, such as the maximum pitch angle.
 
-**enabled**  
-Allows you to disable the orbit handles momentarily by setting enabled to `false`.  
+**disabled**  
+Allows you to disable the orbit handles momentarily by setting disabled to `true`.  
 
 **damping**  
 Allows you to configure how much the camera movement should be smoothed. Set to `true` for the default damping and `false` to disable damping.  

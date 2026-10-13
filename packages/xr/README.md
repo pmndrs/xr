@@ -83,7 +83,6 @@ window.addEventListener('resize', updateSize)
 _The following tutorials contain code for react-three/fiber but all informations are also applicable for @pmndrs/xr._
 
 - 👌 [Interactions](https://docs.pmnd.rs/xr/tutorials/interactions)
-- 🔧 [Options](https://docs.pmnd.rs/xr/tutorials/options)
 - 🧊 [Object Detection](https://docs.pmnd.rs/xr/tutorials/object-detection)
 - ✴ [Origin](https://docs.pmnd.rs/xr/tutorials/origin)
 - 🪄 [Teleport](https://docs.pmnd.rs/xr/tutorials/teleport)
@@ -91,16 +90,14 @@ _The following tutorials contain code for react-three/fiber but all informations
 - 🎮 [Custom Controller/Hands/...](https://docs.pmnd.rs/xr/tutorials/custom-inputs)
 - ⛨ [Guards](https://docs.pmnd.rs/xr/tutorials/guards)
 
-## Roadmap
+## Agent skills
 
-- 🤳 XR Gestures
-- ➕ Multimodal
-- ⚓️ Anchors
-- 📺 Layers
-- 📱 Dom Overlays
-- 🕺 Tracked Body
-- 🎯 Hit Test
-- ↕ pmndrs/controls
+This package ships a usage skill for coding agents, matching the installed version. Install it with [skills-npm](https://github.com/antfu/skills-npm), which links the skills of your installed packages for your agent:
+
+```bash
+npm i -D skills-npm
+npx skills-npm setup
+```
 
 ## Sponsors
 

@@ -38,7 +38,8 @@
     "zustand": "^4.5.2"
   },
   "files": [
-    "dist"
+    "dist",
+    "skills"
   ],
   "publishConfig": {
     "main": "dist/index.js",

@@ -3,6 +3,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "check": "pnpm -r check:prettier && pnpm -r check:eslint",
     "docs:combine": "node scripts/combine-docs.mjs",
     "eval:pmndrs-xr": "node scripts/eval-pmndrs-xr.mjs"
   },

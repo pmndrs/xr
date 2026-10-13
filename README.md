@@ -68,7 +68,6 @@ export function App() {
 - 💾 [Store](https://docs.pmnd.rs/xr/tutorials/store)
 - 👆 [Interactions](https://docs.pmnd.rs/xr/tutorials/interactions)
 - 👌 [Handles](https://docs.pmnd.rs/xr/handles/introduction)
-- 🔧 [Options](https://docs.pmnd.rs/xr/tutorials/options)
 - 🧊 [Object Detection](https://docs.pmnd.rs/xr/tutorials/object-detection)
 - ✴ [Origin](https://docs.pmnd.rs/xr/tutorials/origin)
 - 🪄 [Teleport](https://docs.pmnd.rs/xr/tutorials/teleport)
@@ -85,15 +84,19 @@ export function App() {
 
 - 🥇 [**WebXR First Steps React** by Meta Quest](https://github.com/meta-quest/webxr-first-steps-react)
 
-## Roadmap
-
-- 🤳 XR Gestures
-- 🕺 Tracked Body
-
 ## Migration guides
 
 - from [@react-three/xr v5](https://docs.pmnd.rs/xr/migration/from-react-three-xr-5)
 - from [natuerlich](https://docs.pmnd.rs/xr/migration/from-natuerlich)
+
+## Agent skills
+
+This package ships a usage skill for coding agents, matching the installed version. Install it with [skills-npm](https://github.com/antfu/skills-npm), which links the skills of your installed packages for your agent:
+
+```bash
+npm i -D skills-npm
+npx skills-npm setup
+```
 
 ## Sponsors
 

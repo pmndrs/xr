@@ -69,7 +69,7 @@ For many use cases, such as 3D editors, handles often come in specific forms, li
 
 ![](./prebuild-handles.gif)
 
-Learn more about the available prebuilt handles [here](./screen-handle-components.md).
+Learn more about the available prebuilt handles [here](./prebuild-handles.md).
 
 ## Sponsors
 

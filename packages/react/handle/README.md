@@ -47,6 +47,15 @@ export function App() {
 
 # [Documentation](https://pmndrs.github.io/xr/docs/handles/introduction)
 
+## Agent skills
+
+This package ships a usage skill for coding agents, matching the installed version. Install it with [skills-npm](https://github.com/antfu/skills-npm), which links the skills of your installed packages for your agent:
+
+```bash
+npm i -D skills-npm
+npx skills-npm setup
+```
+
 ## Sponsors
 
 This project is supported by a few companies and individuals building cutting-edge 3D Web & XR experiences. Check them out!

@@ -20,7 +20,7 @@ export type XRSessionInitOptions = {
    */
   handTracking?: XRSessionFeatureRequest
   /**
-   * @default true
+   * @default false
    */
   bodyTracking?: XRSessionFeatureRequest
   /**

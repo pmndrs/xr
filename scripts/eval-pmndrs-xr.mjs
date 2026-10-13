@@ -32,7 +32,7 @@ Keep the React Three package set internally compatible. If you use current @reac
 
 Use a published IWER package for the vitexec walkthrough; current registry checks show iwer 2.2.1 is available, while iwer 1.9.x is not.
 
-Use the bundled skill references and npm registry checks for API/package details. Do not browse the web for UI docs during the eval run.
+Use the installed skills and npm registry checks for API/package details. Do not browse the web for UI docs during the eval run.
 
 The walkthrough should capture visual evidence, log each milestone, and fail if any required step is skipped, if browser/page errors are logged, if the session never enters XR, if the viewer stays fixed while only the controller moves, if the video is mostly blank/white, or if the UI covers the world for most of the run. Pace the walkthrough so the recording clearly shows the user walking/turning between stations and each major stage; the captured walkthrough should last at least 20 seconds.
 
@@ -41,10 +41,10 @@ The XR viewer transform must be realistic and readable in the recording. At each
 Expose a read-only R3F devtools global for eval-time scene audits: window.__pmndrsXrEval = { scene, camera, gl } from a tiny component using useThree(). Do not expose workflow mutators through this object. The harness uses it to measure uikit panel coverage in the headset view.
 
 Create and edit code files with patch/file-edit operations rather than shell heredocs, because JSX, HTML, and template strings are easy to corrupt through shell quoting. Shell heredocs such as cat <<EOF, cat > file <<EOF, or tee <<EOF are forbidden in this eval.`
-  + `\n\nThis is an execution task, not a planning task. If the workspace is empty, create a minimal runnable vertical slice first: package scripts, src/main, src/App, styles, and vitexec/play. Read only the specific bundled references needed for the immediate API decision, avoid broad source archaeology in node_modules, and prefer simple direct geometry/input over pausing to design the whole app. Once the vertical slice builds, iterate it toward the requested domain richness and walkthrough proof. Do not stop after a checklist or plan. When the build and walkthrough pass, stop and summarize the result. Do not start a live preview or development server.`
+  + `\n\nThis is an execution task, not a planning task. If the workspace is empty, create a minimal runnable vertical slice first: package scripts, src/main, src/App, styles, and vitexec/play. Read only the specific skill guidance needed for the immediate API decision, avoid broad source archaeology in node_modules, and prefer simple direct geometry/input over pausing to design the whole app. Once the vertical slice builds, iterate it toward the requested domain richness and walkthrough proof. Do not stop after a checklist or plan. When the build and walkthrough pass, stop and summarize the result. Do not start a live preview or development server.`
 
 const EVAL_CASES = {
-  'warehouse-training': `Use $pmndrs-xr to make me an immersive warehouse safety trainer for new staff.
+  'warehouse-training': `Use $react-three-xr to make me an immersive warehouse safety trainer for new staff.
 
 I want to walk through an emergency equipment inspection as if I am on the warehouse floor. It should feel like a practical training tool, not a toy demo:
 - Give me a clear control panel with start buttons, the current task, checklist progress, risk score, and final pass/fail report.
@@ -56,7 +56,7 @@ I want to walk through an emergency equipment inspection as if I am on the wareh
 
 ${COMMON_BUILDER_REQUIREMENTS}`,
 
-  'arcade-shooter': `Use $pmndrs-xr to make me a polished VR arcade shooting gallery.
+  'arcade-shooter': `Use $react-three-xr to make me a polished VR arcade shooting gallery.
 
 This should feel like a real small game, not a tech demo:
 - Build a themed range with depth, lighting, lane boundaries, target rails, and moving or timed targets.
@@ -68,7 +68,7 @@ This should feel like a real small game, not a tech demo:
 
 ${COMMON_BUILDER_REQUIREMENTS}`,
 
-  'fitness-reaction': `Use $pmndrs-xr to make me a VR reaction and boxing-pad trainer.
+  'fitness-reaction': `Use $react-three-xr to make me a VR reaction and boxing-pad trainer.
 
 This should feel like a plausible training app:
 - Build a small gym/studio space with pads, timing lights, round timer, combo prompts, accuracy, streak, and final grade.
@@ -80,7 +80,7 @@ This should feel like a plausible training app:
 
 ${COMMON_BUILDER_REQUIREMENTS}`,
 
-  'product-configurator': `Use $pmndrs-xr to make me an XR product configurator for a modular workstation.
+  'product-configurator': `Use $react-three-xr to make me an XR product configurator for a modular workstation.
 
 This should feel like a real showroom/sales tool:
 - Build a recognizable workstation or kiosk with at least three configurable modules, such as monitor arm, shelf, tool rail, lighting, or color/material swatches.
@@ -92,7 +92,7 @@ This should feel like a real showroom/sales tool:
 
 ${COMMON_BUILDER_REQUIREMENTS}`,
 
-  'robot-arm-teach': `Use $pmndrs-xr to make me an XR robot-arm teach pendant for a small industrial cell.
+  'robot-arm-teach': `Use $react-three-xr to make me an XR robot-arm teach pendant for a small industrial cell.
 
 This should feel like a practical spatial programming tool:
 - Build a recognizable robot cell with a robot arm, work table, safety cage, tool head, and at least four editable path waypoints.
@@ -103,7 +103,7 @@ This should feel like a practical spatial programming tool:
 
 ${COMMON_BUILDER_REQUIREMENTS}`,
 
-  'assembly-bench': `Use $pmndrs-xr to make me an XR assembly bench for configuring a small sensor rig.
+  'assembly-bench': `Use $react-three-xr to make me an XR assembly bench for configuring a small sensor rig.
 
 This should feel like a hands-on assembly and inspection tool:
 - Build a bench with a base rail, bracket, sensor head, cable clip, fastener, and alignment guide.
@@ -114,7 +114,7 @@ This should feel like a hands-on assembly and inspection tool:
 
 ${COMMON_BUILDER_REQUIREMENTS}`,
 
-  'ar-furniture-commerce': `Use $pmndrs-xr to make me a handheld AR furniture commerce and room-planning tool.
+  'ar-furniture-commerce': `Use $react-three-xr to make me a handheld AR furniture commerce and room-planning tool.
 
 This should feel like a real customer-facing sales experience:
 - Let the shopper enter AR, scan or use a floor/table surface, and place a sofa, side table, lamp, or similar product into the room.
@@ -126,7 +126,7 @@ This should feel like a real customer-facing sales experience:
 
 ${COMMON_BUILDER_REQUIREMENTS}`,
 
-  'drone-flight-sim': `Use $pmndrs-xr to make me an XR drone inspection flight simulator.
+  'drone-flight-sim': `Use $react-three-xr to make me an XR drone inspection flight simulator.
 
 This should feel like a practical simulation/training app:
 - Build an indoor industrial inspection bay, warehouse aisle, or wind-tunnel course with a drone, gates/checkpoints, hazards, target inspection points, and landing zone.
@@ -143,6 +143,7 @@ const DEFAULT_EVAL_CASE = 'warehouse-training'
 
 const IMAGE = process.env.EVAL_DOCKER_IMAGE ?? 'pmndrs-xr-eval-codex:0.128.0-node22-vitexec-skill'
 const DOCKERFILE = 'scripts/eval-pmndrs-xr.Dockerfile'
+const PACKAGE_DIRS = ['packages/pointer-events', 'packages/xr', 'packages/handle', 'packages/react/xr', 'packages/react/handle']
 const CONTAINER_WORKSPACE = '/workspace'
 const CONTAINER_APP = `${CONTAINER_WORKSPACE}/app`
 const DEFAULT_RECORD_WIDTH = 1280
@@ -171,8 +172,8 @@ async function main() {
   }
   const selectedCase = selectEvalCase()
   if (process.env.EVAL_DRY_RUN === '1') {
-    if (!(await isFile(path.join(repoCwd, 'skills', 'pmndrs-xr', 'SKILL.md')))) {
-      throw new Error('Missing skills/pmndrs-xr/SKILL.md')
+    if (!(await isFile(path.join(repoCwd, 'packages', 'react', 'xr', 'skills', 'react-three-xr', 'SKILL.md')))) {
+      throw new Error('Missing packages/react/xr/skills/react-three-xr/SKILL.md')
     }
     console.log(`[pmndrs-xr-eval] Dry run case: ${selectedCase.name}`)
     console.log(`[pmndrs-xr-eval] Available cases: ${Object.keys(EVAL_CASES).join(', ')}`)
@@ -368,9 +369,12 @@ async function main() {
 
 async function prepareWorkspace(repoCwd, appDir) {
   await mkdir(path.join(appDir, '.agents', 'skills'), { recursive: true })
-  await cp(path.join(repoCwd, 'skills', 'pmndrs-xr'), path.join(appDir, '.agents', 'skills', 'pmndrs-xr'), {
-    recursive: true,
-  })
+  for (const packageDir of PACKAGE_DIRS) {
+    const skillsDir = path.join(repoCwd, packageDir, 'skills')
+    for (const name of await readdir(skillsDir)) {
+      await cp(path.join(skillsDir, name), path.join(appDir, '.agents', 'skills', name), { recursive: true })
+    }
+  }
 }
 
 async function copyReusableApp(sourceDir, appDir) {
