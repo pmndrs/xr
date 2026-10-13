@@ -6,3 +6,4 @@ package-lock.json
 docs/API/*
 artifacts
 .tmp
+.agent
