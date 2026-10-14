@@ -166,7 +166,7 @@ function forwardEvents(
         pointer.move(scene, event)
         return
       case 'over':
-        pointer.move(scene, event)
+        pointer.over(scene, event)
         return
       case 'wheel':
         pointer.wheel(scene, event as any)
