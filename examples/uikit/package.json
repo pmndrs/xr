@@ -3,9 +3,9 @@
     "@pmndrs/pointer-events": "workspace:~",
     "@preact/signals": "^2.0.1",
     "@react-three/handle": "workspace:~",
-    "@react-three/uikit": "^0.8.3",
-    "@react-three/uikit-default": "^0.8.3",
-    "@react-three/uikit-lucide": "^0.8.3",
+    "@react-three/uikit": "^1.0.0",
+    "@react-three/uikit-default": "^1.0.0",
+    "@react-three/uikit-lucide": "^1.0.0",
     "@react-three/xr": "workspace:~"
   },
   "scripts": {
