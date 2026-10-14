@@ -61,11 +61,13 @@ function ContinuousHitTest() {
   })
 
   return (
+    <>
       {/* Renders a sphere where the hit test intersects with the plane */}
-      <mesh ref={previewRef} position={hitPosition}>
+      <mesh ref={previewRef}>
         <sphereGeometry args={[0.05]} />
         <meshBasicMaterial color="red" />
       </mesh>
+    </>
   )
 }
 ```
@@ -232,42 +234,41 @@ Here's a complete example combining multiple hooks for a robust object placement
 
 ```tsx
 const matrixHelper = new Matrix4()
-const hitTestPositionHelper = new Vector3()
+const hitTestPosition = new Vector3()
 
 function ObjectPlacement() {
   const [placedObjects, setPlacedObjects] = useState<Vector3[]>([])
-  const [previewPosition, setPreviewPosition] = useState<Vector3 | null>(null)
-  const controllerRef = useRef<Group>(null)
+  const previewRef = useRef<Mesh>(null)
 
   // Continuous hit testing for preview
   useXRHitTest(
     (results, getWorldMatrix) => {
-      if (results.length > 0) {
-        getWorldMatrix(matrixHelper, results[0])
-        const position = hitTestPositionHelper.setFromMatrixPosition(matrixHelper)
-        setPreviewPosition(position)
-      } else {
-        setPreviewPosition(null)
-      }
+      const preview = previewRef.current
+      if (preview == null) return
+
+      preview.visible = results.length > 0
+      if (results.length === 0) return
+
+      getWorldMatrix(matrixHelper, results[0])
+      hitTestPosition.setFromMatrixPosition(matrixHelper)
+      preview.position.copy(hitTestPosition)
     },
     'viewer', // Use viewer space for screen-based hit testing
   )
 
-  const placeObject = async () => {
-    if (previewPosition) {
-      setPlacedObjects((prev) => [...prev, previewPosition.clone()])
+  const placeObject = () => {
+    if (previewRef.current?.visible) {
+      setPlacedObjects((prev) => [...prev, hitTestPosition.clone()])
     }
   }
 
   return (
     <>
       {/* Preview object at hit test position */}
-      {previewPosition && (
-        <mesh position={previewPosition}>
-          <sphereGeometry args={[0.05]} />
-          <meshBasicMaterial color="yellow" transparent opacity={0.7} />
-        </mesh>
-      )}
+      <mesh ref={previewRef} visible={false}>
+        <sphereGeometry args={[0.05]} />
+        <meshBasicMaterial color="yellow" transparent opacity={0.7} />
+      </mesh>
 
       {/* Placed objects */}
       {placedObjects.map((position, index) => (

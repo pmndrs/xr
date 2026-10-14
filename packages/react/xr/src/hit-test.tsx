@@ -79,7 +79,7 @@ export function useXRHitTestSource(
  *   })
  *
  *   return (
- *       <mesh ref={previewRef} position={hitPosition}>
+ *       <mesh ref={previewRef}>
  *         <sphereGeometry args={[0.05]} />
  *         <meshBasicMaterial color="red" />
  *       </mesh>
