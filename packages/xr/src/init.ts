@@ -2,6 +2,18 @@ import { isAppleVisionPro } from './misc.js'
 
 export type XRSessionFeatureRequest = 'required' | true | false
 
+/**
+ * depth sensing options passed to the session, `usagePreference` defaults to `['gpu-optimized']` and `dataFormatPreference` to `[]`
+ */
+export type XRDepthSensingOptions = Partial<XRDepthStateInit> & {
+  /**
+   * @default false
+   */
+  required?: boolean
+  depthTypeRequest?: Array<'raw' | 'smooth'>
+  matchDepthView?: boolean
+}
+
 export type XRSessionInitOptions = {
   /**
    * whether the session has bounds
@@ -38,7 +50,7 @@ export type XRSessionInitOptions = {
   /**
    * @default false
    */
-  depthSensing?: XRSessionFeatureRequest
+  depthSensing?: XRSessionFeatureRequest | XRDepthSensingOptions
   /**
    * overrides the session init object
    * use with caution
@@ -85,6 +97,13 @@ export function buildXRSessionInit(
     domOverlay = true
   }
 
+  let depthSensingInit: Omit<XRDepthSensingOptions, 'required'> | undefined
+  if (typeof depthSensing === 'object') {
+    const { required, ...options } = depthSensing
+    depthSensingInit = options
+    depthSensing = required === true ? 'required' : true
+  }
+
   addXRSessionFeature(anchors, 'anchors', requiredFeatures, optionalFeatures)
   addXRSessionFeature(handTracking, 'hand-tracking', requiredFeatures, optionalFeatures)
   addXRSessionFeature(layers, 'layers', requiredFeatures, optionalFeatures)
@@ -106,7 +125,9 @@ export function buildXRSessionInit(
 
   //TODO: replace with call to isSupportedFeature (unbounded, ...)
   if (depthSensing) {
-    Object.assign(init, { depthSensing: { usagePreference: ['gpu-optimized'], dataFormatPreference: [] } })
+    Object.assign(init, {
+      depthSensing: { usagePreference: ['gpu-optimized'], dataFormatPreference: [], ...depthSensingInit },
+    })
   }
 
   return init
