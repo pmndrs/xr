@@ -103,6 +103,19 @@ export function getPointerById(pointerId: number) {
   return globalThis.pointerEventspointerMap?.get(pointerId)
 }
 
+function registerPointer(pointer: Pointer): void {
+  const pointerMap = globalThis.pointerEventspointerMap
+  if (pointerMap != null && pointerMap.get(pointer.id) !== pointer) {
+    pointerMap.set(pointer.id, pointer)
+  }
+}
+
+function unregisterPointer(pointer: Pointer): void {
+  if (getPointerById(pointer.id) === pointer) {
+    globalThis.pointerEventspointerMap?.delete(pointer.id)
+  }
+}
+
 export type GetCamera = () => PerspectiveCamera | OrthographicCamera
 
 export class Pointer {
@@ -137,9 +150,7 @@ export class Pointer {
     private readonly parentSetPointerCapture?: () => void,
     private readonly parentReleasePointerCapture?: () => void,
     public readonly options: PointerOptions = {},
-  ) {
-    globalThis.pointerEventspointerMap?.set(id, this)
-  }
+  ) {}
 
   getPointerCapture(): PointerCapture | undefined {
     return this.pointerCapture
@@ -204,6 +215,11 @@ export class Pointer {
   }
 
   commit(nativeEvent: NativeEvent, emitMove: boolean) {
+    registerPointer(this)
+    this.commitIntersection(nativeEvent, emitMove)
+  }
+
+  private commitIntersection(nativeEvent: NativeEvent, emitMove: boolean) {
     const camera = this.getCamera()
     const prevIntersection = this.prevEnabled ? this.prevIntersection : undefined
     const intersection = this.enabled ? this.intersection : undefined
@@ -420,10 +436,11 @@ export class Pointer {
     if (this.wasMoved) {
       //reset state
       this.intersection = undefined
-      this.commit(nativeEvent, false)
+      this.commitIntersection(nativeEvent, false)
     }
     this.onFirstMove.length = 0
     this.wasMoved = false
+    unregisterPointer(this)
   }
 
   private clearPointerCapture(): void {
