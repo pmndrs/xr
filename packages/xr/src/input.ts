@@ -75,8 +75,15 @@ export type XRInputSourceStateMap = {
   screenInput: XRScreenInputState
 }
 
-function setupEvents(session: XRSession, events: Array<XRInputSourceEvent>): () => void {
-  const listener = (e: XRInputSourceEvent) => events.push(e)
+//events are only recorded until a pointer is bound, so that pointers bound later don't replay old events
+export const boundXRInputSourceEvents = new WeakSet<ReadonlyArray<XRInputSourceEvent>>()
+
+function setupEvents(session: XRSession, inputSource: XRInputSource, events: Array<XRInputSourceEvent>): () => void {
+  const listener = (e: XRInputSourceEvent) => {
+    if (e.inputSource === inputSource && !boundXRInputSourceEvents.has(events)) {
+      events.push(e)
+    }
+  }
   session.addEventListener('selectstart', listener)
   session.addEventListener('selectend', listener)
   session.addEventListener('select', listener)
@@ -141,7 +148,7 @@ export function createSyncXRInputSourceStates(
 
       for (const inputSource of added) {
         const events: Array<XRInputSourceEvent> = []
-        let cleanup = setupEvents(session, events)
+        let cleanup = setupEvents(session, inputSource, events)
         const key = `${inputSource.handedness}-${inputSource.hand ? 'hand' : 'nohand'}-${inputSource.targetRayMode}-${inputSource.profiles.join(',')}`
         let id: string | undefined
         if ((id = idMap.get(key)) == null) {

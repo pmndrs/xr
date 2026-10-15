@@ -1,4 +1,5 @@
 import { Pointer } from '@pmndrs/pointer-events'
+import { boundXRInputSourceEvents } from '../input.js'
 
 export function bindXRInputSourceEvent(
   session: XRSession,
@@ -50,6 +51,7 @@ export function bindPointerXRInputSourceEvent(
         break
     }
   }
+  boundXRInputSourceEvents.add(missingEvents)
 
   session.addEventListener(downEventName, downListener)
   session.addEventListener(upEventName, upListener)
