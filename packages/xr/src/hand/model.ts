@@ -1,4 +1,4 @@
-import { Material, Mesh, Object3D } from 'three'
+import { Material, Mesh, Object3D, SkinnedMesh } from 'three'
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { clone as cloneSkeleton } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import { DefaultAssetBasePath, DefaultGltfLoader } from '../index.js'
@@ -39,6 +39,13 @@ export function cloneXRHandGltf({ scene }: GLTF) {
   }
   mesh.frustumCulled = false
   return result
+}
+
+export function disposeXRHandModel(model: Object3D) {
+  const mesh = model.getObjectByProperty('type', 'SkinnedMesh')
+  if (mesh instanceof SkinnedMesh) {
+    mesh.skeleton.dispose()
+  }
 }
 
 export type XRHandModelOptions = {

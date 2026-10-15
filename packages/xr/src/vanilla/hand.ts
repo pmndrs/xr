@@ -1,6 +1,12 @@
 import { Object3D } from 'three'
-import { onXRFrame } from './utils.js'
-import { XRHandModelOptions, configureXRHandModel, createUpdateXRHandVisuals, loadXRHandModel } from '../hand/index.js'
+import { disposeModel, onXRFrame } from './utils.js'
+import {
+  XRHandModelOptions,
+  configureXRHandModel,
+  createUpdateXRHandVisuals,
+  disposeXRHandModel,
+  loadXRHandModel,
+} from '../hand/index.js'
 import { XRHandState } from '../input.js'
 import { getSpaceFromAncestors } from '../space.js'
 
@@ -15,5 +21,10 @@ export class XRHandModel extends Object3D {
       configureXRHandModel(model, options)
       update = createUpdateXRHandVisuals(state.inputSource.hand, model, () => getSpaceFromAncestors(this))
     })
+  }
+
+  dispose() {
+    disposeXRHandModel(this)
+    disposeModel(this)
   }
 }
